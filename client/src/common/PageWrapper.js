@@ -1,60 +1,134 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useLoading } from 'context/LoadingContext';
+import { motion } from 'framer-motion';
+
+let emojiIndex = 0;
+
+const emojiSets = {
+  dark: ['⁺₊⋆', '⁺₊⋆ ☾ ', '⁺₊⋆ ☾ ⋆⁺₊', ' ☾ ⋆⁺₊', '⋆⁺₊'],
+  light: ['⁺₊⋆', '⁺₊⋆ 𖤓 ', '⁺₊⋆ 𖤓 ⋆⁺₊', ' 𖤓 ⋆⁺₊', '⋆⁺₊'],
+};
+
+
+function AnimatedDarkModeButton({ darkMode, toggleTheme }) {
+  const [index, setIndex] = useState(0);
+  const buttonRef = useRef();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex(prev => (prev + 1) % (darkMode ? emojiSets.dark.length : emojiSets.light.length));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [darkMode]);
+
+  const currentSet = darkMode ? emojiSets.dark : emojiSets.light;
+
+  return (
+    <motion.button
+      ref={buttonRef}
+      onClick={toggleTheme}
+      initial={false}
+      animate={{
+        y: [0, -3, 0],
+        textShadow: darkMode
+          ? ["0px 0px 6px rgba(255,255,255,0.7)", "0px 0px 12px rgba(255,255,255,0.9)", "0px 0px 6px rgba(255,255,255,0.7)"]
+          : ["0px 0px 6px rgba(16,185,129,0.6)", "0px 0px 12px rgba(16,185,129,0.8)", "0px 0px 6px rgba(16,185,129,0.6)"]
+      }}
+      transition={{
+        y: { repeat: Infinity, duration: 1.2, ease: "easeInOut" },
+        textShadow: { duration: 0.5 }
+      }}
+      whileHover={{ 
+        scale: 1.4,
+        rotate: 0 
+      }}
+      whileTap={{ 
+        scale: 0.7,
+        rotate: 0 
+      }}
+      className="px-3 py-4 bg-transparent text-emerald-700 dark:text-white transition-all duration-300"
+      style={{
+        transformOrigin: 'center center', 
+        willChange: 'transform', 
+        transform: 'none',
+        backfaceVisibility: 'hidden'
+      }}
+    >
+      {currentSet[index]}
+    </motion.button>
+  );
+}
+
 const PageWrapper = ({ children, backgroundImage }) => {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
   const [bgLoaded, setBgLoaded] = useState(false);
-  const { setLoading, canStop } = useLoading();
+  const { stopLoading, startLoading } = useLoading();
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    const isDark = stored === 'dark';
-    setDarkMode(isDark);
-    document.documentElement.classList.toggle('dark', isDark);
-  }, []);
-
+ const timeoutRef = useRef(null);
+  const fallbackRef = useRef(null);
+  const hasMounted = useRef(false);
+  
 useEffect(() => {
-  const img = new Image();
-  img.src = backgroundImage;
-  img.onload = () => {
-    setBgLoaded(true);  
-    setLoading(false);  // stop loader only when bg is ready
-  };
-}, [backgroundImage, setLoading]);
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
+
+   useEffect(() => {
+   const shouldTriggerLoader = !hasMounted.current;
+   hasMounted.current = true;
+
+   if (!shouldTriggerLoader) return;
+
+   const img = new Image();
+   img.src = backgroundImage;
+
+   const loadStart = Date.now();
+   const minimumLoadTime = 800;
+
+   const loadImage = () =>
+     new Promise((resolve) => {
+       img.onload = resolve;
+       img.onerror = resolve;
+     });
+
+   Promise.race([
+     loadImage(),
+     new Promise((resolve) => setTimeout(resolve, minimumLoadTime)),
+   ]).then(() => {
+     const elapsed = Date.now() - loadStart;
+     const remainingTime = Math.max(0, minimumLoadTime - elapsed);
+
+     timeoutRef.current = setTimeout(() => {
+       setBgLoaded(true);
+       stopLoading();
+     }, remainingTime);
+   });
+
+   fallbackRef.current = setTimeout(() => {
+     setBgLoaded(true);
+     stopLoading();
+   }, 5000);
+
+   return () => {
+     clearTimeout(timeoutRef.current);
+     clearTimeout(fallbackRef.current);
+   };
+ }, [backgroundImage]);
 
 
-  useEffect(() => {
-  console.log('bgLoaded:', bgLoaded, 'canStop:', canStop);
-  if (bgLoaded && canStop) {
-    console.log('→hitting loader');
-    setLoading(false);
-  }
-}, [bgLoaded, canStop, setLoading]);
+ const toggleTheme = () => {
+  setDarkMode(prev => !prev);
+};
 
-
-useEffect(() => {
-  const fallback = setTimeout(() => {
-    console.warn('Loader fallback triggered');
-    setLoading(false);
-  }, 3000);
-  return () => clearTimeout(fallback);
-}, [setLoading]);
-
-
-  const toggleTheme = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('theme', newMode ? 'dark' : 'light');
-    document.documentElement.classList.toggle('dark', newMode);
-  };
-console.log('PageWrapper image:', backgroundImage);
   return (
        <div
-      className={`min-h-screen w-full flex flex-col justify-between items-center transition-opacity duration-500 ${
+      className={`absolute min-h-full w-full flex flex-col justify-between items-center transition-opacity duration-500 ${
          bgLoaded ? 'opacity-100' : 'opacity-0'}`}
         style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
+        backgroundAttachment: isMobile ? 'fixed' : 'fixed',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -62,24 +136,19 @@ console.log('PageWrapper image:', backgroundImage);
       }}
     >
 
-      {/* Dark mode toggle button */}
-      <div className="relative w-full px-0">
-      <div className="absolute top-3 right-2 md:right-3 z-50">
-        <button
-          onClick={toggleTheme}
-          className="px-3 py-4 bg-transparent text-emerald-700 dark:text-white transition duration-300"
-        >
-          {darkMode ? '⁺₊⋆ ☾ ⋆⁺₊' : '⁺₊⋆ 𖤓 ⋆⁺₊'}
-        </button>
-      </div>
-      </div>
+      {/* Dark mode */}
+ <div className=" w-full px-0">
+  <div className="absolute top-1 sm:top-1 right-2 md:right-3 z-50">
+    <AnimatedDarkModeButton darkMode={darkMode} toggleTheme={toggleTheme} />
+  </div>
+</div>
 
       {/* Content area */}
       <div className="flex-grow w-full flex flex-col items-center justify-center px-4">
         {children}
       </div>
 
-      {/* Footer fixed to bottom center */}
+      {/* Footer */}
       <footer className="w-full text-center text-base italic py-4 text-emerald-700 dark:text-white">
       Carbon down. Future up. v0.0.1
       </footer>

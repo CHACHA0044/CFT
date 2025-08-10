@@ -6,10 +6,9 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   isVerified: { type: Boolean, default: false },   // verification flag
   verificationToken: { type: String },             // verification JWT
-  createdAt: { type: Date, default: Date.now, expires: 86400 } // auto-delete after 24h
+  createdAt: { type: Date, default: Date.now } // auto-delete after 1h
 }, { timestamps: true });
 
-// Only delete if not verified
-userSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400, partialFilterExpression: { isVerified: false } });
-
+// delete if not verified
+userSchema.index({ createdAt: 1 }, { expireAfterSeconds: 3600, partialFilterExpression: { isVerified: false } });
 module.exports = mongoose.model('User', userSchema);

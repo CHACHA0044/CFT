@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import zxcvbn from 'zxcvbn';
 import PageWrapper from 'common/PageWrapper';
+import { SubmitButton } from 'Components/globalbuttons';
 import {
   inputBase,
   inputDark,
@@ -29,7 +30,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(null);
   const navigate = useNavigate();
-
   const handleChange = (e) => {
     const sanitizedValue = DOMPurify.sanitize(e.target.value);
     setFormData({ ...formData, [e.target.name]: sanitizedValue });
@@ -44,30 +44,32 @@ const Register = () => {
   };
 const handleSubmit = async (e) => {
   e.preventDefault();
-//email verify
-if (!validateEmail(formData.email)) {
-      setError('Please enter a valid email address.');
-      return;
-}
-  // password strength
+
+  if (!validateEmail(formData.email)) {
+    setError('Please enter a valid email address.');
+    return;
+  }
+
   if (passwordStrength !== null && passwordStrength < 2) {
     setError('Password is too weak. Use a mix of letters, numbers, and symbols.');
     return;
   }
 
   setLoading(true);
-
+await new Promise((resolve) => setTimeout(resolve, 400));
   try {
-    const response = await API.post('/auth/register', {
+    await API.post('/auth/register', {
       name: formData.name,
       email: formData.email,
       password: formData.password
     });
 
-    localStorage.setItem('token', response.data.token || '');
-    setSuccess('🎉 Registration successful! Please check your email and click the link to verify your account before logging in.');
+    setSuccess('🎉 Registration successful! Please check your email and click the link to verify your account.');
     setError('');
-    setTimeout(() => navigate('/login'), 5000);
+    setFormData({ name: '', email: '', password: '' });
+    setPasswordStrength(null);
+
+    setTimeout(() => navigate('/login'), 2500);
   } catch (error) {
     console.error('❌ Registration error:', error);
     const msg = error.response?.data?.error || '❌ Registration failed. Try again.';
@@ -80,20 +82,21 @@ if (!validateEmail(formData.email)) {
   }
 };
 
+
   const strengthLabel = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
 
   return (
     <motion.div
                 initial={{ x:100, opacity: 0}}
                 animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -100, opacity: 0 }}
-                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                //exit={{ x: -100, opacity: 0 }}
+                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                 className="w-full h-full"
               >
     <PageWrapper backgroundImage="/images/register-bk.webp">
       <div className={` ${boxglow}`}>
-        <h1 className={heading}>Track. Reduce. Inspire</h1>
-        <p className={subheading}>Build your carbon footprint journal with us.</p>
+        <h1 className="text-5xl font-extrabold font-germania tracking-wider text-shadow-DEFAULT text-center text-emerald-700 dark:text-gray-100 mb-0">Track. Reduce. Inspire</h1>
+        <p className="text-sm animate-glow text-center text-emerald-500 dark:text-gray-100 mt-2 mb-3">Build your carbon footprint journal with us.</p>
 
         {success && <p className="text-green-500 text-sm text-center animate-pulse mb-2">{success}</p>}
         {error && <p className="text-red-600 text-sm text-center animate-bounce mb-2">{error}</p>}
@@ -142,23 +145,13 @@ if (!validateEmail(formData.email)) {
                 </span></p>
               </div>
             )}
+             <SubmitButton
+              text={success || 'Register'}
+              loading={loading}
+              success={!!success}
+              disabled={loading || !!success}
+            />
 
-           <button
-            type="submit"
-            className={`${buttonBase} ${buttonGreen} flex items-center justify-center gap-2 active:scale-75`}
-            disabled={loading || !!success}
-          >
-            {loading
-              ? ( <>
-      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-      </svg>
-      Registering...
-      </> ) : success
-           ? ('Registration Successful')
-            : 'Submit'}
-          </button>
         </form>
       </div>
     </PageWrapper>

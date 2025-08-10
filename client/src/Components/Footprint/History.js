@@ -1,5 +1,5 @@
 import API from 'api/api';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -17,11 +17,11 @@ const History = () => {
   const [clearingAll, setClearingAll] = useState(false); // for clear all
   const [deletedId, setDeletedId] = useState(null);
   const [cleared, setCleared] = useState(false);
-  const [openSection, setOpenSection] = useState(null);
+  //const [openSection, setOpenSection] = useState(null);
   
   const sentence = "Emission History";
   const words = sentence.split(" ");
-  const bottomRef = useRef(null);
+  //const bottomRef = useRef(null);
   
   const getLetterVariants = () => ({
     initial: { y: 0, opacity: 1, scale: 1 },
@@ -53,30 +53,30 @@ const History = () => {
     return a;
   }
   
-  const triggerConfetti = (element) => {
-    if (!element) return;
+  // const triggerConfetti = (element) => {
+  //   if (!element) return;
   
-    for (let i = 0; i < 8; i++) {
-      const conf = document.createElement('span');
-      const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#F43F5E', '#22D3EE'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+  //   for (let i = 0; i < 8; i++) {
+  //     const conf = document.createElement('span');
+  //     const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#F43F5E', '#22D3EE'];
+  //     const randomColor = colors[Math.floor(Math.random() * colors.length)];
   
-      conf.className = 'absolute w-1.5 h-1.5 rounded-full pointer-events-none';
-      conf.style.backgroundColor = randomColor;
-      conf.style.left = '50%';
-      conf.style.top = '50%';
-      conf.style.position = 'absolute';
+  //     conf.className = 'absolute w-1.5 h-1.5 rounded-full pointer-events-none';
+  //     conf.style.backgroundColor = randomColor;
+  //     conf.style.left = '50%';
+  //     conf.style.top = '50%';
+  //     conf.style.position = 'absolute';
   
-      const x = `${Math.random() * 60 - 30}px`;
-      const y = `${Math.random() * 60 - 30}px`;
-      conf.style.setProperty('--x', x);
-      conf.style.setProperty('--y', y);
-      conf.style.animation = `confetti-burst 600ms ease-out forwards`;
+  //     const x = `${Math.random() * 60 - 30}px`;
+  //     const y = `${Math.random() * 60 - 30}px`;
+  //     conf.style.setProperty('--x', x);
+  //     conf.style.setProperty('--y', y);
+  //     conf.style.animation = `confetti-burst 600ms ease-out forwards`;
   
-      element.appendChild(conf);
-      setTimeout(() => conf.remove(), 700);
-    }
-  };
+  //     element.appendChild(conf);
+  //     setTimeout(() => conf.remove(), 700);
+  //   }
+  // };
   
   const AnimatedHeadline = () => {
     const [activeBurstIndex, setActiveBurstIndex] = useState(null);

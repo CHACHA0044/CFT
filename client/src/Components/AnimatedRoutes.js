@@ -1,8 +1,7 @@
-// src/Components/AnimatedRoutes.js
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { useLoading } from 'context/LoadingContext';
+//import { useLoading } from 'context/LoadingContext';
 import Home from './Home';
 import Login from './Auth/Login/Login';
 import Register from './Auth/Register/Register';
@@ -10,7 +9,7 @@ import Dashboard from './Dashboard/Dashboard';
 import History from './Footprint/History';
 import Footprint from './Footprint/Footprint';
 import EditFootprintForm from './Footprint/EditFootprintForm';
-import PageLoader from 'common/PageLoader';
+//import PageLoader from 'common/PageLoader';
 import VerifyEmail from './Auth/VerifyEmail';
 import ChartPage from './Dashboard/ChartPage';
 const AnimatedRoutes = () => {

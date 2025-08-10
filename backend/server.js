@@ -22,18 +22,20 @@ const authRoutes = require('./routes/auth');
 const footprintRoutes = require('./routes/footprint');
 
 // CORS
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || origin.includes('localhost:3000')) {
+    if (!origin || origin.includes('localhost:3000') || origin === FRONTEND_URL || origin.includes(new URL(FRONTEND_URL).host)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET','POST','PUT','DELETE'],
+  allowedHeaders: ['Content-Type','Authorization']
 };
+
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
@@ -87,8 +89,8 @@ app.use((err, req, res, next) => {
 mongoose.connect(process.env.MONGO_URI, {
   dbName: 'carbon-tracker',
   ssl: true,
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+ // useNewUrlParser: true,
+ // useUnifiedTopology: true,
   autoIndex: false,
 })
   .then(() => console.log('✅ MongoDB connected'))

@@ -132,8 +132,8 @@ router.post('/login', async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? 'Strict' : 'Lax',
-      maxAge: 4 * 24 * 60 * 60 * 1000, // 4 days
+      sameSite: isProd ? 'None' : 'Lax',
+      maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
     }).json({
       message: 'Login successful',
       user: {

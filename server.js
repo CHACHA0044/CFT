@@ -22,19 +22,30 @@ const authRoutes = require('./routes/auth');
 const footprintRoutes = require('./routes/footprint');
 
 // CORS
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const allowedOrigins = [
+  'http://localhost:3000', // local frontend
+];
+
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || origin.includes('localhost:3000') || origin === FRONTEND_URL || origin.includes(new URL(FRONTEND_URL).host)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    if (!origin) return callback(null, true); // allow non-browser requests
+
+    if (process.env.NODE_ENV === 'production') {
+      // In production, frontend + backend share the same origin
+      return callback(null, true);
     }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET','POST','PUT','DELETE'],
-  allowedHeaders: ['Content-Type','Authorization']
+  allowedHeaders: ['Content-Type','Authorization'],
 };
+
 
 
 app.use(cors(corsOptions));

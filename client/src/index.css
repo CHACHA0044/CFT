@@ -1,0 +1,362 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  background-color: #000;
+  scroll-behavior: smooth;
+}
+.loader { box-sizing: border-box; }
+/* Hide scrollbar but keep scrolling */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* make scrollbar transparent */
+}
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+@keyframes border-flow {
+  0% { border-color: #34d399; }
+  50% { border-color: #10b981; }
+  100% { border-color: #34d399; }
+}
+.animate-border-flow {
+  animation: border-flow 3s linear infinite;
+}
+@keyframes borderFlow {
+  0% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor inset; }
+  50% { box-shadow: 0 0 15px currentColor, 0 0 20px currentColor inset; }
+  100% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor inset; }
+}
+
+.animate-borderFlow {
+  animation: borderFlow 2s linear infinite;
+}
+@keyframes flowBorder {
+  0% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor inset; }
+  50% { box-shadow: 0 0 15px currentColor, 0 0 20px currentColor inset; }
+  100% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor inset; }
+}
+
+.animate-borderFlow {
+  animation: flowBorder 2s linear infinite;
+}
+@keyframes moving-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 40px 0; }
+}
+
+.animate-moving-stripes {
+  animation: moving-stripes 1s linear infinite;
+}
+@keyframes moving-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40px 0;
+  }
+}
+
+.animate-moving-stripes {
+  animation: moving-stripes 1s linear infinite;
+}
+@keyframes flowing-bar {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
+.animate-flowing-bar {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.3) 25%, transparent 25%, transparent 50%,
+    rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.3) 75%, transparent 75%, transparent);
+  background-size: 40px 40px;
+  animation: flowing-bar 1s linear infinite;
+}
+/* In your global CSS */
+.lottie-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lottie-animation {
+  pointer-events: none;
+  user-select: none;
+  z-index: 10000;
+}
+@keyframes glow-text {
+  0% {
+    text-shadow: 0 0 4px #34d399, 0 0 8px #10b981, 0 0 12px #34d399;
+  }
+  50% {
+    text-shadow: 0 0 8px #10b981, 0 0 16px #34d399, 0 0 24px #10b981;
+  }
+  100% {
+    text-shadow: 0 0 4px #34d399, 0 0 8px #10b981, 0 0 12px #34d399;
+  }
+}
+
+.animate-glow {
+  animation: glow-text 2.5s ease-in-out infinite;
+}
+@keyframes shimmer-line {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.shimmer-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    #f87171,
+    #facc15,
+    #4ade80,
+    #38bdf8,
+    #a78bfa,
+    #f472b6,
+    #f87171
+  );
+  background-size: 300% 100%;
+  animation: shimmer-line 3s linear infinite;
+  border-radius: 9999px;
+}
+.tracker-title {
+  display: inline-block;
+  position: relative;
+  transition: transform 0.2s ease;
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.6); /* glow effect */
+}
+
+.tracker-title:hover {
+  transform: scale(1.04);
+}
+
+.tracker-title:active {
+  transform: scale(0.96);
+}
+.tracker-title {
+  display: inline-block;
+  position: relative;
+  transition: transform 0.2s ease;
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.6); /* green glow */
+}
+
+.tracker-title:hover {
+  transform: scale(1.04);
+}
+
+.tracker-title:active {
+  transform: scale(0.95);
+}
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Black.ttf') format('truetype');
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-BoldItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ExtraLight.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ExtraLightItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Italic-VariableFont_wght.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Italic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-LightItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-MediumItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-SemiBold.ttf') format('truetype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Thin.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ThinItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Sriracha';
+  src: url('../public/fonts/Sriracha-Regular.ttf') format('truetype');
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: 'GermaniaOne';
+  src: url('../public/fonts/GermaniaOne-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Bespoke Stencil';
+  src: url('../public/fonts/BespokeStencil-LightItalic.otf') format('opentype');
+}
+
+@keyframes subToSuper {
+  0% {
+    transform: translateY(0.3em) scale(0.8);
+  }
+  50% {
+    transform: translateY(-0.4em) scale(0.8);
+  }
+  100% {
+    transform: translateY(0.3em) scale(0.8);
+  }
+}
+
+@keyframes subSuperFlip {
+  0% {
+    transform: translateY(0.3em) scale(0.8) rotateX(0deg);
+  }
+  45% {
+    transform: translateY(-0.4em) scale(0.8) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-0.4em) scale(0.8) rotateX(180deg);
+  }
+  55% {
+    transform: translateY(-0.4em) scale(0.8) rotateX(0deg);
+  }
+  100% {
+    transform: translateY(0.3em) scale(0.8) rotateX(0deg);
+  }
+}
+
+.animated-co2 {
+  animation: subSuperFlip 6s ease-in-out infinite;
+  animation-delay: calc(1s + (var(--random, 0) * 3s));
+  transform-origin: center bottom;
+  display: inline-block;
+}
+@keyframes confetti-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Optional (but helpful) default style for confetti span */
+.confetti-burst {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  position: absolute;
+  animation: confetti-burst 700ms ease-out forwards;
+  z-index: 40;
+  mix-blend-mode: screen; /* makes color pop on dark backgrounds */
+}
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

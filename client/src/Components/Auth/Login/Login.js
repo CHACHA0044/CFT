@@ -43,26 +43,40 @@ const handleSubmit = async (e) => {
   setShowResend(false);
 await new Promise((resolve) => setTimeout(resolve, 1000));
   try {
-    const { data } = await API.post('/auth/login', formData);
+  const { data } = await API.post('/auth/login', formData);
 
-    setSuccess('Login Successful! 😎');
-    setError('');
-
-    // redirect delay
-    setTimeout(() => navigate('/dashboard'), 1500);
-  } catch (err) {
-    console.error('❌ Login error:', err);
-    if (err.response?.status === 403) {
-      setError('Please verify your email. Didn’t get it?');
-      setShowResend(true);
-    } else if (err.response?.data?.error) {
-      setError(err.response.data.error);
-    } else {
-      setError('❌ Something went wrong. Please try again.');
-    }
-  } finally {
-    setLoading(false);
+  // 🔹 Test if cookies work by calling /auth/token-info/me
+  let cookieWorks = false;
+  try {
+    await API.get('/auth/token-info/me');
+    cookieWorks = true;
+  } catch {
+    cookieWorks = false;
   }
+
+  // 🔹 Mobile fallback — store token in sessionStorage if cookies blocked
+  if (!cookieWorks && data.token) {
+    sessionStorage.setItem('authToken', data.token);
+  }
+
+  setSuccess('Login Successful! 😎');
+  setError('');
+
+  setTimeout(() => navigate('/dashboard'), 1500);
+} catch (err) {
+  console.error('❌ Login error:', err);
+  if (err.response?.status === 403) {
+    setError('Please verify your email. Didn’t get it?');
+    setShowResend(true);
+  } else if (err.response?.data?.error) {
+    setError(err.response.data.error);
+  } else {
+    setError('❌ Something went wrong. Please try again.');
+  }
+} finally {
+  setLoading(false);
+}
+
 };
 
   return (

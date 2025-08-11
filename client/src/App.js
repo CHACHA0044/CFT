@@ -1,7 +1,7 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import AnimatedRoutes from './Components/AnimatedRoutes';
 import { LoadingProvider } from 'context/LoadingContext';
-import React from 'react';
+import React, {useEffect} from 'react';
 import ScrollToTop from 'common/ScrollToTop';
 import PageLoader from 'common/PageLoader';
 import NavigationLoader from 'common/NavigationLoader';
@@ -12,6 +12,13 @@ import { StyleInjector } from 'Components/globalbuttons';
 
 
 function App() {
+  useEffect(() => {
+  const timeout = setTimeout(() => {
+    sessionStorage.removeItem('authToken');
+  }, 60 * 60 * 1000); // 1 hour auto-clear
+
+  return () => clearTimeout(timeout);
+}, []);
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <LoadingProvider>

@@ -140,6 +140,7 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
       },
+      token
     });
   } catch (err) {
     console.error('❌ Login error:', err);

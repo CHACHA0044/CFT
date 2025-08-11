@@ -309,14 +309,22 @@ useEffect(() => {
   }
 }, [data]);
 
-  const handleLogout = async () => {
+ const handleLogout = async () => {
   setLogoutError('');
   setLogoutSuccess('');
   setLogoutLoading(true);
 
   try {
+    // Ask server to clear the cookie
     await API.post('/auth/logout');
-    setLogoutSuccess('✌');
+
+    // Clear mobile/PC fallback session token
+    sessionStorage.removeItem('authToken');
+
+    setLogoutSuccess('✌ Logged out');
+
+    // Optional: clear any other sensitive session data
+    sessionStorage.removeItem('justVerified');
 
     setTimeout(() => {
       navigate('/home');
@@ -328,6 +336,7 @@ useEffect(() => {
     setLogoutLoading(false);
   }
 };
+
 
 useEffect(() => {
   let isMounted = true;

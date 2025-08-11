@@ -24,23 +24,20 @@ const footprintRoutes = require('./routes/footprint');
 // CORS
 const allowedOrigins = [
   'http://localhost:3000',             // local dev
-  'https://cft-self.vercel.app',       // deployed frontend
+  'https://cft-self.vercel.app',       // vercel frontend
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow non-browser requests (e.g., Postman)
-    if (!origin) return callback(null, true);
-
+    if (!origin) return callback(null, true); // allow Postman & server-side calls
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-
     return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
-  credentials: true, // allow cookies
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE'],
+  allowedHeaders: ['Content-Type','Authorization'],
 };
 
 app.use(cors(corsOptions));

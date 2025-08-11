@@ -151,7 +151,10 @@ router.post('/login', async (req, res) => {
 // GET /me (auth check via cookie)
 router.get('/token-info/me', async (req, res) => {
   try {
-    const token = req.cookies.token || req.query.token;
+    let token = req.cookies.token || req.query.token;
+    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
     if (!token) return res.status(401).json({ error: 'Missing token' });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

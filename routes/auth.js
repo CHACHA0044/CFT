@@ -140,7 +140,7 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
       },
-      token
+      token,
     });
   } catch (err) {
     console.error('❌ Login error:', err);
@@ -177,7 +177,7 @@ router.post('/logout', (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? 'Strict' : 'Lax',
+    sameSite: 'None',
   });
 
   res.json({ message: 'Logged out successfully' });

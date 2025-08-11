@@ -45,19 +45,10 @@ await new Promise((resolve) => setTimeout(resolve, 1000));
   try {
   const { data } = await API.post('/auth/login', formData);
 
-  // 🔹 Test if cookies work by calling /auth/token-info/me
-  let cookieWorks = false;
-  try {
-    await API.get('/auth/token-info/me');
-    cookieWorks = true;
-  } catch {
-    cookieWorks = false;
-  }
-
   // 🔹 Mobile fallback — store token in sessionStorage if cookies blocked
-  if (!cookieWorks && data.token) {
-    sessionStorage.setItem('authToken', data.token);
-  }
+   if (!navigator.cookieEnabled || !document.cookie.includes('token')) {
+      sessionStorage.setItem('sessionToken', data.token);
+    }
 
   setSuccess('Login Successful! 😎');
   setError('');

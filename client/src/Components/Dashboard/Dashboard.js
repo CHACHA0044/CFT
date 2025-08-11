@@ -320,7 +320,7 @@ useEffect(() => {
 
     // Clear mobile/PC fallback session token
     sessionStorage.removeItem('authToken');
-
+    sessionStorage.removeItem('sessionToken');
     setLogoutSuccess('✌ Logged out');
 
     // Optional: clear any other sensitive session data

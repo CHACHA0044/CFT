@@ -4,13 +4,32 @@ import API from '../api/api';
 
 const useAuthRedirect = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true); // optional: show spinner while checking
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await API.get('/auth/token-info/me'); // if this fails, user is not authenticated
+        // 1️⃣ Try cookie-based auth first
+        await API.get('/auth/token-info/me');
+
       } catch (err) {
+        console.warn('⚠ Cookie auth failed, checking sessionStorage token...');
+
+        // 2️⃣ Mobile fallback: check sessionStorage token
+        const mobileToken = sessionStorage.getItem('sessionToken');
+        if (mobileToken) {
+          try {
+            await API.get('/auth/token-info/me', {
+              headers: { Authorization: `Bearer ${mobileToken}` }
+            });
+            console.log('✅ Mobile sessionStorage auth succeeded.');
+            return; // success, stop redirect
+          } catch (err2) {
+            console.warn('❌ Mobile sessionStorage token invalid.');
+          }
+        }
+
+        // 3️⃣ No valid auth → redirect
         console.warn('🔒 Redirecting to login due to invalid session.');
         navigate('/login');
       } finally {
@@ -21,7 +40,7 @@ const useAuthRedirect = () => {
     checkAuth();
   }, [navigate]);
 
-  return { loading }; // optional: use in your page to show loading UI
+  return { loading };
 };
 
 export default useAuthRedirect;

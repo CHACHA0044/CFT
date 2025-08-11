@@ -90,7 +90,7 @@ router.post('/register', async (req, res) => {
     if (existingUser) return res.status(409).json({ error: 'Email already in use.' });
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '10m' });
+    const verificationToken = jwt.sign({ email, jti: Math.random().toString(36).substring(2) }, process.env.JWT_SECRET, { expiresIn: '10m' });
 
     const newUser = new User({
       name,

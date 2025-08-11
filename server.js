@@ -23,30 +23,25 @@ const footprintRoutes = require('./routes/footprint');
 
 // CORS
 const allowedOrigins = [
-  'http://localhost:3000', // local frontend
+  'http://localhost:3000',             // local dev
+  'https://cft-self.vercel.app',       // deployed frontend
 ];
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // allow non-browser requests
-
-    if (process.env.NODE_ENV === 'production') {
-      // In production, frontend + backend share the same origin
-      return callback(null, true);
-    }
+    // Allow non-browser requests (e.g., Postman)
+    if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
-    return callback(new Error('Not allowed by CORS'));
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
-  credentials: true,
-  methods: ['GET','POST','PUT','DELETE'],
-  allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true, // allow cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
-
-
 
 app.use(cors(corsOptions));
 app.use(cookieParser());

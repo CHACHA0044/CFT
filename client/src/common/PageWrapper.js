@@ -5,23 +5,30 @@ import { motion } from 'framer-motion';
 let emojiIndex = 0;
 //⋆｡ﾟ☁︎⏾⋆☁︎｡
 const emojiSets = {
-  dark: ['⋆｡ﾟ☁︎', '⋆｡ﾟ☁︎ ⏾ ', '⋆｡ﾟ☁︎ ⏾ ⋆☁︎｡', ' ⏾ ⋆☁︎｡', '⋆☁︎｡'],
+  dark: ['⋆｡ﾟ☁︎', '⋆｡ﾟ☁︎ ⏾ ', '⋆｡ﾟ☁︎ ⏾ ⋆☁︎｡ﾟ', ' ⏾ ⋆☁︎｡ﾟ', '⋆☁︎｡ﾟ'],
   light: ['⁺₊⋆', '⁺₊⋆ 𖤓 ', '⁺₊⋆ 𖤓 ⋆⁺₊', ' 𖤓 ⋆⁺₊', '⋆⁺₊'],
+};
+const emojiSetsMobile = {
+  dark: ['⋆', '⋆🌙', '⋆🌙⋆', '🌙⋆', '⋆'],
+  light: ['⋆', '⋆🌞', '⋆🌞⋆', '🌞⋆', '⋆'],
 };
 
 
 function AnimatedDarkModeButton({ darkMode, toggleTheme }) {
   const [index, setIndex] = useState(0);
   const buttonRef = useRef();
-
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const activeSet = isMobile
+    ? (darkMode ? emojiSetsMobile.dark : emojiSetsMobile.light)
+    : (darkMode ? emojiSets.dark : emojiSets.light);
   useEffect(() => {
     const interval = setInterval(() => {
-      setIndex(prev => (prev + 1) % (darkMode ? emojiSets.dark.length : emojiSets.light.length));
+      setIndex(prev => (prev + 1) % activeSet.length);
     }, 1000);
     return () => clearInterval(interval);
-  }, [darkMode]);
+  }, [darkMode, isMobile, activeSet.length]);
 
-  const currentSet = darkMode ? emojiSets.dark : emojiSets.light;
+  //const currentSet = darkMode ? emojiSets.dark : emojiSets.light;
 
   return (
     <motion.button
@@ -46,7 +53,7 @@ function AnimatedDarkModeButton({ darkMode, toggleTheme }) {
         scale: 0.7,
         rotate: 0 
       }}
-      className="px-3 py-4 bg-transparent text-emerald-700 dark:text-white transition-all duration-300"
+      className="px-3 py-4 bg-transparent sm:text-emerald-700 sm:dark:text-white transition-all duration-300"
       style={{
         transformOrigin: 'center center', 
         willChange: 'transform', 
@@ -54,7 +61,7 @@ function AnimatedDarkModeButton({ darkMode, toggleTheme }) {
         backfaceVisibility: 'hidden'
       }}
     >
-      {currentSet[index]}
+      {activeSet[index]}
     </motion.button>
   );
 }

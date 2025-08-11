@@ -3,9 +3,9 @@ import { useLoading } from 'context/LoadingContext';
 import { motion } from 'framer-motion';
 
 let emojiIndex = 0;
-
+//⋆｡ﾟ☁︎⏾⋆☁︎｡
 const emojiSets = {
-  dark: ['⁺₊⋆', '⁺₊⋆ ☾ ', '⁺₊⋆ ☾ ⋆⁺₊', ' ☾ ⋆⁺₊', '⋆⁺₊'],
+  dark: ['⋆｡ﾟ☁︎', '⋆｡ﾟ☁︎ ⏾ ', '⋆｡ﾟ☁︎ ⏾ ⋆☁︎｡', ' ⏾ ⋆☁︎｡', '⋆☁︎｡'],
   light: ['⁺₊⋆', '⁺₊⋆ 𖤓 ', '⁺₊⋆ 𖤓 ⋆⁺₊', ' 𖤓 ⋆⁺₊', '⋆⁺₊'],
 };
 
@@ -128,7 +128,7 @@ useEffect(() => {
          bgLoaded ? 'opacity-100' : 'opacity-0'}`}
         style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-        backgroundAttachment: isMobile ? 'fixed' : 'fixed',
+        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

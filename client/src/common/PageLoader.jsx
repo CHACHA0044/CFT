@@ -19,7 +19,7 @@ export default function PageLoader() {
   const [bgReady, setBgReady] = useState(false);
   const [visible, setVisible] = useState(false);
   const [lottieMounted, setLottieMounted] = useState(false);
-
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   useEffect(() => {
   if (loading) {
     setVisible(true);
@@ -41,6 +41,8 @@ useEffect(() => {
     stopLoading();
   };
 
+const lottieSize = isMobile ? 160 : 400; 
+const lottieSpeed = isMobile ? 1.0 : 1.5; 
 
   return (
     
@@ -48,7 +50,7 @@ useEffect(() => {
       {visible && (
         <motion.div
           key="page-loader"
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999] flex items-center justify-center"
+          className={`fixed inset-0 bg-black/90 ${isMobile ? '' : 'backdrop-blur-xl'} z-[9999] flex items-center justify-center`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -59,8 +61,8 @@ useEffect(() => {
             autoplay
             loop
             lottieRef={lottieRef}
-            speed={1.5}
-            style={{ width: 400, height: 400, zIndex: 10 }}
+            speed={lottieSpeed}
+            style={{ width: lottieSize, height: lottieSize, zIndex: 10 }}
           />
         </motion.div>
       )}

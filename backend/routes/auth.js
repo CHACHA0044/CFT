@@ -90,7 +90,7 @@ router.post('/register', async (req, res) => {
     if (existingUser) return res.status(409).json({ error: 'Email already in use.' });
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const verificationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '10m' });
+    const verificationToken = jwt.sign({ email, jti: Math.random().toString(36).substring(2) }, process.env.JWT_SECRET, { expiresIn: '10m' });
 
     const newUser = new User({
       name,
@@ -140,6 +140,7 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
       },
+      token,
     });
   } catch (err) {
     console.error('❌ Login error:', err);
@@ -176,7 +177,7 @@ router.post('/logout', (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? 'Strict' : 'Lax',
+    sameSite: 'None',
   });
 
   res.json({ message: 'Logged out successfully' });

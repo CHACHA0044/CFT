@@ -52,14 +52,14 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' }));
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 150, // reduce to 100
+  max: 1500, // reduce to 100
   message: 'Too many requests, please try again later.'
 });
 app.use('/api', generalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 10, //reduce to 10
+  max: 100, //reduce to 10
   message: 'Too many login/register attempts. Try again later.'
 });
 app.use('/api/auth', authLimiter);
@@ -93,7 +93,7 @@ mongoose.connect(process.env.MONGO_URI, {
   dbName: 'carbon-tracker',
   ssl: true,
  // useNewUrlParser: true,
- // useUnifiedTopology: true,
+  //useUnifiedTopology: true,
   autoIndex: false,
 })
   .then(() => console.log('✅ MongoDB connected'))

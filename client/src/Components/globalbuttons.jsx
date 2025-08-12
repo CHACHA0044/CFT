@@ -28,64 +28,121 @@ const saveButtonState = (userEmail, newState) => {
   }
 };
 
+// const StyleInjector = () => {
+//   const styles = `
+//     /*
+//       Defines the movement of the shimmer element.
+//       It travels from completely off-screen left to completely off-screen right.
+//     */
+//     @keyframes shimmer-effect-metallic {
+//       0% {
+//         /* Starts far to the left */
+//         transform: translateX(-150%) skewX(-30deg);
+//       }
+//       100% {
+//         /* Finishes far to the right */
+//         transform: translateX(250%) skewX(-30deg);
+//       }
+//     }
+
+//     /*
+//       The shimmer element itself. Apply this class to a pseudo-element
+//       or a span inside your button.
+//     */
+//     .animate-shimmer {
+//       position: absolute;
+//       top: 0;
+//       left: 0;
+//       width: 40%; /* A narrower glint feels sharper and more metallic */
+//       height: 100%;
+//       will-change: background-position;
+//       backface-visibility: hidden;
+//       transform: translateZ(0);
+
+//       /*
+//         This gradient creates a bright, sharp highlight with soft edges,
+//         simulating a reflection on a glossy surface.
+//       */
+//       background: linear-gradient(
+//         90deg,
+//         rgba(255, 255, 255, 0) 0%,
+//         rgba(255, 255, 255, 0.3) 40%,
+//         rgba(255, 255, 255, 0.6) 50%, /* The brightest point of the glint */
+//         rgba(255, 255, 255, 0.3) 60%,
+//         rgba(255, 255, 255, 0) 100%
+//       );
+
+//       /*
+//         This is the key to the glossy finish.
+//         'color-dodge' brightens the background color where the shimmer
+//         passes over it, creating a reflective "pop".
+//       */
+//       mix-blend-mode: color-dodge;
+
+//       /* The animation timing is kept the same as the original request */
+//       animation: shimmer-effect-metallic 4s infinite;
+//       animation-delay: 2s;
+//     }
+//   `;
+
+//   // The component returns a <style> tag to inject these rules into the document.
+//   return <style>{styles}</style>;
+// };
+// StyleInjector.jsx
+
 
 const StyleInjector = () => {
+  useEffect(() => {
+    // Restart shimmer animations on mount
+    const restartAnimations = () => {
+      document.querySelectorAll(".animate-shimmer").forEach(el => {
+        el.style.animation = "none";
+        // Trigger reflow to reset animation
+        void el.offsetWidth;
+        el.style.animation = "";
+      });
+    };
+
+    restartAnimations();
+  }, []);
+
   const styles = `
-    /*
-      Defines the movement of the shimmer element.
-      It travels from completely off-screen left to completely off-screen right.
-    */
     @keyframes shimmer-effect-metallic {
       0% {
-        /* Starts far to the left */
         transform: translateX(-150%) skewX(-30deg);
       }
       100% {
-        /* Finishes far to the right */
         transform: translateX(250%) skewX(-30deg);
       }
     }
 
-    /*
-      The shimmer element itself. Apply this class to a pseudo-element
-      or a span inside your button.
-    */
     .animate-shimmer {
       position: absolute;
       top: 0;
       left: 0;
-      width: 40%; /* A narrower glint feels sharper and more metallic */
+      width: 40%;
       height: 100%;
-
-      /*
-        This gradient creates a bright, sharp highlight with soft edges,
-        simulating a reflection on a glossy surface.
-      */
+      will-change: background-position;
+      backface-visibility: hidden;
+      transform: translateZ(0);
       background: linear-gradient(
         90deg,
         rgba(255, 255, 255, 0) 0%,
         rgba(255, 255, 255, 0.3) 40%,
-        rgba(255, 255, 255, 0.6) 50%, /* The brightest point of the glint */
+        rgba(255, 255, 255, 0.6) 50%,
         rgba(255, 255, 255, 0.3) 60%,
         rgba(255, 255, 255, 0) 100%
       );
-
-      /*
-        This is the key to the glossy finish.
-        'color-dodge' brightens the background color where the shimmer
-        passes over it, creating a reflective "pop".
-      */
       mix-blend-mode: color-dodge;
-
-      /* The animation timing is kept the same as the original request */
       animation: shimmer-effect-metallic 4s infinite;
       animation-delay: 2s;
     }
   `;
 
-  // The component returns a <style> tag to inject these rules into the document.
   return <style>{styles}</style>;
 };
+
+export default StyleInjector;
 
 const Icons = {
   new: ({ isFlipping, isHovered }) => <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></motion.svg>,
@@ -271,7 +328,7 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
   h-6 px-2 text-sm
   sm:h-10 sm:px-5 sm:text-base
   md:h-12 md:px-6 md:text-lg
-  sm:rounded-xl rounded-md font-semibold font-sriracha sm:tracking-wide shadow-lg overflow-hidden text-white
+  sm:rounded-xl rounded-md font-semibold font-sriracha sm:tracking-wide shadow-lg overflow-hidden dark:text-gray-100 text-emerald-500 
 "
 
       style={{

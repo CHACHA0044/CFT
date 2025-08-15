@@ -2,10 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useLoading } from 'context/LoadingContext';
 import { motion } from 'framer-motion';
 
-let emojiIndex = 0;
-//⋆｡ﾟ☁︎⏾⋆☁︎｡
 const emojiSets = {
-  dark: ['⋆｡ﾟ☁︎', '⋆｡ﾟ☁︎ ⏾ ', '⋆｡ﾟ☁︎ ⏾ ⋆☁︎｡ﾟ', ' ⏾ ⋆☁︎｡ﾟ', '⋆☁︎｡ﾟ'],
+  dark: ['⁺₊⋆', '⁺₊⋆ ☾ ', '⁺₊⋆ ☾ ⋆⁺₊', ' ☾ ⋆⁺₊', '⋆⁺₊'],
   light: ['⁺₊⋆', '⁺₊⋆ 𖤓 ', '⁺₊⋆ 𖤓 ⋆⁺₊', ' 𖤓 ⋆⁺₊', '⋆⁺₊'],
 };
 const emojiSetsMobile = {
@@ -145,7 +143,7 @@ useEffect(() => {
 
       {/* Dark mode */}
  <div className=" w-full px-0">
-  <div className="absolute top-1 sm:top-1 right-2 md:right-3 z-50">
+  <div className="absolute top-1 sm:top-1 right-2 text-emerald-700 dark:text-white md:right-3 z-50">
     <AnimatedDarkModeButton darkMode={darkMode} toggleTheme={toggleTheme} />
   </div>
 </div>

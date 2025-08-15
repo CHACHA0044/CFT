@@ -128,35 +128,27 @@ useEffect(() => {
  const toggleTheme = () => {
   setDarkMode(prev => !prev);
 };
-return (
-  <>
-    {/* Background Layer */}
-    <div
-      className={`fixed top-0 left-0 w-full h-full -z-10 transition-opacity duration-500 ${
-        bgLoaded ? 'opacity-100' : 'opacity-0'
-      }`}
-      style={{
+
+  return (
+       <div
+      className={`absolute min-h-full w-full flex flex-col justify-between items-center transition-opacity duration-500 ${
+         bgLoaded ? 'opacity-100' : 'opacity-0'}`}
+        style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundColor: '#000',
-        willChange: 'transform',
-        transform: 'translateZ(0)', // GPU compositing for smoothness
       }}
-    />
+    >
 
-    {/* Content Wrapper */}
-    <div className="relative min-h-full w-full flex flex-col justify-between items-center">
       {/* Dark mode */}
-      <div className="w-full px-0">
-        <div className="absolute top-1 sm:top-1 right-2 md:right-3 z-50">
-          <AnimatedDarkModeButton
-            darkMode={darkMode}
-            toggleTheme={toggleTheme}
-          />
-        </div>
-      </div>
+ <div className=" w-full px-0">
+  <div className="absolute top-1 sm:top-1 right-2 md:right-3 z-50">
+    <AnimatedDarkModeButton darkMode={darkMode} toggleTheme={toggleTheme} />
+  </div>
+</div>
 
       {/* Content area */}
       <div className="flex-grow w-full flex flex-col items-center justify-center px-4">
@@ -165,44 +157,10 @@ return (
 
       {/* Footer */}
       <footer className="w-full text-center text-base italic py-4 text-emerald-700 dark:text-white">
-        Carbon down. Future up. v0.0.1
+      Carbon down. Future up. v0.0.1
       </footer>
     </div>
-  </>
-);
-
-//   return (
-//        <div
-//       className={`absolute min-h-full w-full flex flex-col justify-between items-center transition-opacity duration-500 ${
-//          bgLoaded ? 'opacity-100' : 'opacity-0'}`}
-//         style={{
-//         backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-//         backgroundAttachment: isMobile ? 'scroll' : 'fixed',
-//         backgroundSize: 'cover',
-//         backgroundPosition: 'center',
-//         backgroundRepeat: 'no-repeat',
-//         backgroundColor: '#000',
-//       }}
-//     >
-
-//       {/* Dark mode */}
-//  <div className=" w-full px-0">
-//   <div className="absolute top-1 sm:top-1 right-2 md:right-3 z-50">
-//     <AnimatedDarkModeButton darkMode={darkMode} toggleTheme={toggleTheme} />
-//   </div>
-// </div>
-
-//       {/* Content area */}
-//       <div className="flex-grow w-full flex flex-col items-center justify-center px-4">
-//         {children}
-//       </div>
-
-//       {/* Footer */}
-//       <footer className="w-full text-center text-base italic py-4 text-emerald-700 dark:text-white">
-//       Carbon down. Future up. v0.0.1
-//       </footer>
-//     </div>
-//   );
+  );
 };
 
 export default PageWrapper;

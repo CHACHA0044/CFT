@@ -92,8 +92,8 @@ app.use((err, req, res, next) => {
 mongoose.connect(process.env.MONGO_URI, {
   dbName: 'carbon-tracker',
   ssl: true,
- // useNewUrlParser: true,
-  //useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
   autoIndex: false,
 })
   .then(() => console.log('✅ MongoDB connected'))

@@ -41,8 +41,8 @@ useEffect(() => {
     stopLoading();
   };
 
-const lottieSize = isMobile ? 160 : 400; 
-const lottieSpeed = isMobile ? 1.0 : 1.5; 
+const lottieSize = isMobile ? 150 : 400; 
+const lottieSpeed = isMobile ? 0.7 : 1.5; 
 
   return (
     

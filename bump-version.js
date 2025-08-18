@@ -15,20 +15,16 @@ function writeVersion(obj) {
   fs.writeFileSync(VERSION_PATH, JSON.stringify(obj, null, 2) + '\n');
 }
 
-// Safeguarded smart bump
 function incSmart(v, mode) {
   let [maj, min, pat] = v.split('.').map(n => parseInt(n, 10) || 0);
 
   if (mode === 'major') {
-    // bump MINOR, reset PATCH
-    min += 1;
+    min += 1; // bump MINOR, reset PATCH
     pat = 0;
   } else {
-    // default patch bump
     pat += 1;
   }
 
-  // safeguard rollovers
   if (pat > 99) {
     pat = 0;
     min += 1;

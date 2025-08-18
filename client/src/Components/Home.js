@@ -40,7 +40,7 @@ useEffect(() => {
 useEffect(() => {
   const updateHeight = () => {
     const width = window.innerWidth;
-    if (width < 640) setScreenHeight({ collapsed: 60, expanded: 85 }); // mobile
+    if (width < 640) setScreenHeight({ collapsed: 70, expanded: 85 }); // mobile
     else if (width < 768) setScreenHeight({ collapsed: 75, expanded: 115 }); // tablet
     else if (width < 1024) setScreenHeight({ collapsed: 80, expanded: 120 }); // small desktop
     else setScreenHeight({ collapsed: 90, expanded: 130 }); // large desktop
@@ -317,7 +317,7 @@ const itemVariants = {
     onClick={handleTap}
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    className="text-2xl sm:text-4xl md:text-5xl font-germania flex flex-col tracking-normal text-green-800 dark:text-green-300 animate-glow tracker-title select-none"
+    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-emerald-500 dark:text-gray-100 animate-glow tracker-title select-none"
   >
     Carbon Footprint Tracker
   </motion.div>
@@ -355,7 +355,7 @@ const itemVariants = {
 </motion.header>
 
         {/* Main Section */}
-        <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-10 text-center min-h-screen">
+        <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-10 text-center min-h-screen text-emerald-500 dark:text-gray-100">
   {/* Heading */}
   <motion.div
     initial={{ opacity: 1, y: 0 }}

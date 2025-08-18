@@ -268,6 +268,11 @@ const handleTap = () => {
     navigator.vibrate(10); // Mobile haptic feedback
   }
 };
+const fadeVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.3 } },
+};
 
   return (
     <motion.div
@@ -366,54 +371,88 @@ const handleTap = () => {
   </motion.div>
 
   {/* Paragraph */}
-  <motion.div
-  initial={{ opacity: 0, y: 60 }}
-  animate={
-    showContent
-      ? { opacity: 1, y: 0 }
-      : { opacity: 0, y: 60 } // quick exit
-  }
-  transition={{
-    duration: 0.8,
-    delay: showContent ? 0.4 : 0, // ⬅️ delay entrance
-    ease: [0.22, 1, 0.36, 1],
-  }}
-  className="sm:mt-52 mt-44 -mb-7 max-w-2xl text-center z-10"
->
-  
+  <AnimatePresence>
+  {showContent && (
+    <motion.div
+      key="bottom-text"
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.4, // delay between each child
+          },
+        },
+      }}
+      className="sm:mt-52 mt-44 -mb-7 max-w-2xl text-center z-10"
+    >
   <div className="flex flex-grow justify-center items-center relative z-10">
   {/* Background overlay to improve visibility */}
   <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1] rounded-3xl" />
 
-  <div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-12 space-y-6">
+  <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-12 space-y-6">
     
     {/* Heading */}
-    <h2 className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold">
+    <motion.h2
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold">
       What<span className="animate-pulse">'</span>s Your Carbon Impact<span className="animate-pulse">?</span>
-    </h2>
+    </motion.h2>
 
     {/* Full version for tablets and up */}
-    <p className="hidden sm:block text-base md:text-lg leading-relaxed">
-      Go beyond guessing — <span className="font-semibold">discover your true carbon footprint</span> based on your real lifestyle.
+    <motion.p
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }} className="hidden sm:block text-base md:text-lg leading-relaxed">
+      Go beyond guessing — <span className="font-semibold">discover your true carbon footprint</span> based on your real lifestyle.</motion.p>
+       <motion.p
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }}
+            className="hidden sm:block text-base md:text-lg leading-relaxed"
+          >
       <br />
       <span className="animate-pulse">✈️</span> <span className="font-medium">Travel</span>, <span className="animate-pulse">🔌</span> <span className="font-medium">electricity use</span>, <span className="animate-pulse">🍽️</span> <span className="font-medium">daily meals</span> — it all adds up.
       <br /><br />
       Our tracker gives you <span className="font-semibold">clear visual insights</span> into your impact, 
       projects your yearly footprint, 
-      and helps you <span className="font-semibold">compare your progress</span> with the community.
+      and helps you <span className="font-semibold">compare your progress</span> with the community.</motion.p>
+      <motion.p
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }}
+            className="hidden sm:block text-base md:text-lg leading-relaxed"
+          >
       <br /><br />
       <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold">"Carbon Footprint Tracker"</span> heading above to <span className="underline">Register</span> or <span className="underline">Log In</span>.
-    </p>
+    </motion.p>
 
     {/* Compact version for mobile */}
-    <p className="sm:hidden text-sm leading-snug">
+    <motion.p
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }}
+ className="sm:hidden text-sm leading-snug">
       Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually.
       <br /><br />
       Tap <span className="font-semibold">"Carbon Footprint Tracker"</span> above to <span className="underline">Register</span> or <span className="underline">Log In</span>.
-    </p>
+    </motion.p>
 
     {/* Feedback Email */}
-    <p className="text-sm md:text-base text-white">
+    <motion.p
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }} className="text-sm md:text-base text-white">
       Your experience is important! It would be a great help if you could email your valuable feedback to{' '}
      <a
   href="https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback"
@@ -425,12 +464,13 @@ const handleTap = () => {
   <span className="leading-none mt-1">carbontracker.noreply@gmail.com</span>
 </a>
 
-    </p>
-  </div>
+    </motion.p>
+  </motion.div>
 </div>
 
 </motion.div>
- 
+)}
+ </AnimatePresence>
 </section>
 
 

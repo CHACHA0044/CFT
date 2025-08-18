@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLoading } from 'context/LoadingContext';
 import { motion } from 'framer-motion';
-import appVersion from '../../version.json';
+import appVersion from '../version.json';
 const emojiSets = {
   dark: ['⁺₊⋆', '⁺₊⋆ ☾ ', '⁺₊⋆ ☾ ⋆⁺₊', ' ☾ ⋆⁺₊', '⋆⁺₊'],
   light: ['⁺₊⋆', '⁺₊⋆ 𖤓 ', '⁺₊⋆ 𖤓 ⋆⁺₊', ' 𖤓 ⋆⁺₊', '⋆⁺₊'],

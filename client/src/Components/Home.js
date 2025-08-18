@@ -268,18 +268,25 @@ const handleTap = () => {
     navigator.vibrate(10); // Mobile haptic feedback
   }
 };
-const fadeVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { 
-      duration: 0.5,
-      staggerChildren: 0.3, // Added stagger for sequential appearance
-      delayChildren: 0.2    // Added initial delay
-    } 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3,
+      delayChildren: 0.2,
+    },
   },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.3 } },
+  exit: { opacity: 0 },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 },
+  },
 };
 
   return (
@@ -386,40 +393,43 @@ const fadeVariants = {
       initial="hidden"
       animate="visible"
       exit="hidden"
-      variants={fadeVariants}
       className="sm:mt-52 mt-44 -mb-7 max-w-2xl text-center z-10"
     >
   <div className="flex flex-grow justify-center items-center relative z-10">
   {/* Background overlay to improve visibility */}
   <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1] rounded-3xl" />
 
-  <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-12 space-y-6" variants={{}}>
+  <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-12 space-y-6" variants={containerVariants} initial="hidden" animate="visible">
     
     {/* Heading */}
     <motion.h2
-            variants={fadeVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold">
+            variants={itemVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold">
       What<span className="animate-pulse">'</span>s Your Carbon Impact<span className="animate-pulse">?</span>
     </motion.h2>
 
     {/* Full version for tablets and up */}
     <motion.p
-            variants={fadeVariants} className="hidden sm:block text-base md:text-lg leading-relaxed">
-      Go beyond guessing — <span className="font-semibold">discover your true carbon footprint</span> based on your real lifestyle.</motion.p>
+            variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed">
+      Go beyond guessing — <span className="font-semibold">discover your true carbon footprint</span> based on your real lifestyle.
+      </motion.p>
        <motion.p
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
+            variants={itemVariants}
             className="hidden sm:block text-base md:text-lg leading-relaxed"
           >
       <br />
       <span className="animate-pulse">✈️</span> <span className="font-medium">Travel</span>, <span className="animate-pulse">🔌</span> <span className="font-medium">electricity use</span>, <span className="animate-pulse">🍽️</span> <span className="font-medium">daily meals</span> — it all adds up.
+      </motion.p>
+      <motion.p
+            variants={itemVariants}
+            className="hidden sm:block text-base md:text-lg leading-relaxed"
+          >
       <br /><br />
       Our tracker gives you <span className="font-semibold">clear visual insights</span> into your impact, 
       projects your yearly footprint, 
-      and helps you <span className="font-semibold">compare your progress</span> with the community.</motion.p>
+      and helps you <span className="font-semibold">compare your progress</span> with the community.
+      </motion.p>
       <motion.p
-            variants={fadeVariants}
+            variants={itemVariants}
             className="hidden sm:block text-base md:text-lg leading-relaxed"
           >
       <br /><br />
@@ -428,7 +438,7 @@ const fadeVariants = {
 
     {/* Compact version for mobile */}
     <motion.p
-            variants={fadeVariants}
+            variants={itemVariants}
  className="sm:hidden text-sm leading-snug">
       Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually.
       <br /><br />
@@ -437,7 +447,7 @@ const fadeVariants = {
 
     {/* Feedback Email */}
     <motion.p
-            variants={fadeVariants} className="text-sm md:text-base text-white">
+            variants={itemVariants} className="text-sm md:text-base text-white">
       Your experience is important! It would be a great help if you could email your valuable feedback to{' '}
      <a
   href="https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback"

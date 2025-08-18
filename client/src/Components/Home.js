@@ -317,7 +317,7 @@ const itemVariants = {
     onClick={handleTap}
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-emerald-800 dark:text-emerald-500 animate-glow tracker-title select-none"
+    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-emerald-700 dark:text-emerald-500 animate-glow tracker-title select-none"
   >
     Carbon Footprint Tracker
   </motion.div>

@@ -898,7 +898,7 @@ e
     <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 
                     group-hover:opacity-100 animate-borderFlow 
                     border-emerald-500 dark:border-gray-100 pointer-events-none" />
-    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-4 text-center text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🗺 </span>Leaderboard</h3>
+    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-4 text-center text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🏆 </span>Leaderboard</h3>
     <div className="space-y-3">
       
       <motion.div
@@ -954,7 +954,7 @@ e
             <span>{(() => {
   const [intPart, decimalPart] = u.totalEmission.toFixed(2).split('.');
   return (
-    <p className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
+    <p className="sm:text-lg md:text-2xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
       {intPart}
       <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span
   className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
@@ -992,7 +992,7 @@ e
   </motion.div>
 </div>
 
-{/* Yearly Projection */}
+{/* Yearly Projection = to be added */}
 
       </div>
     </PageWrapper>

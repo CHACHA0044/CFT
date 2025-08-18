@@ -1,5 +1,5 @@
 import API from 'api/api';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
@@ -20,7 +20,7 @@ import GlobeAnimation from 'animations/Globe.json';
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
-const [success, setSuccess] = useState(
+  const [success, setSuccess] = useState(
   sessionStorage.getItem('justVerified') ? 'Your email has been verified! Please login.' : ''
 );
 useEffect(() => {
@@ -28,7 +28,8 @@ useEffect(() => {
     sessionStorage.removeItem('justVerified');
   }
 }, [success]);
-
+  const [delayMessage, setDelayMessage] = useState('');
+  const timers = useRef([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [showResend, setShowResend] = useState(false);
@@ -40,8 +41,15 @@ const handleSubmit = async (e) => {
   setLoading(true);
   setError('');
   setSuccess('');
+  setDelayMessage('');
   setShowResend(false);
 await new Promise((resolve) => setTimeout(resolve, 1000));
+timers.current = [
+      setTimeout(() => setDelayMessage('Thanks for your patience... ✨'), 10000),
+      setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 20000),
+      setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 30000),
+      setTimeout(() => setDelayMessage('Almost there...'), 40000),
+    ];
   try {
   const { data } = await API.post('/auth/login', formData);
 
@@ -49,13 +57,16 @@ await new Promise((resolve) => setTimeout(resolve, 1000));
    if (!navigator.cookieEnabled || !document.cookie.includes('token')) {
       sessionStorage.setItem('authToken', data.token);
     }
-
+  timers.current.forEach((t) => clearTimeout(t));
+  setDelayMessage('');
   setSuccess('Login Successful! 😎');
   setError('');
 
   setTimeout(() => navigate('/dashboard'), 1500);
 } catch (err) {
   console.error('❌ Login error:', err);
+  timers.current.forEach((t) => clearTimeout(t));
+  setDelayMessage('');
   if (err.response?.status === 403) {
     setError('Please verify your email. Didn’t get it?');
     setShowResend(true);
@@ -94,30 +105,42 @@ await new Promise((resolve) => setTimeout(resolve, 1000));
     <Lottie animationData={GlobeAnimation} loop />
   </motion.div></div>
 
- {success && <p className="text-green-500 text-sm text-center animate-pulse mt-2 ">{success}</p>}
-          {error && (
-            <div className="flex flex-col items-center space-y-1 mb-2">
-              <p className="text-red-600 text-sm text-center animate-bounce">{error}</p>
-              {showResend && (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      await API.post('/auth/resend-verification', { email: formData.email });
-                      setSuccess('Verification email resent! Please check your inbox.');
-                      setError('');
-                      setShowResend(false);
-                    } catch (err) {
-                      setError(err.response?.data?.error || 'Failed to resend email.');
-                    }
-                  }}
-                  className="text-blue-500 text-xs underline hover:text-blue-700 transition"
-                >
-                  Resend verification email
-                </button>
-              )}
-            </div>
-          )}
+<div className="flex flex-col items-center space-y-1 mb-0">
+  {success ? (
+    <p className="text-green-500 text-sm text-center animate-pulse">
+      {success}
+    </p>
+  ) : error ? (
+    <>
+      <p className="text-red-600 text-sm text-center animate-bounce">
+        {error}
+      </p>
+      {showResend && (
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await API.post('/auth/resend-verification', { email: formData.email });
+              setSuccess('Verification email resent! Please check your inbox.');
+              setError('');
+              setShowResend(false);
+            } catch (err) {
+              setError(err.response?.data?.error || 'Failed to resend email.');
+            }
+          }}
+          className="text-blue-500 text-xs underline hover:text-blue-700 transition"
+        >
+          Resend verification email
+        </button>
+      )}
+    </>
+  ) : delayMessage ? (
+    <p className="text-yellow-500 text-sm text-center animate-pulse">
+      {delayMessage}
+    </p>
+  ) : null}
+</div>
+
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <input

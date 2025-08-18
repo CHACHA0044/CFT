@@ -1,5 +1,5 @@
 import API from 'api/api';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
@@ -28,6 +28,8 @@ const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [delayMessage, setDelayMessage] = useState('');
+  const timers = useRef([]);
   const [passwordStrength, setPasswordStrength] = useState(null);
   const navigate = useNavigate();
   const handleChange = (e) => {
@@ -56,6 +58,7 @@ const handleSubmit = async (e) => {
   }
 
   setLoading(true);
+  setDelayMessage('');
 await new Promise((resolve) => setTimeout(resolve, 400));
   try {
     await API.post('/auth/register', {
@@ -63,7 +66,14 @@ await new Promise((resolve) => setTimeout(resolve, 400));
       email: formData.email,
       password: formData.password
     });
-
+timers.current = [
+      setTimeout(() => setDelayMessage('Thanks for your patience... ✨'), 10000),
+      setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 20000),
+      setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 30000),
+      setTimeout(() => setDelayMessage('Almost there...'), 40000),
+    ];
+    timers.current.forEach((t) => clearTimeout(t));
+    setDelayMessage('');
     setSuccess('🎉 Registration successful! Please check your email and click the link to verify your account.');
     setError('');
     setFormData({ name: '', email: '', password: '' });
@@ -72,6 +82,8 @@ await new Promise((resolve) => setTimeout(resolve, 400));
     setTimeout(() => navigate('/login'), 2500);
   } catch (error) {
     console.error('❌ Registration error:', error);
+    timers.current.forEach((t) => clearTimeout(t));
+    setDelayMessage('');
     const msg = error.response?.data?.error || '❌ Registration failed. Try again.';
     setError(msg);
     setSuccess('');
@@ -98,8 +110,21 @@ await new Promise((resolve) => setTimeout(resolve, 400));
         <h1 className="text-5xl font-extrabold font-germania tracking-wider text-shadow-DEFAULT text-center text-emerald-700 dark:text-gray-100 mb-0">Track. Reduce. Inspire</h1>
         <p className="text-sm animate-glow text-center text-emerald-500 dark:text-gray-100 mt-2 mb-3">Build your carbon footprint journal with us.</p>
 
-        {success && <p className="text-green-500 text-sm text-center animate-pulse mb-2">{success}</p>}
-        {error && <p className="text-red-600 text-sm text-center animate-bounce mb-2">{error}</p>}
+<div className="flex flex-col items-center space-y-1 mb-2">
+  {success ? (
+    <p className="text-green-500 text-sm text-center animate-pulse">
+      {success}
+    </p>
+  ) : error ? (
+    <p className="text-red-600 text-sm text-center animate-bounce">
+      {error}
+    </p>
+  ) : delayMessage ? (
+    <p className="text-yellow-500 text-sm text-center animate-pulse">
+      {delayMessage}
+    </p>
+  ) : null}
+</div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input

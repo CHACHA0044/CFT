@@ -423,7 +423,6 @@ const itemVariants = {
             variants={itemVariants}
             className="hidden sm:block text-base md:text-lg leading-relaxed"
           >
-      <br /><br />
       Our tracker gives you <span className="font-semibold">clear visual insights</span> into your impact, 
       projects your yearly footprint, 
       and helps you <span className="font-semibold">compare your progress</span> with the community.
@@ -432,7 +431,7 @@ const itemVariants = {
             variants={itemVariants}
             className="hidden sm:block text-base md:text-lg leading-relaxed"
           >
-      <br /><br />
+      <br />
       <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold">"Carbon Footprint Tracker"</span> heading above to <span className="underline">Register</span> or <span className="underline">Log In</span>.
     </motion.p>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, easeOut, motion } from 'framer-motion';
 import { useLoading } from 'context/LoadingContext';
 import PageWrapper from 'common/PageWrapper';
 import { HomeHeaderButton } from './globalbuttons';
@@ -273,8 +273,8 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.3,
-      delayChildren: 0.2,
+      staggerChildren: 0.4,
+      delayChildren: 0.3,
     },
   },
   exit: { opacity: 0 },
@@ -285,7 +285,8 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6 },
+    transition: { duration: 0.8 },
+    ease: "easeOut"
   },
 };
 

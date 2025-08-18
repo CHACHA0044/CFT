@@ -270,7 +270,15 @@ const handleTap = () => {
 };
 const fadeVariants = {
   hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { 
+      duration: 0.5,
+      staggerChildren: 0.3, // Added stagger for sequential appearance
+      delayChildren: 0.2    // Added initial delay
+    } 
+  },
   exit: { opacity: 0, y: -10, transition: { duration: 0.3 } },
 };
 
@@ -378,38 +386,24 @@ const fadeVariants = {
       initial="hidden"
       animate="visible"
       exit="hidden"
-      variants={{
-        hidden: { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: {
-            staggerChildren: 0.4, // delay between each child
-          },
-        },
-      }}
+      variants={fadeVariants}
       className="sm:mt-52 mt-44 -mb-7 max-w-2xl text-center z-10"
     >
   <div className="flex flex-grow justify-center items-center relative z-10">
   {/* Background overlay to improve visibility */}
   <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1] rounded-3xl" />
 
-  <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-12 space-y-6">
+  <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-12 space-y-6" variants={{}}>
     
     {/* Heading */}
     <motion.h2
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold">
+            variants={fadeVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold">
       What<span className="animate-pulse">'</span>s Your Carbon Impact<span className="animate-pulse">?</span>
     </motion.h2>
 
     {/* Full version for tablets and up */}
     <motion.p
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }} className="hidden sm:block text-base md:text-lg leading-relaxed">
+            variants={fadeVariants} className="hidden sm:block text-base md:text-lg leading-relaxed">
       Go beyond guessing — <span className="font-semibold">discover your true carbon footprint</span> based on your real lifestyle.</motion.p>
        <motion.p
             variants={{
@@ -425,10 +419,7 @@ const fadeVariants = {
       projects your yearly footprint, 
       and helps you <span className="font-semibold">compare your progress</span> with the community.</motion.p>
       <motion.p
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
+            variants={fadeVariants}
             className="hidden sm:block text-base md:text-lg leading-relaxed"
           >
       <br /><br />
@@ -437,10 +428,7 @@ const fadeVariants = {
 
     {/* Compact version for mobile */}
     <motion.p
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
+            variants={fadeVariants}
  className="sm:hidden text-sm leading-snug">
       Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually.
       <br /><br />
@@ -449,10 +437,7 @@ const fadeVariants = {
 
     {/* Feedback Email */}
     <motion.p
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }} className="text-sm md:text-base text-white">
+            variants={fadeVariants} className="text-sm md:text-base text-white">
       Your experience is important! It would be a great help if you could email your valuable feedback to{' '}
      <a
   href="https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback"
@@ -474,14 +459,6 @@ const fadeVariants = {
 </section>
 
 
-        {/* Footer 
-        <footer className="relative text-center py-4 text-gray-500 dark:text-gray-400 text-base italic">
-        <div className="flex items-center space-x-2">
-
-  <HomeHeaderButton text="Login" iconType="verify" navigateTo="/login" />
-<HomeHeaderButton text="Register" iconType="new" navigateTo="/register" />
-</div>
-        </footer>*/}
       </div>
     </PageWrapper>
     </motion.div>

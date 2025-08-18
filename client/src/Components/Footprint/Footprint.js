@@ -354,7 +354,7 @@ const handleSubmit = async (e) => {
                     transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                     className="w-full h-full"
                   >
-    <PageWrapper backgroundImage="/images/edit-bk.webp">
+    <PageWrapper backgroundImage="/images/foot-bk.webp">
       <div className="flex flex-col items-center justify-center w-full px-6 py-6">
         <form
           onSubmit={handleSubmit}

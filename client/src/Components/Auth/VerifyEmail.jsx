@@ -60,7 +60,7 @@ useEffect(() => {
     transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
     className="w-full h-full"
   >
-    <PageWrapper backgroundImage="/images/register-bk.webp">
+    <PageWrapper backgroundImage="/images/verify-bk.webp">
       <div className={`${boxglow} text-center text-shadow-DEFAULT w-full max-w-xl p-8 sm:p-10 space-y-4`}>
         {status === 'idle' && (
           <>

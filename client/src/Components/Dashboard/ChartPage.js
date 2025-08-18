@@ -545,7 +545,7 @@ useEffect(() => {
 
 return (
   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }} className=" min-h-screen text-white">
-    <PageWrapper backgroundImage="/images/dashboard-bk.webp" className="flex-1 flex flex-col">
+    <PageWrapper backgroundImage="/images/chart-bk.webp" className="flex-1 flex flex-col">
     {error && (
         <div className="bg-red-500/80 text-white p-4 text-center">
           {error}

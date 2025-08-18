@@ -47,7 +47,7 @@ await new Promise((resolve) => setTimeout(resolve, 1000));
 
   // 🔹 Mobile fallback — store token in sessionStorage if cookies blocked
    if (!navigator.cookieEnabled || !document.cookie.includes('token')) {
-      sessionStorage.setItem('sessionToken', data.token);
+      sessionStorage.setItem('authToken', data.token);
     }
 
   setSuccess('Login Successful! 😎');
@@ -78,7 +78,7 @@ await new Promise((resolve) => setTimeout(resolve, 1000));
         transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         className="w-full h-full"
       >
-    <PageWrapper backgroundImage="/images/register-bk.webp">
+    <PageWrapper backgroundImage="/images/login-bk.webp">
       <div className={`${boxglow} flex items-center sm:space-x-1 sm:mb-2 mb-0`}>
         <div className="flex items-center ml-14 space-x-1"> <h1 className="text-5xl font-extrabold font-germania tracking-wider text-shadow-DEFAULT text-center text-emerald-700 dark:text-gray-100 mb-0" >Login</h1>
 

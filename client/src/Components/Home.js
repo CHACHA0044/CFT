@@ -8,7 +8,7 @@ import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 import ScrollDownAnimation from 'animations/ScrollDown.json';
 import { MdEmail } from "react-icons/md";
-const Home = ({ isLoggedIn, user }) => {
+const Home = () => {
   const { setLoading } = useLoading(); 
   const titleRef = useRef(null);
   const topRef = useRef(null);
@@ -268,12 +268,13 @@ const handleTap = () => {
     navigator.vibrate(10); // Mobile haptic feedback
   }
 };
+const isMobile = window.innerWidth < 640;
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.4,
+      staggerChildren: isMobile ? 0 : 0.4,
       delayChildren: 0.6,
     },
   },
@@ -370,7 +371,6 @@ const handleEmailClick = (e) => {
     animate={showContent ? { opacity: 0, y: -50 } : { opacity: 1, y: 0 }}
     transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
     className="fixed inset-0 flex items-center justify-center z-0"
-
   >
    <motion.div
   initial={{ opacity: 0, y: 10 }}
@@ -441,32 +441,23 @@ const handleEmailClick = (e) => {
             className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"
           >
       
-      <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> heading above to <span className="underline" navigateTo="/register">Register</span> or <span className="underline" navigateTo="/login">Log In</span>.
+      <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
     </motion.p>
 
     {/* Compact version for mobile */}
-    <motion.p
+     <motion.p
             variants={itemVariants}
  className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
       Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually.
-      <br /><br />
-      Tap <span className="font-semibold"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> above to <span className="underline" navigateTo="/register">Register</span> or <span className="underline" navigateTo="/login">Log In</span>.
-    </motion.p>
+      </motion.p>
+      <motion.p
+            variants={itemVariants}
+ className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
+      Tap <span className="font-semibold"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
+    </motion.p> 
 
     {/* Feedback Email */}
    
-    {/* <motion.p variants={itemVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
-  Your experience is important! It would be a great help if you could email your valuable feedback to{' '}
-  <a
-    href="mailto:carbontracker.noreply@gmail.com?subject=Feedback%20on%20Carbon%20Tracker"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-flex items-center gap-1 underline text-blue-300 hover:text-blue-500 transition-colors duration-200"
-  >
-    <MdEmail className="text-base relative top-[2.5px] animate-pulse" />
-    <span className="leading-none mt-1">carbontracker.noreply@gmail.com</span>
-  </a>
-</motion.p> */}
 <motion.p variants={itemVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
   Your experience is important<span className="animate-pulse font-extrabold">!</span> It would be a great help if you could email your valuable feedback to{' '}
   <a

@@ -296,7 +296,7 @@ const handleTap = () => {
     onClick={handleTap}
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    className="text-xl sm:text-4xl md:text-5xl font-germania tracking-normal text-green-800 dark:text-green-300 animate-glow tracker-title select-none"
+    className="text-2xl sm:text-4xl md:text-5xl font-germania flex flex-col tracking-normal text-green-800 dark:text-green-300 animate-glow tracker-title select-none"
   >
     Carbon Footprint Tracker
   </motion.div>

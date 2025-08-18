@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLoading } from 'context/LoadingContext';
 import { motion } from 'framer-motion';
-
+import appVersion from '../../version.json';
 const emojiSets = {
   dark: ['⁺₊⋆', '⁺₊⋆ ☾ ', '⁺₊⋆ ☾ ⋆⁺₊', ' ☾ ⋆⁺₊', '⋆⁺₊'],
   light: ['⁺₊⋆', '⁺₊⋆ 𖤓 ', '⁺₊⋆ 𖤓 ⋆⁺₊', ' 𖤓 ⋆⁺₊', '⋆⁺₊'],
@@ -155,7 +155,7 @@ useEffect(() => {
 
       {/* Footer */}
       <footer className="w-full text-center text-base italic py-4 text-emerald-700 dark:text-white">
-      Carbon down. Future up. v0.0.1
+      Carbon down. Future up. v{appVersion.version}
       </footer>
     </div>
   );

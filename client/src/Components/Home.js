@@ -289,7 +289,15 @@ const itemVariants = {
     ease: "easeOut"
   },
 };
-
+const handleEmailClick = (e) => {
+  if (!/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    e.preventDefault();
+    window.open(
+      'https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback%20on%20Carbon%20Tracker',
+      '_blank'
+    );
+  }
+};
   return (
     <motion.div
             initial={{ x:100, opacity: 0}}
@@ -317,7 +325,7 @@ const itemVariants = {
     onClick={handleTap}
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-emerald-700 dark:text-emerald-500 animate-glow tracker-title select-none"
+    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-green-800 dark:text-green-300 animate-glow tracker-title select-none"
   >
     Carbon Footprint Tracker
   </motion.div>
@@ -433,7 +441,7 @@ const itemVariants = {
             className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"
           >
       
-      <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold">"Carbon Footprint Tracker"</span> heading above to <span className="underline">Register</span> or <span className="underline">Log In</span>.
+      <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> heading above to <span className="underline" navigateTo="/register">Register</span> or <span className="underline" navigateTo="/login">Log In</span>.
     </motion.p>
 
     {/* Compact version for mobile */}
@@ -442,28 +450,28 @@ const itemVariants = {
  className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
       Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually.
       <br /><br />
-      Tap <span className="font-semibold">"Carbon Footprint Tracker"</span> above to <span className="underline">Register</span> or <span className="underline">Log In</span>.
+      Tap <span className="font-semibold"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> above to <span className="underline" navigateTo="/register">Register</span> or <span className="underline" navigateTo="/login">Log In</span>.
     </motion.p>
 
     {/* Feedback Email */}
-    {/* <motion.p
-            variants={itemVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
-      Your experience is important! It would be a great help if you could email your valuable feedback to{' '}
-     <a
-  href="https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="inline-flex items-center gap-1 underline text-blue-300 hover:text-blue-500 transition-colors duration-200"
->
-  <MdEmail className="text-base relative top-[2.5px] animate-pulse" />
-  <span className="leading-none mt-1">carbontracker.noreply@gmail.com</span>
-</a>
-
-    </motion.p> */}
-    <motion.p variants={itemVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
+   
+    {/* <motion.p variants={itemVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
   Your experience is important! It would be a great help if you could email your valuable feedback to{' '}
   <a
     href="mailto:carbontracker.noreply@gmail.com?subject=Feedback%20on%20Carbon%20Tracker"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-flex items-center gap-1 underline text-blue-300 hover:text-blue-500 transition-colors duration-200"
+  >
+    <MdEmail className="text-base relative top-[2.5px] animate-pulse" />
+    <span className="leading-none mt-1">carbontracker.noreply@gmail.com</span>
+  </a>
+</motion.p> */}
+<motion.p variants={itemVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
+  Your experience is important<span className="animate-pulse font-extrabold">!</span> It would be a great help if you could email your valuable feedback to{' '}
+  <a
+    href="mailto:carbontracker.noreply@gmail.com?subject=Feedback%20on%20Carbon%20Tracker"
+    onClick={handleEmailClick}
     target="_blank"
     rel="noopener noreferrer"
     className="inline-flex items-center gap-1 underline text-blue-300 hover:text-blue-500 transition-colors duration-200"

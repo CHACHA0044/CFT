@@ -409,14 +409,14 @@ const itemVariants = {
 
     {/* Full version for tablets and up */}
     <motion.p
-            variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed">
+            variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed"><br />
       Go beyond guessing — <span className="font-semibold">discover your true carbon footprint</span> based on your real lifestyle.
       </motion.p>
        <motion.p
             variants={itemVariants}
             className="hidden sm:block text-base md:text-lg leading-relaxed"
           >
-      <br />
+      
       <span className="animate-pulse">✈️</span> <span className="font-medium">Travel</span>, <span className="animate-pulse">🔌</span> <span className="font-medium">electricity use</span>, <span className="animate-pulse">🍽️</span> <span className="font-medium">daily meals</span> — it all adds up.
       </motion.p>
       <motion.p
@@ -431,7 +431,7 @@ const itemVariants = {
             variants={itemVariants}
             className="hidden sm:block text-base md:text-lg leading-relaxed"
           >
-      <br />
+      
       <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold">"Carbon Footprint Tracker"</span> heading above to <span className="underline">Register</span> or <span className="underline">Log In</span>.
     </motion.p>
 

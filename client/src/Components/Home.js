@@ -274,7 +274,7 @@ const containerVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.4,
-      delayChildren: 0.3,
+      delayChildren: 0.6,
     },
   },
   exit: { opacity: 0 },

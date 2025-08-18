@@ -274,7 +274,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: isMobile ? 0 : 0.4,
+      staggerChildren: isMobile ? 0.2 : 0.4,
       delayChildren: 0.6,
     },
   },

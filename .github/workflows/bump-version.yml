@@ -35,4 +35,6 @@ jobs:
           git push
 
       - name: Build
-        run: npm run build
+        run: |
+          unset CI
+          npm run build

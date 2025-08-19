@@ -29,18 +29,76 @@ const saveButtonState = (userEmail, newState) => {
 };
 
 const StyleInjector = () => {
+  // refs for debounce / guard
+  const timerRef = React.useRef(null);
+  const isRestartingRef = React.useRef(false);
+
   useEffect(() => {
-    // Restart shimmer animations on mount
     const restartAnimations = () => {
-      document.querySelectorAll(".animate-shimmer").forEach(el => {
-        el.style.animation = "none";
-        // Trigger reflow to reset animation
-        void el.offsetWidth;
-        el.style.animation = "";
-      });
+      // guard re-entrancy
+      if (isRestartingRef.current) return;
+      isRestartingRef.current = true;
+
+      try {
+        document.querySelectorAll(".animate-shimmer").forEach(el => {
+          // only operate on elements still in the DOM
+          if (!document.body.contains(el)) return;
+          // reset animation to force restart
+          el.style.animation = "none";
+          // force reflow
+          void el.offsetWidth;
+          // reapply single shorthand (duration + timing + delay)
+          el.style.animation = "shimmer-effect-metallic 4s linear infinite 2s";
+          el.style.animationPlayState = "running";
+        });
+      } catch (e) {
+        console.warn("shimmer restart error", e);
+      } finally {
+        // small delay before allowing another restart
+        setTimeout(() => {
+          isRestartingRef.current = false;
+        }, 60);
+      }
     };
 
-    restartAnimations();
+    // debounced handler used by MutationObserver
+    const scheduleRestart = () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        restartAnimations();
+        timerRef.current = null;
+      }, 100); // tune debounce as needed
+    };
+
+    // Basic restarts we still want
+    restartAnimations(); // on mount
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") restartAnimations();
+    };
+    window.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pageshow", restartAnimations);
+    window.addEventListener("resize", scheduleRestart);
+
+    // MutationObserver: only watch for added/removed nodes (childList),
+    // NOT attributes — avoids feedback loops from style changes.
+    const mo = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.addedNodes?.length || m.removedNodes?.length) {
+          scheduleRestart();
+          break;
+        }
+      }
+    });
+    mo.observe(document.body, { subtree: true, childList: true });
+
+    // cleanup
+    return () => {
+      window.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pageshow", restartAnimations);
+      window.removeEventListener("resize", scheduleRestart);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      mo.disconnect();
+    };
   }, []);
 
   const styles = `

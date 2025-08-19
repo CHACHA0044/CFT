@@ -30,58 +30,17 @@ const saveButtonState = (userEmail, newState) => {
 
 const StyleInjector = () => {
   useEffect(() => {
-    // restart shimmer animations on demand
+    // Restart shimmer animations on mount
     const restartAnimations = () => {
       document.querySelectorAll(".animate-shimmer").forEach(el => {
-        try {
-          // remove inline animation to force reset
-          el.style.animation = "none";
-          // trigger reflow
-          void el.offsetWidth;
-          // reapply explicit animation shorthand to ensure consistent behavior
-          // keep same duration & delay as your CSS rule
-          el.style.animation = "shimmer-effect-metallic 4s linear infinite 2s";
-          // ensure it's running (should be default)
-          el.style.animationPlayState = "running";
-        } catch (e) {
-          // defensive
-          console.warn("shimmer restart failed", e);
-        }
+        el.style.animation = "none";
+        // Trigger reflow to reset animation
+        void el.offsetWidth;
+        el.style.animation = "";
       });
     };
 
-    // restart on mount
     restartAnimations();
-
-    // restart on visibility / pageshow (tab switch, bfcache)
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") restartAnimations();
-    };
-    window.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("pageshow", restartAnimations);
-
-    // restart on window resize (button width change)
-    window.addEventListener("resize", restartAnimations);
-
-    // MutationObserver: watch for new/removed buttons or class/style changes
-    const mo = new MutationObserver((mutations) => {
-      // quick heuristic: if nodes added/removed or attributes changed, restart
-      for (const m of mutations) {
-        if (m.addedNodes?.length || m.removedNodes?.length || m.type === "attributes") {
-          restartAnimations();
-          break;
-        }
-      }
-    });
-    mo.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["class", "style"] });
-
-    // cleanup
-    return () => {
-      window.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("pageshow", restartAnimations);
-      window.removeEventListener("resize", restartAnimations);
-      mo.disconnect();
-    };
   }, []);
 
   const styles = `
@@ -238,10 +197,7 @@ const glowColor = currentScheme.includes('linear-gradient')
           ...styleOverride, // <- Applied styleOverride here
         }}
       >
-   <div
-  className="pointer-events-none absolute inset-0 z-0 animate-shimmer ring-1 ring-white/10 transition-opacity duration-300 rounded-xl"
-  style={{ opacity: isTransparent ? 0 : 1 }}
-/>
+   <div className="animate-shimmer ring-1 ring-white/10 transition-opacity duration-300" style={{ opacity: isTransparent ? 0 : 1 }} />
                 <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2">
                     <IconComponent isFlipping={isFlipping} isHovered={isHovered} />
                     <span>{text}</span>

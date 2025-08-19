@@ -52,7 +52,7 @@ const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) =
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
       ">
-        <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">👋, ${name}</h2>
+        <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hello👋, ${name}</h2>
         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
           Welcome to <strong>Carbon Footprint Tracker</strong>!<br>Please verify your email to activate your account.
         </p>

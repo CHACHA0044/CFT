@@ -87,7 +87,7 @@ useEffect(() => {
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}
   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-  className="sm:text-5xl text-3xl font-extrabold font-germania tracking-wider text-center text-emerald-700 dark:text-gray-100 mb-0"
+  className="sm:text-5xl text-4xl font-extrabold font-germania tracking-wider text-center text-emerald-700 dark:text-gray-100 mb-0"
 >
   Hello,{" "}
   <motion.span key={userName || "User"}>

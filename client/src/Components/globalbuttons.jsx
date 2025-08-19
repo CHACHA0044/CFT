@@ -29,19 +29,19 @@ const saveButtonState = (userEmail, newState) => {
 };
 
 const StyleInjector = () => {
-  useEffect(() => {
-    // Restart shimmer animations on mount
-    const restartAnimations = () => {
-      document.querySelectorAll(".animate-shimmer").forEach(el => {
-        el.style.animation = "none";
-        // Trigger reflow to reset animation
-        void el.offsetWidth;
-        el.style.animation = "";
-      });
-    };
+  // useEffect(() => {
+  //   // Restart shimmer animations on mount
+  //   const restartAnimations = () => {
+  //     document.querySelectorAll(".animate-shimmer").forEach(el => {
+  //       el.style.animation = "none";
+  //       // Trigger reflow to reset animation
+  //       void el.offsetWidth;
+  //       el.style.animation = "";
+  //     });
+  //   };
 
-    restartAnimations();
-  }, []);
+  //   restartAnimations();
+  // }, []);
 
   const styles = `
     @keyframes shimmer-effect-metallic {
@@ -71,7 +71,7 @@ const StyleInjector = () => {
         rgba(255, 255, 255, 0) 100%
       );
       mix-blend-mode: color-dodge;
-      animation: shimmer-effect-metallic 4s infinite;
+      animation: shimmer-effect-metallic 4s infinite linear;
       animation-delay: 2s;
     }
   `;

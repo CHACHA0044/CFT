@@ -197,10 +197,7 @@ const glowColor = currentScheme.includes('linear-gradient')
           ...styleOverride, // <- Applied styleOverride here
         }}
       >
-   <div
-  className="pointer-events-none absolute z-0 animate-shimmer ring-1 ring-white/10 transition-opacity duration-300"
-  style={{ opacity: isTransparent ? 0 : 1, left: '-60%', width: '220%' }}
-/>
+   <div className="animate-shimmer ring-1 ring-white/10 transition-opacity duration-300" style={{ opacity: isTransparent ? 0 : 1 }} />
                 <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2">
                     <IconComponent isFlipping={isFlipping} isHovered={isHovered} />
                     <span>{text}</span>

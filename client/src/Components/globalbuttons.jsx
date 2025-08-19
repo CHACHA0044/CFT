@@ -72,7 +72,8 @@ const StyleInjector = () => {
       );
       mix-blend-mode: color-dodge;
       animation: shimmer-effect-metallic 4s infinite linear;
-      animation-delay: 2s;
+      animation-fill-mode: forwards;
+      animation-delay: -2s;
     }
   `;
 

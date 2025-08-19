@@ -7,12 +7,29 @@ const authenticateToken = require('../middleware/authmiddleware');
 const router = express.Router();
 
 // email HTML Template
-const emailHtml = (name, verificationLink) => {
-  const currentTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      timeZone,
+    }).format(date);
+  } catch {
+    // Fallback: manually add +05:30 to UTC
+    const utcMs = date.getTime() + date.getTimezoneOffset() * 60000;
+    const ist = new Date(utcMs + 330 * 60000); // 330 minutes = 5.5 hours
+    const h = ist.getHours();
+    const m = ist.getMinutes();
+    const mer = h >= 12 ? "PM" : "AM";
+    const hour12 = ((h + 11) % 12) + 1;
+    const mm = String(m).padStart(2, "0");
+    return `${hour12}:${mm} ${mer}`;
+  }
+};
+
+const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) => {
+  const currentTime = formatTime(new Date(), timeZone);
 
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
@@ -31,11 +48,11 @@ const emailHtml = (name, verificationLink) => {
         max-width: 360px;
         margin: auto;
         padding: 24px 20px;
-        box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 22px rgba(255, 255, 255, 0.18);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
       ">
-        <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hey ${name} 👋</h2>
+        <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">👋, ${name}</h2>
         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
           Welcome to <strong>Carbon Footprint Tracker</strong>!<br>Please verify your email to activate your account.
         </p>
@@ -43,18 +60,18 @@ const emailHtml = (name, verificationLink) => {
         <!-- Globe GIF -->
         <img src="https://i.ibb.co/235Hgp1t/Globe.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
 
-        <!-- Button -->
+        <!-- Button (email-safe styling) -->
         <a href="${verificationLink}" style="
           display: inline-block;
           background: linear-gradient(90deg, #2f80ed, #56ccf2);
-          color: white;
+          color: #ffffff;
           padding: 14px 20px;
           font-size: 15px;
           font-weight: bold;
           text-decoration: none;
           border-radius: 30px;
-          box-shadow: 0 0 18px rgba(47,128,237,0.4);
-          transition: all 0.3s ease;
+          border: 1px solid rgba(255,255,255,0.25);
+          box-shadow: 0 0 18px rgba(47,128,237,0.35);
         ">
           ✅ Verify Email
         </a>

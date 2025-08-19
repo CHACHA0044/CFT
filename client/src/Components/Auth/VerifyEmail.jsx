@@ -53,6 +53,25 @@ useEffect(() => {
     },
   }));
 }, [shimmerControls]);
+// Add this near top of component (already have useAnimation imported)
+const letterVariants = {
+  initial: { opacity: 0 },
+  animate: (i) => ({
+    opacity: [0, 1, 0.6, 1],
+    transition: {
+      delay: i * 0.05,
+      repeat: Infinity,
+      repeatType: 'reverse',
+      duration: 1.2,
+      ease: 'linear',
+    },
+  }),
+};
+
+useEffect(() => {
+  shimmerControls.start('animate');
+}, [shimmerControls, userName]);
+
   return (
   <motion.div
     initial={{ opacity: 0, y: 50 }}
@@ -68,15 +87,17 @@ useEffect(() => {
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}
   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-  className="text-5xl font-extrabold font-germania tracking-wider text-center text-emerald-700 dark:text-gray-100 mb-0"
+  className="sm:text-5xl text-3xl font-extrabold font-germania tracking-wider text-center text-emerald-700 dark:text-gray-100 mb-0"
 >
   Hello,{" "}
   <motion.span key={userName || "User"}>
     {(userName || "User").split("").map((char, i) => (
       <motion.span
-        key={`${char}-${i}`} 
-        custom={i}
-        animate={shimmerControls}
+        key={`${char}-${i}`}
+        custom={i}                 
+        variants={letterVariants}     
+        initial="initial"              
+        animate={shimmerControls}       
         className="inline-block"
       >
         {char === " " ? "\u00A0" : char}

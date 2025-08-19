@@ -105,7 +105,7 @@ timers.current = [
     <Lottie animationData={GlobeAnimation} loop />
   </motion.div></div>
 
-<div className="flex flex-col items-center space-y-1 mb-0">
+<div className="flex flex-col items-center space-y-1 mb-[-1]">
   {success ? (
     <p className="text-green-500 text-sm text-center animate-pulse">
       {success}

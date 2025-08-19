@@ -28,79 +28,45 @@ const saveButtonState = (userEmail, newState) => {
   }
 };
 
+// const StyleInjector = () => {
+//   useEffect(() => {
+//     // Restart shimmer animations on mount
+//     const restartAnimations = () => {
+//       document.querySelectorAll(".animate-shimmer").forEach(el => {
+//         el.style.animation = "none";
+//         // Trigger reflow to reset animation
+//         void el.offsetWidth;
+//         el.style.animation = "";
+//       });
+//     };
+
+//     restartAnimations();
+//   }, []);
 const StyleInjector = () => {
-  // refs for debounce / guard
-  const timerRef = React.useRef(null);
-  const isRestartingRef = React.useRef(false);
-
   useEffect(() => {
-    const restartAnimations = () => {
-      // guard re-entrancy
-      if (isRestartingRef.current) return;
-      isRestartingRef.current = true;
-
-      try {
-        document.querySelectorAll(".animate-shimmer").forEach(el => {
-          // only operate on elements still in the DOM
-          if (!document.body.contains(el)) return;
-          // reset animation to force restart
-          el.style.animation = "none";
-          // force reflow
-          void el.offsetWidth;
-          // reapply single shorthand (duration + timing + delay)
-          el.style.animation = "shimmer-effect-metallic 4s linear infinite 2s";
-          el.style.animationPlayState = "running";
-        });
-      } catch (e) {
-        console.warn("shimmer restart error", e);
-      } finally {
-        // small delay before allowing another restart
-        setTimeout(() => {
-          isRestartingRef.current = false;
-        }, 60);
-      }
+    // Very rare restart only on pageshow / tab restore so animation resumes correctly.
+    // We avoid MutationObserver / frequent restarts to prevent jank.
+    const restartOnce = () => {
+      document.querySelectorAll(".animate-shimmer").forEach(el => {
+        if (!document.body.contains(el)) return;
+        // reset + reapply (this runs very rarely)
+        el.style.animation = "none";
+        void el.offsetWidth;
+        el.style.animation = "shimmer-effect-metallic 4s linear infinite 2s";
+      });
     };
 
-    // debounced handler used by MutationObserver
-    const scheduleRestart = () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        restartAnimations();
-        timerRef.current = null;
-      }, 100); // tune debounce as needed
-    };
-
-    // Basic restarts we still want
-    restartAnimations(); // on mount
+    window.addEventListener("pageshow", restartOnce);
     const handleVisibility = () => {
-      if (document.visibilityState === "visible") restartAnimations();
+      if (document.visibilityState === "visible") restartOnce();
     };
-    window.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("pageshow", restartAnimations);
-    window.addEventListener("resize", scheduleRestart);
+    document.addEventListener("visibilitychange", handleVisibility);
 
-    // MutationObserver: only watch for added/removed nodes (childList),
-    // NOT attributes — avoids feedback loops from style changes.
-    const mo = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        if (m.addedNodes?.length || m.removedNodes?.length) {
-          scheduleRestart();
-          break;
-        }
-      }
-    });
-    mo.observe(document.body, { subtree: true, childList: true });
-
-    // cleanup
     return () => {
-      window.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("pageshow", restartAnimations);
-      window.removeEventListener("resize", scheduleRestart);
-      if (timerRef.current) clearTimeout(timerRef.current);
-      mo.disconnect();
+      window.removeEventListener("pageshow", restartOnce);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
-
   const styles = `
     @keyframes shimmer-effect-metallic {
       0% {
@@ -255,7 +221,11 @@ const glowColor = currentScheme.includes('linear-gradient')
           ...styleOverride, // <- Applied styleOverride here
         }}
       >
-   <div className="animate-shimmer ring-1 ring-white/10 transition-opacity duration-300" style={{ opacity: isTransparent ? 0 : 1 }} />
+   <div
+  className="pointer-events-none absolute z-0 animate-shimmer ring-1 ring-white/10 transition-opacity duration-300"
+  style={{ opacity: isTransparent ? 0 : 1, left: '-60%', width: '220%' }}
+/>
+
                 <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2">
                     <IconComponent isFlipping={isFlipping} isHovered={isHovered} />
                     <span>{text}</span>

@@ -1,8 +1,49 @@
 {
   "headers": [
     {
-      "source": "/:all*(jpg|jpeg|png|webp|gif|svg)",
+      "source": "/:all*(jpg|jpeg)",
       "headers": [
+        { "key": "Content-Type", "value": "image/jpeg" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Accept-Ranges", "value": "none" }
+      ]
+    },
+    {
+      "source": "/:all*(png)",
+      "headers": [
+        { "key": "Content-Type", "value": "image/png" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Accept-Ranges", "value": "none" }
+      ]
+    },
+    {
+      "source": "/:all*(webp)",
+      "headers": [
+        { "key": "Content-Type", "value": "image/webp" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Accept-Ranges", "value": "none" }
+      ]
+    },
+    {
+      "source": "/:all*(gif)",
+      "headers": [
+        { "key": "Content-Type", "value": "image/gif" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Accept-Ranges", "value": "none" }
+      ]
+    },
+    {
+      "source": "/:all*(svg)",
+      "headers": [
+        { "key": "Content-Type", "value": "image/svg+xml" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Accept-Ranges", "value": "none" }
+      ]
+    },
+    {
+      "source": "/:all*(ico)",
+      "headers": [
+        { "key": "Content-Type", "value": "image/x-icon" },
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
         { "key": "Accept-Ranges", "value": "none" }
       ]

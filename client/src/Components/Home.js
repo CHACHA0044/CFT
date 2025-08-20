@@ -295,7 +295,7 @@ const feedbackVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, delay: 2.3 },
+    transition: { duration: 0.8, delay: 2.4 },
     ease: "easeOut"
   },
 };

@@ -83,7 +83,7 @@ const triggerConfetti = (element) => {
   }
 };
 
-const AnimatedHeadline = () => {
+const AnimatedHeadline = React.memo(() => {
   const [activeBurstIndex, setActiveBurstIndex] = useState(null);
   const [bursting, setBursting] = useState(false);
   const [fallingLetters, setFallingLetters] = useState([]);
@@ -225,7 +225,7 @@ const AnimatedHeadline = () => {
       </motion.div>
     </div>
   );
-};
+});
 
 useEffect(() => {
   const fetchUser = async () => {

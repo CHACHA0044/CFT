@@ -295,7 +295,7 @@ const feedbackVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, delay: 2.6 },
+    transition: { duration: 0.8, delay: isMobile ? 1.6 : 2.6 },
     ease: "easeOut"
   },
 };
@@ -463,7 +463,7 @@ const handleEmailClick = (e) => {
       <motion.p
             variants={itemVariants}
  className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
-      Tap <span className="font-semibold"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
+      Tap <span className="font-semibold text-green-800 dark:text-green-300 animate-glow"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
     </motion.p> 
 
     {/* Feedback Email */}

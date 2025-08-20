@@ -295,7 +295,7 @@ const feedbackVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, delay: 2 },
+    transition: { duration: 0.8, delay: 2.3 },
     ease: "easeOut"
   },
 };
@@ -451,7 +451,7 @@ const handleEmailClick = (e) => {
             className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"
           >
       
-      <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
+      <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold text-green-800 dark:text-green-300 animate-glow"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
     </motion.p>
 
     {/* Compact version for mobile */}

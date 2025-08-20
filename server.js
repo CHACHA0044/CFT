@@ -354,7 +354,8 @@ app.use('/api', generalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 10,
+  max: 50,
+  keyGenerator: (req) => req.ip,
   message: 'Too many login/register attempts. Try again later.'
 });
 app.use('/api/auth', authLimiter);

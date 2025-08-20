@@ -290,6 +290,16 @@ const itemVariants = {
     ease: "easeOut"
   },
 };
+const feedbackVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, delay: 2 },
+    ease: "easeOut"
+  },
+};
+
 const handleEmailClick = (e) => {
   if (!/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
     e.preventDefault();
@@ -457,8 +467,7 @@ const handleEmailClick = (e) => {
     </motion.p> 
 
     {/* Feedback Email */}
-   
-<motion.p variants={itemVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
+<motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
   Your experience is important<span className="animate-pulse font-extrabold">!</span> It would be a great help if you could email your valuable feedback to{' '}
   <a
     href="mailto:carbontracker.noreply@gmail.com?subject=Feedback%20on%20Carbon%20Tracker"

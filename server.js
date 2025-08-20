@@ -140,9 +140,10 @@ const footprintRoutes = require('./routes/footprint');
 const cspLogFile = path.join(__dirname, 'csp-violations.log');
 const mongoLogFile = path.join(__dirname, 'mongo-sanitize.log');
 
-// ===== CSP BATCH SETTINGS =====
-const CSP_BATCH_INTERVAL = (Number(process.env.CSP_BATCH_INTERVAL_HOURS) || 4) * 60 * 60 * 1000;
+// ===== BATCH SETTINGS =====
+const BATCH_INTERVAL = (Number(process.env.CSP_BATCH_INTERVAL_HOURS) || 4) * 60 * 60 * 1000;
 let cspReportBuffer = [];
+let sanitizeReportBuffer = [];
 
 // ===== Nodemailer =====
 const transporter = nodemailer.createTransport({
@@ -187,16 +188,42 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", frontendOrigin],
-      styleSrc: ["'self'", "'unsafe-inline'", frontendOrigin, "https:"],
+
+      // JS
+      scriptSrc: ["'self'", "https:", "'unsafe-inline'", "'unsafe-eval'"],
+
+      // CSS (allow inline + Google Fonts + any HTTPS stylesheets)
+      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+
+      // Fonts (Google Fonts + self + any HTTPS fonts)
+      fontSrc: ["'self'", "data:", "https:", "https://fonts.gstatic.com"],
+
+      // Images (self + HTTPS + inline data URIs)
       imgSrc: ["'self'", "data:", "https:"],
-      fontSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", frontendOrigin, backendOrigin, "https:"],
+
+      // API connections (your backend, frontend, and any HTTPS APIs)
+      connectSrc: [
+        "'self'",
+        "https:",
+        "http://localhost:3000",
+        "https://cft-self.vercel.app",
+        process.env.BACKEND_URL || ""
+      ],
+
+      // Block object/embed
       objectSrc: ["'none'"],
+
+      // Prevent clickjacking
       frameAncestors: ["'none'"],
-      baseUri: ["'self'"],
+
+      // Restrict form actions
       formAction: ["'self'"],
-      reportUri: ['/csp-report'] // send CSP violations here
+
+      // Only allow base URI from self
+      baseUri: ["'self'"],
+
+      // Send CSP violation reports here
+      reportUri: ['/csp-report']
     },
   },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
@@ -227,43 +254,73 @@ app.post(
     const timestamp = new Date().toISOString();
     const userAgent = req.headers['user-agent'] || '';
 
-    const entry = { timestamp, ip, userAgent, report: req.body };
+    // Some browsers send { "csp-report": { ... } }
+    const report = req.body["csp-report"] || req.body;
 
-    // Append to file
-    fs.appendFile(cspLogFile, JSON.stringify(entry) + '\n', (err) => {
+    const entry = {
+      timestamp,
+      ip,
+      userAgent,
+      violatedDirective: report["violated-directive"] || "unknown",
+      blockedURI: report["blocked-uri"] || "unknown",
+      originalPolicy: report["original-policy"] || "",
+    };
+
+    // Log to file
+    const logLine = `[${timestamp}] IP: ${ip}\nUA: ${userAgent}\nDirective: ${entry.violatedDirective}\nBlocked: ${entry.blockedURI}\n\n`;
+    fs.appendFile(cspLogFile, logLine, (err) => {
       if (err) console.error('❌ Failed to write CSP log:', err);
     });
 
-    // Add to batch buffer
+    // Add to batch
     cspReportBuffer.push(entry);
 
     res.status(204).end();
   }
 );
 
-// ===== SEND CSP BATCH EMAILS =====
+// ===== SEND MERGED BATCH EMAILS =====
 setInterval(() => {
-  if (cspReportBuffer.length === 0) return;
+  const violations = [...cspReportBuffer];
+  const sanitizes = [...sanitizeReportBuffer];
 
-  const batch = [...cspReportBuffer];
+  // Clear buffers
   cspReportBuffer = [];
+  sanitizeReportBuffer = [];
 
-  const bodyText = batch.map(e =>
-    `[${e.timestamp}] IP: ${e.ip}\nUA: ${e.userAgent}\n${JSON.stringify(e.report, null, 2)}`
-  ).join('\n---\n');
+  // If nothing to report → skip email
+  if (violations.length === 0 && sanitizes.length === 0) return;
+
+  let bodyText = "";
+
+  if (violations.length > 0) {
+    bodyText += `🚨 CSP Violations (${violations.length})\n\n`;
+    bodyText += violations.map(e =>
+      `[${e.timestamp}] IP: ${e.ip}\nUA: ${e.userAgent}\nDirective: ${e.violatedDirective}\nBlocked: ${e.blockedURI}`
+    ).join('\n---\n');
+    bodyText += '\n\n';
+  }
+
+  if (sanitizes.length > 0) {
+    bodyText += `⚠️ Mongo Sanitize Attempts (${sanitizes.length})\n\n`;
+    bodyText += sanitizes.map(e =>
+      `[${e.time}] IP: ${e.ip} | URL: ${e.url} | Removed key: "${e.key}"`
+    ).join('\n---\n');
+  }
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: process.env.EMAIL_USER,
-    subject: `🚨 CSP Violation Batch (${batch.length} reports)`,
+    subject: `🛡 Security Report - ${violations.length} CSP & ${sanitizes.length} Sanitize`,
     text: bodyText
   };
 
   transporter.sendMail(mailOptions, (err, info) => {
-    if (err) console.error('❌ Failed to send CSP batch email:', err);
-    else console.log(`📧 CSP batch email sent: ${info.messageId}`);
+    if (err) console.error('❌ Failed to send security batch email:', err);
+    else console.log(`📧 Security batch email sent: ${info.messageId}`);
   });
-}, CSP_BATCH_INTERVAL);
+}, BATCH_INTERVAL);
+
 
 // ===== Security Middleware =====
 app.use(mongoSanitize({
@@ -277,16 +334,8 @@ app.use(mongoSanitize({
       if (err) console.error('❌ Failed to write mongo sanitize log:', err);
     });
 
-    // Email alert for sanitize attempt
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: `⚠️ Mongo Sanitize Triggered - ${ip}`,
-      text: logLine
-    };
-    transporter.sendMail(mailOptions, err => {
-      if (err) console.error('❌ Failed to send sanitize email:', err);
-    });
+    // Add to sanitize batch buffer
+    sanitizeReportBuffer.push({ time, ip, key, url: req.originalUrl });
   }
 }));
 
@@ -298,7 +347,7 @@ app.use(express.json({ limit: '10kb' }));
 // ===== Rate Limits =====
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 300,
+  max: 100,
   message: 'Too many requests, please try again later.'
 });
 app.use('/api', generalLimiter);

@@ -24,7 +24,7 @@ const Login = () => {
   sessionStorage.getItem('justVerified') ? 'Your email has been verified! Please login.' : ''
 );
   const topRef = useRef(null);
-  const sentence = "Login";
+  const sentence = "Log in";
   const words = sentence.split(" ");
   const bottomRef = useRef(null);
   const getLetterVariants = () => ({
@@ -293,7 +293,7 @@ timers.current = [
       >
     <PageWrapper backgroundImage="/images/login-bk.webp">
       <div className={`${boxglow} flex items-center sm:space-x-1 sm:mb-2 mb-0`}>
-        <div className="flex items-center ml-14 space-x-0"><AnimatedHeadline />
+        <div className="flex items-center ml-12 space-x-0"><AnimatedHeadline />
         {/* <h1 className="text-5xl font-extrabold font-germania tracking-wider text-shadow-DEFAULT text-center text-emerald-700 dark:text-gray-100 mb-0" >Login</h1> */}
 
         <motion.div

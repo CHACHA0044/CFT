@@ -114,9 +114,9 @@ const Login = () => {
     };
   
     return (
-      <div className="relative overflow-visible w-full flex justify-center items-center mt-2 sm:mb-4 mb-2">
+      <div className="relative overflow-visible w-full flex justify-center items-center mt-2 mb-2">
         <motion.div
-          className="flex sm:flex-nowrap flex-wrap justify-center gap-1 text-5xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          className="flex sm:flex-nowrap flex-wrap justify-center gap-1 text-5xl sm:text-6xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
           initial="hidden"
           animate="visible"
           variants={{

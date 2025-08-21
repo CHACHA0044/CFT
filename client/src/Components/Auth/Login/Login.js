@@ -24,7 +24,7 @@ const Login = () => {
   sessionStorage.getItem('justVerified') ? 'Your email has been verified! Please login.' : ''
 );
   const topRef = useRef(null);
-  const sentence = "Your Emission Trends";
+  const sentence = "Login";
   const words = sentence.split(" ");
   const bottomRef = useRef(null);
   const getLetterVariants = () => ({

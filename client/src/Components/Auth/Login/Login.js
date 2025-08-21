@@ -114,9 +114,9 @@ const Login = () => {
     };
   
     return (
-      <div className="relative overflow-visible w-full flex justify-center items-center mt-2 sm:mb-4 mb-2 px-4">
+      <div className="relative overflow-visible w-full flex justify-center items-center mt-2 sm:mb-4 mb-2">
         <motion.div
-          className="flex sm:flex-nowrap flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          className="flex sm:flex-nowrap flex-wrap justify-center gap-1 text-5xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
           initial="hidden"
           animate="visible"
           variants={{
@@ -293,7 +293,7 @@ timers.current = [
       >
     <PageWrapper backgroundImage="/images/login-bk.webp">
       <div className={`${boxglow} flex items-center sm:space-x-1 sm:mb-2 mb-0`}>
-        <div className="flex items-center ml-14 space-x-1"><AnimatedHeadline />
+        <div className="flex items-center ml-14 space-x-0"><AnimatedHeadline />
         {/* <h1 className="text-5xl font-extrabold font-germania tracking-wider text-shadow-DEFAULT text-center text-emerald-700 dark:text-gray-100 mb-0" >Login</h1> */}
 
         <motion.div

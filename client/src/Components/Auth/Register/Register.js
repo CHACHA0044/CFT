@@ -117,7 +117,7 @@ const topRef = useRef(null);
     return (
       <div className="relative overflow-visible w-full flex justify-center items-center mt-2 mb-0">
         <motion.div
-          className="flex sm:flex-nowrap flex-wrap justify-center gap-1 text-5xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          className="flex sm:flex-nowrap flex-wrap justify-center text-5xl font-black font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
           initial="hidden"
           animate="visible"
           variants={{

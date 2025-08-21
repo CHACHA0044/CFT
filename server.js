@@ -154,7 +154,6 @@ let sanitizeReportBuffer = [];
 //   }
 // });
 // centralized transporter (robust)
-const nodemailer = require('nodemailer');
 
 const mailConfig = {
   service: process.env.EMAIL_SERVICE || 'gmail',

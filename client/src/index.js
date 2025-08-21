@@ -5,6 +5,16 @@ import App from './App.js';
 //import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  if (
+    typeof args[0] === "string" &&
+    args[0].includes("preload")
+  ) {
+    return; // Ignore preload warnings
+  }
+  originalWarn(...args); // Keep all other warnings
+};
 root.render(
   <React.StrictMode>
     <App />

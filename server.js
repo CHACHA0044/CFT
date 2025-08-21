@@ -113,6 +113,8 @@
 // //   });
 // // }
 
+// server.js (mailing fixed + batch reporting preserved)
+// ----------------------------------------------------
 require('dotenv').config();
 
 const express = require('express');
@@ -139,52 +141,101 @@ const footprintRoutes = require('./routes/footprint');
 // ===== FILE PATHS =====
 const cspLogFile = path.join(__dirname, 'csp-violations.log');
 const mongoLogFile = path.join(__dirname, 'mongo-sanitize.log');
+const emailErrLog = path.join(__dirname, 'email-errors.log');
 
-// ===== BATCH SETTINGS =====
+// ===== BATCH / MAIL SETTINGS =====
 const BATCH_INTERVAL = (Number(process.env.CSP_BATCH_INTERVAL_HOURS) || 4) * 60 * 60 * 1000;
 let cspReportBuffer = [];
 let sanitizeReportBuffer = [];
 
-// ===== Nodemailer =====
-// const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS
-//   }
-// });
-// centralized transporter (robust)
+// ===== Mailer setup (robust, single transporter) =====
+// Priority:
+// 1) If SENDGRID_API_KEY present -> use SendGrid SMTP
+// 2) If SMTP_HOST provided -> use that
+// 3) Else if EMAIL_SERVICE present (e.g. 'gmail') -> use service
+// 4) Otherwise fall back to smtp.gmail.com (may be blocked on some hosts)
+let transporter;
+(async function initTransporter() {
+  try {
+    let transportOptions = null;
 
-const mailConfig = {
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    if (process.env.SENDGRID_API_KEY) {
+      // Use SendGrid SMTP credentials (user 'apikey')
+      transportOptions = {
+        host: 'smtp.sendgrid.net',
+        port: 587,
+        secure: false,
+        auth: { user: 'apikey', pass: process.env.SENDGRID_API_KEY }
+      };
+      console.log('ℹ️ Mailer: configuring SendGrid SMTP');
+    } else if (process.env.SMTP_HOST) {
+      transportOptions = {
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER || process.env.EMAIL_USER,
+          pass: process.env.SMTP_PASS || process.env.EMAIL_PASS
+        }
+      };
+      console.log('ℹ️ Mailer: configuring custom SMTP host');
+    } else if (process.env.EMAIL_SERVICE) {
+      // nodemailer service (e.g., 'gmail')
+      transportOptions = {
+        service: process.env.EMAIL_SERVICE,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      };
+      console.log(`ℹ️ Mailer: configuring service ${process.env.EMAIL_SERVICE}`);
+    } else {
+      // fallback to Gmail SMTP (explicit)
+      transportOptions = {
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+      };
+      console.log('⚠️ Mailer: no provider configured explicitly — falling back to smtp.gmail.com (may be blocked)');
+    }
+
+    transporter = nodemailer.createTransport(transportOptions);
+
+    await transporter.verify();
+    console.log('📧 Nodemailer transporter verified and ready');
+
+  } catch (err) {
+    transporter = null;
+    const msg = `❌ Nodemailer init failed: ${err && err.message ? err.message : String(err)}`;
+    console.warn(msg);
+    // persist the transporter init problem to file for postmortem
+    try { fs.appendFileSync(emailErrLog, `[${new Date().toISOString()}] ${msg}\n`); } catch (e) {}
   }
-};
 
-// fallback: explicit Gmail host/port (more reliable in some hosts)
-if (!process.env.SMTP_HOST && process.env.EMAIL_SERVICE === undefined) {
-  mailConfig.host = 'smtp.gmail.com';
-  mailConfig.port = 465;
-  mailConfig.secure = true;
-}
-
-const transporter = nodemailer.createTransport(mailConfig);
-
-transporter.verify()
-  .then(() => console.log('📧 Nodemailer ready'))
-  .catch(err => console.warn('⚠️ Nodemailer verification failed:', err && err.message || err));
-  
-// expose to routes via app.locals
-app.locals.transporter = transporter;
-
-// Verify email
-transporter.verify().then(() => {
-  console.log('📧 Nodemailer ready');
-}).catch(err => {
-  console.warn('⚠️ Nodemailer verification failed:', err.message || err);
-});
+  // Expose helper that routes should use
+  app.locals.transporter = transporter;
+  app.locals.sendMailAsync = async function(mailOptions) {
+    // mailOptions: { from, to, subject, text, html }
+    if (!app.locals.transporter) {
+      const err = new Error('No mail transporter configured');
+      try { fs.appendFileSync(emailErrLog, `[${new Date().toISOString()}] sendMail error: ${err.message}\n${JSON.stringify(mailOptions)}\n`); } catch (e) {}
+      throw err;
+    }
+    try {
+      const info = await app.locals.transporter.sendMail(mailOptions);
+      // log success
+      try { fs.appendFileSync(emailErrLog, `[${new Date().toISOString()}] sent: ${info.messageId} -> ${mailOptions.to}\n`); } catch (e) {}
+      return info;
+    } catch (err) {
+      // write error details to file
+      try {
+        fs.appendFileSync(emailErrLog, `[${new Date().toISOString()}] sendMail failed: ${err && err.message}\n${JSON.stringify(mailOptions)}\n${err.stack || ''}\n`);
+      } catch (e) {}
+      throw err;
+    }
+  };
+})();
 
 // ===== CORS =====
 const allowedOrigins = [
@@ -194,14 +245,14 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    if (!origin) return callback(null, true); // allow Postman & server-to-server
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
   methods: ['GET','POST','PUT','DELETE'],
   allowedHeaders: ['Content-Type','Authorization'],
 };
-
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
@@ -213,43 +264,16 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-
-      // JS
-      scriptSrc: ["'self'", "https:", "'unsafe-inline'", "'unsafe-eval'"],
-
-      // CSS (allow inline + Google Fonts + any HTTPS stylesheets)
+      scriptSrc: ["'self'", "https:", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https:"],
-
-      // Fonts (Google Fonts + self + any HTTPS fonts)
-      fontSrc: ["'self'", "data:", "https:", "https://fonts.gstatic.com"],
-
-      // Images (self + HTTPS + inline data URIs)
       imgSrc: ["'self'", "data:", "https:"],
-
-      // API connections (your backend, frontend, and any HTTPS APIs)
-      connectSrc: [
-        "'self'",
-        "https:",
-        "http://localhost:3000",
-        "https://cft-self.vercel.app",
-        process.env.BACKEND_URL || ""
-      ],
-
-      // Block object/embed
+      fontSrc: ["'self'", "data:", "https:", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "https:", frontendOrigin, backendOrigin],
       objectSrc: ["'none'"],
-
-      // Prevent clickjacking
       frameAncestors: ["'none'"],
-
-      // Restrict form actions
-      formAction: ["'self'"],
-
-      // Only allow base URI from self
       baseUri: ["'self'"],
-
-      // Send CSP violation reports here
-      reportUri: ['/csp-report']
-    },
+      formAction: ["'self'"]
+    }
   },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   frameguard: { action: 'deny' },
@@ -263,89 +287,74 @@ app.use(helmet({
 
 // ===== Permissions-Policy =====
 app.use((req, res, next) => {
-  res.setHeader(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), fullscreen=(), payment=()'
-  );
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), fullscreen=(), payment=()');
   next();
 });
 
-// ===== CSP REPORTING ENDPOINT =====
-app.post(
-  '/csp-report',
-  express.json({ type: ['json', 'application/csp-report'], limit: '50kb' }),
-  (req, res) => {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-    const timestamp = new Date().toISOString();
-    const userAgent = req.headers['user-agent'] || '';
+// ===== CSP REPORTING ENDPOINT (collects reports into buffer) =====
+app.post('/csp-report', express.json({ type: ['json', 'application/csp-report'], limit: '50kb' }), (req, res) => {
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const timestamp = new Date().toISOString();
+  const userAgent = req.headers['user-agent'] || '';
 
-    // Some browsers send { "csp-report": { ... } }
-    const report = req.body["csp-report"] || req.body;
-
-    const entry = {
-      timestamp,
-      ip,
-      userAgent,
-      violatedDirective: report["violated-directive"] || "unknown",
-      blockedURI: report["blocked-uri"] || "unknown",
-      originalPolicy: report["original-policy"] || "",
-    };
-
-    // Log to file
-    const logLine = `[${timestamp}] IP: ${ip}\nUA: ${userAgent}\nDirective: ${entry.violatedDirective}\nBlocked: ${entry.blockedURI}\n\n`;
-    fs.appendFile(cspLogFile, logLine, (err) => {
-      if (err) console.error('❌ Failed to write CSP log:', err);
-    });
-
-    // Add to batch
-    cspReportBuffer.push(entry);
-
-    res.status(204).end();
-  }
-);
-
-// ===== SEND MERGED BATCH EMAILS =====
-setInterval(() => {
-  const violations = [...cspReportBuffer];
-  const sanitizes = [...sanitizeReportBuffer];
-
-  // Clear buffers
-  cspReportBuffer = [];
-  sanitizeReportBuffer = [];
-
-  // If nothing to report → skip email
-  if (violations.length === 0 && sanitizes.length === 0) return;
-
-  let bodyText = "";
-
-  if (violations.length > 0) {
-    bodyText += `🚨 CSP Violations (${violations.length})\n\n`;
-    bodyText += violations.map(e =>
-      `[${e.timestamp}] IP: ${e.ip}\nUA: ${e.userAgent}\nDirective: ${e.violatedDirective}\nBlocked: ${e.blockedURI}`
-    ).join('\n---\n');
-    bodyText += '\n\n';
-  }
-
-  if (sanitizes.length > 0) {
-    bodyText += `⚠️ Mongo Sanitize Attempts (${sanitizes.length})\n\n`;
-    bodyText += sanitizes.map(e =>
-      `[${e.time}] IP: ${e.ip} | URL: ${e.url} | Removed key: "${e.key}"`
-    ).join('\n---\n');
-  }
-
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
-    subject: `🛡 Security Report - ${violations.length} CSP & ${sanitizes.length} Sanitize`,
-    text: bodyText
+  const report = req.body['csp-report'] || req.body || {};
+  const entry = {
+    timestamp,
+    ip,
+    userAgent,
+    violatedDirective: report['violated-directive'] || 'unknown',
+    blockedURI: report['blocked-uri'] || 'unknown',
+    originalPolicy: report['original-policy'] || ''
   };
 
-  transporter.sendMail(mailOptions, (err, info) => {
-    if (err) console.error('❌ Failed to send security batch email:', err);
-    else console.log(`📧 Security batch email sent: ${info.messageId}`);
+  fs.appendFile(cspLogFile, JSON.stringify(entry) + '\n', (err) => {
+    if (err) console.error('❌ Failed to write CSP log:', err);
   });
-}, BATCH_INTERVAL);
 
+  cspReportBuffer.push(entry);
+  return res.status(204).end();
+});
+
+// ===== BATCH SENDER (CSP + sanitize merged) =====
+setInterval(async () => {
+  try {
+    const violations = [...cspReportBuffer];
+    const sanitizes = [...sanitizeReportBuffer];
+    cspReportBuffer = [];
+    sanitizeReportBuffer = [];
+
+    if (violations.length === 0 && sanitizes.length === 0) return;
+
+    let bodyText = '';
+    if (violations.length > 0) {
+      bodyText += `🚨 CSP Violations (${violations.length})\n\n`;
+      bodyText += violations.map(e => `[${e.timestamp}] IP: ${e.ip}\nUA: ${e.userAgent}\nDirective: ${e.violatedDirective}\nBlocked: ${e.blockedURI}`).join('\n---\n');
+      bodyText += '\n\n';
+    }
+    if (sanitizes.length > 0) {
+      bodyText += `⚠️ Mongo Sanitize Attempts (${sanitizes.length})\n\n`;
+      bodyText += sanitizes.map(e => `[${e.time}] IP: ${e.ip} | URL: ${e.url} | Removed key: "${e.key}"`).join('\n---\n');
+    }
+
+    // Only send email if transporter ready
+    if (app.locals && typeof app.locals.sendMailAsync === 'function') {
+      await app.locals.sendMailAsync({
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER,
+        subject: `🛡 Security Report - ${violations.length} CSP & ${sanitizes.length} Sanitize`,
+        text: bodyText
+      });
+      console.log('📧 Security batch email sent (if transporter accepted it).');
+    } else {
+      // transporter not ready; write to error log
+      fs.appendFile(emailErrLog, `[${new Date().toISOString()}] Batch email skipped - transporter not ready\n${bodyText}\n`, () => {});
+      console.warn('⚠️ Batch skipped: mailer not ready');
+    }
+  } catch (err) {
+    console.error('❌ Error in batch sender:', err);
+    try { fs.appendFileSync(emailErrLog, `[${new Date().toISOString()}] Batch sender error: ${err && err.stack || err}\n`); } catch (e) {}
+  }
+}, BATCH_INTERVAL);
 
 // ===== Security Middleware =====
 app.use(mongoSanitize({
@@ -353,17 +362,12 @@ app.use(mongoSanitize({
   onSanitize: ({ req, key }) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
     const time = new Date().toISOString();
-
     const logLine = `[${time}] Removed key "${key}" from IP ${ip} | URL: ${req.originalUrl}\n`;
-    fs.appendFile(mongoLogFile, logLine, err => {
-      if (err) console.error('❌ Failed to write mongo sanitize log:', err);
-    });
+    fs.appendFile(mongoLogFile, logLine, (err) => { if (err) console.error('❌ Failed to write mongo sanitize log:', err); });
 
-    // Add to sanitize batch buffer
     sanitizeReportBuffer.push({ time, ip, key, url: req.originalUrl });
   }
 }));
-
 app.use(xss());
 app.use(hpp());
 app.disable('x-powered-by');

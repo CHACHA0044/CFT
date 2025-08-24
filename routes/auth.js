@@ -240,16 +240,16 @@ router.post('/resend-verification', async (req, res) => {
 
     // Enforce max 3 attempts in 24h
     if (user.resendAttempts >= 3) {
-      return res.status(429).json({ error: 'Maximum resend attempts reached. Please try again tomorrow.' });
+      return res.status(429).json({ error: '' });
     }
 
-    // Calculate cooldown: 0 min, 4 min, 8 min
-    const cooldowns = [0, 4, 8]; // minutes
+    
+    const cooldowns = [0, 3, 6]; // minutes
     const cooldown = cooldowns[user.resendAttempts] * 60 * 1000;
 
     if (now - user.lastResendAt < cooldown) {
       const wait = Math.ceil((cooldown - (now - user.lastResendAt)) / 60000);
-      return res.status(429).json({ error: `Please wait ${wait} minute(s) before retrying.` });
+      return res.status(429).json({ error: `` });
     }
 
     // Generate new token (expires in 10 mins)

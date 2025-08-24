@@ -241,6 +241,24 @@ useEffect(() => {
 
   const [delayMessage, setDelayMessage] = useState('');
   const timers = useRef([]);
+  const [cooldown, setCooldown] = useState(0);
+
+useEffect(() => {
+  if (cooldown > 0) {
+    const interval = setInterval(() => {
+      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }
+}, [cooldown]);
+
+// Format mm:ss
+const formatTime = (secs) => {
+  const m = Math.floor(secs / 60).toString().padStart(2, "0");
+  const s = (secs % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+};
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   
@@ -327,35 +345,42 @@ timers.current = [
       <p className="text-red-600 text-sm text-center animate-bounce">
         {error}
       </p>
-      {showResend && (
+      {showResend ? (
   <div className="flex flex-col items-center space-y-2">
-    <h6 className="text-emerald-500 dark:text-gray-100 text-sm font-intertight tracking-wide text-shadow-DEFAULT">
+    <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT">
       Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>
     </h6>
     <motion.button
       type="button"
-      whileHover={{ scale: 1.12, rotate: [0, -2, 2, 0] }}
-      whileTap={{ scale: 0.92, rotate: 0 }} 
+      whileHover={{ scale: 1.08 }}
+      whileTap={{ scale: 0.95 }}
       transition={{
         type: "spring",
-        stiffness: 400,
-        damping: 17,
+        stiffness: 600,
+        damping: 20,
+        duration: 0.25,
       }}
       onClick={async () => {
-      const emailToUse = formData.email || sessionStorage.getItem("pendingVerificationEmail");
+        const emailToUse =
+          formData.email || sessionStorage.getItem("pendingVerificationEmail");
         if (!emailToUse) {
           setError("No email found. Please enter your email.");
           return;
         }
         try {
-          await API.post('/auth/resend-verification', { email: emailToUse });
-          setSuccess('Verification email resent! Please check your inbox.');
-          setError('');
+          await API.post("/auth/resend-verification", { email: emailToUse });
+
+          setSuccess(
+            "Verification email resent! Resend option will be available after 3 mins..."
+          );
+          setError("");
           setShowResend(false);
-          setTimeout(() => setSuccess(''), 4500);
+          setCooldown(180); 
+          setTimeout(() => setSuccess(""), 4500);
+          setTimeout(() => setShowResend(true), 3 * 60 * 1000);
         } catch (err) {
-          setError(err.response?.data?.error || 'Failed to resend email.');
-          setTimeout(() => setError(''), 4500);
+          setError(err.response?.data?.error || "Failed to resend email.");
+          setTimeout(() => setError(""), 4500);
         }
       }}
       className="text-blue-400 text-sm underline hover:text-blue-700 transition font-sriracha tracking-wide text-shadow-DEFAULT"
@@ -363,7 +388,27 @@ timers.current = [
       Resend verification email
     </motion.button>
   </div>
-)}
+) : cooldown > 0 ? (
+  <motion.p
+    className="text-gray-400 text-sm text-center flex items-center justify-center space-x-1 tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT"
+    animate={{ rotateX: [0, 180, 360] }}
+    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+    style={{ transformOrigin: "center" }}
+  >
+    <span className="inline-block">⏳</span>
+    <span>
+      You can resend again in{" "}
+      <span className="font-semibold animate-pulse">
+        {Math.floor(cooldown / 60)
+          .toString()
+          .padStart(2, "0")}
+        :
+        {(cooldown % 60).toString().padStart(2, "0")}
+      </span>
+    </span>
+  </motion.p>
+) : null}
+
     </>
   ) : delayMessage ? (
     <p className="text-yellow-500 text-sm text-center animate-pulse">

@@ -235,7 +235,7 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  if (success) {
+  if (success?.toLowerCase().includes("verified")) {
     sessionStorage.removeItem("justVerified");
     setResendCount(0);
     sessionStorage.removeItem("resendCount");
@@ -365,8 +365,8 @@ useEffect(() => {
     Didn<span className="animate-pulse">’</span>t receive the mail{" "}
     <span className="animate-pulse">?</span>
   </span>
-  <span className="animate-pulse">
-    [Attempts remaining: {3 - resendCount}]
+  <span>
+    [Attempts remaining: <span className="animate-pulse">{3 - resendCount}]</span>
   </span>
     </h6>
     <motion.button
@@ -420,8 +420,8 @@ useEffect(() => {
           Didn<span className="animate-pulse">’</span>t receive the mail{" "}
           <span className="animate-pulse">?</span>
         </span>
-        <span className="animate-pulse">
-          [Attempts remaining: {3 - resendCount}]
+        <span>
+          [Attempts remaining: <span className="animate-pulse">{3 - resendCount}]</span>
         </span>
          </h6>
          <motion.p className="text-gray-400 text-sm flex items-center space-x-1">

@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   lastResendAt: { type: Number, default: 0 },
   isVerified: { type: Boolean, default: false },   // verification flag
   verificationToken: { type: String },             // verification JWT
-  createdAt: { type: Date, default: Date.now } // auto-delete after 1h
+  // createdAt: { type: Date, default: Date.now } // auto-delete after 1h
 }, { timestamps: true });
 
 // delete if not verified

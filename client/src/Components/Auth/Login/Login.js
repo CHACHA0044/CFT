@@ -328,23 +328,32 @@ timers.current = [
         {error}
       </p>
       {showResend && (
-        <button
-          type="button"
-          onClick={async () => {
-            try {
-              await API.post('/auth/resend-verification', { email: formData.email });
-              setSuccess('Verification email resent! Please check your inbox.');
-              setError('');
-              setShowResend(false);
-            } catch (err) {
-              setError(err.response?.data?.error || 'Failed to resend email.');
-            }
-          }}
-          className="text-blue-500 text-xs underline hover:text-blue-700 transition"
-        >
-          Resend verification email
-        </button>
-      )}
+  <div className="flex flex-col items-center space-y-2">
+    <h6 className="text-gray-600 dark:text-gray-300 text-sm font-semibold">
+      Didn’t receive the mail<span className="animate-pulse">?</span>
+    </h6>
+    <motion.button
+      type="button"
+      whileHover={{ scale: 1.2 }}
+      whileTap={{ scale: 0.8 }}
+      onClick={async () => {
+        try {
+          await API.post('/auth/resend-verification', { email: formData.email });
+          setSuccess('Verification email resent! Please check your inbox.');
+          setError('');
+          setShowResend(false);
+          setTimeout(() => setSuccess(''), 3000);
+        } catch (err) {
+          setError(err.response?.data?.error || 'Failed to resend email.');
+          setTimeout(() => setError(''), 3000);
+        }
+      }}
+      className="text-blue-400 text-sm underline hover:text-blue-800 transition"
+    >
+      Resend verification email
+    </motion.button>
+  </div>
+)}
     </>
   ) : delayMessage ? (
     <p className="text-yellow-500 text-sm text-center animate-pulse">

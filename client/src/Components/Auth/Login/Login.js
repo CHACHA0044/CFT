@@ -363,10 +363,15 @@ useEffect(() => {
     <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT flex flex-col">
       <span>
     Didn<span className="animate-pulse">’</span>t receive the mail{" "}
-    <span className="animate-pulse">?</span>
+    <span
+          className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+          style={{ '--random': Math.random() }}
+        >
+        ?
+        </span>
   </span>
   <span>
-    [Attempts remaining: <span className="animate-pulse">{3 - resendCount}]</span>
+    [Attempts remaining: <span className="animate-pulse">{3 - resendCount}</span>]
   </span>
     </h6>
     <motion.button
@@ -397,10 +402,16 @@ useEffect(() => {
         setResendCount(newCount);
         sessionStorage.setItem("resendCount", newCount);
         setShowResend(false); 
-        setCooldown(184);
+        // setCooldown(184);
         setError("");
         setSuccess("Verification email resent!");
         setTimeout(() => setSuccess(""), 4500);
+        if (newCount < 3) {
+          setShowResend(false);
+          setCooldown(184);
+        } else {
+          setShowResend(false);
+        }
         } catch (err) {
           setError(err.response?.data?.error || "Failed to resend email.");
           setTimeout(() => setError(""), 4500);
@@ -418,10 +429,16 @@ useEffect(() => {
          <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT flex flex-col">
           <span>
           Didn<span className="animate-pulse">’</span>t receive the mail{" "}
-          <span className="animate-pulse">?</span>
+          <span
+          className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+          style={{ '--random': Math.random() }}
+        >
+        ?
+        </span>
+          {/* <span className="animate-pulse">?</span> */}
         </span>
         <span>
-          [Attempts remaining: <span className="animate-pulse">{3 - resendCount}]</span>
+          [Attempts remaining: <span className="animate-pulse">{3 - resendCount}</span>]
         </span>
          </h6>
          <motion.p className="text-gray-400 text-sm flex items-center space-x-1">

@@ -83,7 +83,7 @@ const Login = () => {
     }
   };
   
-  const AnimatedHeadline = () => {
+  const AnimatedHeadline = React.memo(() => {
     const [activeBurstIndex, setActiveBurstIndex] = useState(null);
     const [bursting, setBursting] = useState(false);
     const [fallingLetters, setFallingLetters] = useState([]);
@@ -225,7 +225,7 @@ const Login = () => {
         </motion.div>
       </div>
     );
-  };
+  });
 useEffect(() => {
   if (sessionStorage.getItem("justRegistered")) {
     setShowResend(true);
@@ -309,6 +309,9 @@ timers.current = [
 }
 
 };
+useEffect(() => {
+  return () => timers.current.forEach((t) => clearTimeout(t));
+}, []);
 
   return (
   <motion.div
@@ -352,7 +355,7 @@ timers.current = [
     </h6>
     <motion.button
       type="button"
-      whileHover={{ scale: 1.08 }}
+      whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{
         type: "spring",
@@ -368,14 +371,12 @@ timers.current = [
           return;
         }
         try {
-          await API.post("/auth/resend-verification", { email: emailToUse });
-
-          setSuccess(
-            "Verification email resent! Resend option will be available after 3 mins..."
-          );
-          setError("");
-          setCooldown(180); // start immediately
-          setTimeout(() => setSuccess(""), 4500);
+        await API.post("/auth/resend-verification", { email: emailToUse });
+        setCooldown(180);
+        setShowResend(false); 
+        setError("");
+        setSuccess("Verification email resent!");
+        setTimeout(() => setSuccess(""), 4500);
         } catch (err) {
           setError(err.response?.data?.error || "Failed to resend email.");
           setTimeout(() => setError(""), 4500);
@@ -386,31 +387,28 @@ timers.current = [
       Resend verification email
     </motion.button>
   </div>
-) : cooldown > 0 ? (
-  <div className="flex flex-col items-center space-y-1">
-    <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT">
-      Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>
-    </h6>
-    <motion.p
-      className="text-gray-400 text-sm text-center flex items-center justify-center space-x-1 tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT"
-    >
-      <motion.span
-        animate={{ rotateX: [0, 180, 360] }}
-        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-        style={{ transformOrigin: "center" }}
-        className="inline-block"
-      >
-        ⏳
-      </motion.span>
-      <span>
-        You can resend again in{" "}
-        <span className="font-semibold animate-pulse">
-          {formatTime(cooldown)}
-        </span>
-      </span>
-    </motion.p>
-  </div>
 ) : null}
+
+     {cooldown > 0 && (
+       <div className="flex flex-col items-center space-y-1">
+         <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT">
+           Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>
+         </h6>
+         <motion.p className="text-gray-400 text-sm flex items-center space-x-1">
+           <motion.span
+             animate={{ rotateX: [0, 180, 360] }}
+             transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+             className="inline-block"
+           >
+             ⏳
+           </motion.span>
+           <span>
+             You can resend again in{" "}
+             <span className="font-semibold animate-pulse">{formatTime(cooldown)}</span>
+           </span>
+         </motion.p>
+       </div>
+     )}
 
 
     </>
@@ -445,7 +443,7 @@ timers.current = [
    <SubmitButton
               text="Login"
               loading={loading}
-              success={success === 'Login successful!'} 
+              success={success.startsWith('Login Successful')}
               disabled={loading}
             />
 

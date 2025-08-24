@@ -229,7 +229,14 @@ useEffect(() => {
   if (success) {
     sessionStorage.removeItem('justVerified');
   }
+
+  // 🔹 Always show resend if user came from register
+  if (sessionStorage.getItem('justRegistered')) {
+    setShowResend(true);
+    sessionStorage.removeItem('justRegistered'); // one-time flag
+  }
 }, [success]);
+
   const [delayMessage, setDelayMessage] = useState('');
   const timers = useRef([]);
   const [loading, setLoading] = useState(false);

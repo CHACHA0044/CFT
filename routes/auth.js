@@ -105,15 +105,16 @@ router.post('/register', async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(409).json({ error: 'Email already in use.' });
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 12);
     const verificationToken = jwt.sign({ email, jti: Math.random().toString(36).substring(2) }, process.env.JWT_SECRET, { expiresIn: '10m' });
-
     const newUser = new User({
       name,
       email,
       passwordHash,
       verificationToken,
       isVerified: false,
+      resendAttempts: 0,        
+      lastResendAt: Date.now(), 
     });
     await newUser.save();
 
@@ -223,33 +224,57 @@ router.get('/verify-email/:token', async (req, res) => {
 });
 
 // RESEND VERIFICATION
-const resendCooldown = new Map(); // email -> timestamp
 router.post('/resend-verification', async (req, res) => {
   try {
     const { email } = req.body;
-    const now = Date.now();
-
-    if (resendCooldown.has(email) && now - resendCooldown.get(email) < 3 * 60 * 1000) {
-      return res.status(429).json({ error: 'Please wait 3 minutes before requesting again.' });
-    }
-
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'User not found.' });
     if (user.isVerified) return res.status(400).json({ error: 'Account already verified.' });
 
-    const verificationToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const now = Date.now();
+
+    // Reset attempts if last resend was more than 24h ago
+    if (now - user.lastResendAt > 24 * 60 * 60 * 1000) {
+      user.resendAttempts = 0;
+    }
+
+    // Enforce max 3 attempts in 24h
+    if (user.resendAttempts >= 3) {
+      return res.status(429).json({ error: 'Maximum resend attempts reached. Please try again tomorrow.' });
+    }
+
+    // Calculate cooldown: 0 min, 4 min, 8 min
+    const cooldowns = [0, 4, 8]; // minutes
+    const cooldown = cooldowns[user.resendAttempts] * 60 * 1000;
+
+    if (now - user.lastResendAt < cooldown) {
+      const wait = Math.ceil((cooldown - (now - user.lastResendAt)) / 60000);
+      return res.status(429).json({ error: `Please wait ${wait} minute(s) before retrying.` });
+    }
+
+    // Generate new token (expires in 10 mins)
+    const verificationToken = jwt.sign(
+      { email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+
     user.verificationToken = verificationToken;
+    user.resendAttempts += 1;
+    user.lastResendAt = now;
     await user.save();
 
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
     await sendEmail(user.email, 'Verify your Carbon Tracker account', emailHtml(user.name, verificationLink));
 
-    resendCooldown.set(email, now);
     res.status(200).json({ message: 'Verification email resent. Please check your inbox.' });
+
   } catch (err) {
     console.error('❌ Resend verification error:', err);
     res.status(500).json({ error: 'Server error while resending verification.' });
   }
 });
+
+
 
 module.exports = router;

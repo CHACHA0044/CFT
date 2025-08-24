@@ -360,8 +360,14 @@ useEffect(() => {
       </p>
       {showResend && cooldown === 0 && resendCount < 3 ? (
   <div className="flex flex-col items-center space-y-2">
-    <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT">
-      Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>
+    <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT flex flex-col">
+      <span>
+    Didn<span className="animate-pulse">’</span>t receive the mail{" "}
+    <span className="animate-pulse">?</span>
+  </span>
+  <span className="animate-pulse">
+    [Attempts remaining: {3 - resendCount}]
+  </span>
     </h6>
     <motion.button
       type="button"
@@ -391,7 +397,7 @@ useEffect(() => {
         setResendCount(newCount);
         sessionStorage.setItem("resendCount", newCount);
         setShowResend(false); 
-        setCooldown(185);
+        setCooldown(184);
         setError("");
         setSuccess("Verification email resent!");
         setTimeout(() => setSuccess(""), 4500);
@@ -409,8 +415,14 @@ useEffect(() => {
 
      {cooldown > 0 && (
        <div className="flex flex-col items-center space-y-1">
-         <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT">
-           Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>
+         <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT flex flex-col">
+          <span>
+          Didn<span className="animate-pulse">’</span>t receive the mail{" "}
+          <span className="animate-pulse">?</span>
+        </span>
+        <span className="animate-pulse">
+          [Attempts remaining: {3 - resendCount}]
+        </span>
          </h6>
          <motion.p className="text-gray-400 text-sm flex items-center space-x-1">
            <motion.span
@@ -423,7 +435,6 @@ useEffect(() => {
            <span>
              You can resend again in{" "}
              <span className="font-semibold animate-pulse">{formatTime(cooldown)}</span>
-            {" "}[Attempts remaining: {3 - resendCount}]
            </span>
          </motion.p>
        </div>
@@ -438,7 +449,7 @@ useEffect(() => {
   ) : null}
 </div>
 
-        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-5 space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
           <input
             name="email"
             type="email"

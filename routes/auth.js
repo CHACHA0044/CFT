@@ -232,27 +232,14 @@ router.post('/resend-verification', async (req, res) => {
     if (user.isVerified) return res.status(400).json({ error: 'Account already verified.' });
 
     const now = Date.now();
-
-    // Reset attempts if last resend was more than 24h ago
-    if (now - user.lastResendAt > 24 * 60 * 60 * 1000) {
+    if (!user.lastResendAt || now - user.lastResendAt > 24 * 60 * 60 * 1000) {
       user.resendAttempts = 0;
     }
 
-    // Enforce max 3 attempts in 24h
-    if (user.resendAttempts >= 3) {
-      return res.status(429).json({ error: '' });
+    if (user.resendAttempts >= 6) {
+      return res.status(429).json({ error: 'Resend limit reached.' });
     }
-
-    
-    const cooldowns = [0, 3, 6]; // minutes
-    const cooldown = cooldowns[user.resendAttempts] * 60 * 1000;
-
-    if (now - user.lastResendAt < cooldown) {
-      const wait = Math.ceil((cooldown - (now - user.lastResendAt)) / 60000);
-      return res.status(429).json({ error: `` });
-    }
-
-    // Generate new token (expires in 10 mins)
+   
     const verificationToken = jwt.sign(
       { email: user.email },
       process.env.JWT_SECRET,

@@ -322,7 +322,7 @@ timers.current = [
     <p className="text-green-500 text-sm text-center animate-pulse">
       {success}
     </p>
-  ) : error ? (
+  ) : error || showResend ? (
     <>
       <p className="text-red-600 text-sm text-center animate-bounce">
         {error}

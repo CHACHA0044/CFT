@@ -249,12 +249,12 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   if (!validateEmail(formData.email)) {
-    setError('Please enter a valid email address.');
+    setError('Please enter a valid email address...');
     return;
   }
 
   if (passwordStrength !== null && passwordStrength < 2) {
-    setError('Password is too weak. Use a mix of letters, numbers, and symbols.');
+    setError('Password is too weak. Use a mix of letters, numbers, and symbols...');
     return;
   }
 
@@ -279,7 +279,7 @@ timers.current = [
     setError('');
     setFormData({ name: '', email: '', password: '' });
     setPasswordStrength(null);
-
+    sessionStorage.setItem("justRegistered", "true");
     setTimeout(() => navigate('/login'), 2500);
   } catch (error) {
     console.error('❌ Registration error:', error);

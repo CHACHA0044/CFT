@@ -226,14 +226,15 @@ const Login = () => {
     );
   };
 useEffect(() => {
-  if (success) {
-    sessionStorage.removeItem('justVerified');
-  }
-
-  // 🔹 Always show resend if user came from register
-  if (sessionStorage.getItem('justRegistered')) {
+  if (sessionStorage.getItem("justRegistered")) {
     setShowResend(true);
-    sessionStorage.removeItem('justRegistered'); // one-time flag
+    sessionStorage.removeItem("justRegistered");
+  }
+}, []);
+
+useEffect(() => {
+  if (success) {
+    sessionStorage.removeItem("justVerified");
   }
 }, [success]);
 

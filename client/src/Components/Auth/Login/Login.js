@@ -363,12 +363,7 @@ useEffect(() => {
     <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT flex flex-col">
       <span>
     Didn<span className="animate-pulse">’</span>t receive the mail{" "}
-    <span
-          className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-          style={{ '--random': Math.random() }}
-        >
-        ?
-        </span>
+              <span className="animate-pulse">?</span>
   </span>
   <span>
     [Attempts remaining: <span className="animate-pulse">{3 - resendCount}</span>]
@@ -423,13 +418,7 @@ useEffect(() => {
          <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT flex flex-col">
           <span>
           Didn<span className="animate-pulse">’</span>t receive the mail{" "}
-          <span
-          className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-          style={{ '--random': Math.random() }}
-        >
-        ?
-        </span>
-          {/* <span className="animate-pulse">?</span> */}
+          <span className="animate-pulse">?</span>
         </span>
         <span>
           [Attempts remaining: <span className="animate-pulse">{3 - resendCount}</span>]

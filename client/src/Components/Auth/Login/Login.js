@@ -242,7 +242,21 @@ useEffect(() => {
   const [delayMessage, setDelayMessage] = useState('');
   const timers = useRef([]);
   const [cooldown, setCooldown] = useState(0);
-
+useEffect(() => {
+    if (cooldown > 0) {
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setShowResend(true);   
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [cooldown]);
 useEffect(() => {
   if (cooldown > 0) {
     const interval = setInterval(() => {
@@ -297,8 +311,8 @@ timers.current = [
   timers.current.forEach((t) => clearTimeout(t));
   setDelayMessage('');
   if (err.response?.status === 403) {
-    setError('Please verify your email. Didn’t get it?');
-    setShowResend(true);
+  setError('Please verify your email. Didn’t get it?');
+  if (cooldown === 0) setShowResend(true);
   } else if (err.response?.data?.error) {
     setError(err.response.data.error);
   } else {
@@ -348,7 +362,7 @@ useEffect(() => {
       <p className="text-red-600 text-sm text-center animate-bounce">
         {error}
       </p>
-      {showResend ? (
+      {showResend && cooldown === 0 ? (
   <div className="flex flex-col items-center space-y-2">
     <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT">
       Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>

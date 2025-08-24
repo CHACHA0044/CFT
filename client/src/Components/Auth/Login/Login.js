@@ -20,6 +20,7 @@ import GlobeAnimation from 'animations/Globe.json';
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [showResend, setShowResend] = useState(false);
   const [success, setSuccess] = useState(
   sessionStorage.getItem('justVerified') ? 'Your email has been verified! Please login.' : ''
 );
@@ -242,7 +243,7 @@ useEffect(() => {
   const timers = useRef([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [showResend, setShowResend] = useState(false);
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };

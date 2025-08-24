@@ -17,17 +17,9 @@ import {
 } from 'utils/styles';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
-const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
-  const [showResend, setShowResend] = useState(false);
-  const [success, setSuccess] = useState(
-  sessionStorage.getItem('justVerified') ? 'Your email has been verified! Please login.' : ''
-);
-  const topRef = useRef(null);
+
   const sentence = "Log in";
   const words = sentence.split(" ");
-  const bottomRef = useRef(null);
   const getLetterVariants = () => ({
     initial: { y: 0, opacity: 1, scale: 1 },
     fall: {
@@ -226,6 +218,15 @@ const Login = () => {
       </div>
     );
   });
+const Login = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [showResend, setShowResend] = useState(false);
+  const [resendCount, setResendCount] = useState( Number(sessionStorage.getItem("resendCount")) || 0);
+  const [success, setSuccess] = useState(
+  sessionStorage.getItem('justVerified') ? 'Your email has been verified! Please login.' : ''
+);
+  
 useEffect(() => {
   if (sessionStorage.getItem("justRegistered")) {
     setShowResend(true);
@@ -236,6 +237,8 @@ useEffect(() => {
 useEffect(() => {
   if (success) {
     sessionStorage.removeItem("justVerified");
+    setResendCount(0);
+    sessionStorage.removeItem("resendCount");
   }
 }, [success]);
 
@@ -344,8 +347,7 @@ useEffect(() => {
   >
     <Lottie animationData={GlobeAnimation} loop />
   </motion.div></div>
-  </div>
-  <div>
+  
 <div className="flex flex-col items-center space-y-1 mb-[-2]">
   {success ? (
     <p className="text-green-500 text-sm text-center animate-pulse">
@@ -356,7 +358,7 @@ useEffect(() => {
       <p className="text-red-600 text-sm text-center animate-bounce">
         {error}
       </p>
-      {showResend && cooldown === 0 ? (
+      {showResend && cooldown === 0 && resendCount < 3 ? (
   <div className="flex flex-col items-center space-y-2">
     <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT">
       Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>
@@ -378,9 +380,16 @@ useEffect(() => {
           setError("No email found. Please enter your email.");
           return;
         }
+        if (resendCount >= 3) {
+        setError("Maximum resends reached...");
+        setShowResend(false);
+        return;
+      }
         try {
         await API.post("/auth/resend-verification", { email: emailToUse });
-        
+        const newCount = resendCount + 1;
+        setResendCount(newCount);
+        sessionStorage.setItem("resendCount", newCount);
         setShowResend(false); 
         setCooldown(180);
         setError("");

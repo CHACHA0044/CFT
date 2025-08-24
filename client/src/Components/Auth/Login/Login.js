@@ -374,10 +374,8 @@ timers.current = [
             "Verification email resent! Resend option will be available after 3 mins..."
           );
           setError("");
-          setShowResend(false);
-          setCooldown(180); 
+          setCooldown(180); // start immediately
           setTimeout(() => setSuccess(""), 4500);
-          setTimeout(() => setShowResend(true), 3 * 60 * 1000);
         } catch (err) {
           setError(err.response?.data?.error || "Failed to resend email.");
           setTimeout(() => setError(""), 4500);
@@ -389,25 +387,31 @@ timers.current = [
     </motion.button>
   </div>
 ) : cooldown > 0 ? (
-  <motion.p
-    className="text-gray-400 text-sm text-center flex items-center justify-center space-x-1 tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT"
-    animate={{ rotateX: [0, 180, 360] }}
-    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-    style={{ transformOrigin: "center" }}
-  >
-    <span className="inline-block">⏳</span>
-    <span>
-      You can resend again in{" "}
-      <span className="font-semibold animate-pulse">
-        {Math.floor(cooldown / 60)
-          .toString()
-          .padStart(2, "0")}
-        :
-        {(cooldown % 60).toString().padStart(2, "0")}
+  <div className="flex flex-col items-center space-y-1">
+    <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT">
+      Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>
+    </h6>
+    <motion.p
+      className="text-gray-400 text-sm text-center flex items-center justify-center space-x-1 tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT"
+    >
+      <motion.span
+        animate={{ rotateX: [0, 180, 360] }}
+        transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+        style={{ transformOrigin: "center" }}
+        className="inline-block"
+      >
+        ⏳
+      </motion.span>
+      <span>
+        You can resend again in{" "}
+        <span className="font-semibold animate-pulse">
+          {formatTime(cooldown)}
+        </span>
       </span>
-    </span>
-  </motion.p>
+    </motion.p>
+  </div>
 ) : null}
+
 
     </>
   ) : delayMessage ? (

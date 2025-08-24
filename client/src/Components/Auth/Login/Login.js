@@ -402,16 +402,10 @@ useEffect(() => {
         setResendCount(newCount);
         sessionStorage.setItem("resendCount", newCount);
         setShowResend(false); 
-        // setCooldown(184);
+        setCooldown(184);
         setError("");
         setSuccess("Verification email resent!");
         setTimeout(() => setSuccess(""), 4500);
-        if (newCount < 3) {
-          setShowResend(false);
-          setCooldown(184);
-        } else {
-          setShowResend(false);
-        }
         } catch (err) {
           setError(err.response?.data?.error || "Failed to resend email.");
           setTimeout(() => setError(""), 4500);

@@ -243,27 +243,20 @@ useEffect(() => {
   const timers = useRef([]);
   const [cooldown, setCooldown] = useState(0);
 useEffect(() => {
-    if (cooldown > 0) {
-      const interval = setInterval(() => {
-        setCooldown((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            setShowResend(true);   
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [cooldown]);
-useEffect(() => {
-  if (cooldown > 0) {
-    const interval = setInterval(() => {
-      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }
+  if (cooldown <= 0) return; 
+
+  const interval = setInterval(() => {
+    setCooldown((prev) => {
+      if (prev <= 1) {
+        clearInterval(interval);
+        setShowResend(true);
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
 }, [cooldown]);
 
 // Format mm:ss
@@ -386,8 +379,9 @@ useEffect(() => {
         }
         try {
         await API.post("/auth/resend-verification", { email: emailToUse });
-        setCooldown(180);
+        
         setShowResend(false); 
+        setCooldown(180);
         setError("");
         setSuccess("Verification email resent!");
         setTimeout(() => setSuccess(""), 4500);

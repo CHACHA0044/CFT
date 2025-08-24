@@ -329,26 +329,36 @@ timers.current = [
       </p>
       {showResend && (
   <div className="flex flex-col items-center space-y-2">
-    <h6 className="text-gray-600 dark:text-gray-300 text-sm font-semibold">
-      Didn’t receive the mail<span className="animate-pulse">?</span>
+    <h6 className="text-emerald-500 dark:text-gray-100 text-sm font-intertight tracking-wide text-shadow-DEFAULT">
+      Didn<span className="animate-pulse">’</span>t receive the mail <span className="animate-pulse">?</span>
     </h6>
     <motion.button
       type="button"
-      whileHover={{ scale: 1.2 }}
-      whileTap={{ scale: 0.8 }}
+      whileHover={{ scale: 1.12, rotate: [0, -2, 2, 0] }}
+      whileTap={{ scale: 0.92, rotate: 0 }} 
+      transition={{
+        type: "spring",
+        stiffness: 400,
+        damping: 17,
+      }}
       onClick={async () => {
+      const emailToUse = formData.email || sessionStorage.getItem("pendingVerificationEmail");
+        if (!emailToUse) {
+          setError("No email found. Please enter your email.");
+          return;
+        }
         try {
-          await API.post('/auth/resend-verification', { email: formData.email });
+          await API.post('/auth/resend-verification', { email: emailToUse });
           setSuccess('Verification email resent! Please check your inbox.');
           setError('');
           setShowResend(false);
-          setTimeout(() => setSuccess(''), 3000);
+          setTimeout(() => setSuccess(''), 4500);
         } catch (err) {
           setError(err.response?.data?.error || 'Failed to resend email.');
-          setTimeout(() => setError(''), 3000);
+          setTimeout(() => setError(''), 4500);
         }
       }}
-      className="text-blue-400 text-sm underline hover:text-blue-800 transition"
+      className="text-blue-400 text-sm underline hover:text-blue-700 transition font-sriracha tracking-wide text-shadow-DEFAULT"
     >
       Resend verification email
     </motion.button>

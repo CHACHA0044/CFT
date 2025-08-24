@@ -279,6 +279,7 @@ timers.current = [
     setError('');
     setFormData({ name: '', email: '', password: '' });
     setPasswordStrength(null);
+    sessionStorage.setItem("pendingVerificationEmail", formData.email);
     sessionStorage.setItem("justRegistered", "true");
     setTimeout(() => navigate('/login'), 2500);
   } catch (error) {

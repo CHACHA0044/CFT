@@ -344,7 +344,8 @@ useEffect(() => {
   >
     <Lottie animationData={GlobeAnimation} loop />
   </motion.div></div>
-
+  </div>
+  <div>
 <div className="flex flex-col items-center space-y-1 mb-[-2]">
   {success ? (
     <p className="text-green-500 text-sm text-center animate-pulse">
@@ -408,7 +409,7 @@ useEffect(() => {
              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
              className="inline-block"
            >
-             ⏳
+             ⌛
            </motion.span>
            <span>
              You can resend again in{" "}
@@ -437,6 +438,7 @@ useEffect(() => {
             className={`${inputBase} ${inputMail}`}
             required
             autoComplete="email"
+            title="The email u used"
           />
           <input
             name="password"
@@ -447,6 +449,7 @@ useEffect(() => {
             className={`${inputBase} ${inputPass}`}
             required
             autoComplete="current-password"
+            title="Password used"
           />
    <SubmitButton
               text="Login"

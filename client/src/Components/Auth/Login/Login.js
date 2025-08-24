@@ -365,8 +365,8 @@ useEffect(() => {
     </h6>
     <motion.button
       type="button"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.90 }}
       transition={{
         type: "spring",
         stiffness: 600,
@@ -391,7 +391,7 @@ useEffect(() => {
         setResendCount(newCount);
         sessionStorage.setItem("resendCount", newCount);
         setShowResend(false); 
-        setCooldown(180);
+        setCooldown(185);
         setError("");
         setSuccess("Verification email resent!");
         setTimeout(() => setSuccess(""), 4500);
@@ -423,6 +423,7 @@ useEffect(() => {
            <span>
              You can resend again in{" "}
              <span className="font-semibold animate-pulse">{formatTime(cooldown)}</span>
+            {" "}[Attempts remaining: {3 - resendCount}]
            </span>
          </motion.p>
        </div>

@@ -7,26 +7,10 @@ import useAuthRedirect from 'hooks/useAuthRedirect';
 import API from 'api/api';
 import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton } from 'Components/globalbuttons';
 import { useLoading } from 'context/LoadingContext';
-  const Dashboard = () => {
-  useAuthRedirect(); 
-  const [data, setData] = useState([]);
-  const [user, setUser] = useState(null);
-  const { loading } = useLoading();
-  const [openSection, setOpenSection] = useState(null);
-  const [version] = useState(0);
-  const [showLimitMsg, setShowLimitMsg] = useState(false);
-  const [logoutLoading, setLogoutLoading] = useState(false);
-  const [logoutError, setLogoutError] = useState('');
-  const [logoutSuccess, setLogoutSuccess] = useState('');
-  const shimmerControls = useAnimation();
-  const historySectionRefs = useRef([]);
-  const infoSectionRefs = useRef([]);
-  const location = useLocation();
-  const navigate = useNavigate(); 
-  const topRef = useRef(null);
+  
   const sentence = "Your Climate Dashboard";
   const words = sentence.split(" ");
-  const bottomRef = useRef(null);
+  
 
 const getLetterVariants = () => ({
   initial: { y: 0, opacity: 1, scale: 1 },
@@ -226,7 +210,24 @@ const AnimatedHeadline = React.memo(() => {
     </div>
   );
 });
-
+  const Dashboard = () => {
+  useAuthRedirect(); 
+  const [data, setData] = useState([]);
+  const [user, setUser] = useState(null);
+  const { loading } = useLoading();
+  const [openSection, setOpenSection] = useState(null);
+  const [version] = useState(0);
+  const [showLimitMsg, setShowLimitMsg] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
+  const [logoutSuccess, setLogoutSuccess] = useState('');
+  const shimmerControls = useAnimation();
+  const historySectionRefs = useRef([]);
+  const infoSectionRefs = useRef([]);
+  const location = useLocation();
+  const navigate = useNavigate(); 
+  const bottomRef = useRef(null);
+  const topRef = useRef(null);
 useEffect(() => {
   const fetchUser = async () => {
     try {

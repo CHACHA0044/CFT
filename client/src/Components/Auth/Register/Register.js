@@ -18,16 +18,8 @@ import {
   boxglow
 } from 'utils/styles';
 
-const Register = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  });
-const topRef = useRef(null);
   const sentence = "Track. Reduce. Inspire.";
   const words = sentence.split(" ");
-  const bottomRef = useRef(null);
   const getLetterVariants = () => ({
     initial: { y: 0, opacity: 1, scale: 1 },
     fall: {
@@ -226,6 +218,13 @@ const topRef = useRef(null);
       </div>
     );
   };
+const Register = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);

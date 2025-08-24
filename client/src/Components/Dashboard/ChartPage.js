@@ -23,33 +23,9 @@ const globalAverages = {
   waste: 30,
 };
 
-const ChartPage = () => {
-  useAuthRedirect();
-  const location = useLocation();
-  const [entryData, setEntryData] = useState(location.state?.entry || null);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [user, setUser] = useState(null);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
-  const processed = useMemo(() => entryData ? calculateEmissions(entryData) : null, [entryData]);
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const [error, setError] = useState(null);
-  const [zoomRange, setZoomRange] = useState([1, 12]);
-  const handleZoom = useCallback((e) => { if (!e.ctrlKey) return; e.preventDefault();
-  const rect = chartRef.current.getBoundingClientRect();
-  const scale = scaleLinear().domain([rect.left, rect.right]).range([zoomRange[0], zoomRange[1]]);
-  const pointerX = e.clientX;
-  const pointerMonth = scale(pointerX);
-  const range = zoomRange[1] - zoomRange[0];
-  const zoomFactor = e.deltaY < 0 ? 0.9 : 1.1;
-  const newRange = range * zoomFactor;
-  const newMin = Math.max(1, pointerMonth - (pointerMonth - zoomRange[0]) * zoomFactor);
-  const newMax = Math.min(12, newMin + newRange); setZoomRange([newMin, newMax]);}, [zoomRange]);
-  
-  const topRef = useRef(null);
     const sentence = "Your Emission Trends";
     const words = sentence.split(" ");
-    const bottomRef = useRef(null);
-  
+
   const getLetterVariants = () => ({
     initial: { y: 0, opacity: 1, scale: 1 },
     fall: {
@@ -248,7 +224,28 @@ const ChartPage = () => {
       </div>
     );
   };
-
+const ChartPage = () => {
+  useAuthRedirect();
+  const location = useLocation();
+  const [entryData, setEntryData] = useState(location.state?.entry || null);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [user, setUser] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const processed = useMemo(() => entryData ? calculateEmissions(entryData) : null, [entryData]);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [error, setError] = useState(null);
+  const [zoomRange, setZoomRange] = useState([1, 12]);
+  const handleZoom = useCallback((e) => { if (!e.ctrlKey) return; e.preventDefault();
+  const rect = chartRef.current.getBoundingClientRect();
+  const scale = scaleLinear().domain([rect.left, rect.right]).range([zoomRange[0], zoomRange[1]]);
+  const pointerX = e.clientX;
+  const pointerMonth = scale(pointerX);
+  const range = zoomRange[1] - zoomRange[0];
+  const zoomFactor = e.deltaY < 0 ? 0.9 : 1.1;
+  const newRange = range * zoomFactor;
+  const newMin = Math.max(1, pointerMonth - (pointerMonth - zoomRange[0]) * zoomFactor);
+  const newMax = Math.min(12, newMin + newRange); setZoomRange([newMin, newMax]);}, [zoomRange]);
+  
 useEffect(() => {
   const fetchUser = async () => {
     try {

@@ -350,7 +350,7 @@ useEffect(() => {
     <p className="text-green-500 text-sm text-center animate-pulse">
       {success}
     </p>
-  ) : error || showResend ? (
+  ) : (error || showResend || cooldown > 0) ? (
     <>
       <p className="text-red-600 text-sm text-center animate-bounce">
         {error}

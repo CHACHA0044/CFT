@@ -7,49 +7,10 @@ import { HomeHeaderButton } from './globalbuttons';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 import ScrollDownAnimation from 'animations/ScrollDown.json';
+import appVersion from '../version.json';
 import { MdEmail } from "react-icons/md";
-const Home = () => {
-  const { setLoading } = useLoading(); 
-  const titleRef = useRef(null);
-  const topRef = useRef(null);
   const sentence = "Your  Carbon  Story";
   const words = sentence.split(" ");
-  const bottomRef = useRef(null);
-  const contentRef = useRef(null);
-  const [showContent, setShowContent] = useState(false);
-  const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
-  const contentVariants = {
-  hidden: { opacity: 0, y: -10, transition: { duration: 0.2, delay: 0.6 } }, // exit
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.8 } }, // entry
-};
-const [screenHeight, setScreenHeight] = useState({ collapsed: 70, expanded: 110 });
-useEffect(() => {
-  const handleScroll = () => {
-    const scrollTop = window.scrollY;
-
-    if (scrollTop > 50) {
-      setShowContent(true);
-    } else {
-      setShowContent(false);
-    }
-  };
-
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, []);
-useEffect(() => {
-  const updateHeight = () => {
-    const width = window.innerWidth;
-    if (width < 640) setScreenHeight({ collapsed: 70, expanded: 85 }); // mobile
-    else if (width < 768) setScreenHeight({ collapsed: 75, expanded: 115 }); // tablet
-    else if (width < 1024) setScreenHeight({ collapsed: 80, expanded: 120 }); // small desktop
-    else setScreenHeight({ collapsed: 90, expanded: 130 }); // large desktop
-  };
-
-  updateHeight();
-  window.addEventListener('resize', updateHeight);
-  return () => window.removeEventListener('resize', updateHeight);
-}, []);
 
   const getLetterVariants = () => ({
     initial: { y: 0, opacity: 1, scale: 1 },
@@ -80,31 +41,6 @@ useEffect(() => {
     }
     return a;
   }
-  
-  const triggerConfetti = (element) => {
-    if (!element) return;
-  
-    for (let i = 0; i < 8; i++) {
-      const conf = document.createElement('span');
-      const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#F43F5E', '#22D3EE'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-  
-      conf.className = 'absolute w-1.5 h-1.5 rounded-full pointer-events-none';
-      conf.style.backgroundColor = randomColor;
-      conf.style.left = '50%';
-      conf.style.top = '50%';
-      conf.style.position = 'absolute';
-  
-      const x = `${Math.random() * 60 - 30}px`;
-      const y = `${Math.random() * 60 - 30}px`;
-      conf.style.setProperty('--x', x);
-      conf.style.setProperty('--y', y);
-      conf.style.animation = `confetti-burst 600ms ease-out forwards`;
-  
-      element.appendChild(conf);
-      setTimeout(() => conf.remove(), 700);
-    }
-  };
   
   const AnimatedHeadline = () => {
     const [activeBurstIndex, setActiveBurstIndex] = useState(null);
@@ -249,6 +185,44 @@ useEffect(() => {
       </div>
     );
   };
+const Home = () => {
+  const titleRef = useRef(null);
+  const [showContent, setShowContent] = useState(false);
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
+  const contentVariants = {
+  hidden: { opacity: 0, y: -10, transition: { duration: 0.2, delay: 0.6 } }, // exit
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.8 } }, // entry
+};
+const [screenHeight, setScreenHeight] = useState({ collapsed: 70, expanded: 110 });
+useEffect(() => {
+  const handleScroll = () => {
+    const scrollTop = window.scrollY;
+
+    if (scrollTop > 50) {
+      setShowContent(true);
+    } else {
+      setShowContent(false);
+    }
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []);
+useEffect(() => {
+  const updateHeight = () => {
+    const width = window.innerWidth;
+    if (width < 640) setScreenHeight({ collapsed: 70, expanded: 85 }); // mobile
+    else if (width < 768) setScreenHeight({ collapsed: 75, expanded: 115 }); // tablet
+    else if (width < 1024) setScreenHeight({ collapsed: 80, expanded: 120 }); // small desktop
+    else setScreenHeight({ collapsed: 90, expanded: 130 }); // large desktop
+  };
+
+  updateHeight();
+  window.addEventListener('resize', updateHeight);
+  return () => window.removeEventListener('resize', updateHeight);
+}, []);
+
+
 
   useEffect(() => {
   const handleClickOutside = (event) => {
@@ -487,7 +461,10 @@ const handleEmailClick = (e) => {
 )}
  </AnimatePresence>
 </section>
-
+{/* Footer */}
+      <footer className="w-full font-bespoke text-center text-base italic py-4 text-emerald-700 dark:text-white">
+      Carbon down. Future up. v{" "}{appVersion.version}
+      </footer>
 
       </div>
     </PageWrapper>

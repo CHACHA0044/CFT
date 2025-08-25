@@ -5,20 +5,6 @@ import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
 import { EditButton, DeleteButton, ClearAllButton } from 'Components/globalbuttons';
 import useAuthRedirect from 'hooks/useAuthRedirect';
-
-const History = () => {
-  useAuthRedirect();
-  const [history, setHistory] = useState([]);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [success, setSuccess] = useState('');
-  const [loadingId, setLoadingId] = useState(null); 
-  const [clearingAll, setClearingAll] = useState(false); // for clear all
-  const [deletedId, setDeletedId] = useState(null);
-  const [cleared, setCleared] = useState(false);
-  //const [openSection, setOpenSection] = useState(null);
-  
   const sentence = "Emission History";
   const words = sentence.split(" ");
   //const bottomRef = useRef(null);
@@ -221,6 +207,20 @@ const History = () => {
       </div>
     );
   };
+const History = () => {
+  useAuthRedirect();
+  const [history, setHistory] = useState([]);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [success, setSuccess] = useState('');
+  const [loadingId, setLoadingId] = useState(null); 
+  const [clearingAll, setClearingAll] = useState(false); // for clear all
+  const [deletedId, setDeletedId] = useState(null);
+  const [cleared, setCleared] = useState(false);
+  //const [openSection, setOpenSection] = useState(null);
+  
+ 
 
   useEffect(() => {
     fetchHistory();

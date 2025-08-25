@@ -154,8 +154,8 @@ useEffect(() => {
       </div>
 
       {/* Footer */}
-      <footer className="w-full text-center text-base italic py-4 text-emerald-700 dark:text-white">
-      Carbon down. Future up. v{appVersion.version}
+      <footer className="w-full text-center font-germania tracking-wider text-lg italic py-4 text-emerald-700 dark:text-white backdrop-blur-xl">
+      Carbon down<span className="animate-pulse">.</span> Future up<span className="animate-pulse">.</span> v {appVersion.version}
       </footer>
     </div>
   );

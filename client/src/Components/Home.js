@@ -283,6 +283,25 @@ const handleEmailClick = (e) => {
     );
   }
 };
+const [scrollingUp, setScrollingUp] = useState(false);
+
+useEffect(() => {
+  let lastScrollY = window.scrollY;
+
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY < lastScrollY) {
+      setScrollingUp(true);
+    } else {
+      setScrollingUp(false);
+    }
+    lastScrollY = currentScrollY;
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
   return (
     <motion.div
             initial={{ x:100, opacity: 0}}
@@ -462,9 +481,21 @@ const handleEmailClick = (e) => {
  </AnimatePresence>
 </section>
 {/* Footer */}
-      <footer className="w-full font-bespoke text-center text-base italic py-4 text-emerald-700 dark:text-white">
-      Carbon down. Future up. v{" "}{appVersion.version}
-      </footer>
+      <AnimatePresence>
+  {!scrollingUp && (
+    <motion.footer
+      key="footer"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="fixed bottom-0 left-0 w-full font-bespoke text-center text-lg italic py-4 text-emerald-700 dark:text-white backdrop-blur-md"
+    >
+      Carbon down. Future up. v {appVersion.version}
+    </motion.footer>
+  )}
+</AnimatePresence>
+
 
       </div>
     </PageWrapper>

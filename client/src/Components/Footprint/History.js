@@ -266,7 +266,7 @@ setHistory(sorted);
     }, 100);
     setTimeout(() => {
       setDeletedId(null); // Reset after delay
-    }, 1000);
+    }, 2000);
   } catch (err) {
     console.error(err);
     setError('Failed to delete entry ❌');

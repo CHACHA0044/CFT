@@ -42,8 +42,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
-
-// 🛡️ Security Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(mongoSanitize());
 app.use(xss());
@@ -52,19 +50,18 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' }));
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // reduce to 100
+  max: 40, // reduce to 100
   message: 'Too many requests, please try again later.'
 });
 app.use('/api', generalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 10, //reduce to 10
+  max: 8, //reduce to 10
   message: 'Too many login/register attempts. Try again later.'
 });
 app.use('/api/auth', authLimiter);
 
-// 🔐 Force HTTPS in production (Render / Vercel etc.)
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
     if (req.headers['x-forwarded-proto'] !== 'https') {
@@ -94,8 +91,8 @@ mongoose.connect(process.env.MONGO_URI, {
   ssl: true,
   autoIndex: false,
 })
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB connection error:', err.message));
+  .then(() => console.log('Mongo connected'))
+  .catch(err => console.error('Mongo connection error:', err.message));
 
 // server startup
 const PORT = process.env.PORT || 5000;

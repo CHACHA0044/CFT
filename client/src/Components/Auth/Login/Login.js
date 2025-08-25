@@ -307,7 +307,7 @@ timers.current = [
   timers.current.forEach((t) => clearTimeout(t));
   setDelayMessage('');
   if (err.response?.status === 403) {
-  setError('Please verify your email. Didn’t get it?');
+  setError('Please verify your email.');
   if (cooldown === 0) setShowResend(true);
   } else if (err.response?.data?.error) {
     setError(err.response.data.error);

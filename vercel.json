@@ -1,52 +1,23 @@
 {
   "headers": [
     {
-      "source": "/:all*(jpg|jpeg)",
+      "source": "/manifest.json",
       "headers": [
-        { "key": "Content-Type", "value": "image/jpeg" },
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Accept-Ranges", "value": "none" }
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
       ]
     },
     {
-      "source": "/:all*(png)",
+      "source": "/:all*(jpg|jpeg|png|webp|gif|svg|ico)",
       "headers": [
-        { "key": "Content-Type", "value": "image/png" },
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Accept-Ranges", "value": "none" }
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
-    },
+    }
+  ],
+  "rewrites": [
     {
-      "source": "/:all*(webp)",
-      "headers": [
-        { "key": "Content-Type", "value": "image/webp" },
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Accept-Ranges", "value": "none" }
-      ]
-    },
-    {
-      "source": "/:all*(gif)",
-      "headers": [
-        { "key": "Content-Type", "value": "image/gif" },
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Accept-Ranges", "value": "none" }
-      ]
-    },
-    {
-      "source": "/:all*(svg)",
-      "headers": [
-        { "key": "Content-Type", "value": "image/svg+xml" },
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Accept-Ranges", "value": "none" }
-      ]
-    },
-    {
-      "source": "/:all*(ico)",
-      "headers": [
-        { "key": "Content-Type", "value": "image/x-icon" },
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Accept-Ranges", "value": "none" }
-      ]
+      "source": "/((?!manifest.json|.*\\.(jpg|jpeg|png|webp|gif|svg|ico)).*)",
+      "destination": "/index.html"
     }
   ]
 }

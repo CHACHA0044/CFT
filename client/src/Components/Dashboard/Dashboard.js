@@ -767,24 +767,12 @@ useEffect(() => {
 <div className="relative w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
   <NewEntryButton className="w-40" />
    {data.length > 0 && (
-    <VisualizeButton
-      entries={data} 
-       onClick={(entry) => navigate('/chart', { state: { entry } })}
-      className="w-40"
-    />
+    <VisualizeButton entries={data}  onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" />
   )}
   <EditDeleteButton className="w-40" />
-  <LogoutButton
-    onLogout={handleLogout}
-    loading={logoutLoading}
-    success={logoutSuccess}
-    error={logoutError}
-    className="w-40"
-  />
+  <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
 </div>
-
 <div ref={bottomRef}></div>
-
 </div>    
     </PageWrapper>
     </motion.div>

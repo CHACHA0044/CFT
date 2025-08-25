@@ -266,7 +266,7 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
   h-6 px-2 text-sm
   sm:h-10 sm:px-5 sm:text-base
   md:h-12 md:px-6 md:text-lg
-  sm:rounded-xl rounded-md font-semibold font-sriracha sm:tracking-wide shadow-lg overflow-hidden dark:text-gray-100 text-emerald-500 
+  sm:rounded-xl rounded-lg font-semibold font-sriracha sm:tracking-wide shadow-lg overflow-hidden dark:text-gray-100 text-emerald-500 
 "
 
       style={{

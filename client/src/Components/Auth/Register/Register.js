@@ -260,18 +260,19 @@ const handleSubmit = async (e) => {
   setLoading(true);
   setDelayMessage('');
 await new Promise((resolve) => setTimeout(resolve, 400));
+timers.current = [
+      setTimeout(() => setDelayMessage('Thanks for your patience... ☀️'), 10000),
+      setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 20000),
+      setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 30000),
+      setTimeout(() => setDelayMessage('Almost there...'), 40000),
+    ];
   try {
     await API.post('/auth/register', {
       name: formData.name,
       email: formData.email,
       password: formData.password
     });
-timers.current = [
-      setTimeout(() => setDelayMessage('Thanks for your patience... ✨'), 10000),
-      setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 20000),
-      setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 30000),
-      setTimeout(() => setDelayMessage('Almost there...'), 40000),
-    ];
+
     timers.current.forEach((t) => clearTimeout(t));
     setDelayMessage('');
     setSuccess('🎉 Registration successful! Please check your email and click the link to verify your account.');
@@ -280,7 +281,7 @@ timers.current = [
     setPasswordStrength(null);
     sessionStorage.setItem("pendingVerificationEmail", formData.email);
     sessionStorage.setItem("justRegistered", "true");
-    setTimeout(() => navigate('/login'), 2500);
+    setTimeout(() => navigate('/login'), 2750);
   } catch (error) {
     console.error('❌ Registration error:', error);
     timers.current.forEach((t) => clearTimeout(t));

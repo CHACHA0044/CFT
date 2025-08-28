@@ -261,9 +261,10 @@ const handleSubmit = async (e) => {
   setDelayMessage('');
 await new Promise((resolve) => setTimeout(resolve, 400));
 timers.current = [
+      setTimeout(() => setDelayMessage('Please donot reload... 🙂'), 5000),
       setTimeout(() => setDelayMessage('Thanks for your patience... ☀️'), 10000),
-      setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 20000),
-      setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 30000),
+      setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 30000),
+      setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 20000),
       setTimeout(() => setDelayMessage('Almost there...'), 40000),
     ];
   try {

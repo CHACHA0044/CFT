@@ -7,14 +7,14 @@
 👤 **LinkedIn**:  [Pranav Dembla](https://www.linkedin.com/in/pranav-dembla-3a1431291?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)  
 
 
-![Node.js](https://img.shields.io/badge/Node.js-18.x-2b2d42?logo=node.js&logoColor=68a063)
-![React](https://img.shields.io/badge/React-18-2b2d42?logo=react&logoColor=61dafb)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-2b2d42?logo=mongodb&logoColor=4db33d)
-![Vercel](https://img.shields.io/badge/Frontend-Vercel-2b2d42?logo=vercel&logoColor=white)
-![Render](https://img.shields.io/badge/Backend-Render-2b2d42?logo=render&logoColor=46e3b7)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-2b2d42?logo=javascript&logoColor=f7df1e)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-2b2d42?logo=tailwindcss&logoColor=38bdf8)
-![Nodemailer](https://img.shields.io/badge/Nodemailer-Enabled-2b2d42?logo=gmail&logoColor=ea4335)
+[![Node.js](https://img.shields.io/badge/Node.js-18.x-2b2d42?logo=node.js&logoColor=68a063)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18-2b2d42?logo=react&logoColor=61dafb)](https://react.dev/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-2b2d42?logo=mongodb&logoColor=4db33d)](https://www.mongodb.com/atlas)
+[![Vercel](https://img.shields.io/badge/Frontend-Vercel-2b2d42?logo=vercel&logoColor=white)](https://vercel.com/)
+[![Render](https://img.shields.io/badge/Backend-Render-2b2d42?logo=render&logoColor=46e3b7)](https://render.com/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-2b2d42?logo=javascript&logoColor=f7df1e)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-2b2d42?logo=tailwindcss&logoColor=38bdf8)](https://tailwindcss.com/)
+[![Nodemailer](https://img.shields.io/badge/Nodemailer-Enabled-2b2d42?logo=gmail&logoColor=ea4335)](https://nodemailer.com/about/)
 
 ---
 

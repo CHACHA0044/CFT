@@ -1,6 +1,6 @@
 # 🌍 Carbon Footprint Tracker (CFT)
 
-> **Carbon Footprint Tracker (CFT)** is a MERN-stack application designed to help users monitor and reduce their environmental impact. It allows users to log monthly lifestyle data (**food, transport, electricity, waste**), calculates their CO₂-equivalent emissions, delivers tailored reduction suggestions, and fosters engagement through community leaderboards.  
+> **Carbon Footprint Tracker** is a MERN-stack application designed to help users monitor and reduce their environmental impact. It allows users to log monthly lifestyle data (**food, transport, electricity, waste**), calculates their CO₂-equivalent emissions, delivers tailored reduction suggestions, and fosters engagement through community leaderboards.  
 
 🔗 **Live App**:  [cft-self.vercel.app](https://cft-self.vercel.app)  
 📦 **Repo**:  [CHACHA0044/CFT](https://github.com/CHACHA0044/CFT)  

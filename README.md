@@ -36,11 +36,13 @@
 ## 📌 Project Overview
 
 Carbon Footprint Tracker (CFT) is a full-stack MERN application that empowers users to measure, track, and reduce their personal carbon footprint.
-By logging simple lifestyle data each month (food, transport, electricity, and waste), users receive a standardized CO₂-equivalent estimate, personalized reduction suggestions, and can compare results on interactive dashboards and leaderboards.
+By logging simple lifestyle data each month (food, transport, electricity, and waste), users receive a standardized CO₂-equivalent estimate, personalized reduction suggestions, and can compare results on interactive dashboards and leaderboards.  
 
-The app uses:
-**Frontend**: React, Tailwind CSS, Framer Motion (hosted on Vercel)
-**Backend**: Node.js, Express, Mongoose (hosted on Render)
+I started this project just for fun and to get hands-on experience with the MERN stack and other modern tools. Most of the work here was built by me from scratch, but along the way I did use AI and other resources to get guidance and help with some features and bits of code. Never through blind copy-pasting, but by adapting and understanding them to truly make the project my own.
+
+The app uses:  
+**Frontend**: React, Tailwind CSS, Framer Motion (hosted on Vercel)  
+**Backend**: Node.js, Express, Mongoose (hosted on Render)  
 **Database**: MongoDB Atlas
 
 ### 🔄 Core User Flow

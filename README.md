@@ -262,4 +262,4 @@ Please follow the repo’s coding style (ESLint/Prettier if configured).
 ## 📬 Contact
 
 Repo: https://github.com/CHACHA0044/CFT  
-Maintainer: Pranav Dembla (pdembla@student.iul.ac.in)
+Maintainer: [Pranav Dembla](https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com)

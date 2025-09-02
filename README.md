@@ -26,9 +26,9 @@
 - [Repo Layout](#repo-layout-high-level)
 - [Testing & QA](#testing--qa)
 - [Deployment](#deployment)
+- [Security](#sec)
 - [Troubleshooting](#troubleshooting-common-gotchas)
 - [Contributing](#contributing)
-- [License](#license)
 - [Contact](#contact)
 
 ---
@@ -157,7 +157,7 @@ CFT makes climate action accessible:
 Built with scalability and extensibility in mind — new categories, gamification features, or integrations can be added without disrupting existing modules.
 
 ---
-
+<a name="features"></a> 
 ## 🚀 Features
 
 - 🔐 User registration, email verification, and **secure cookie-based sessions**  
@@ -169,7 +169,7 @@ Built with scalability and extensibility in mind — new categories, gamificatio
 - 🔍 Planned admin/analytics hooks  
 
 ---
-
+<a name="tech-stack"></a>  
 ## 🛠 Tech Stack
 
 **Frontend**: React, Tailwind CSS, Framer Motion, Recharts  
@@ -180,7 +180,7 @@ Built with scalability and extensibility in mind — new categories, gamificatio
 **Hosting**: Vercel (frontend), cloud backend, MongoDB Atlas  
 
 ---
-
+<a name="repo-layout-high-level"></a>  
 ## 📂 Repo Layout 
 
 ```bash
@@ -197,7 +197,7 @@ Built with scalability and extensibility in mind — new categories, gamificatio
 ```
 
 ---
-
+<a name="testing--qa"></a>  
 ## ✅ Testing & QA
 
 Recommended testing approach...
@@ -212,7 +212,7 @@ Auth routes: register/login/logout flows.
 Route permissions: ensure one user cannot access another user’s entries.
 
 ---
-
+<a name="deployment"></a>  
 ## 🚀 Deployment
 
 **Frontend**
@@ -225,7 +225,7 @@ MongoDB Atlas for production. Use separate DB users for dev/production and enabl
 Use GitHub Actions to run tests and build client. On main push, deploy frontend to Vercel and backend to render.
 
 ---
-
+<a name="sec"></a>  
 ## 🔒 Security considerations
 
 Use HTTP-only cookies and SameSite=none (required because the frontend and backend are hosted on different domains and need cross-site cookie access), Secure=isProd (only sent over HTTPS, in production), HttpOnly=true (protects from XSS).
@@ -235,7 +235,7 @@ Protect sensitive routes with rate-limiting and Helmet middleware.
 Sanitize all user inputs before saving to DB or rendering.
 
 ---
-
+<a name="troubleshooting-common-gotchas"></a>  
 ## 🐞 Troubleshooting 
 
 403 / manifest.json: check your static asset configuration and hosting setup (paths, base path, Vercel static settings).
@@ -244,7 +244,7 @@ Email not sending: verify SMTP host/port/credentials and check logs from Nodemai
 CORS issues: confirm CLIENT_URL is allowed in server CORS config and the backend supports credentials.
 
 ---
-
+<a name="contributing"></a> 
 ## 🤝 Contributing
 
 We welcome contributions!
@@ -256,7 +256,7 @@ Ensure CI passes before requesting review.
 Please follow the repo’s coding style (ESLint/Prettier if configured).
 
 ---
-
+<a name="contact"></a> 
 ## 📬 Contact
 
 Repo: https://github.com/CHACHA0044/CFT  

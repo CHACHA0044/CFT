@@ -398,7 +398,7 @@ const handleEmailClick = (e) => {
     {/* Heading */}
     <motion.h2
             variants={itemVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold text-emerald-500 dark:text-gray-100">
-      What<span className="animate-pulse">'</span>s Your Carbon Impact<span className="animate-pulse">?</span>
+      What<span className="animate-pulse">'</span>s Your Carbon Impact <span className="animate-pulse">?</span>
     </motion.h2>
 
     {/* Full version for tablets and up */}
@@ -426,7 +426,7 @@ const handleEmailClick = (e) => {
             className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"
           >
       
-      <span className="font-medium">Ready to begin?</span> Tap the <span className="font-semibold text-green-800 dark:text-green-300 animate-glow"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
+      <span className="font-medium">Ready to begin <span className="animate-pulse">?</span></span> Tap the <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
     </motion.p>
 
     {/* Compact version for mobile */}
@@ -438,14 +438,14 @@ const handleEmailClick = (e) => {
       <motion.p
             variants={itemVariants}
  className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
-      Tap <span className="font-semibold text-green-800 dark:text-green-300 animate-glow"><span className="animate-pulse">"</span>Carbon Footprint Tracker<span className="animate-pulse">"</span></span> above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
+      Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
     </motion.p> 
 
     {/* Feedback Email */}
 <motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
   Your experience is important<span className="animate-pulse font-extrabold">!</span> It would be a great help if you could email your valuable feedback to{' '}
   <a
-    href="mailto:carbontracker.noreply@gmail.com?subject=Feedback%20on%20Carbon%20Tracker"
+    href="mailto:carbontracker.noreply@gmail.com?subject=Feedback%20on%20Carbon%20Footprint%20Tracker"
     onClick={handleEmailClick}
     target="_blank"
     rel="noopener noreferrer"

@@ -26,7 +26,7 @@
 - [Repo Layout](#repo-layout-high-level)
 - [Testing & QA](#testing--qa)
 - [Deployment](#deployment)
-- [Security](#sec)
+- [Security Considerations](#sec)
 - [Troubleshooting](#troubleshooting-common-gotchas)
 - [Contributing](#contributing)
 - [Contact](#contact)

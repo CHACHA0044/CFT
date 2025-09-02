@@ -32,7 +32,7 @@
 - [Contact](#contact)
 
 ---
-
+<a name="project-overview"></a> 
 ## 📌 Project Overview
 
 Carbon Footprint Tracker (CFT) is a full-stack MERN application that empowers users to measure, track, and reduce their personal carbon footprint.

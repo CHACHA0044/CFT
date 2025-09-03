@@ -129,6 +129,21 @@ useEffect(() => {
         requestAnimationFrame(() => setIsFlipping(true));
         setTimeout(() => setIsFlipping(false), 400);
 
+        if (navigator.vibrate) {
+      const vibrationPatterns = {
+        new: [30],
+        edit: [20, 40, 20],
+        delete: [50, 100, 50],
+        save: [15, 30, 15],
+        verify: [60],
+        clear: [40, 60, 40],
+        logout: [25, 50, 25],
+        visualize: [10, 20, 10, 20],
+        default: [20]
+      };
+      navigator.vibrate(vibrationPatterns[iconType] || vibrationPatterns.default);
+    }
+
         const newIndex = (schemeIndex + 1) % schemes.length;
         setSchemeIndex(newIndex);
 const delay = (disabled && text === 'Processing...') ? 1000 : 400; 
@@ -234,7 +249,7 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
     setTimeout(() => setIsFlipping(false), 400); // reset flip after animation
     setTimeout(() => {
       window.location.href = navigateTo;
-    }, 400); // navigate after small delay
+    }, 400);
   };
 
   return (

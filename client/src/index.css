@@ -360,3 +360,11 @@ html {
     to { opacity: 1; transform: translateY(0); }
   }
 }
+.gpu-accelerate {
+  will-change: opacity, transform;
+  transform: translateZ(0);
+}
+.recharts-wrapper,
+.VictoryContainer {
+  touch-action: pan-y !important; 
+}

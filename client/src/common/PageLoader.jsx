@@ -43,27 +43,6 @@ useEffect(() => {
 
 const lottieSize = isMobile ? 150 : 400; 
 const lottieSpeed = isMobile ? 0.6 : 1.5; 
-const lottieVariants = {
-  initial: { opacity: 0, scale: 0.85, filter: "blur(6px)" },
-  enter: {
-    opacity: 1,
-    scale: 1,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.5,
-      ease: [0.16, 1, 0.3, 1],
-    },
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.9,
-    filter: "blur(4px)",
-    transition: {
-      duration: 0.4,
-      ease: [0.4, 0, 0.2, 1], 
-    },
-  },
-};
 
   return (
     
@@ -75,11 +54,12 @@ const lottieVariants = {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.38, ease: [0.22, 0.9, 0.2, 1] }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           style={{
-            transform: "translateZ(0)"
-          }}
-        >
+          willChange: "opacity, transform",   
+          transform: "translateZ(0)"          
+        }}
+      >
           <Lottie
             animationData={loadingAnimation}
             autoplay
@@ -87,7 +67,6 @@ const lottieVariants = {
             lottieRef={lottieRef}
             speed={lottieSpeed}
             style={{ width: lottieSize, height: lottieSize, zIndex: 10 }}
-            variants={lottieVariants}
           />
         </motion.div>
       )}

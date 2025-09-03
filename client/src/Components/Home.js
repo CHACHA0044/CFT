@@ -185,6 +185,33 @@ import { MdEmail } from "react-icons/md";
       </div>
     );
   };
+
+const AniDot = () => (
+  <span aria-hidden="true" className="inline-flex items-center ml-1">
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-2xl sm:font-bold ml-1"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+    >
+      .
+    </motion.span>
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-2xl sm:font-bold"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+    >
+      .
+    </motion.span>
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-2xl sm:font-bold"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
+    >
+      .
+    </motion.span>
+  </span>
+);
+
 const Home = () => {
   const titleRef = useRef(null);
   const [showContent, setShowContent] = useState(false);
@@ -404,7 +431,7 @@ const handleEmailClick = (e) => {
     {/* Full version for tablets and up */}
     <motion.p
             variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"><br />
-      Go beyond guessing — <span className="font-semibold">discover your true carbon footprint</span> based on your real lifestyle.
+      Go beyond guessing — discover your true <span className="font-semibold">Carbon Footprint</span> based on your real lifestyle<AniDot />
       </motion.p>
        <motion.p
             variants={itemVariants}
@@ -433,7 +460,7 @@ const handleEmailClick = (e) => {
      <motion.p
             variants={itemVariants}
  className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
-      Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually.
+      Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually<AniDot />
       </motion.p>
       <motion.p
             variants={itemVariants}

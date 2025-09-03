@@ -228,12 +228,12 @@ const Footprint = () => {
     updated[index] = { ...updated[index], [e.target.name]: e.target.value };
     setFormData({ ...formData, transport: updated });
   };
-const MAX_TRANSPORT = 5;
+const MAX_TRANSPORT = 6;
 const addTransport = () => {
   const currentCount = formData.transport.length;
 
   if (currentCount >= MAX_TRANSPORT) {
-    setSuccess(`🚦 You can only add up to ${MAX_TRANSPORT} transport entries.`);
+    setSuccess(`🚦 You can only add up to ${MAX_TRANSPORT} transport entries...`);
     return;
   }
 
@@ -243,9 +243,9 @@ const addTransport = () => {
   ];
 
   setFormData({ ...formData, transport: updatedTransport });
-
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if (updatedTransport.length === MAX_TRANSPORT) {
-    setSuccess(`🚦 You’ve reached the maximum of ${MAX_TRANSPORT} transport entries.`);
+    setSuccess(`🚦 You’ve reached the maximum of ${MAX_TRANSPORT} transport entries...`);
   } else {
     setSuccess('✅ New transport option added!');
   }
@@ -255,6 +255,7 @@ const addTransport = () => {
   const updated = [...formData.transport];
   updated.splice(index, 1);
   setFormData({ ...formData, transport: updated });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   setSuccess('🚗 Transport option removed.');
   };
 
@@ -262,6 +263,7 @@ const addTransport = () => {
   const updated = [...formData.electricity];
   updated.splice(index, 1);
   setFormData({ ...formData, electricity: updated });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   setSuccess('⚡ Electricity option removed.');
 };
 
@@ -270,12 +272,12 @@ const addTransport = () => {
     updated[index] = { ...updated[index], [e.target.name]: e.target.value };
     setFormData({ ...formData, electricity: updated });
   };
-const MAX_ELECTRICITY = 3;
+const MAX_ELECTRICITY = 4;
 const addElectricity = () => {
   const currentCount = formData.electricity.length;
 
   if (currentCount >= MAX_ELECTRICITY) {
-    setSuccess(`⚡ You can only add up to ${MAX_ELECTRICITY} electricity entries.`);
+    setSuccess(`⚡ You can only add up to ${MAX_ELECTRICITY} electricity entries...`);
     return;
   }
 
@@ -285,9 +287,9 @@ const addElectricity = () => {
   ];
 
   setFormData({ ...formData, electricity: updatedElectricity });
-
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if (updatedElectricity.length === MAX_ELECTRICITY) {
-    setSuccess(`⚡ You’ve reached the maximum of ${MAX_ELECTRICITY} electricity entries.`);
+    setSuccess(`⚡ You’ve reached the maximum of ${MAX_ELECTRICITY} electricity entries...`);
   } else {
     setSuccess('✅ New electricity option added!');
   }

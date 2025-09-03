@@ -228,39 +228,52 @@ const Footprint = () => {
     updated[index] = { ...updated[index], [e.target.name]: e.target.value };
     setFormData({ ...formData, transport: updated });
   };
-
+const MAX_TRANSPORT = 5;
   const addTransport = () => {
-    setFormData({
-      ...formData,
-      transport: [...formData.transport, { mode: '', distanceKm: '' }]
-    });
-  };
+  if (formData.transport.length >= MAX_TRANSPORT) {
+    setError(`🚦 You can only add up to ${MAX_TRANSPORT} transport entries.`);
+    return;
+  }
+  setFormData({
+    ...formData,
+    transport: [...formData.transport, { mode: '', distanceKm: '' }]
+  });
+  setSuccess('✅ New transport option added!');
+};
+
 
   const handleRemoveTransport = (index) => {
   const updated = [...formData.transport];
   updated.splice(index, 1);
   setFormData({ ...formData, transport: updated });
+  setSuccess('🚗 Transport option removed.');
   };
 
   const handleRemoveElectricity = (index) => {
   const updated = [...formData.electricity];
   updated.splice(index, 1);
   setFormData({ ...formData, electricity: updated });
+  setSuccess('⚡ Electricity option removed.');
 };
-
 
   const handleElectricityChange = (index, e) => {
     const updated = [...formData.electricity];
     updated[index] = { ...updated[index], [e.target.name]: e.target.value };
     setFormData({ ...formData, electricity: updated });
   };
-
+const MAX_ELECTRICITY = 3;
   const addElectricity = () => {
-    setFormData({
-      ...formData,
-      electricity: [...formData.electricity, { source: '', consumptionKwh: '' }]
-    });
-  };
+  if (formData.electricity.length >= MAX_ELECTRICITY) {
+    setError(`⚡ You’ve reached the maximum of ${MAX_ELECTRICITY} electricity entries.`);
+    return;
+  }
+  setFormData({
+    ...formData,
+    electricity: [...formData.electricity, { source: '', consumptionKwh: '' }]
+  });
+  setSuccess('✅ New electricity option added!');
+};
+
 
   const handleWasteChange = (e) => {
     setFormData({
@@ -337,6 +350,15 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
+useEffect(() => {
+  if (success || error) {
+    const timer = setTimeout(() => {
+      setSuccess('');
+      setError('');
+    }, 2500);
+    return () => clearTimeout(timer);
+  }
+}, [success, error]);
 
 // useEffect(() => {
 //   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -427,6 +449,7 @@ const handleSubmit = async (e) => {
     )}
               </div>
             ))}
+            {formData.transport.length < MAX_TRANSPORT && (
             <button
               type="button"
               onClick={addTransport}
@@ -434,6 +457,7 @@ const handleSubmit = async (e) => {
             >
               Add <span className="animate-pulse">+</span>
             </button>
+            )}
           </div>
 
           {/* electricity */}
@@ -473,6 +497,7 @@ const handleSubmit = async (e) => {
     )}
               </div>
             ))}
+            {formData.electricity.length < MAX_ELECTRICITY && (
             <button
               type="button"
               onClick={addElectricity}
@@ -480,6 +505,7 @@ const handleSubmit = async (e) => {
             >
               Add <span className="animate-pulse">+</span>
             </button>
+            )}
           </div>
 
           {/* waste */}

@@ -229,18 +229,27 @@ const Footprint = () => {
     setFormData({ ...formData, transport: updated });
   };
 const MAX_TRANSPORT = 5;
-  const addTransport = () => {
-  if (formData.transport.length >= MAX_TRANSPORT) {
-    setError(`🚦 You can only add up to ${MAX_TRANSPORT} transport entries.`);
+const addTransport = () => {
+  const currentCount = formData.transport.length;
+
+  if (currentCount >= MAX_TRANSPORT) {
+    setSuccess(`🚦 You can only add up to ${MAX_TRANSPORT} transport entries.`);
     return;
   }
-  setFormData({
-    ...formData,
-    transport: [...formData.transport, { mode: '', distanceKm: '' }]
-  });
-  setSuccess('✅ New transport option added!');
-};
 
+  const updatedTransport = [
+    ...formData.transport,
+    { mode: '', distanceKm: '' }
+  ];
+
+  setFormData({ ...formData, transport: updatedTransport });
+
+  if (updatedTransport.length === MAX_TRANSPORT) {
+    setSuccess(`🚦 You’ve reached the maximum of ${MAX_TRANSPORT} transport entries.`);
+  } else {
+    setSuccess('✅ New transport option added!');
+  }
+};
 
   const handleRemoveTransport = (index) => {
   const updated = [...formData.transport];
@@ -262,18 +271,27 @@ const MAX_TRANSPORT = 5;
     setFormData({ ...formData, electricity: updated });
   };
 const MAX_ELECTRICITY = 3;
-  const addElectricity = () => {
-  if (formData.electricity.length >= MAX_ELECTRICITY) {
-    setError(`⚡ You’ve reached the maximum of ${MAX_ELECTRICITY} electricity entries.`);
+const addElectricity = () => {
+  const currentCount = formData.electricity.length;
+
+  if (currentCount >= MAX_ELECTRICITY) {
+    setSuccess(`⚡ You can only add up to ${MAX_ELECTRICITY} electricity entries.`);
     return;
   }
-  setFormData({
-    ...formData,
-    electricity: [...formData.electricity, { source: '', consumptionKwh: '' }]
-  });
-  setSuccess('✅ New electricity option added!');
-};
 
+  const updatedElectricity = [
+    ...formData.electricity,
+    { source: '', consumptionKwh: '' }
+  ];
+
+  setFormData({ ...formData, electricity: updatedElectricity });
+
+  if (updatedElectricity.length === MAX_ELECTRICITY) {
+    setSuccess(`⚡ You’ve reached the maximum of ${MAX_ELECTRICITY} electricity entries.`);
+  } else {
+    setSuccess('✅ New electricity option added!');
+  }
+};
 
   const handleWasteChange = (e) => {
     setFormData({

@@ -282,6 +282,7 @@ timers.current = [
     setPasswordStrength(null);
     sessionStorage.setItem("pendingVerificationEmail", formData.email);
     sessionStorage.setItem("justRegistered", "true");
+    sessionStorage.setItem("showEmailDelayInfo", "true");
     setTimeout(() => navigate('/login'), 2750);
   } catch (error) {
     console.error('❌ Registration error:', error);

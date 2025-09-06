@@ -233,7 +233,20 @@ useEffect(() => {
     sessionStorage.removeItem("justRegistered");
   }
 }, []);
+  useEffect(() => {
+  if (sessionStorage.getItem("showEmailDelayInfo")) {
+    setDelayMessage(
+      "📧 Verification email sent! Delivery can sometimes take up to 1–2 minutes because Gmail SMTP isn’t designed for instant transactional emails..."
+    );
+    sessionStorage.removeItem("showEmailDelayInfo");
 
+    const timer = setTimeout(() => {
+      setDelayMessage("");
+    }, 15000);
+
+    return () => clearTimeout(timer); 
+  }
+}, []);
 useEffect(() => {
   if (success?.toLowerCase().includes("verified")) {
     sessionStorage.removeItem("justVerified");

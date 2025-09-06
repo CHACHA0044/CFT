@@ -467,7 +467,7 @@ useEffect(() => {
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
                 whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.2)" }}
                 whileTap={{ scale: 0.97, transition: { duration: 0.05 } }}
-                className="bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md p-4 shadow-md text-xs sm:text-sm origin-center transition-colors duration-300 cursor-pointer md:ml-28 md:w-4/5"
+                className="relative group bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md p-4 shadow-md text-xs sm:text-sm origin-center transition-colors duration-300 cursor-pointer md:ml-28 md:w-4/5"
        onClick={() => {
   setOpenSection(prev => prev === `suggestion-${index}` ? null : `suggestion-${index}`);
 }}
@@ -729,7 +729,7 @@ useEffect(() => {
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
         whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.2)" }}
         whileTap={{ scale: 0.97, transition: { duration: 0.05 } }}
-        className="p-4 bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md shadow-lg cursor-pointer origin-center transition-colors duration-300 md:ml-28 md:w-4/5"
+        className="p-4 relative group bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md shadow-lg cursor-pointer origin-center transition-colors duration-300 md:ml-28 md:w-4/5"
         onClick={() =>{ setOpenSection(prev => prev === section.id ? null : section.id); setTimeout(() => {
     const emojiEl = document.getElementById(`emoji-${section.id}`);
     if (emojiEl) triggerConfetti(emojiEl);

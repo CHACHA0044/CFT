@@ -455,7 +455,7 @@ const handleEmailClick = (e) => {
       
       <span className="font-medium">Ready to begin <span className="animate-pulse">?</span></span> Tap the <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
        <br />
-      <span className=" font-medium text-base md:text-lg leading-relaxed text-yellow-300">
+      <span className="italic font-medium text-base md:text-lg leading-relaxed text-yellow-300">
   P.S. Use dark mode — light mode is in progress <span className="animate-pulse">✨</span>
 </span>
 
@@ -471,7 +471,7 @@ const handleEmailClick = (e) => {
             variants={itemVariants}
  className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
       Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
-    <br />  <span className=" text-sm leading-relaxed text-yellow-300">
+    <br />  <span className="italic text-sm leading-relaxed text-yellow-300">
   P.S. Use dark mode — light mode is in progress <span className="animate-pulse">✨</span>
 </span>
 

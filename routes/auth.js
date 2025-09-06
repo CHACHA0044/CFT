@@ -149,33 +149,31 @@ const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
 };
 
 // FEEDBACK 
-router.post('/feedback', authenticateToken, async (req, res) => {
+router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => {
   try {
-    const { message } = req.body;
-    if (!message) return res.status(400).json({ error: "Feedback message is required." });
-
     const user = await User.findById(req.user.userId);
     if (!user) return res.status(404).json({ error: "User not found." });
 
-    await sendEmail(
-      process.env.ADMIN_EMAIL || "carbontracker.team@gmail.com",
-      `New Feedback from ${user.name} (${user.email})`,
-      `<p>${message}</p>`
-    );
+    if (!user.email) return res.status(400).json({ error: "User email not found." });
 
-    await sendEmail(
-      user.email,
-      "Thanks for your feedback ✨",
-      feedbackReplyHtml(user.name)
-    );
+    try {
+      await sendEmail(
+        user.email,
+        "Thanks for your feedback ✨",
+        feedbackReplyHtml(user.name)
+      );
+      console.log(`✅ Thank-you email resent to ${user.email}`);
+      return res.json({ message: "Thank-you email resent successfully." });
+    } catch (err) {
+      console.error(`❌ Failed to resend thank-you email to ${user.email}:`, err);
+      return res.status(500).json({ error: "Failed to resend thank-you email." });
+    }
 
-    res.json({ message: "Feedback received and reply sent." });
   } catch (err) {
-    console.error("❌ Feedback error:", err);
-    res.status(500).json({ error: "Server error while sending feedback." });
+    console.error("❌ Resend thank-you route error:", err);
+    res.status(500).json({ error: "Server error while resending thank-you email." });
   }
 });
-
 
 // REGISTER
 router.post('/register', async (req, res) => {

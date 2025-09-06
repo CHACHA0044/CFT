@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lottie from 'lottie-react';
 import loadingAnimation from 'animations/Loading.json';
+import loadingAnimationMobile from 'animations/Loading Dots Blue.json';
 import { useLoading } from 'context/LoadingContext';
 
 function useIsReload() {
@@ -41,9 +42,9 @@ useEffect(() => {
     stopLoading();
   };
 
-const lottieSize = isMobile ? 150 : 400; 
+const lottieSize = isMobile ? 200 : 400; 
 const lottieSpeed = isMobile ? 0.6 : 1.5; 
-
+const animationData = isMobile ? loadingAnimationMobile : loadingAnimation;
   return (
     
     <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
@@ -61,7 +62,7 @@ const lottieSpeed = isMobile ? 0.6 : 1.5;
         }}
       >
           <Lottie
-            animationData={loadingAnimation}
+            animationData={animationData}
             autoplay
             loop
             lottieRef={lottieRef}

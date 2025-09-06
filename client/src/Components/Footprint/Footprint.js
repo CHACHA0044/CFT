@@ -400,7 +400,7 @@ useEffect(() => {
       <div className="flex flex-col items-center justify-center w-full px-6 py-6">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-xl mt-6 p-6 bg-white/10 dark:bg-black/50 backdrop-blur-lg rounded-xl text-white space-y-6 shadow-xl transition-all duration-500"
+          className="w-full max-w-xl mt-6 p-6 bg-white/10 dark:bg-black/50 backdrop-blur-lg rounded-3xl text-white space-y-6 shadow-xl transition-all duration-500"
         >
           <h2 className="text-3xl font-bold text-center text-emerald-500 dark:text-gray-100"><AnimatedHeadline /></h2>
             <h3 className="sm:text-xl sm:tracking-wide text-base font-intertight text-center text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Enter your estimated data for a month <span className="animate-pulse">🌍</span></h3>

@@ -331,7 +331,7 @@ useEffect(() => {
               >
     <PageWrapper backgroundImage="/images/edit-bk.webp">
       <div className="flex flex-col justify-center items-center px-4 py-10">
-        <div className="w-full max-w-2xl bg-white/10 dark:bg-black/50 backdrop-blur-md rounded-lg shadow-lg p-6 text-green-500 dark:text-white">
+        <div className="w-full max-w-2xl bg-white/10 dark:bg-black/50 backdrop-blur-md rounded-3xl shadow-lg p-6 text-green-500 dark:text-white">
           <h2 className="text-2xl font-semibold mb-6 text-center"><AnimatedHeadline /></h2>
           {success && <p className="text-green-500 text-sm text-center animate-pulse font-intertight tracking-wider text-shadow-DEFAULT mb-3">{success}</p>}
           {error && <p className="text-red-500 text-sm text-center animate-bounce font-intertight tracking-wider text-shadow-DEFAULT mb-3">{error}</p>}

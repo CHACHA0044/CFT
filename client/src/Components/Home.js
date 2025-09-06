@@ -187,25 +187,27 @@ import { MdEmail } from "react-icons/md";
   };
 
 const AniDot = () => (
-  <span aria-hidden="true" className="inline-flex items-center ml-1">
+  <span aria-hidden="true" className="inline-flex items-center">
     <motion.span
       className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
       animate={{ opacity: [0, 1, 0] }}
       transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-    >.</motion.span>
+    > 
+      .
+    </motion.span>
     <motion.span
-      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold"
+      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
       animate={{ opacity: [0, 1, 0] }}
       transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
     >
-    {" "}  .
+      .
     </motion.span>
     <motion.span
-      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold"
+      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
       animate={{ opacity: [0, 1, 0] }}
       transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
     >
-    {" "}  .
+      .
     </motion.span>
   </span>
 );

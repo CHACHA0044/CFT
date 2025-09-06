@@ -472,6 +472,11 @@ useEffect(() => {
   setOpenSection(prev => prev === `suggestion-${index}` ? null : `suggestion-${index}`);
 }}
  >
+  {/* animatedborder */}
+  <div className="absolute inset-0 rounded-2xl border-2 border-transparent 
+                opacity-0 group-hover:opacity-100 animate-borderFlow 
+                border-emerald-500 dark:border-gray-100 pointer-events-none" />
+
                 <div className="text-lg sm:text-2xl md:text-3xl font-normal tracking-normal sm:font-semibold sm:tracking-wider font-intertight text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"><div className="relative inline-block">
   <span className="absolute left-[7px] -top-[6px] animate-smoke text-sm opacity-50 delay-0">☁️</span>
   <span className="absolute left-[10px] -top-[8px] animate-smoke text-xs opacity-40 delay-400">☁️</span>
@@ -732,6 +737,11 @@ useEffect(() => {
 }}
         style={{ fontFamily: 'InterTight', fontWeight: 700 }}
       >
+         {/* animatedborder */}
+        <div className="absolute inset-0 rounded-2xl border-2 border-transparent 
+                opacity-0 group-hover:opacity-100 animate-borderFlow 
+                border-emerald-500 dark:border-gray-100 pointer-events-none" />
+
         <motion.h2
           className="text-lg sm:text-2xl md:text-3xl font-normal sm:font-semibold tracking-normal sm:tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white mb-2 transition-colors duration-500 flex items-center gap-2"
         >

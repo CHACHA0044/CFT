@@ -74,7 +74,7 @@ html {
   background-size: 40px 40px;
   animation: flowing-bar 1s linear infinite;
 }
-/* In your global CSS */
+
 .lottie-container {
   position: relative;
   width: 100%;
@@ -340,7 +340,6 @@ html {
   }
 }
 
-/* Optional (but helpful) default style for confetti span */
 .confetti-burst {
   width: 6px;
   height: 6px;
@@ -348,7 +347,7 @@ html {
   position: absolute;
   animation: confetti-burst 700ms ease-out forwards;
   z-index: 40;
-  mix-blend-mode: screen; /* makes color pop on dark backgrounds */
+  mix-blend-mode: screen; 
 }
 @layer utilities {
   .animate-fade-in {

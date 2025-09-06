@@ -455,10 +455,10 @@ const handleEmailClick = (e) => {
       
       <span className="font-medium">Ready to begin <span className="animate-pulse">?</span></span> Tap the <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
        <br />
-      <span className="italic text-yellow-300 ">
-        P.S. For the best experience, please use dark mode <span className="animate-pulse">✨</span> 
-        (light mode is still under development).
-      </span>
+      <span className="italic font-medium text-base md:text-lg leading-relaxed text-yellow-300">
+  P.S. Use dark mode — light mode is in progress <span className="animate-pulse">✨</span>
+</span>
+
     </motion.p>
 
     {/* Compact version for mobile */}
@@ -471,15 +471,15 @@ const handleEmailClick = (e) => {
             variants={itemVariants}
  className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
       Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
-      <span className="italic text-yellow-300 ">
-        P.S. For the best experience, please use dark mode <span className="animate-pulse">✨</span> 
-        (light mode is still under development).
-      </span>
+    <br />  <span className="italic text-sm leading-relaxed text-yellow-300">
+  P.S. Use dark mode — light mode is in progress <span className="animate-pulse">✨</span>
+</span>
+
     </motion.p> 
 
     {/* Feedback Email */}
 <motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
-  Your experience is important<span className="animate-pulse font-extrabold">!</span> It would be a great help if you could email your valuable feedback to{' '}
+We value your feedback<span className="animate-pulse font-extrabold">!</span> Please share it at{' '}
   <a
     href="mailto:carbontracker.noreply@gmail.com?subject=Feedback%20on%20Carbon%20Footprint%20Tracker"
     onClick={handleEmailClick}

@@ -473,7 +473,7 @@ useEffect(() => {
 }}
  >
   {/* animatedborder */}
-  <div className="absolute inset-0 rounded-2xl border-2 border-transparent 
+  <div className="absolute inset-0 rounded-3xl border-2 border-transparent 
                 opacity-0 group-hover:opacity-100 animate-borderFlow 
                 border-emerald-500 dark:border-gray-100 pointer-events-none" />
 
@@ -738,7 +738,7 @@ useEffect(() => {
         style={{ fontFamily: 'InterTight', fontWeight: 700 }}
       >
          {/* animatedborder */}
-        <div className="absolute inset-0 rounded-2xl border-2 border-transparent 
+        <div className="absolute inset-0 rounded-3xl border-2 border-transparent 
                 opacity-0 group-hover:opacity-100 animate-borderFlow 
                 border-emerald-500 dark:border-gray-100 pointer-events-none" />
 

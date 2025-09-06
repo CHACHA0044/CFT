@@ -233,15 +233,16 @@ useEffect(() => {
     sessionStorage.removeItem("justRegistered");
   }
 }, []);
+const [smtpMessage, setsmtpMessage] = useState('');
   useEffect(() => {
   if (sessionStorage.getItem("showEmailDelayInfo")) {
-    setDelayMessage(
+    setsmtpMessage(
       "📧 Verification email sent! Delivery can sometimes take up to 1–2 minutes because Gmail SMTP isn’t designed for instant transactional emails..."
     );
     sessionStorage.removeItem("showEmailDelayInfo");
 
     const timer = setTimeout(() => {
-      setDelayMessage("");
+      setsmtpMessage("");
     }, 15000);
 
     return () => clearTimeout(timer); 
@@ -425,7 +426,7 @@ useEffect(() => {
           setTimeout(() => setError(""), 4500);
         }
       }}
-      className="text-blue-400 text-sm underline hover:text-blue-700 transition font-sriracha tracking-wide text-shadow-DEFAULT"
+      className="text-blue-400 text-sm underline hover:text-blue-700 transition font-sriracha tracking-wider text-shadow-DEFAULT"
     >
       Resend verification email
     </motion.button>
@@ -467,6 +468,14 @@ useEffect(() => {
     </p>
   ) : null}
 </div>
+
+{smtpMessage && (
+  <div className="flex justify-center mt-2">
+    <p className="text-sky-500 text-sm text-center animate-pulse">
+      {smtpMessage}
+    </p>
+  </div>
+)}
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
           <input

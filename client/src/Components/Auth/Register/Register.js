@@ -364,11 +364,11 @@ timers.current = [
             title="Just for this app"
           />
             {passwordStrength !== null && (
-              <div className="text-sm text-center mb-2">
-                <p>Password strength: <span className={
-                  passwordStrength < 2 ? 'text-red-500' :
+              <div className="text-sm text-center mb-2 ">
+                <p><span className="text-emerald-500 dark:text-gray-100">Password strength:</span>{' '}<span className={
+                 ( passwordStrength < 2 ? 'text-red-500' :
                   passwordStrength === 2 ? 'text-yellow-500' :
-                  'text-green-500'
+                  'text-green-500' ) + 'animate-pulse'
                 }>
                   {strengthLabel[passwordStrength]}
                 </span></p>

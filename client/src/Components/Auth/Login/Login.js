@@ -237,7 +237,7 @@ const [smtpMessage, setsmtpMessage] = useState('');
   useEffect(() => {
   if (sessionStorage.getItem("showEmailDelayInfo")) {
     setsmtpMessage(
-      "📧 Verification email sent! Delivery can sometimes take up to 1–2 minutes because Gmail SMTP isn’t designed for instant transactional emails..."
+      "Verification email sent! Delivery can sometimes take up to 1–2 minutes because Gmail SMTP isn’t designed for instant transactional emails..."
     );
     sessionStorage.removeItem("showEmailDelayInfo");
 
@@ -471,8 +471,8 @@ useEffect(() => {
 
 {smtpMessage && (
   <div className="flex justify-center mt-2">
-    <p className="text-sky-500 text-sm text-center animate-pulse">
-      {smtpMessage}
+    <p className="text-amber-500 text-sm text-center">
+    <span className="animate-pulse">📧 </span>  {smtpMessage}
     </p>
   </div>
 )}

@@ -392,8 +392,11 @@ return (
         scale: 0.97,
         transition: { duration: 0.05 },
       }}
-      className="bg-white/20 dark:bg-gray-800/70 backdrop-blur-md shadow-md rounded-3xl font-intertight font-normal sm:font-semibold sm:tracking-wider text-shadow-DEFAULT p-4 mb-4 md:ml-64 md:w-7/12 origin-center transition-colors duration-300"
+      className="relative group bg-white/20 dark:bg-gray-800/70 backdrop-blur-md shadow-md rounded-3xl font-intertight font-normal sm:font-semibold sm:tracking-wider text-shadow-DEFAULT p-4 mb-4 md:ml-64 md:w-7/12 origin-center transition-colors duration-300"
     >
+      <div className="absolute inset-0 rounded-3xl border-2 border-transparent 
+                  opacity-0 group-hover:opacity-100 animate-borderFlow 
+                  border-emerald-500 dark:border-gray-100 pointer-events-none" />
       <div className="text-lg sm:text-2xl md:text-3xl text-emerald-500 dark:text-white transition-colors duration-500">
      <div className="relative inline-block"> <span className="absolute left-[4px] -top-[6px] animate-smoke text-sm opacity-50 delay-0">☁️</span>
   <span className="absolute left-[8px] -top-[8px] animate-smoke text-xs opacity-40 delay-400">☁️</span>

@@ -43,7 +43,7 @@ useEffect(() => {
   };
 
 const lottieSize = isMobile ? 200 : 400; 
-const lottieSpeed = isMobile ? 0.6 : 1.5; 
+const lottieSpeed = isMobile ? 0.4 : 1.5; 
 const animationData = isMobile ? loadingAnimationMobile : loadingAnimation;
   return (
     

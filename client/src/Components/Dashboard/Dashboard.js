@@ -492,7 +492,7 @@ useEffect(() => {
   {Math.floor(entry.totalEmissionKg)}
   <span className="hidden sm:inline">
     .{String(entry.totalEmissionKg.toFixed(2)).split('.')[1]}
-</span><span className="hidden sm:inline"> </span>
+</span><span className="hidden sm:inline">  </span>
 </span>
  Kg CO<span
   className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"

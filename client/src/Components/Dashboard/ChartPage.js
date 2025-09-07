@@ -1059,10 +1059,11 @@ e
 
     {/* Interactive Chart */}
     <div 
-      className="relative h-80 w-full bg-gray-800/30 rounded-xl p-4 overflow-hidden"
+      className="relative h-80 w-full bg-gray-800/30 rounded-xl p-4 overflow-hidden focus:outline-none"
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart 
+        margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
           data={(() => {
             const currentMonth = new Date().getMonth(); // 0-11
             const currentYear = new Date().getFullYear();

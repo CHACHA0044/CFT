@@ -489,7 +489,7 @@ useEffect(() => {
             autoComplete="email"
             title="The email u used"
           />
-           <input
+           {/* <input
             name="password"
             type="password"
             placeholder="Password"
@@ -499,15 +499,15 @@ useEffect(() => {
             required
             autoComplete="current-password"
             title="Password used"
-          /> 
-          {/* <div className="relative">
+          />  */}
+          <div className="relative w-full">
             <input
               name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              className={`${inputBase} ${inputPass}`}
+              className={`${inputBase} ${inputPass} pr-12`}
               required
               autoComplete="current-password"
               title="Password used"
@@ -530,7 +530,7 @@ useEffect(() => {
               )}
             </button>
             )}
-          </div> */}
+          </div>
    <SubmitButton
               text="Login"
               loading={loading}

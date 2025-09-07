@@ -379,7 +379,7 @@ timers.current = [
   <button
     type="button"
     onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200 focus:outline-none"
+    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
   >
     {showPassword ? (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

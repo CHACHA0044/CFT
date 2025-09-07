@@ -1,5 +1,5 @@
 function calculateEmissions(data) {
-  const MAX_FOOD_KG = 500; // monthly cap
+  const MAX_FOOD_KG = 500; // monthly lim
   const MAX_TRANSPORT_KM = 10000;
   const MAX_ELECTRICITY_KWH = 2000;
   const MAX_WASTE_KG = 1000;
@@ -8,7 +8,7 @@ function calculateEmissions(data) {
 
   // --- FOOD ---
   let foodEmission = 0;
-  // CHANGED: now expects raw `data.food` without pre-calculated emissions
+  
   const foodWithEmission = data.food ? (() => {
     let amountKg = data.food.amountKg || 0;
     if (amountKg > MAX_FOOD_KG) {
@@ -28,7 +28,7 @@ function calculateEmissions(data) {
 
   // --- TRANSPORT ---
   let transportTotal = 0;
-  // CHANGED: iterates over raw values and calculates emissions each time
+
   const transportWithEmissions = (data.transport || []).map(item => {
     let distanceKm = item.distanceKm || 0;
     if (distanceKm > MAX_TRANSPORT_KM) {
@@ -121,7 +121,9 @@ if (totalEmissionKg <= 300) {
     "🔥 <strong>Your footprint is on the higher side</strong>. Don’t worry — by acting on the top sources below, you can make a significant monthly reduction:\n";
 }
 
-categories.slice(0, 2).forEach((c) => {
+// categories.slice(0, 2).forEach((c) => {
+  categories.forEach((c) => {
+    if (c.value / totalEmissionKg > 0.15) { 
   if (c.name === "Food")
     suggestions += `${c.emoji} <strong>Food:</strong> Try reducing meat & dairy intake, choose seasonal produce, and cut down on processed foods.\n`;
   if (c.name === "Transport")
@@ -130,7 +132,7 @@ categories.slice(0, 2).forEach((c) => {
     suggestions += `${c.emoji} <strong>Electricity:</strong> Switch off devices when not in use, improve home insulation, and explore renewable energy like solar panels.\n`;
   if (c.name === "Waste")
     suggestions += `${c.emoji} <strong>Waste:</strong> Recycle plastics, compost food scraps, and reduce single-use items like plastic bags and paper towels.\n`;
-});
+}});
 
 suggestions += "\n💡 <strong>Remember</strong>, small, consistent changes build lasting habits and lower your carbon footprint month by month!";
 

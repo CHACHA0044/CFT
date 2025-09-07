@@ -991,6 +991,184 @@ e
 
 {/* Yearly Projection = to be added */}
 
+{total && (
+<div className="group relative">
+  <div className="absolute -inset-1 rounded-2xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
+  
+  <motion.div
+    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ duration: 0.7, delay: 0.2 }}
+  >
+    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+    
+    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-6 text-center text-emerald-500 dark:text-gray-100">
+      <span className="animate-pulse">📈</span> Yearly Projection
+    </h3>
+
+    {/* Current Year Summary */}
+    <motion.div 
+      className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-2xl p-4 mb-6 text-center"
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.3 }}
+    >
+      <div className="sm:text-lg md:text-xl text-shadow-DEFAULT font-intertight font-medium text-white mb-2">
+        {(() => {
+          const currentMonth = new Date().getMonth(); // 0-11
+          const currentYear = new Date().getFullYear();
+          
+          if (currentMonth === 0) { // January
+            return `${currentYear}`;
+          } else { // February to December
+            return `${currentYear}-${(currentYear + 1).toString().slice(-2)}`;
+          }
+        })()} Projected Total
+      </div>
+      <div className="sm:text-2xl md:text-3xl text-shadow-DEFAULT font-intertight font-bold">
+        {(() => {
+          const yearlyTonnes = yearly / 1000;
+          let style = { color: 'text-green-400', emoji: '🌱' };
+          
+          if (yearlyTonnes > 3 && yearlyTonnes <= 6) {
+            style = { color: 'text-yellow-400', emoji: '⚠️' };
+          } else if (yearlyTonnes > 6 && yearlyTonnes <= 10) {
+            style = { color: 'text-orange-400', emoji: '🔥' };
+          } else if (yearlyTonnes > 10) {
+            style = { color: 'text-red-400', emoji: '💥' };
+          }
+          
+          const [intPart, decimalPart] = yearlyTonnes.toFixed(2).split('.');
+          
+          return (
+            <>
+              <span className="animate-pulse text-2xl mr-2">{style.emoji}</span>
+              <span className={style.color}>
+                {intPart}
+                <span className="hidden sm:inline">.{decimalPart}</span> tonnes CO
+                <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
+                  2
+                </span>
+              </span>
+            </>
+          );
+        })()}
+      </div>
+    </motion.div>
+
+    {/* Interactive Chart */}
+    <div 
+      className="relative h-80 w-full bg-gray-800/30 rounded-xl p-4 overflow-hidden"
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart 
+          data={(() => {
+            const currentMonth = new Date().getMonth(); // 0-11
+            const currentYear = new Date().getFullYear();
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                   'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            return Array.from({ length: 12 }, (_, i) => {
+              const monthIndex = (currentMonth + i) % 12;
+              const cumulativeValue = total * (i + 1); // Cumulative emissions
+              
+              return {
+                month: i + 1,
+                monthName: monthNames[monthIndex],
+                fullMonthName: fullMonthNames[monthIndex],
+                value: cumulativeValue / 1000, // Convert to tonnes
+                cumulativeKg: cumulativeValue
+              };
+            });
+          })()}
+        >
+          <CartesianGrid 
+            strokeDasharray="4,4" 
+            stroke="#6b7280" 
+            opacity={0.5}
+          />
+          <XAxis 
+            dataKey="monthName"
+            stroke="#f3f4f6"
+            fontSize={14}
+            fontWeight="bold"
+            style={{
+              fill: '#f3f4f6'
+            }}
+          />
+          <YAxis 
+            stroke="#f3f4f6"
+            fontSize={14}
+            fontWeight="bold"
+            style={{
+              fill: '#f3f4f6'
+            }}
+            tickFormatter={(value) => `${value.toFixed(1)}t`}
+          />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: '#111827', 
+              border: '1px solid #34d399',
+              borderRadius: '8px',
+              color: '#f3f4f6'
+            }}
+            formatter={(value, name) => [
+              `${value.toFixed(2)} tonnes CO₂`,
+              'Cumulative Emissions'
+            ]}
+            labelFormatter={(label, payload) => {
+              if (payload && payload[0]) {
+                const data = payload[0].payload;
+                return `${data.fullMonthName} - Total: ${data.cumulativeKg.toFixed(0)} kg`;
+              }
+              return label;
+            }}
+          />
+          
+          {/* Main projection line */}
+          <Line 
+            type="monotone"
+            dataKey="value"
+            stroke="#34d399"
+            strokeWidth={3}
+            dot={{ 
+              r: 4, 
+              fill: '#34d399',
+              stroke: '#ffffff',
+              strokeWidth: 1
+            }}
+            activeDot={{ 
+              r: 8, 
+              fill: '#34d399',
+              stroke: '#ffffff',
+              strokeWidth: 2
+            }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+
+    {/* Chart Info */}
+    <motion.div 
+      className="mt-4 text-center text-sm text-gray-400"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
+    >
+      <p>Starting from {(() => {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+        return `${fullMonthNames[currentMonth]} ${currentYear}`;
+      })()} • Probable yearly emission if you keep similar emissions monthly</p>
+    </motion.div>
+  </motion.div>
+</div>
+)}
       </div>
     </PageWrapper>
   </motion.div>

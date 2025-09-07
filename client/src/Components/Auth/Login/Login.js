@@ -259,8 +259,8 @@ useEffect(() => {
 
   const [delayMessage, setDelayMessage] = useState('');
   const timers = useRef([]);
-  const mV = Boolean(success || error || delayMessage || showResend || cooldown > 0 || smtpMessage);
   const [cooldown, setCooldown] = useState(0);
+    const mV = Boolean(success || error || delayMessage || showResend || cooldown > 0 || smtpMessage);
 useEffect(() => {
   if (cooldown <= 0) return; 
 

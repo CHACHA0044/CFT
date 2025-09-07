@@ -259,6 +259,7 @@ useEffect(() => {
 
   const [delayMessage, setDelayMessage] = useState('');
   const timers = useRef([]);
+  const mV = Boolean(success || error || delayMessage || showResend || cooldown > 0 || smtpMessage);
   const [cooldown, setCooldown] = useState(0);
 useEffect(() => {
   if (cooldown <= 0) return; 
@@ -517,7 +518,7 @@ useEffect(() => {
               autoComplete="current-password"
               title="Password used"
             />
-            {formData.password && !hidePasswordToggle && (
+            {formData.password && !hidePasswordToggle && !mV && (
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}

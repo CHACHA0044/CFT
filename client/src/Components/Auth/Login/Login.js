@@ -500,7 +500,7 @@ useEffect(() => {
             autoComplete="current-password"
             title="Password used"
           />  */}
-          <div className="fixed w-full">
+          
             <input
               name="password"
               type={showPassword ? "text" : "password"}
@@ -530,7 +530,7 @@ useEffect(() => {
               )}
             </button>
             )}
-          </div>
+          
    <SubmitButton
               text="Login"
               loading={loading}

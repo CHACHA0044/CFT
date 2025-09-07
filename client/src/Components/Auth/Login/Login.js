@@ -507,7 +507,7 @@ useEffect(() => {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              className={`${inputBase} ${inputPass} pr-12`}
+              className={`${inputBase} ${inputPass}`}
               required
               autoComplete="new-password"
               title="Just for this app"
@@ -516,7 +516,7 @@ useEffect(() => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200 focus:outline-none"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
             >
               {showPassword ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

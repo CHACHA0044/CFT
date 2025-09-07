@@ -489,7 +489,7 @@ useEffect(() => {
             autoComplete="email"
             title="The email u used"
           />
-          {/* <input
+           <input
             name="password"
             type="password"
             placeholder="Password"
@@ -499,8 +499,8 @@ useEffect(() => {
             required
             autoComplete="current-password"
             title="Password used"
-          /> */}
-          <div className="relative">
+          /> 
+          {/* <div className="relative">
             <input
               name="password"
               type={showPassword ? "text" : "password"}
@@ -530,7 +530,7 @@ useEffect(() => {
               )}
             </button>
             )}
-          </div>
+          </div> */}
    <SubmitButton
               text="Login"
               loading={loading}

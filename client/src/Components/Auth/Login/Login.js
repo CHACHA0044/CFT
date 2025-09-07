@@ -223,6 +223,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [showResend, setShowResend] = useState(false);
   const [resendCount, setResendCount] = useState( Number(sessionStorage.getItem("resendCount")) || 0);
+  const [hidePasswordToggle, setHidePasswordToggle] = useState(false);
   const [success, setSuccess] = useState(
   sessionStorage.getItem('justVerified') ? 'Your email has been verified! Please login.' : ''
 );
@@ -288,9 +289,13 @@ const formatTime = (secs) => {
   const [showPassword, setShowPassword] = useState(false);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === "password" && e.target.value) {
+    setHidePasswordToggle(false);   
+  }
   };
 const handleSubmit = async (e) => {
   e.preventDefault();
+  setHidePasswordToggle(true);
   setLoading(true);
   setError('');
   setSuccess('');
@@ -512,11 +517,11 @@ useEffect(() => {
               autoComplete="current-password"
               title="Password used"
             />
-            {formData.password && (
+            {formData.password && !hidePasswordToggle && (
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-10 md:right-12 top-[185px] md:top-[209px] transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
+              className="absolute right-9 md:right-12 top-[185px] md:top-[209px] transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
             >
               {showPassword ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

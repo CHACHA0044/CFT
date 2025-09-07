@@ -484,7 +484,7 @@ useEffect(() => {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
-            className={`${inputBase} ${inputMail} w-full`}
+            className={`${inputBase} ${inputMail}`}
             required
             autoComplete="email"
             title="The email u used"
@@ -500,14 +500,14 @@ useEffect(() => {
             autoComplete="current-password"
             title="Password used"
           />  */}
-          <div className="relative">
+          <div className="absolute w-full">
             <input
               name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              className={`${inputBase} ${inputPass} w-full pr-12`}
+              className={`${inputBase} ${inputPass} `}
               required
               autoComplete="current-password"
               title="Password used"

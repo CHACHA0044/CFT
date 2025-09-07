@@ -224,6 +224,28 @@ const globalAverages = {
       </div>
     );
   };
+
+  const ResponsiveTooltip = (props) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 760); 
+    handleResize(); // run once on mount
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return (
+    <Tooltip
+      {...props}
+      position={isMobile ? { y: 0, x: 5 } : undefined} 
+      wrapperStyle={{
+        maxWidth: isMobile ? "90vw" : "auto",
+        whiteSpace: "normal",
+      }}
+    />
+  );
+};
 const ChartPage = () => {
   useAuthRedirect();
   const location = useLocation();
@@ -1031,9 +1053,9 @@ e
           const yearlyTonnes = yearly / 1000;
           let style = { color: 'text-green-400', emoji: '🌱' };
           
-          if (yearlyTonnes > 3 && yearlyTonnes <= 6) {
+          if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
             style = { color: 'text-yellow-400', emoji: '⚠️' };
-          } else if (yearlyTonnes > 6 && yearlyTonnes <= 10) {
+          } else if (yearlyTonnes > 7 && yearlyTonnes <= 10) {
             style = { color: 'text-orange-400', emoji: '🔥' };
           } else if (yearlyTonnes > 10) {
             style = { color: 'text-red-400', emoji: '💥' };
@@ -1070,7 +1092,7 @@ e
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart 
-        margin={{ top: 5, right: 30, left: 15, bottom: 5 }}
+        margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
           data={(() => {
             const currentMonth = new Date().getMonth(); // 0-11
             const currentYear = new Date().getFullYear();
@@ -1116,7 +1138,7 @@ e
             }}
             tickFormatter={(value) => `${value.toFixed(1)}t`}
           />
-          <Tooltip 
+          <ResponsiveTooltip 
             contentStyle={{ 
               backgroundColor: '#111827', 
               border: '1px solid #34d399',
@@ -1124,13 +1146,16 @@ e
               color: '#f3f4f6'
             }}
             formatter={(value, name) => [
-              `${value.toFixed(2)} tonnes CO₂`,
+              `${value.toFixed(2)} t CO₂`,
               'Cumulative Emissions'
             ]}
             labelFormatter={(label, payload) => {
+              const currentMonth = new Date().getMonth();
               if (payload && payload[0]) {
                 const data = payload[0].payload;
-                return `${data.fullMonthName} - Total: ${data.cumulativeKg.toFixed(0)} kg`;
+                //return `${data.fullMonthName} - Total: ${data.cumulativeKg.toFixed(0)} kg`;
+                return `${currentMonth} - ${data.fullMonthName} : ${data.cumulativeKg.toFixed(0)} kg`;
+
               }
               return label;
             }}

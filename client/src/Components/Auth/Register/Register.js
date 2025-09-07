@@ -375,10 +375,11 @@ timers.current = [
     autoComplete="new-password"
     title="Just for this app"
   />
+  {formData.password && (
   <button
     type="button"
     onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200 focus:outline-none"
+    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors duration-200 focus:outline-none"
   >
     {showPassword ? (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,6 +392,7 @@ timers.current = [
       </svg>
     )}
   </button>
+  )}
 </div>
             {passwordStrength !== null && (
               <div className="text-sm text-center mb-2">

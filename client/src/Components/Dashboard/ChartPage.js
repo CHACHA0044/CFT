@@ -1092,7 +1092,7 @@ e
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart 
-        margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
+        margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
           data={(() => {
             const currentMonth = new Date().getMonth(); // 0-11
             const currentYear = new Date().getFullYear();
@@ -1151,10 +1151,13 @@ e
             ]}
             labelFormatter={(label, payload) => {
               const currentMonth = new Date().getMonth();
+              const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                   'July', 'August', 'September', 'October', 'November', 'December'];
+                                   
               if (payload && payload[0]) {
                 const data = payload[0].payload;
                 //return `${data.fullMonthName} - Total: ${data.cumulativeKg.toFixed(0)} kg`;
-                return `${currentMonth} - ${data.fullMonthName} : ${data.cumulativeKg.toFixed(0)} kg`;
+                return `${fullMonthNames[currentMonth]} - ${data.fullMonthName} : ${data.cumulativeKg.toFixed(0)} kg`;
 
               }
               return label;

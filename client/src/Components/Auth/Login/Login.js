@@ -516,7 +516,7 @@ useEffect(() => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-12 top-[192px] transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
+              className="absolute right-12 top-[198px] transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
             >
               {showPassword ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

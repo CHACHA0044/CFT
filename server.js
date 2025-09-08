@@ -13,7 +13,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
-
+const startImapPoller = require('./utils/imapPoller');
 // express app
 const app = express();
 app.set('trust proxy', 1);
@@ -85,21 +85,42 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong' });
 });
 
-// mongoDB 
+const PORT = process.env.PORT || 5000;
+
 mongoose.connect(process.env.MONGO_URI, {
   dbName: 'carbon-tracker',
   ssl: true,
   autoIndex: false,
 })
-  .then(() => console.log('Mongo connected'))
-  .catch(err => console.error('Mongo connection error:', err.message));
+  .then(() => {
+    console.log('✅ MongoDB connected');
+    app.listen(PORT, () => {
+      console.log(`🚀 Server started on ${PORT}`);
+      startImapPoller(); 
+    });
+  })
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// server startup
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 
+
+// mongoDB 
+// const PORT = process.env.PORT || 5000;
+// mongoose.connect(process.env.MONGO_URI, {
+//   dbName: 'carbon-tracker',
+//   ssl: true,
+//   autoIndex: false,
+// })
+//   .then(() => console.log('Mongo connected'))
+//   .catch(err => console.error('Mongo connection error:', err.message));
+
+// // server startup
+// //const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+//   startImapPoller();
+// });
+// })
+//   .catch(err => console.error('❌ MongoDB connection error:', err));
 // serve frontend in production
 // if (process.env.NODE_ENV === 'production') {
 //   app.use(express.static(path.join(__dirname, 'client/build')));

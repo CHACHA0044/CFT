@@ -175,6 +175,54 @@ router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => 
   }
 });
 
+// SUBMIT FEEDBACK 
+router.post('/feedback/submit', authenticateToken, async (req, res) => {
+  try {
+    const { feedback } = req.body;
+    if (!feedback || feedback.trim() === '') {
+      return res.status(400).json({ error: "Feedback message is required." });
+    }
+
+    const user = await User.findById(req.user.userId);
+    if (!user) return res.status(404).json({ error: "User not found." });
+
+    if (!user.email) return res.status(400).json({ error: "User email not found." });
+
+    // Here you would typically save the feedback to your database
+    // const newFeedback = new Feedback({ userId: user._id, message: feedback });
+    // await newFeedback.save();
+
+    console.log(`📝 Feedback received from ${user.email}: ${feedback}`);
+
+    // Send automatic thank-you email
+    try {
+      await sendEmail(
+        user.email,
+        "Thanks for your feedback ✨",
+        feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
+      );
+      console.log(`✅ Thank-you email sent to ${user.email}`);
+      
+      return res.json({ 
+        message: "Feedback submitted successfully! Thank-you email sent.",
+        feedbackReceived: true 
+      });
+    } catch (emailError) {
+      console.error(`❌ Failed to send thank-you email to ${user.email}:`, emailError);
+      // Still return success for feedback submission even if email fails
+      return res.json({ 
+        message: "Feedback submitted successfully, but thank-you email failed to send.",
+        feedbackReceived: true,
+        emailSent: false 
+      });
+    }
+
+  } catch (err) {
+    console.error("❌ Feedback submission error:", err);
+    res.status(500).json({ error: "Server error while submitting feedback." });
+  }
+});
+
 // REGISTER
 router.post('/register', async (req, res) => {
   try {

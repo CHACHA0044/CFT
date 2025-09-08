@@ -17,8 +17,11 @@
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
+    "imapflow": "^1.0.195",
     "jsonwebtoken": "^9.0.2",
+    "mailparser": "^3.7.4",
     "mongoose": "^8.16.5",
+    "node-cron": "^4.2.1",
     "nodemailer": "^7.0.5",
     "xss": "^1.0.15",
     "xss-clean": "^0.1.4"

@@ -957,14 +957,14 @@ e
               >
                 <Lottie
                   animationData={
-                    i === dragonIndex
-                      ? DragonAnimation
-                      : showIce
-                      ? IceAnimation
-                      : showFire
-                      ? FireAnimation
-                      : SunAnimation
-                  }
+                  u.totalEmission <= 350
+                    ? IceAnimation
+                    : u.totalEmission <= 700
+                    ? SunAnimation
+                    : u.totalEmission <= 1000
+                    ? FireAnimation
+                    : DragonAnimation
+                }
                   className="w-8 h-8"
                   loop
                 />
@@ -991,11 +991,11 @@ e
             animate={{ width: `${pct}%` }}
             transition={{ duration: 1.5, ease: 'easeOut' }}
             className={`h-2 rounded-full relative overflow-hidden
-              ${isMe ? 'bg-gradient-to-r from-green-400 to-green-500' :
-                showIce ? 'bg-gradient-to-r from-blue-400 to-blue-500' :
-                showFire ? 'bg-gradient-to-r from-red-400 to-orange-500' :
-                i === dragonIndex ? 'bg-gradient-to-r from-purple-400 to-purple-600' :
-                'bg-gradient-to-r from-yellow-300 to-yellow-500'}
+              ${isMe ? 'bg-gradient-to-r from-green-300 to-green-500' :
+                u.totalEmission <= 350 ? 'bg-gradient-to-r from-blue-300 to-blue-500' :
+                u.totalEmission <= 700 ? 'bg-gradient-to-r from-yellow-300 to-yellow-500' :
+                u.totalEmission <= 1000 ? 'bg-gradient-to-r from-red-300 to-red-500' :
+                'bg-gradient-to-r from-purple-400 to-purple-600'}
             `}
           >
             <div className="absolute inset-0 animate-flowing-bar" />

@@ -305,7 +305,7 @@ const handleEmailClick = (e) => {
   if (!/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
     e.preventDefault();
     window.open(
-      'https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback%20on%20Carbon%20Tracker',
+      'https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback%20on%20Carbon%20Footprint%20Tracker',
       '_blank'
     );
   }

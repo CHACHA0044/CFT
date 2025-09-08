@@ -16,8 +16,8 @@ const IMAP_CONFIG = {
   },
 };
 
-// Keywords to check in subject (case-insensitive)
-const SUBJECT_KEYWORDS = ['feedback', 'carbon', 'tracker'];
+// Keywords
+const SUBJECT_KEYWORDS = ['feedback', 'carbon', 'footprint', 'tracker'];
 
 async function handleNewMessages(client) {
   try {
@@ -79,7 +79,7 @@ const parsed = await simpleParser(msg.source);
 
         // send thank-you reply
         const replyHtml = feedbackReplyHtml(nameToUse, { timeZone: 'Asia/Kolkata' });
-        await sendEmail(fromAddr, 'Feedback on Carbon Tracker', replyHtml);
+        await sendEmail(fromAddr, '🌱 Thanks', replyHtml);
 
         // mark as seen + answered
         await client.messageFlagsAdd(uid, ['\\Seen', '\\Answered']);
@@ -118,8 +118,6 @@ async function checkNow() {
 function startImapPoller() {
   const schedule = process.env.IMAP_POLL_CRON || '*/1 * * * *';
   console.log('⏰ IMAP poller scheduled:', schedule);
-
-  // run immediately, then schedule future runs
   checkNow();
   cron.schedule(schedule, () => {
     checkNow();

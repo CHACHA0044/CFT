@@ -121,12 +121,17 @@ const feedbackReplyHtml = (name = "", { timeZone = "Asia/Kolkata" } = {}) => {
         <img src="https://i.ibb.co/235Hgp1t/Globe.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
 
         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
-          Our team will carefully review your suggestions and work on making the platform better for you and the community.
+          I will carefully review your suggestions and work on making the platform better for you and the community.
         </p>
 
         <!-- Time Info -->
         <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">
           Sent at: <strong>${currentTime}</strong>
+        <br/>
+        Regards,<br/>
+        <a href="https://www.linkedin.com/in/pranav-dembla-3a1431291" target="_blank" style="color:#56ccf2; text-decoration:none; font-weight:bold;">
+            Pranav
+        </a>
         </p>
       </div>
     </div>

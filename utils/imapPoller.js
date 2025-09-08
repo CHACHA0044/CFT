@@ -80,11 +80,8 @@ const parsed = await simpleParser(msg.source);
         // send thank-you reply
         const replyHtml = feedbackReplyHtml(nameToUse, { timeZone: 'Asia/Kolkata' });
         await sendEmail(fromAddr, '🌱 Thanks', replyHtml);
-
-        // mark as seen + answered
+        console.log(`✅ Replied to ${fromAddr} `);
         await client.messageFlagsAdd(uid, ['\\Seen', '\\Answered']);
-
-        console.log(`✅ Replied to ${fromAddr} (subject: "${subject}")`);
       } catch (errMsg) {
         console.error('❌ Error processing message UID', uid, errMsg);
         try {
@@ -101,8 +98,18 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+const silentLogger = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+};
+
 async function checkNow() {
-  const client = new ImapFlow(IMAP_CONFIG);
+  const client = new ImapFlow({
+    ...IMAP_CONFIG,
+    logger: silentLogger,   
+  });
   try {
     await client.connect();
     await handleNewMessages(client);

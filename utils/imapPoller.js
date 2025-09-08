@@ -39,8 +39,15 @@ async function handleNewMessages(client) {
           continue;
         }
 
-        const { source } = await client.download(uid);
-        const parsed = await simpleParser(source);
+        // ✅ new
+const msg = await client.fetchOne(uid, { source: true });
+if (!msg?.source) {
+  console.warn(`⚠️ No source found for UID ${uid}, skipping`);
+  await client.messageFlagsAdd(uid, ['\\Seen']);
+  continue;
+}
+const parsed = await simpleParser(msg.source);
+
 
         const fromAddr = parsed.from?.value?.[0]?.address?.toLowerCase();
         const subject = parsed.subject || '';

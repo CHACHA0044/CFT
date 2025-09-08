@@ -470,9 +470,9 @@ const handleEmailClick = (e) => {
       <motion.p
             variants={itemVariants}
  className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
-      Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
+      Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
     <br />  <span className="italic text-sm leading-relaxed text-yellow-300">
-  P.S. Use dark mode — light mode is in progress <span className="animate-pulse">🌎</span>
+P.S. For the best experience, switch to dark mode and view on a laptop/PC. <span className="animate-pulse">🌎</span>
 </span>
 
     </motion.p> 

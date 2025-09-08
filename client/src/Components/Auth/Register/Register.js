@@ -301,6 +301,7 @@ timers.current = [
 
   const strengthLabel = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
   const [showPassword, setShowPassword] = useState(false);
+  const [hidePasswordToggle, setHidePasswordToggle] = useState(false);
   return (
     <motion.div
                 initial={{ x:100, opacity: 0}}
@@ -375,7 +376,7 @@ timers.current = [
     autoComplete="new-password"
     title="Just for this app"
   />
-  {formData.password && (
+  {formData.password && !hidePasswordToggle && (
   <button
     type="button"
     onClick={() => setShowPassword(!showPassword)}

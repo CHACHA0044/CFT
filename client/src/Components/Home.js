@@ -300,7 +300,7 @@ const feedbackVariants = {
     ease: "easeOut"
   },
 };
-
+const subject = encodeURIComponent("Feedback on Carbon Footprint Tracker");
 const handleEmailClick = (e) => {
   if (!/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
     e.preventDefault();
@@ -481,7 +481,7 @@ const handleEmailClick = (e) => {
 <motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
 We value your feedback<span className="animate-pulse font-extrabold">!</span> Please share it at{' '}
   <a
-    href="mailto:carbontracker.noreply@gmail.com?subject=Feedback%20on%20Carbon%20Footprint%20Tracker"
+    href={`mailto:carbontracker.noreply@gmail.com?subject=${subject}`}
     onClick={handleEmailClick}
     target="_blank"
     rel="noopener noreferrer"

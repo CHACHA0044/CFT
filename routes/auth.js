@@ -160,7 +160,7 @@ router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => 
       await sendEmail(
         user.email,
         "Thanks for your feedback ✨",
-        feedbackReplyHtml(user.name)
+        feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
       );
       console.log(`✅ Thank-you email resent to ${user.email}`);
       return res.json({ message: "Thank-you email resent successfully." });

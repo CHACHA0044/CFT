@@ -66,8 +66,9 @@ function AnimatedDarkModeButton({ darkMode, toggleTheme }) {
 
 const PageWrapper = ({ children, backgroundImage }) => {
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('theme') === 'dark';
-  });
+  const savedTheme = localStorage.getItem('theme');
+  return savedTheme ? savedTheme === 'dark' : true;
+});
   const [bgLoaded, setBgLoaded] = useState(false);
   const { stopLoading, startLoading } = useLoading();
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);

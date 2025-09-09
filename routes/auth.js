@@ -342,6 +342,8 @@ router.get('/verify-email/:token', async (req, res) => {
 
     user.isVerified = true;
     user.verificationToken = undefined;
+    user.resendAttempts = undefined;
+    user.lastResendAt = undefined;
     await user.save();
 
     res.status(200).json({ message: 'Email verified successfully!' });
@@ -376,7 +378,7 @@ router.post('/resend-verification', async (req, res) => {
 
     user.verificationToken = verificationToken;
     user.resendAttempts += 1;
-    user.lastResendAt = now;
+    user.lastResendAt = Date.now;
     await user.save();
 
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;

@@ -378,7 +378,7 @@ router.post('/resend-verification', async (req, res) => {
 
     user.verificationToken = verificationToken;
     user.resendAttempts += 1;
-    user.lastResendAt = Date.now;
+    user.lastResendAt = now;
     await user.save();
 
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;

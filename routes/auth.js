@@ -5,7 +5,7 @@ const User = require('../models/user');
 const sendEmail = require('../utils/sendEmail');
 const authenticateToken = require('../middleware/authmiddleware');
 const router = express.Router();
-
+const crypto = require('crypto');
 // email HTML Template
 const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
   try {
@@ -233,7 +233,8 @@ router.post('/register', async (req, res) => {
     if (existingUser) return res.status(409).json({ error: 'Email already in use.' });
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const verificationToken = jwt.sign({ email, jti: Math.random().toString(36).substring(2) }, process.env.JWT_SECRET, { expiresIn: '10m' });
+    //const verificationToken = jwt.sign({ email, jti: Math.random().toString(36).substring(2) }, process.env.JWT_SECRET, { expiresIn: '10m' });
+    const verificationToken = jwt.sign({ email, jti: crypto.randomBytes(16).toString('hex')},  process.env.JWT_SECRET,  { expiresIn: '10m' });
     const newUser = new User({
       name,
       email,
@@ -270,14 +271,14 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ error: 'Please verify your email before logging in.' });
     }
 
-    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
     const isProd = process.env.NODE_ENV === 'production';
 
     res.cookie('token', token, {
       httpOnly: true,
       secure: isProd,
       sameSite: 'None',
-      maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
     }).json({
       message: 'Login successful',
       user: {

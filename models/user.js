@@ -14,3 +14,4 @@ const userSchema = new mongoose.Schema({
 // delete if not verified
 userSchema.index({ lastResendAt: 1 }, { expireAfterSeconds: 600, partialFilterExpression: { isVerified: false } });
 module.exports = mongoose.model('User', userSchema);
+userSchema.index({ email: 1 }, { unique: true });

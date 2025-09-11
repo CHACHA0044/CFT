@@ -230,8 +230,16 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [delayMessage, setDelayMessage] = useState('');
   const timers = useRef([]);
+  const [passwordPlaceholder, setPasswordPlaceholder] = useState("Password (Not your gmail password)");
   const [passwordStrength, setPasswordStrength] = useState(null);
   const navigate = useNavigate();
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    setPasswordPlaceholder("Password");
+  }, 5000); // 5 s
+  return () => clearTimeout(timer); 
+}, []);
+
   const handleChange = (e) => {
     const sanitizedValue = DOMPurify.sanitize(e.target.value);
     setFormData({ ...formData, [e.target.name]: sanitizedValue });
@@ -368,7 +376,7 @@ timers.current = [
   <input
     name="password"
     type={showPassword ? "text" : "password"}
-    placeholder="Password (Not your gmail pass)"
+    placeholder={passwordPlaceholder}
     value={formData.password}
     onChange={handleChange}
     className={`${inputBase} ${inputPass} pr-12`}

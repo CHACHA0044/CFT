@@ -368,7 +368,7 @@ timers.current = [
   <input
     name="password"
     type={showPassword ? "text" : "password"}
-    placeholder="Password"
+    placeholder="Password (Not your gmail pass)"
     value={formData.password}
     onChange={handleChange}
     className={`${inputBase} ${inputPass} pr-12`}

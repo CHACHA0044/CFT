@@ -366,15 +366,16 @@ router.post('/resend-verification', async (req, res) => {
       user.resendAttempts = 0;
     }
 
-    if (user.resendAttempts >= 6) {
+    if (user.resendAttempts >= 4) {
       return res.status(429).json({ error: 'Resend limit reached.' });
     }
    
-    const verificationToken = jwt.sign(
-      { email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '10m' }
-    );
+    // const verificationToken = jwt.sign(
+    //   { email: user.email },
+    //   process.env.JWT_SECRET,
+    //   { expiresIn: '10m' }
+    // );
+    const verificationToken = jwt.sign( { email, jti: crypto.randomBytes(16).toString('hex') }, process.env.JWT_SECRET, { expiresIn: '10m' });
 
     user.verificationToken = verificationToken;
     user.resendAttempts += 1;

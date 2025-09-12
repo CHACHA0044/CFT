@@ -267,7 +267,7 @@ const handleSubmit = async (e) => {
 
   setLoading(true);
   setDelayMessage('');
-await new Promise((resolve) => setTimeout(resolve, 400));
+await new Promise((resolve) => setTimeout(resolve, 200));
 timers.current = [
       setTimeout(() => setDelayMessage('Please donot reload... 🙂'), 5000),
       setTimeout(() => setDelayMessage('Thanks for your patience... ☀️'), 10000),

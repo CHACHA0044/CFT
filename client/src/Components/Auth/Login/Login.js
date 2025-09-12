@@ -244,7 +244,7 @@ const [smtpMessage, setsmtpMessage] = useState('');
 
     const timer = setTimeout(() => {
       setsmtpMessage("");
-    }, 15000);
+    }, 20000);
 
     return () => clearTimeout(timer); 
   }
@@ -302,7 +302,7 @@ const handleSubmit = async (e) => {
   setSuccess('');
   setDelayMessage('');
   setShowResend(false);
-await new Promise((resolve) => setTimeout(resolve, 1000));
+await new Promise((resolve) => setTimeout(resolve, 300));
 timers.current = [
       setTimeout(() => setDelayMessage('Please donot reload... 🙂'), 5000),
       setTimeout(() => setDelayMessage('Thanks for your patience... ☀️'), 10000),

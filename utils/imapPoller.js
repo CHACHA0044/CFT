@@ -24,8 +24,8 @@ async function handleNewMessages(client) {
     // open inbox
     await client.mailboxOpen('INBOX');
 
-    // find unseen messages
-    const uids = await client.search({ seen: false });
+    // find unanswered messages
+    const uids = await client.search({ answered: false });
     if (!uids || uids.length === 0) return;
 
     for (const uid of uids) {

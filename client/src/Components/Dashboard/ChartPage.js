@@ -600,6 +600,7 @@ return (
 
           </motion.div>
         </div>
+        
 {/* Comparison */}
 <div className="group relative">
   {/* Static glow */}
@@ -906,113 +907,7 @@ e
   </motion.div>
 </div>
 
-         {/* Leaderboard - now dynamic with animated icons */}
-<div className="group relative">
-  <div className="absolute -inset-1 rounded-2xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none" />
-  <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg"
-    initial={{ y: 20, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-  >
-    <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 
-                    group-hover:opacity-100 animate-borderFlow 
-                    border-emerald-500 dark:border-gray-100 pointer-events-none" />
-    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-4 text-center text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🏆 </span>Leaderboard</h3>
-    <div className="space-y-3">
-      
-      <motion.div
-  variants={containerVariants}
-  initial="hidden"
-  animate="visible"
->
-  <AnimatePresence>
-    {leaderboard.map((u, i, arr) => {
-      const max = arr[arr.length - 1]?.totalEmission || 1;
-      const pct = Math.min((u.totalEmission / max) * 100, 100);
-      const isMe = u.email === user?.email;
-      const showIce = topIndexes.has(i);
-      const showFire = bottomIndexes.has(i);
-
-      return (
-        <motion.div
-          key={u.email}
-          variants={itemVariants}
-          exit="exit"
-          className={`p-3 rounded-lg mb-3 sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal tracking-normal ${isMe ? 'bg-emerald-700/30' : 'bg-gray-800/40'}`}
-          onMouseEnter={() => setHoveredIndex(i)}
-          onMouseLeave={() => setHoveredIndex(null)}
-          onClick={() => {
-            setHoveredIndex(i);
-            setTimeout(() => setHoveredIndex(null), 300);
-          }}
-          whileHover={{scale: 1.02}}
-          whileTap={{scale: 0.98}}
-        >
-          <div className="flex items-center justify-between text-xs sm:text-base md:text-xl text-shadow-DEFAULT font-intertight font-normal tracking-normal mb-2">
-            <span className="flex items-center gap-2">
-              {i + 1}. {u.name.split(' ')[0]}{isMe && ' (You)'}
-              <motion.div
-                animate={{ scale: hoveredIndex === i ? 1.5 : 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-              >
-                <Lottie
-                  animationData={
-                  u.totalEmission <= 350
-                    ? IceAnimation
-                    : u.totalEmission <= 700
-                    ? SunAnimation
-                    : u.totalEmission <= 1000
-                    ? FireAnimation
-                    : DragonAnimation
-                }
-                  className="w-8 h-8"
-                  loop
-                />
-              </motion.div>
-            </span>
-            <span>{(() => {
-  const [intPart, decimalPart] = u.totalEmission.toFixed(2).split('.');
-  return (
-    <p className="sm:text-lg md:text-2xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
-      {intPart}
-      <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span
-  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-  style={{ '--random': Math.random() }}
->
-2
-</span>
-    </p>
-  );
-})()}</span>
-          </div>
-
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-            className={`h-2 rounded-full relative overflow-hidden
-              ${isMe ? 'bg-gradient-to-r from-green-300 to-green-500' :
-                u.totalEmission <= 350 ? 'bg-gradient-to-r from-blue-300 to-blue-500' :
-                u.totalEmission <= 700 ? 'bg-gradient-to-r from-yellow-300 to-yellow-500' :
-                u.totalEmission <= 1000 ? 'bg-gradient-to-r from-red-300 to-red-500' :
-                'bg-gradient-to-r from-purple-400 to-purple-600'}
-            `}
-          >
-            <div className="absolute inset-0 animate-flowing-bar" />
-          </motion.div>
-        </motion.div>
-      );
-    })}
-  </AnimatePresence>
-</motion.div>
-
-
-    </div>
-  </motion.div>
-</div>
-
-{/* Yearly Projection = to be added */}
-
+{/* Yearly Projection  */}
 {total && (
 <div className="group relative">
   <div className="absolute -inset-1 rounded-2xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
@@ -1205,7 +1100,113 @@ e
   </motion.div>
 </div>
 )}
-      </div>
+
+{/* Leaderboard */}
+<div className="group relative">
+  <div className="absolute -inset-1 rounded-2xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none" />
+  <motion.div
+    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+  >
+    <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 
+                    group-hover:opacity-100 animate-borderFlow 
+                    border-emerald-500 dark:border-gray-100 pointer-events-none" />
+    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-4 text-center text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🏆 </span>Leaderboard</h3>
+    <div className="space-y-3">
+      
+      <motion.div
+  variants={containerVariants}
+  initial="hidden"
+  animate="visible"
+>
+  <AnimatePresence>
+    {leaderboard.map((u, i, arr) => {
+      const max = arr[arr.length - 1]?.totalEmission || 1;
+      const pct = Math.min((u.totalEmission / max) * 100, 100);
+      const isMe = u.email === user?.email;
+      const showIce = topIndexes.has(i);
+      const showFire = bottomIndexes.has(i);
+
+      return (
+        <motion.div
+          key={u.email}
+          variants={itemVariants}
+          exit="exit"
+          className={`p-3 rounded-lg mb-3 sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal tracking-normal ${isMe ? 'bg-emerald-700/30' : 'bg-gray-800/40'}`}
+          onMouseEnter={() => setHoveredIndex(i)}
+          onMouseLeave={() => setHoveredIndex(null)}
+          onClick={() => {
+            setHoveredIndex(i);
+            setTimeout(() => setHoveredIndex(null), 300);
+          }}
+          whileHover={{scale: 1.02}}
+          whileTap={{scale: 0.98}}
+        >
+          <div className="flex items-center justify-between text-xs sm:text-base md:text-xl text-shadow-DEFAULT font-intertight font-normal tracking-normal mb-2">
+            <span className="flex items-center gap-2">
+              {i + 1}. {u.name.split(' ')[0]}{isMe && ' (You)'}
+              <motion.div
+                animate={{ scale: hoveredIndex === i ? 1.5 : 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+              >
+                <Lottie
+                  animationData={
+                  u.totalEmission <= 350
+                    ? IceAnimation
+                    : u.totalEmission <= 700
+                    ? SunAnimation
+                    : u.totalEmission <= 1000
+                    ? FireAnimation
+                    : DragonAnimation
+                }
+                  className="w-8 h-8"
+                  loop
+                />
+              </motion.div>
+            </span>
+            <span>{(() => {
+  const [intPart, decimalPart] = u.totalEmission.toFixed(2).split('.');
+  return (
+    <p className="sm:text-lg md:text-2xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
+      {intPart}
+      <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span>
+    </p>
+  );
+})()}</span>
+          </div>
+
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${pct}%` }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
+            className={`h-2 rounded-full relative overflow-hidden
+              ${isMe ? 'bg-gradient-to-r from-green-300 to-green-500' :
+                u.totalEmission <= 350 ? 'bg-gradient-to-r from-blue-300 to-blue-500' :
+                u.totalEmission <= 700 ? 'bg-gradient-to-r from-yellow-300 to-yellow-500' :
+                u.totalEmission <= 1000 ? 'bg-gradient-to-r from-red-300 to-red-500' :
+                'bg-gradient-to-r from-purple-400 to-purple-600'}
+            `}
+          >
+            <div className="absolute inset-0 animate-flowing-bar" />
+          </motion.div>
+        </motion.div>
+      );
+    })}
+  </AnimatePresence>
+</motion.div>
+
+
+    </div>
+  </motion.div>
+</div>
+
+    </div>
     </PageWrapper>
   </motion.div>
 );

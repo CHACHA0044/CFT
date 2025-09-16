@@ -295,7 +295,7 @@ const ChartPage = () => {
   const newMin = Math.max(1, pointerMonth - (pointerMonth - zoomRange[0]) * zoomFactor);
   const newMax = Math.min(12, newMin + newRange); setZoomRange([newMin, newMax]);}, [zoomRange]);
   const [data, setData] = useState(null);
-
+  const [expandedWeatherSection, setExpandedWeatherSection] = useState(null);
 
  useEffect(() => {
   const fetchWeatherAndAqi = async () => {
@@ -675,24 +675,44 @@ return (
         <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
           🌤️ Weather
         </h2>
+        
+        {/* Expandable Weather Condition Section */}
         {data.weather?.weather_code && (
-          <div className="mb-4 p-3 bg-white/10 rounded-xl">
-            <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 col-span-2">
-              ☁️ Condition: {(() => {
-                const code = data.weather.weather_code;
-                if (code === 0) return '🌞 Clear sky';
-                if (code <= 3) return '🌨️ Partly cloudy';
-                if (code <= 48) return '😶‍🌫️ Foggy';
-                if (code <= 67) return '🌧️ Rainy';
-                if (code <= 77) return '❄️ Snowy';
-                if (code <= 82) return '🌩️ Rain showers';
-                if (code <= 86) return '🧊 Snow showers';
-                if (code <= 99) return '⛈️ Thunderstorm';
-                return `Code ${code}`;
-              })()}
+          <motion.div
+            className="mb-4 p-3 bg-white/10 rounded-xl cursor-pointer relative group"
+            onClick={() => setExpandedWeatherSection(prev => prev === 'condition' ? null : 'condition')}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+            
+            <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
+              ☁️ Condition {expandedWeatherSection === 'condition' ? '▼' : '▶'}
             </p>
-            </div>
-          )}
+            
+            <motion.div
+              className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                expandedWeatherSection === 'condition' ? 'max-h-[200px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+              }`}
+            >
+              <p className="text-emerald-500 dark:text-gray-100">
+                {(() => {
+                  const code = data.weather.weather_code;
+                  if (code === 0) return '🌞 Clear sky - Perfect weather for outdoor activities!';
+                  if (code <= 3) return '🌨️ Partly cloudy - Mix of sun and clouds expected';
+                  if (code <= 48) return '😶‍🌫️ Foggy conditions - Reduced visibility, drive carefully';
+                  if (code <= 67) return '🌧️ Rainy weather - Don\'t forget your umbrella!';
+                  if (code <= 77) return '❄️ Snow expected - Bundle up and stay warm';
+                  if (code <= 82) return '🌩️ Rain showers - Intermittent rainfall likely';
+                  if (code <= 86) return '🧊 Snow showers - Light snowfall expected';
+                  if (code <= 99) return '⛈️ Thunderstorm warning - Stay indoors if possible';
+                  return `Weather code: ${code}`;
+                })()}
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+
         <div className="grid grid-cols-2 gap-2 mt-3">
           <p className="text-emerald-500 dark:text-gray-100">
             🌡️ Temperature: {data.weather?.temperature_2m || data.weather?.temp || 'N/A'}°C
@@ -706,21 +726,8 @@ return (
           <p className="text-emerald-500 dark:text-gray-100">
             💧 Humidity: {data.weather?.relative_humidity_2m || 'N/A'}%
           </p>
-          
         </div>
       </div>
-      {/* <div className="mt-3">
-        <span className="text-4xl">
-          {(() => {
-            const temp = data.weather?.temperature_2m || data.weather?.temp || 0;
-            if (temp <= 5) return '🥶';
-            if (temp <= 15) return '🌨️';
-            if (temp <= 25) return '😊';
-            if (temp <= 35) return '🌞';
-            return '🥵';
-          })()}
-        </span>
-      </div> */}
     </div>
 
     {/* AQI Card */}
@@ -730,9 +737,16 @@ return (
           🌬️ Air Quality
         </h2>
         
-        {/* Overall Air Quality */}
-        <div className="mb-4 p-3 bg-white/10 rounded-xl">
-          <p className="text-lg font-bold text-emerald-500 dark:text-gray-100">
+        {/* Expandable Overall Air Quality Section */}
+        <motion.div
+          className="mb-4 p-3 bg-white/10 rounded-xl cursor-pointer relative group"
+          onClick={() => setExpandedWeatherSection(prev => prev === 'airquality' ? null : 'airquality')}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+          
+          <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
             Overall: {(() => {
               const pm25 = data.air_quality?.pm2_5 || 0;
               if (pm25 <= 12) return '🌟 Excellent';
@@ -740,9 +754,36 @@ return (
               if (pm25 <= 55) return '😐 Moderate';
               if (pm25 <= 150) return '😷 Poor';
               return '☠️ Hazardous';
-            })()}
+            })()} {expandedWeatherSection === 'airquality' ? '▼' : '▶'}
           </p>
-        </div>
+          
+          <motion.div
+            className={`transition-all duration-500 ease-in-out overflow-hidden ${
+              expandedWeatherSection === 'airquality' ? 'max-h-[300px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="text-sm text-emerald-500 dark:text-gray-100 space-y-2">
+              {(() => {
+                const pm25 = data.air_quality?.pm2_5 || 0;
+                if (pm25 <= 12) return (
+                  <p>🌟 Air quality is excellent! Perfect for outdoor activities, jogging, and spending time outside.</p>
+                );
+                if (pm25 <= 35) return (
+                  <p>😊 Good air quality. Safe for everyone including sensitive individuals.</p>
+                );
+                if (pm25 <= 55) return (
+                  <p>😐 Moderate air quality. Most people can enjoy outdoor activities, but very sensitive individuals might experience minor issues.</p>
+                );
+                if (pm25 <= 150) return (
+                  <p>😷 Poor air quality. People with respiratory conditions should limit outdoor exposure. Everyone else should reduce prolonged outdoor activities.</p>
+                );
+                return (
+                  <p>☠️ Hazardous air quality! Avoid outdoor activities. Stay indoors and use air purifiers if available.</p>
+                );
+              })()}
+            </div>
+          </motion.div>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           <p className="text-emerald-500 dark:text-gray-100">
@@ -776,23 +817,10 @@ return (
           )}
         </div>
       </div>
-      
-      {/* <div className="mt-3">
-        <span className="text-4xl">
-          {(() => {
-            const pm25 = data.air_quality?.pm2_5 || 0;
-            if (pm25 <= 12) return '🌟';
-            if (pm25 <= 35) return '😊';
-            if (pm25 <= 55) return '😐';
-            if (pm25 <= 150) return '😷';
-            return '☠️';
-          })()}
-        </span>
-      </div> */}
     </div>
   </div>
 ) : (
-  <p className="text-center sm:text-xl md:text-2xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
+  <p className="text-center sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
 )}
           </motion.div>
         </div>

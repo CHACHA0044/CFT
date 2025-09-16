@@ -788,11 +788,11 @@ return (
             return '☠️';
           })()}
         </span>
-      </div>
+      </div> */}
     </div>
-  </div> */}
+  </div>
 ) : (
-  <p className="text-center sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
+  <p className="text-center sm:text-xl md:text-2xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
 )}
           </motion.div>
         </div>

@@ -44,6 +44,8 @@ on:
   push:
     branches:
       - main  
+    paths-ignore:
+      - 'client/src/version.json'
 
 jobs:
   bump:

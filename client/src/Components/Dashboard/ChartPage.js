@@ -677,30 +677,45 @@ return (
         </h2>
         <div className="grid grid-cols-2 gap-2 mt-3">
           <p className="text-emerald-500 dark:text-gray-100">
-            🌡️ Temperature: {data.weather?.temperature_2m || data.weather?.temp}°C
+            🌡️ Temperature: {data.weather?.temperature_2m || data.weather?.temp || 'N/A'}°C
           </p>
           <p className="text-emerald-500 dark:text-gray-100">
-            🌡️ Feels Like: {data.weather?.apparent_temperature}°C
+            🌡️ Feels Like: {data.weather?.apparent_temperature || 'N/A'}°C
           </p>
           <p className="text-emerald-500 dark:text-gray-100">
-            💨 Wind: {data.weather?.windspeed_10m || data.weather?.windspeed} km/h
+            💨 Wind: {data.weather?.windspeed_10m || data.weather?.windspeed || 'N/A'} km/h
           </p>
           <p className="text-emerald-500 dark:text-gray-100">
-            💧 Humidity: {data.weather?.relative_humidity_2m}%
+            💧 Humidity: {data.weather?.relative_humidity_2m || 'N/A'}%
           </p>
           {data.weather?.weather_code && (
             <p className="text-emerald-500 dark:text-gray-100 col-span-2">
-              ☁️ Condition Code: {data.weather.weather_code}
+              ☁️ Condition: {(() => {
+                const code = data.weather.weather_code;
+                if (code === 0) return 'Clear sky';
+                if (code <= 3) return 'Partly cloudy';
+                if (code <= 48) return 'Foggy';
+                if (code <= 67) return 'Rainy';
+                if (code <= 77) return 'Snowy';
+                if (code <= 82) return 'Rain showers';
+                if (code <= 86) return 'Snow showers';
+                if (code <= 99) return 'Thunderstorm';
+                return `Code ${code}`;
+              })()}
             </p>
           )}
         </div>
       </div>
       <div className="mt-3">
         <span className="text-4xl">
-          {(data.weather?.temperature_2m || data.weather?.temp) <= 5 ? '🥶' :
-           (data.weather?.temperature_2m || data.weather?.temp) <= 15 ? '🌨️' :
-           (data.weather?.temperature_2m || data.weather?.temp) <= 25 ? '😊' :
-           (data.weather?.temperature_2m || data.weather?.temp) <= 35 ? '🌞' : '🥵'}
+          {(() => {
+            const temp = data.weather?.temperature_2m || data.weather?.temp || 0;
+            if (temp <= 5) return '🥶';
+            if (temp <= 15) return '🌨️';
+            if (temp <= 25) return '😊';
+            if (temp <= 35) return '🌞';
+            return '🥵';
+          })()}
         </span>
       </div>
     </div>
@@ -728,30 +743,30 @@ return (
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           <p className="text-emerald-500 dark:text-gray-100">
-            🔬 Fine Particles: {data.air_quality?.pm2_5 || 'N/A'} μg/m³
+            🔬 Fine Particles: {data.air_quality?.pm2_5?.toFixed(1) || 'N/A'} μg/m³
           </p>
           <p className="text-emerald-500 dark:text-gray-100">
-            🌪️ Dust Particles: {data.air_quality?.pm10 || 'N/A'} μg/m³
+            🌪️ Dust Particles: {data.air_quality?.pm10?.toFixed(1) || 'N/A'} μg/m³
           </p>
           <p className="text-emerald-500 dark:text-gray-100">
-            ☠️ Carbon Monoxide: {data.air_quality?.carbon_monoxide || 'N/A'} μg/m³
+            ☠️ Carbon Monoxide: {data.air_quality?.carbon_monoxide?.toFixed(0) || 'N/A'} μg/m³
           </p>
           {data.air_quality?.ozone && (
             <p className="text-emerald-500 dark:text-gray-100">
-              🌍 Ozone: {data.air_quality.ozone} μg/m³
+              🌍 Ozone: {data.air_quality.ozone.toFixed(1)} μg/m³
             </p>
           )}
           {data.air_quality?.nitrogen_dioxide && (
             <p className="text-emerald-500 dark:text-gray-100">
-              🚗 Nitrogen Dioxide: {data.air_quality.nitrogen_dioxide} μg/m³
+              🚗 Nitrogen Dioxide: {data.air_quality.nitrogen_dioxide.toFixed(1)} μg/m³
             </p>
           )}
           {data.air_quality?.sulphur_dioxide && (
             <p className="text-emerald-500 dark:text-gray-100">
-              🏭 Sulphur Dioxide: {data.air_quality.sulphur_dioxide} μg/m³
+              🏭 Sulphur Dioxide: {data.air_quality.sulphur_dioxide.toFixed(1)} μg/m³
             </p>
           )}
-          {data.air_quality?.uv_index && (
+          {data.air_quality?.uv_index !== undefined && (
             <p className="text-emerald-500 dark:text-gray-100 col-span-full">
               ☀️ UV Index: {data.air_quality.uv_index}
             </p>

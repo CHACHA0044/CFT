@@ -617,39 +617,36 @@ return (
     {/* Weather Card */}
     <div className="p-4 rounded-lg shadow-md bg-blue-50 flex items-center justify-between">
       <div>
-        <h2 className="text-lg font-bold">Weather</h2>
-        <p>Temperature: {data.weather.temp}°C</p>
-        <p>Condition: {data.weather.condition}</p>
+        <h2 className="text-lg font-bold text-gray-800">Weather</h2>
+        <p className="text-gray-600">Temperature: {data.weather?.temperature || data.weather?.temp}°C</p>
+        <p className="text-gray-600">Wind: {data.weather?.windspeed} km/h</p>
       </div>
       <div>
-        <img
-          src={`https://openweathermap.org/img/wn/${data.weather.icon}.png`}
-          alt={data.weather.condition}
-        />
+        <span className="text-2xl">
+          {data.weather?.temperature <= 15 ? '🥶' : 
+           data.weather?.temperature <= 25 ? '😊' : '🥵'}
+        </span>
       </div>
     </div>
 
     {/* AQI Card */}
     <div className="p-4 rounded-lg shadow-md bg-green-50 flex items-center justify-between">
       <div>
-        <h2 className="text-lg font-bold">Air Quality Index</h2>
-        <p>Value: {data.aqi.value}</p>
-        <p>Category: {data.aqi.category}</p>
+        <h2 className="text-lg font-bold text-gray-800">Air Quality</h2>
+        <p className="text-gray-600">PM2.5: {data.air_quality?.pm2_5 || 'N/A'} μg/m³</p>
+        <p className="text-gray-600">PM10: {data.air_quality?.pm10 || 'N/A'} μg/m³</p>
+        <p className="text-gray-600">CO: {data.air_quality?.carbon_monoxide || 'N/A'} μg/m³</p>
       </div>
       <div>
-        {/* Optional: emoji/color based on AQI */}
         <span className="text-xl">
-          {data.aqi.value <= 50
-            ? '😊'
-            : data.aqi.value <= 100
-            ? '😐'
-            : '😷'}
+          {(data.air_quality?.pm2_5 || 0) <= 12 ? '😊' :
+           (data.air_quality?.pm2_5 || 0) <= 35 ? '😐' : '😷'}
         </span>
       </div>
     </div>
   </div>
 ) : (
-  <p>Loading weather and AQI...</p>
+  <p className="text-center text-gray-400">Loading weather and AQI...</p>
 )}
 
         {/* Total Emissions */}

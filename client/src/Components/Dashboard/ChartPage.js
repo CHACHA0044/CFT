@@ -267,7 +267,47 @@ const ChartPage = () => {
   const newRange = range * zoomFactor;
   const newMin = Math.max(1, pointerMonth - (pointerMonth - zoomRange[0]) * zoomFactor);
   const newMax = Math.min(12, newMin + newRange); setZoomRange([newMin, newMax]);}, [zoomRange]);
-  
+  const [data, setData] = useState(null);
+
+
+ useEffect(() => {
+    const fetchWeatherAndAqi = async () => {
+      let lat, lon;
+      if (navigator.geolocation) {
+        try {
+          const pos = await new Promise((resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error("Geolocation timeout")), 10000);
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                clearTimeout(timer);
+                resolve(position);
+              },
+              (err) => {
+                clearTimeout(timer);
+                reject(err);
+              }
+            );
+          });
+
+          lat = pos.coords.latitude;
+          lon = pos.coords.longitude;
+        } catch (err) {
+          console.warn("Browser location denied or unavailable. Using IP Address...");
+        }
+      }
+
+      try {
+        const query = lat && lon ? `?lat=${lat}&lon=${lon}` : "";
+        const res = await API.get(`/auth/weather-aqi${query}`);
+        setData(res.data); 
+      } catch (err) {
+        console.error("Failed to fetch weather/AQI data:", err);
+      }
+    };
+
+    fetchWeatherAndAqi();
+  }, []);
+
 useEffect(() => {
   const fetchUser = async () => {
     try {
@@ -571,7 +611,46 @@ return (
         </div>
       )}
       <div className="max-w-4xl mx-auto space-y-4 px-4 pt-4">
-        
+        {data ? (
+  <div className="mt-4 space-y-4">
+    {/* Weather Card */}
+    <div className="p-4 rounded-lg shadow-md bg-blue-50 flex items-center justify-between">
+      <div>
+        <h2 className="text-lg font-bold">Weather</h2>
+        <p>Temperature: {data.weather.temp}°C</p>
+        <p>Condition: {data.weather.condition}</p>
+      </div>
+      <div>
+        <img
+          src={`https://openweathermap.org/img/wn/${data.weather.icon}.png`}
+          alt={data.weather.condition}
+        />
+      </div>
+    </div>
+
+    {/* AQI Card */}
+    <div className="p-4 rounded-lg shadow-md bg-green-50 flex items-center justify-between">
+      <div>
+        <h2 className="text-lg font-bold">Air Quality Index</h2>
+        <p>Value: {data.aqi.value}</p>
+        <p>Category: {data.aqi.category}</p>
+      </div>
+      <div>
+        {/* Optional: emoji/color based on AQI */}
+        <span className="text-xl">
+          {data.aqi.value <= 50
+            ? '😊'
+            : data.aqi.value <= 100
+            ? '😐'
+            : '😷'}
+        </span>
+      </div>
+    </div>
+  </div>
+) : (
+  <p>Loading weather and AQI...</p>
+)}
+
         {/* Total Emissions */}
         <div className="group relative">
           <div className="absolute -inset-1  rounded-3xl bg-emerald-500/20 dark:bg-gray-100/10 blur-xl pointer-events-none transition-all duration-500 group-hover:blur-2xl" />

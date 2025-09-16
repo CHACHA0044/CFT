@@ -672,7 +672,7 @@ return (
     {/* Weather Card */}
     <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
       <div>
-        <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
+        <h2 className="pb-2 sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
           🌤️ Weather<br />
         </h2>
         
@@ -686,7 +686,7 @@ return (
           >
             {/* <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" /> */}
             
-            <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
+            <p className="text-lg text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
               ☁️ Condition: <p>
                 {(() => {
                   const code = data.weather.weather_code;
@@ -709,16 +709,16 @@ return (
               }`}
             >
                <div className="grid grid-cols-2 gap-2 mt-3">
-          <p className="text-emerald-500 dark:text-gray-100">
+          <p className="text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
             🌡️ Temperature: {data.weather?.temperature_2m || data.weather?.temp || 'N/A'}°C
           </p>
-          <p className="text-emerald-500 dark:text-gray-100">
+          <p className="text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
             🌡️ Feels Like: {data.weather?.apparent_temperature || 'N/A'}°C
           </p>
-          <p className="text-emerald-500 dark:text-gray-100">
+          <p className="text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
             💨 Wind: {data.weather?.windspeed_10m || data.weather?.windspeed || 'N/A'} km/h
           </p>
-          <p className="text-emerald-500 dark:text-gray-100">
+          <p className="text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
             💧 Humidity: {data.weather?.relative_humidity_2m || 'N/A'}%
           </p>
         </div>
@@ -733,7 +733,7 @@ return (
     {/* AQI Card */}
     <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
       <div>
-        <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
+        <h2 className="pb-2 sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
           🌬️ Air Quality<br />
         </h2>
         
@@ -746,7 +746,7 @@ return (
         >
           {/* <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" /> */}
           
-          <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
+          <p className="text-lg text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
             Overall: {(() => {
               const pm25 = data.air_quality?.pm2_5 || 0;
               if (pm25 <= 12) return '🌟 Excellent';
@@ -762,7 +762,7 @@ return (
               expandedWeatherSection === 'airquality' ? 'max-h-[300px] opacity-100 mt-2' : 'max-h-0 opacity-0'
             }`}
           >
-            <div className="text-sm text-emerald-500 dark:text-gray-100 space-y-2">
+            <div className="text-sm text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100 space-y-2">
               {(() => {
                 const pm25 = data.air_quality?.pm2_5 || 0;
                 if (pm25 <= 12) return (
@@ -783,32 +783,32 @@ return (
               })()}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-          <p className="text-emerald-500 dark:text-gray-100">
+          <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider">
             🔬 Fine Particles: {data.air_quality?.pm2_5?.toFixed(1) || 'N/A'} μg/m³
           </p>
-          <p className="text-emerald-500 dark:text-gray-100">
+          <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider">
             🌪️ Dust Particles: {data.air_quality?.pm10?.toFixed(1) || 'N/A'} μg/m³
           </p>
-          <p className="text-emerald-500 dark:text-gray-100">
+          <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider">
             ☠️ Carbon Monoxide: {data.air_quality?.carbon_monoxide?.toFixed(0) || 'N/A'} μg/m³
           </p>
           {data.air_quality?.ozone && (
-            <p className="text-emerald-500 dark:text-gray-100">
+            <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider">
               🌍 Ozone: {data.air_quality.ozone.toFixed(1)} μg/m³
             </p>
           )}
           {data.air_quality?.nitrogen_dioxide && (
-            <p className="text-emerald-500 dark:text-gray-100">
+            <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider">
               🚗 Nitrogen Dioxide: {data.air_quality.nitrogen_dioxide.toFixed(1)} μg/m³
             </p>
           )}
           {data.air_quality?.sulphur_dioxide && (
-            <p className="text-emerald-500 dark:text-gray-100">
+            <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider">
               🏭 Sulphur Dioxide: {data.air_quality.sulphur_dioxide.toFixed(1)} μg/m³
             </p>
           )}
           {data.air_quality?.uv_index !== undefined && data.air_quality.uv_index > 0 && (
-            <p className="text-emerald-500 dark:text-gray-100 col-span-full">
+            <p className="text-emerald-500 dark:text-gray-100 col-span-full text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider">
               ☀️ UV Index: {data.air_quality.uv_index}
             </p>
           )}

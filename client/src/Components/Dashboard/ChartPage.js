@@ -675,6 +675,24 @@ return (
         <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
           🌤️ Weather
         </h2>
+        {data.weather?.weather_code && (
+          <div className="mb-4 p-3 bg-white/10 rounded-xl">
+            <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 col-span-2">
+              ☁️ Condition: {(() => {
+                const code = data.weather.weather_code;
+                if (code === 0) return '🌞 Clear sky';
+                if (code <= 3) return '🌨️ Partly cloudy';
+                if (code <= 48) return '😶‍🌫️ Foggy';
+                if (code <= 67) return '🌧️ Rainy';
+                if (code <= 77) return '❄️ Snowy';
+                if (code <= 82) return '🌩️ Rain showers';
+                if (code <= 86) return '🧊 Snow showers';
+                if (code <= 99) return '⛈️ Thunderstorm';
+                return `Code ${code}`;
+              })()}
+            </p>
+            </div>
+          )}
         <div className="grid grid-cols-2 gap-2 mt-3">
           <p className="text-emerald-500 dark:text-gray-100">
             🌡️ Temperature: {data.weather?.temperature_2m || data.weather?.temp || 'N/A'}°C
@@ -688,25 +706,10 @@ return (
           <p className="text-emerald-500 dark:text-gray-100">
             💧 Humidity: {data.weather?.relative_humidity_2m || 'N/A'}%
           </p>
-          {data.weather?.weather_code && (
-            <p className="text-emerald-500 dark:text-gray-100 col-span-2">
-              ☁️ Condition: {(() => {
-                const code = data.weather.weather_code;
-                if (code === 0) return 'Clear sky';
-                if (code <= 3) return 'Partly cloudy';
-                if (code <= 48) return 'Foggy';
-                if (code <= 67) return 'Rainy';
-                if (code <= 77) return 'Snowy';
-                if (code <= 82) return 'Rain showers';
-                if (code <= 86) return 'Snow showers';
-                if (code <= 99) return 'Thunderstorm';
-                return `Code ${code}`;
-              })()}
-            </p>
-          )}
+          
         </div>
       </div>
-      <div className="mt-3">
+      {/* <div className="mt-3">
         <span className="text-4xl">
           {(() => {
             const temp = data.weather?.temperature_2m || data.weather?.temp || 0;
@@ -717,7 +720,7 @@ return (
             return '🥵';
           })()}
         </span>
-      </div>
+      </div> */}
     </div>
 
     {/* AQI Card */}
@@ -766,7 +769,7 @@ return (
               🏭 Sulphur Dioxide: {data.air_quality.sulphur_dioxide.toFixed(1)} μg/m³
             </p>
           )}
-          {data.air_quality?.uv_index !== undefined && (
+          {data.air_quality?.uv_index !== undefined && data.air_quality.uv_index > 0 && (
             <p className="text-emerald-500 dark:text-gray-100 col-span-full">
               ☀️ UV Index: {data.air_quality.uv_index}
             </p>
@@ -774,7 +777,7 @@ return (
         </div>
       </div>
       
-      <div className="mt-3">
+      {/* <div className="mt-3">
         <span className="text-4xl">
           {(() => {
             const pm25 = data.air_quality?.pm2_5 || 0;
@@ -787,7 +790,7 @@ return (
         </span>
       </div>
     </div>
-  </div>
+  </div> */}
 ) : (
   <p className="text-center sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
 )}

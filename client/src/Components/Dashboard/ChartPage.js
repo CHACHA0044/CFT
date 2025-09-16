@@ -612,14 +612,27 @@ return (
         </div>
       )}
       <div className="max-w-4xl mx-auto space-y-4 px-4 pt-4">
-        {data ? (
+        
+        {/* Total Emissions */}
+        <div className="group relative">
+          <div className="absolute -inset-1  rounded-3xl bg-emerald-500/20 dark:bg-gray-100/10 blur-xl pointer-events-none transition-all duration-500 group-hover:blur-2xl" />
+          <AnimatedHeadline />
+          <motion.div
+            className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105"
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+          >
+            <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+            <h2 className="sm:text-3xl md:text-5xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🗓️ </span>Monthly Emissions</h2>
+
+            {data ? (
   <div className="mt-4 space-y-4">
     {/* Weather Card */}
-    <div className="p-4 rounded-lg shadow-md bg-blue-50 flex items-center justify-between">
+    <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
       <div>
-        <h2 className="text-lg font-bold text-gray-800">Weather</h2>
-        <p className="text-gray-600">Temperature: {data.weather?.temperature || data.weather?.temp}°C</p>
-        <p className="text-gray-600">Wind: {data.weather?.windspeed} km/h</p>
+        <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">Weather</h2>
+        <p className="text-emerald-500 dark:text-gray-100">Temperature: {data.weather?.temperature || data.weather?.temp}°C</p>
+        <p className="text-emerald-500 dark:text-gray-100">Wind: {data.weather?.windspeed} km/h</p>
       </div>
       <div>
         <span className="text-2xl">
@@ -630,12 +643,12 @@ return (
     </div>
 
     {/* AQI Card */}
-    <div className="p-4 rounded-lg shadow-md bg-green-50 flex items-center justify-between">
+    <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
       <div>
-        <h2 className="text-lg font-bold text-gray-800">Air Quality</h2>
-        <p className="text-gray-600">PM2.5: {data.air_quality?.pm2_5 || 'N/A'} μg/m³</p>
-        <p className="text-gray-600">PM10: {data.air_quality?.pm10 || 'N/A'} μg/m³</p>
-        <p className="text-gray-600">CO: {data.air_quality?.carbon_monoxide || 'N/A'} μg/m³</p>
+        <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">Air Quality</h2>
+        <p className="text-emerald-500 dark:text-gray-100">PM2.5: {data.air_quality?.pm2_5 || 'N/A'} μg/m³</p>
+        <p className="text-emerald-500 dark:text-gray-100">PM10: {data.air_quality?.pm10 || 'N/A'} μg/m³</p>
+        <p className="text-emerald-500 dark:text-gray-100">CO: {data.air_quality?.carbon_monoxide || 'N/A'} μg/m³</p>
       </div>
       <div>
         <span className="text-xl">
@@ -649,17 +662,6 @@ return (
   <p className="text-center text-gray-400">Loading weather and AQI...</p>
 )}
 
-        {/* Total Emissions */}
-        <div className="group relative">
-          <div className="absolute -inset-1  rounded-3xl bg-emerald-500/20 dark:bg-gray-100/10 blur-xl pointer-events-none transition-all duration-500 group-hover:blur-2xl" />
-          <AnimatedHeadline />
-          <motion.div
-            className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105"
-            initial={{ scale: 0.95 }}
-            animate={{ scale: 1 }}
-          >
-            <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
-            <h2 className="sm:text-3xl md:text-5xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🗓️ </span>Monthly Emissions</h2>
             {(() => {
   const [intPart, decimalPart] = total.toFixed(2).split('.');
   return (
@@ -1003,7 +1005,7 @@ e
 
     {/* Current Year Summary */}
     <motion.div 
-      className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-2xl p-4 mb-6 text-center"
+      className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center"
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.3 }}

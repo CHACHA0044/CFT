@@ -687,17 +687,17 @@ return (
             {/* <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" /> */}
             
             <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
-              ☁️ Condition: <p className="text-emerald-500 dark:text-gray-100">
+              ☁️ Condition: <p>
                 {(() => {
                   const code = data.weather.weather_code;
-                  if (code === 0) return '🌞 Clear sky - Perfect weather for outdoor activities!';
-                  if (code <= 3) return '🌨️ Partly cloudy - Mix of sun and clouds expected';
-                  if (code <= 48) return '😶‍🌫️ Foggy conditions - Reduced visibility, drive carefully';
-                  if (code <= 67) return '🌧️ Rainy weather - Don\'t forget your umbrella!';
-                  if (code <= 77) return '❄️ Snow expected - Bundle up and stay warm';
-                  if (code <= 82) return '🌩️ Rain showers - Intermittent rainfall likely';
-                  if (code <= 86) return '🧊 Snow showers - Light snowfall expected';
-                  if (code <= 99) return '⛈️ Thunderstorm warning - Stay indoors if possible';
+                  if (code === 0) return '🌞 Clear sky';
+                  if (code <= 3) return '🌨️ Partly cloudy';
+                  if (code <= 48) return '😶‍🌫️ Foggy conditions';
+                  if (code <= 67) return '🌧️ Rainy weather';
+                  if (code <= 77) return '❄️ Snow expected';
+                  if (code <= 82) return '🌩️ Rain showers';
+                  if (code <= 86) return '🧊 Snow showers';
+                  if (code <= 99) return '⛈️ Thunderstorm';
                   return `Weather code: ${code}`;
                 })()}
               </p> {expandedWeatherSection === 'condition' ? '▼' : '▶'}
@@ -821,7 +821,7 @@ return (
     </div>
   </div>
 ) : (
-  <p className="text-center sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
+  <p className="text-center sm:text-xl md:text-2xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
 )}
           </motion.div>
         </div>

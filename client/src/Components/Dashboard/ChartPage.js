@@ -246,6 +246,33 @@ const globalAverages = {
     />
   );
 };
+
+const AniDot = () => (
+  <span aria-hidden="true" className="inline-flex items-center">
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+    > 
+      .
+    </motion.span>
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+    >
+      .
+    </motion.span>
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
+    >
+      .
+    </motion.span>
+  </span>
+);
+
 const ChartPage = () => {
   useAuthRedirect();
   const location = useLocation();
@@ -625,19 +652,55 @@ return (
             <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
             <h2 className="sm:text-3xl md:text-5xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🗓️ </span>Monthly Emissions</h2>
 
-            {data ? (
+                      {(() => {
+            const [intPart, decimalPart] = total.toFixed(2).split('.');
+            return (
+              <p className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
+                {intPart}
+                <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span
+            className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+            style={{ '--random': Math.random() }}
+          >
+          2
+          </span><br />
+              </p>
+            );
+          })()}
+
+{data ? (
   <div className="mt-4 space-y-4">
     {/* Weather Card */}
     <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
       <div>
-        <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">Weather</h2>
-        <p className="text-emerald-500 dark:text-gray-100">Temperature: {data.weather?.temperature || data.weather?.temp}°C</p>
-        <p className="text-emerald-500 dark:text-gray-100">Wind: {data.weather?.windspeed} km/h</p>
+        <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
+          🌤️ Weather
+        </h2>
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <p className="text-emerald-500 dark:text-gray-100">
+            🌡️ Temperature: {data.weather?.temperature_2m || data.weather?.temp}°C
+          </p>
+          <p className="text-emerald-500 dark:text-gray-100">
+            🌡️ Feels Like: {data.weather?.apparent_temperature}°C
+          </p>
+          <p className="text-emerald-500 dark:text-gray-100">
+            💨 Wind: {data.weather?.windspeed_10m || data.weather?.windspeed} km/h
+          </p>
+          <p className="text-emerald-500 dark:text-gray-100">
+            💧 Humidity: {data.weather?.relative_humidity_2m}%
+          </p>
+          {data.weather?.weather_code && (
+            <p className="text-emerald-500 dark:text-gray-100 col-span-2">
+              ☁️ Condition Code: {data.weather.weather_code}
+            </p>
+          )}
+        </div>
       </div>
-      <div>
-        <span className="text-2xl">
-          {data.weather?.temperature <= 15 ? '🥶' : 
-           data.weather?.temperature <= 25 ? '😊' : '🥵'}
+      <div className="mt-3">
+        <span className="text-4xl">
+          {(data.weather?.temperature_2m || data.weather?.temp) <= 5 ? '🥶' :
+           (data.weather?.temperature_2m || data.weather?.temp) <= 15 ? '🌨️' :
+           (data.weather?.temperature_2m || data.weather?.temp) <= 25 ? '😊' :
+           (data.weather?.temperature_2m || data.weather?.temp) <= 35 ? '🌞' : '🥵'}
         </span>
       </div>
     </div>
@@ -645,38 +708,74 @@ return (
     {/* AQI Card */}
     <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
       <div>
-        <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">Air Quality</h2>
-        <p className="text-emerald-500 dark:text-gray-100">PM2.5: {data.air_quality?.pm2_5 || 'N/A'} μg/m³</p>
-        <p className="text-emerald-500 dark:text-gray-100">PM10: {data.air_quality?.pm10 || 'N/A'} μg/m³</p>
-        <p className="text-emerald-500 dark:text-gray-100">CO: {data.air_quality?.carbon_monoxide || 'N/A'} μg/m³</p>
+        <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
+          🌬️ Air Quality
+        </h2>
+        
+        {/* Overall Air Quality */}
+        <div className="mb-4 p-3 bg-white/10 rounded-xl">
+          <p className="text-lg font-bold text-emerald-500 dark:text-gray-100">
+            Overall: {(() => {
+              const pm25 = data.air_quality?.pm2_5 || 0;
+              if (pm25 <= 12) return '🌟 Excellent';
+              if (pm25 <= 35) return '😊 Good';
+              if (pm25 <= 55) return '😐 Moderate';
+              if (pm25 <= 150) return '😷 Poor';
+              return '☠️ Hazardous';
+            })()}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+          <p className="text-emerald-500 dark:text-gray-100">
+            🔬 Fine Particles: {data.air_quality?.pm2_5 || 'N/A'} μg/m³
+          </p>
+          <p className="text-emerald-500 dark:text-gray-100">
+            🌪️ Dust Particles: {data.air_quality?.pm10 || 'N/A'} μg/m³
+          </p>
+          <p className="text-emerald-500 dark:text-gray-100">
+            ☠️ Carbon Monoxide: {data.air_quality?.carbon_monoxide || 'N/A'} μg/m³
+          </p>
+          {data.air_quality?.ozone && (
+            <p className="text-emerald-500 dark:text-gray-100">
+              🌍 Ozone: {data.air_quality.ozone} μg/m³
+            </p>
+          )}
+          {data.air_quality?.nitrogen_dioxide && (
+            <p className="text-emerald-500 dark:text-gray-100">
+              🚗 Nitrogen Dioxide: {data.air_quality.nitrogen_dioxide} μg/m³
+            </p>
+          )}
+          {data.air_quality?.sulphur_dioxide && (
+            <p className="text-emerald-500 dark:text-gray-100">
+              🏭 Sulphur Dioxide: {data.air_quality.sulphur_dioxide} μg/m³
+            </p>
+          )}
+          {data.air_quality?.uv_index && (
+            <p className="text-emerald-500 dark:text-gray-100 col-span-full">
+              ☀️ UV Index: {data.air_quality.uv_index}
+            </p>
+          )}
+        </div>
       </div>
-      <div>
-        <span className="text-xl">
-          {(data.air_quality?.pm2_5 || 0) <= 12 ? '😊' :
-           (data.air_quality?.pm2_5 || 0) <= 35 ? '😐' : '😷'}
+      
+      <div className="mt-3">
+        <span className="text-4xl">
+          {(() => {
+            const pm25 = data.air_quality?.pm2_5 || 0;
+            if (pm25 <= 12) return '🌟';
+            if (pm25 <= 35) return '😊';
+            if (pm25 <= 55) return '😐';
+            if (pm25 <= 150) return '😷';
+            return '☠️';
+          })()}
         </span>
       </div>
     </div>
   </div>
 ) : (
-  <p className="text-center text-gray-400">Loading weather and AQI...</p>
+  <p className="text-center sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
 )}
-
-            {(() => {
-  const [intPart, decimalPart] = total.toFixed(2).split('.');
-  return (
-    <p className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
-      {intPart}
-      <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span
-  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-  style={{ '--random': Math.random() }}
->
-2
-</span>
-    </p>
-  );
-})()}
-
           </motion.div>
         </div>
         

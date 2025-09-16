@@ -436,7 +436,7 @@ router.get("/weather-aqi", async (req, res) => {
     );
 
     res.json({
-      weather: weatherRes.data.current_weather,
+      weather: weatherRes.data.current,
       air_quality: airRes.data.current,
       location_source: req.query.lat && req.query.lon ? "browser" : "ip",
     });

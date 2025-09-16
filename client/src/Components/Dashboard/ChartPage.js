@@ -271,42 +271,43 @@ const ChartPage = () => {
 
 
  useEffect(() => {
-    const fetchWeatherAndAqi = async () => {
-      let lat, lon;
-      if (navigator.geolocation) {
-        try {
-          const pos = await new Promise((resolve, reject) => {
-            const timer = setTimeout(() => reject(new Error("Geolocation timeout")), 10000);
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                clearTimeout(timer);
-                resolve(position);
-              },
-              (err) => {
-                clearTimeout(timer);
-                reject(err);
-              }
-            );
-          });
+  const fetchWeatherAndAqi = async () => {
+    let lat, lon;
 
-          lat = pos.coords.latitude;
-          lon = pos.coords.longitude;
-        } catch (err) {
-          console.warn("Browser location denied or unavailable. Using IP Address...");
-        }
-      }
-
+    if (navigator.geolocation) {
       try {
-        const query = lat && lon ? `?lat=${lat}&lon=${lon}` : "";
-        const res = await API.get(`/auth/weather-aqi${query}`);
-        setData(res.data); 
-      } catch (err) {
-        console.error("Failed to fetch weather/AQI data:", err);
-      }
-    };
+        const pos = await new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error("Geolocation timeout")), 10000);
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              clearTimeout(timer);
+              resolve(position);
+            },
+            (err) => {
+              clearTimeout(timer);
+              reject(err);
+            }
+          );
+        });
 
-    fetchWeatherAndAqi();
-  }, []);
+        lat = pos.coords.latitude;
+        lon = pos.coords.longitude;
+      } catch (err) {
+        console.warn("Geolocation denied or unavailable. Falling back to IP-based location...");
+      }
+    }
+
+    try {
+      const query = lat && lon ? `?lat=${lat}&lon=${lon}` : "";
+      const res = await API.get(`/auth/weather-aqi${query}`);
+      setData(res.data); 
+    } catch (err) {
+      console.error("Failed to fetch weather/AQI data:", err);
+    }
+  };
+
+  fetchWeatherAndAqi();
+}, []);
 
 useEffect(() => {
   const fetchUser = async () => {

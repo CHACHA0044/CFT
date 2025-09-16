@@ -237,7 +237,7 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/auth/ping`)
+    fetch(`${process.env.REACT_APP_API_URL}/auth/ping`)
       .then(res => res.json())
       .then(data => console.log('✅ Ping success:', data.message))
       .catch(err => console.log('⚠️ Ping failed:', err));

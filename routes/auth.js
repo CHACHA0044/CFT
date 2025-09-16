@@ -388,13 +388,34 @@ router.post('/resend-verification', async (req, res) => {
   }
 });
 
-// WAKEUP SON
+
+// WAKEUP SON 
 router.get('/ping', (req, res) => {
-  res.status(200).json({ message: 'Server server wake up!' });
+  res.set({
+    'Access-Control-Allow-Origin': req.headers.origin || '*',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+    'Content-Type': 'application/json'
+  });
+  
+  res.status(200).json({ 
+    message: 'Server server wake up!',
+    timestamp: new Date().toISOString(),
+    status: 'healthy'
+  });
 });
 
 // WEATHER & AQI
 router.get("/weather-aqi", async (req, res) => {
+  res.set({
+    'Access-Control-Allow-Origin': req.headers.origin || '*',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+    'Content-Type': 'application/json'
+  });
+
   let { lat, lon } = req.query;
 
   try {
@@ -423,5 +444,44 @@ router.get("/weather-aqi", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
+
+// // WAKEUP SON
+// router.get('/ping', (req, res) => {
+//   res.status(200).json({ message: 'Server server wake up!' });
+// });
+
+// // WEATHER & AQI
+// router.get("/weather-aqi", async (req, res) => {
+//   let { lat, lon } = req.query;
+
+//   try {
+//     if (!lat || !lon) {
+//       const ipRes = await axios.get("https://ipapi.co/json/");
+//       lat = ipRes.data.latitude;
+//       lon = ipRes.data.longitude;
+//     }
+
+//     // Weather 
+//     const weatherRes = await axios.get(
+//       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
+//     );
+
+//     // Air Quality 
+//     const airRes = await axios.get(
+//       `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+//     );
+
+//     res.json({
+//       weather: weatherRes.data.current_weather,
+//       air_quality: airRes.data.current,
+//       location_source: req.query.lat && req.query.lon ? "browser" : "ip",
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 module.exports = router;

@@ -235,6 +235,14 @@ useEffect(() => {
   window.addEventListener('scroll', handleScroll);
   return () => window.removeEventListener('scroll', handleScroll);
 }, []);
+
+useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_URL}/api/auth/ping`)
+      .then(res => res.json())
+      .then(data => console.log('✅ Ping success:', data.message))
+      .catch(err => console.log('⚠️ Ping failed:', err));
+  }, []);
+
 useEffect(() => {
   const updateHeight = () => {
     const width = window.innerWidth;

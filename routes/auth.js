@@ -393,6 +393,9 @@ router.post('/resend-verification', async (req, res) => {
   }
 });
 
-
+// WAKEUP SON
+router.get('/ping', (req, res) => {
+  res.status(200).json({ message: 'Server server wake up!' });
+});
 
 module.exports = router;

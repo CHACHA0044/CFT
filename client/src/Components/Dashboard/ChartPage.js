@@ -673,13 +673,13 @@ return (
     <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
       <div>
         <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
-          🌤️ Weather
+          🌤️ Weather<br />
         </h2>
         
         {/* Expandable Weather Condition Section */}
         {data.weather?.weather_code && (
           <motion.div
-            className="mb-4 p-3 bg-white/10 rounded-xl cursor-pointer relative group"
+            className="mb-4 p-3 bg-white/10 rounded-xl cursor-pointer "
             onClick={() => setExpandedWeatherSection(prev => prev === 'condition' ? null : 'condition')}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -734,12 +734,12 @@ return (
     <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
       <div>
         <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
-          🌬️ Air Quality
+          🌬️ Air Quality<br />
         </h2>
         
         {/* Expandable Overall Air Quality Section */}
         <motion.div
-          className="mb-4 p-3 bg-white/10 rounded-xl cursor-pointer relative group"
+          className="mb-4 p-3 bg-white/10 rounded-xl cursor-pointer "
           onClick={() => setExpandedWeatherSection(prev => prev === 'airquality' ? null : 'airquality')}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -821,7 +821,7 @@ return (
     </div>
   </div>
 ) : (
-  <p className="text-center sm:text-xl md:text-2xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Loading weather and AQI<AniDot /></p>
+  <p className="text-center sm:text-lg md:text-xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">Getting weather and AQI data<AniDot /></p>
 )}
           </motion.div>
         </div>

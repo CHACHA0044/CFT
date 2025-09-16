@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const sendEmail = require('../utils/sendEmail');
+const axios = require('axios');
 const authenticateToken = require('../middleware/authmiddleware');
 const router = express.Router();
 const crypto = require('crypto');
@@ -188,13 +189,8 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
 
     if (!user.email) return res.status(400).json({ error: "User email not found." });
 
-    // Here you would typically save the feedback to your database
-    // const newFeedback = new Feedback({ userId: user._id, message: feedback });
-    // await newFeedback.save();
-
     console.log(`📝 Feedback received from ${user.email}: ${feedback}`);
 
-    // Send automatic thank-you email
     try {
       await sendEmail(
         user.email,
@@ -209,7 +205,6 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
       });
     } catch (emailError) {
       console.error(`❌ Failed to send thank-you email to ${user.email}:`, emailError);
-      // Still return success for feedback submission even if email fails
       return res.json({ 
         message: "Feedback submitted successfully, but thank-you email failed to send.",
         feedbackReceived: true,

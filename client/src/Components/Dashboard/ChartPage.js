@@ -684,18 +684,10 @@ return (
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+            {/* <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" /> */}
             
             <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
-              ☁️ Condition {expandedWeatherSection === 'condition' ? '▼' : '▶'}
-            </p>
-            
-            <motion.div
-              className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                expandedWeatherSection === 'condition' ? 'max-h-[200px] opacity-100 mt-2' : 'max-h-0 opacity-0'
-              }`}
-            >
-              <p className="text-emerald-500 dark:text-gray-100">
+              ☁️ Condition: <p className="text-emerald-500 dark:text-gray-100">
                 {(() => {
                   const code = data.weather.weather_code;
                   if (code === 0) return '🌞 Clear sky - Perfect weather for outdoor activities!';
@@ -708,12 +700,15 @@ return (
                   if (code <= 99) return '⛈️ Thunderstorm warning - Stay indoors if possible';
                   return `Weather code: ${code}`;
                 })()}
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-
-        <div className="grid grid-cols-2 gap-2 mt-3">
+              </p> {expandedWeatherSection === 'condition' ? '▼' : '▶'}
+            </p>
+            
+            <motion.div
+              className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                expandedWeatherSection === 'condition' ? 'max-h-[200px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+              }`}
+            >
+               <div className="grid grid-cols-2 gap-2 mt-3">
           <p className="text-emerald-500 dark:text-gray-100">
             🌡️ Temperature: {data.weather?.temperature_2m || data.weather?.temp || 'N/A'}°C
           </p>
@@ -727,6 +722,11 @@ return (
             💧 Humidity: {data.weather?.relative_humidity_2m || 'N/A'}%
           </p>
         </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+       
       </div>
     </div>
 
@@ -744,7 +744,7 @@ return (
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+          {/* <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" /> */}
           
           <p className="text-lg font-bold text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
             Overall: {(() => {
@@ -782,10 +782,7 @@ return (
                 );
               })()}
             </div>
-          </motion.div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
           <p className="text-emerald-500 dark:text-gray-100">
             🔬 Fine Particles: {data.air_quality?.pm2_5?.toFixed(1) || 'N/A'} μg/m³
           </p>
@@ -816,6 +813,10 @@ return (
             </p>
           )}
         </div>
+          </motion.div>
+        </motion.div>
+
+        
       </div>
     </div>
   </div>

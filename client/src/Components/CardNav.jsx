@@ -18,7 +18,7 @@ const CardNav = ({
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <div className="fixed top-5 left-4 z-50">
+    <div className="relative z-50">
       {/* Lottie / Logo Button */}
       <div
         className={`cursor-pointer ${logoSize} ${logoClass}`}
@@ -46,7 +46,7 @@ const CardNav = ({
             exit={{ x: `-${width}` }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             style={{ width }}
-            className="fixed top-0 left-0 h-auto p-4 bg-white/20 dark:bg-gray-800/70 rounded-r-3xl backdrop-blur-md shadow-lg flex flex-col"
+            className="absolute top-0 left-0 h-auto p-4 bg-white/20 dark:bg-gray-800/70 rounded-r-3xl backdrop-blur-md shadow-lg flex flex-col"
           >
             {/* Nav Links */}
 

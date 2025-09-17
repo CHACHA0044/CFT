@@ -462,7 +462,7 @@ export const VisualizeButton = ({ entries = [], className, onClick, ...props }) 
             className="
               absolute top-[-10rem] sm:top-[-6rem] 
               bg-black/70 backdrop-blur-md rounded-xl shadow-lg p-4 
-              flex sm:flex-row flex-col sm:space-x-3 space-y-3 sm:space-y-0 
+              flex flex-col sm:space-x-3 space-y-3 sm:space-y-0 
               max-w-[90vw] sm:max-h-[10rem] max-h-[60vh] 
               overflow-y-auto sm:overflow-x-auto z-50
             "

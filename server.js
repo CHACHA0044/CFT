@@ -28,6 +28,7 @@ const footprintRoutes = require('./routes/footprint');
 const allowedOrigins = [
   'http://localhost:3000',             // local dev
   'https://cft-self.vercel.app',       // vercel frontend
+  "https://cft-21jftdfuy-chacha0044s-projects.vercel.app",
 ];
 
 const corsOptions = {

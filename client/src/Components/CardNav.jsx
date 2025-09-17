@@ -9,7 +9,7 @@ const CardNav = ({
   height = "150px",// width of expanding panel
   menuColor = "#111",
   textColor = "#fff",
-  logoSize = "w-50 h-50",
+  logoSize = "w-25 h-25",
   logoClass = "text-emerald-600 dark:text-gray-100 text-shadow-DEFAULT",
   children,
 }) => {
@@ -46,7 +46,7 @@ const CardNav = ({
             exit={{ x: `-${width}` }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             style={{ width }}
-            className="fixed top-0 left-0 h-full p-6 bg-white/20 dark:bg-gray-800/70 rounded-r-3xl backdrop-blur-md shadow-lg flex flex-col"
+            className="fixed top-0 left-0 h-auto p-4 bg-white/20 dark:bg-gray-800/70 rounded-r-3xl backdrop-blur-md shadow-lg flex flex-col"
           >
             {/* Close Area (click logo again) */}
             <div
@@ -58,7 +58,7 @@ const CardNav = ({
 
             {/* Nav Links */}
 
-<nav className="mt-20 space-y-6 text-lg font-semibold">
+<nav className="mt-10 space-y-4 text-lg font-semibold">
   {children ? (
     children
   ) : (

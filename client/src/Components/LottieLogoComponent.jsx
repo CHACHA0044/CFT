@@ -42,39 +42,33 @@ import HamburgerAnimation from 'animations/Hamburger menu.json';
 
 const LottieLogo = ({ isOpen, onClick, className = "", colorClass = "text-gray-800 dark:text-gray-100" }) => {
   const lottieRef = useRef();
-  const [computedColor, setComputedColor] = useState("rgb(5 150 105)"); // Default emerald as fallback
+  // FIX: Start with null to prevent rendering until the color is ready.
+  const [computedColor, setComputedColor] = useState(null);
 
-  // Convert Tailwind color class to actual color
+  // This effect computes the actual color from the Tailwind CSS class.
   useEffect(() => {
-    const getComputedColor = () => {
-      // Create a temporary element to compute the color
-      const temp = document.createElement('div');
-      temp.style.position = 'absolute';
-      temp.style.opacity = '0';
-      temp.className = colorClass;
-      document.body.appendChild(temp);
-      const color = getComputedStyle(temp).color;
-      document.body.removeChild(temp);
-      return color;
-    };
-
-    setComputedColor(getComputedColor());
+    const tempElement = document.createElement('div');
+    tempElement.className = colorClass;
+    tempElement.style.display = 'none'; // Keep it hidden
+    document.body.appendChild(tempElement);
+    const color = getComputedStyle(tempElement).color;
+    document.body.removeChild(tempElement);
+    setComputedColor(color);
   }, [colorClass]);
 
+  // This memoized function creates a new animation data object with the updated color.
   const coloredAnimationData = useMemo(() => {
-    // Deep copy to avoid mutating original animation
-    const anim = JSON.parse(JSON.stringify(HamburgerAnimation));
+    // If the color isn't computed yet, return null.
+    if (!computedColor) return null;
 
-    // Recursively update all layers' fill colors
+    const anim = JSON.parse(JSON.stringify(HamburgerAnimation));
     const updateColors = (obj) => {
       if (obj && typeof obj === 'object') {
-        for (let key in obj) {
+        for (const key in obj) {
           if (key === 'c' && obj[key]?.k) {
-            // Extract RGB values from computed color
             const rgb = computedColor.match(/\d+/g)?.map(Number);
             if (rgb && rgb.length >= 3) {
-              // Convert to Lottie's normalized RGB format [r, g, b, a] (0-1)
-              obj[key].k = [rgb[0]/255, rgb[1]/255, rgb[2]/255, 1];
+              obj[key].k = [rgb[0] / 255, rgb[1] / 255, rgb[2] / 255, 1];
             }
           } else {
             updateColors(obj[key]);
@@ -82,11 +76,11 @@ const LottieLogo = ({ isOpen, onClick, className = "", colorClass = "text-gray-8
         }
       }
     };
-
     updateColors(anim);
     return anim;
   }, [computedColor]);
 
+  // This effect controls the animation playback.
   useEffect(() => {
     if (lottieRef.current) {
       if (isOpen) {
@@ -96,17 +90,25 @@ const LottieLogo = ({ isOpen, onClick, className = "", colorClass = "text-gray-8
       }
     }
   }, [isOpen]);
+  
+  // FIX: Don't render the Lottie player until the colored data is ready.
+  // This prevents the flash of the default black icon.
+  if (!coloredAnimationData) {
+    // Render a placeholder div to prevent layout shift while color is loading.
+    return <div className={`h-16 w-16 md:h-20 md:w-20 ${className}`} />;
+  }
 
   return (
-    <div 
-      className={`h-10 w-10 md:h-12 md:w-12 cursor-pointer ${className}`} 
+    <div
+      // FIX 1 & 2: Increased size and added z-index to make it appear on top.
+      className={`relative z-50 h-16 w-16 md:h-20 md:w-20 cursor-pointer ${className}`}
       onClick={onClick}
       role="button"
       aria-label={isOpen ? 'Close menu' : 'Open menu'}
     >
-      <Lottie 
+      <Lottie
         lottieRef={lottieRef}
-        animationData={coloredAnimationData}
+        animationData={coloredAnimationData} // Use the new colored data
         loop={false}
         autoplay={false}
         style={{ width: '100%', height: '100%' }}

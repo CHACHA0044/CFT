@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CardNav = ({
@@ -14,8 +14,23 @@ const CardNav = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const panelRef = useRef(null);
   const toggleMenu = () => setIsOpen(!isOpen);
+ useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
 
   return (
     <div className="fixed top-5 left-2 z-50">
@@ -40,6 +55,7 @@ const CardNav = ({
       <AnimatePresence>
         {isOpen && (
           <motion.aside
+           ref={panelRef}
             key="nav-panel"
             initial={{ x: `-${width}` }}
             animate={{ x: 0 }}
@@ -48,25 +64,29 @@ const CardNav = ({
             style={{ width }}
             className="fixed top-0 left-0 h-auto p-4 bg-white/20 dark:bg-gray-800/70 rounded-r-3xl backdrop-blur-md shadow-lg flex flex-col"
           >
-            {/* Nav Links */}
+            {/* Optional Title */}
+            <div className="text-lg font-semibold text-white mb-4">
+              Menu
+            </div>
 
-<nav className="mt-10 space-y-4 text-lg font-semibold">
-  {children ? (
-    children
-  ) : (
-    items?.map((item, i) => (
-      <a
-        key={i}
-        href={item.link}
-        className="block"
-        style={{ color: textColor }}
-        onClick={() => setIsOpen(false)} // close on click
-      >
-        {item.label}
-      </a>
-    ))
-  )}
-</nav>
+            {/* Nav Links */}
+            <nav className="mt-10 space-y-4 text-lg font-semibold">
+            {children ? (
+                children
+            ) : (
+                items?.map((item, i) => (
+                <a
+                    key={i}
+                    href={item.link}
+                    className="block"
+                    style={{ color: textColor }}
+                    onClick={() => setIsOpen(false)} // close on click
+                >
+                    {item.label}
+                </a>
+                ))
+            )}
+            </nav>
 
           </motion.aside>
         )}

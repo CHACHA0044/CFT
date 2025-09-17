@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import Lottie from 'lottie-react';
 import HamburgerAnimation from 'animations/Hamburger menu.json';
 // ../animations/Hamburger menu.json
-const LottieLogo = ({ isOpen, onClick, className = "h-[28px] w-auto" }) => {
+const LottieLogo = ({ isOpen, onClick, className = "h-auto w-auto" }) => {
   const lottieRef = useRef();
 
   useEffect(() => {

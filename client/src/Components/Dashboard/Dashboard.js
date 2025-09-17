@@ -412,6 +412,7 @@ useEffect(() => {
   menuColor="#000"
   buttonBgColor="#111"
   buttonTextColor="#fff"
+  logoSize="w-25 h-25"
   ease="power3.out"
   isMenuOpen={isMenuOpen}
   onToggleMenu={setIsMenuOpen}

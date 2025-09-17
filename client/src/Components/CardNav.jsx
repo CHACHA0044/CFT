@@ -8,16 +8,17 @@ const CardNav = ({
   width = "300px", // width of expanding panel
   menuColor = "#111",
   textColor = "#fff",
+  logoSize = "w-25 h-25",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <div className="fixed top-6 left-5 z-50">
+    <div className="fixed top-5 left-5 z-50">
       {/* Lottie / Logo Button */}
       <div
-        className="cursor-pointer w-12 h-12"
+        className="cursor-pointer"
         onClick={toggleMenu}
         role="button"
         tabIndex={0}
@@ -32,21 +33,21 @@ const CardNav = ({
         )}
       </div>
 
-      {/* Expanding Right Panel */}
+      {/* Expanding Panel (slides out to right) */}
       <AnimatePresence>
         {isOpen && (
           <motion.aside
             key="nav-panel"
-            initial={{ x: "100%" }}
+            initial={{ x: `-${width}` }}
             animate={{ x: 0 }}
-            exit={{ x: "100%" }}
+            exit={{ x: `-${width}` }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            style={{ width }}
-            className="fixed top-0 right-0 h-full shadow-xl flex flex-col p-6"
+            style={{ width, backgroundColor: menuColor }}
+            className="fixed top-0 left-0 h-full shadow-xl flex flex-col p-6"
           >
-            {/* Close Area (Click Logo again) */}
+            {/* Close Area (click logo again) */}
             <div
-              className="absolute top-5 right-5 w-12 h-12 cursor-pointer"
+              className="absolute top-5 left-5 w-12 h-12 cursor-pointer"
               onClick={toggleMenu}
             >
               {logo}

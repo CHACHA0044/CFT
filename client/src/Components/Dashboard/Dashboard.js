@@ -404,7 +404,15 @@ useEffect(() => {
   </div>
 </CardNav>
 </div>
-  <div className="relative w-full px-0">
+     <motion.div
+  className="relative w-full px-0"
+  animate={{ 
+    filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+    pointerEvents: isMenuOpen ? 'none' : 'auto'
+  }}
+  transition={{ duration: 0.35, ease: 'easeInOut' }}
+>
+
 <motion.div
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}
@@ -426,7 +434,7 @@ useEffect(() => {
 </motion.span>
 </motion.div>
 
-    </div>
+    </motion.div>
     {/* <div className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"> */}
       <motion.div
   className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"

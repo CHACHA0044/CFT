@@ -44,7 +44,7 @@ const LottieLogo = ({ isOpen, onClick, className = "" }) => {
 
   return (
     <div
-      className={`fixed z-50 h-16 w-16 md:h-20 md:w-20 cursor-pointer ${className}`}
+      className={` z-50 h-16 w-16 md:h-20 md:w-20 cursor-pointer ${className}`}
       onClick={onClick}
       role="button"
       aria-label={isOpen ? 'Close menu' : 'Open menu'}

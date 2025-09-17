@@ -371,7 +371,7 @@ useEffect(() => {
           >
     <PageWrapper backgroundImage="/images/dashboard-bk.webp">
     <div ref={topRef}></div>
-    <div className="relative w-full px-0">
+    <div className="relative w-auto px-0">
 <CardNav
   logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
   logoAlt="Animated Menu"
@@ -403,8 +403,8 @@ useEffect(() => {
     />
   </div>
 </CardNav>
-
-
+</div>
+<div className="relative w-full px-0">
 <motion.div
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}

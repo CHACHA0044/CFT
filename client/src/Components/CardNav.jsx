@@ -14,23 +14,8 @@ const CardNav = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const panelRef = useRef(null);
+
   const toggleMenu = () => setIsOpen(!isOpen);
- useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (panelRef.current && !panelRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
 
   return (
     <div className="fixed top-5 left-2 z-50">
@@ -55,7 +40,6 @@ const CardNav = ({
       <AnimatePresence>
         {isOpen && (
           <motion.aside
-           ref={panelRef}
             key="nav-panel"
             initial={{ x: `-${width}` }}
             animate={{ x: 0 }}
@@ -65,9 +49,25 @@ const CardNav = ({
             className="fixed top-0 left-0 h-auto p-4 bg-white/20 dark:bg-gray-800/70 rounded-r-3xl backdrop-blur-md shadow-lg flex flex-col"
           >
             {/* Optional Title */}
-            <div className="text-lg font-semibold text-white mb-4">
-              Menu
-            </div>
+            <div className="text-lg text-center font-semibold text-gray-100 mb-4 flex" aria-label="Menu">
+                {"Menu".split("").map((char, i) => (
+                    <motion.span
+                    key={i}
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{
+                        delay: i * 0.07, // Staggered delay for each character
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 15,
+                    }}
+                    className="inline-block"
+                    aria-hidden="true"
+                    >
+                    {char}
+                    </motion.span>
+                ))}
+                </div>
 
             {/* Nav Links */}
             <nav className="mt-10 space-y-4 text-lg font-semibold">

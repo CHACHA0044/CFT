@@ -404,16 +404,6 @@ useEffect(() => {
   </div>
 </CardNav>
 </div>
-
-    {/* <div className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"> */}
-      <motion.div
-  className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"
-  animate={{ 
-    filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
-    pointerEvents: isMenuOpen ? 'none' : 'auto' // Prevents clicks on blurred content
-  }}
-  transition={{ duration: 0.35, ease: 'easeInOut' }}
->
   <div className="relative w-full px-0">
 <motion.div
   initial={{ y: -30, opacity: 0 }}
@@ -437,6 +427,16 @@ useEffect(() => {
 </motion.div>
 
     </div>
+    {/* <div className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"> */}
+      <motion.div
+  className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"
+  animate={{ 
+    filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+    pointerEvents: isMenuOpen ? 'none' : 'auto' // Prevents clicks on blurred content
+  }}
+  transition={{ duration: 0.35, ease: 'easeInOut' }}
+>
+
     <div className=" py-6 text-center items-center justify-center space-y-4 min-h-[6rem]">
       <AnimatedHeadline />
     {showLimitMsg && (

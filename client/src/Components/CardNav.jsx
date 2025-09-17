@@ -33,7 +33,7 @@ useEffect(() => {
 }, [shimmerControls]);
 
   return (
-    <div className="absolute top-5 left-0 z-50">
+    <div className="absolute top-5 -left-10 z-50">
       {/* Lottie / Logo Button */}
       <div
         className={`cursor-pointer ${logoSize} ${logoClass}`}

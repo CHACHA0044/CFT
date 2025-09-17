@@ -1,93 +1,74 @@
-import React, { useEffect, useRef } from "react";
-import { gsap } from "gsap";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const CardNav = ({
   logo,
-  logoAlt,
+  logoAlt = "Menu",
   items,
-  baseColor,
-  menuColor,
-  buttonBgColor,
-  buttonTextColor,
-  ease,
-  isMenuOpen,
-  onToggleMenu,
+  width = "300px", // width of expanding panel
+  menuColor = "#111",
+  textColor = "#fff",
 }) => {
-  const menuRef = useRef(null);
-  const tlRef = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // GSAP animation for expanding/collapsing the menu
-  useEffect(() => {
-    if (menuRef.current) {
-      const tl = gsap.timeline({ paused: true });
-      tl.to(menuRef.current, {
-        height: "100vh",
-        backgroundColor: menuColor,
-        ease: ease,
-        duration: 0.6,
-      });
-      tlRef.current = tl;
-    }
-  }, [menuColor, ease]);
-
-  const toggleMenu = () => {
-    const tl = tlRef.current;
-    if (!tl) return;
-    if (!isMenuOpen) {
-      onToggleMenu(true);
-      tl.play(0);
-    } else {
-      tl.eventCallback("onReverseComplete", () => onToggleMenu(false));
-      tl.reverse();
-    }
-  };
+  const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <div className="relative w-full">
-      {/* Logo (Lottie-controlled) */}
+    <div className="fixed top-6 left-5 z-50">
+      {/* Lottie / Logo Button */}
       <div
-        className="absolute top-5 right-5 z-50 cursor-pointer w-12 h-12"
+        className="cursor-pointer w-12 h-12"
         onClick={toggleMenu}
-        aria-label="Toggle navigation menu"
         role="button"
         tabIndex={0}
-        onKeyPress={(e) => e.key === "Enter" && toggleMenu()}
+        onKeyDown={(e) => e.key === "Enter" && toggleMenu()}
       >
         {logo || (
           <img
             src=""
-            alt={logoAlt || "Menu logo"}
+            alt={logoAlt}
             className="w-full h-full object-contain"
           />
         )}
       </div>
 
-      {/* Expanding Menu */}
-      <div
-        ref={menuRef}
-        className={`card-nav fixed top-0 left-0 w-full overflow-hidden ${
-          isMenuOpen ? "open" : ""
-        }`}
-        style={{ height: isMenuOpen ? "100vh" : "0", backgroundColor: baseColor }}
-      >
-        <nav
-          className={`card-nav-content absolute top-20 left-1/2 transform -translate-x-1/2 text-center space-y-8 text-3xl font-bold transition-opacity duration-500 ${
-            isMenuOpen ? "visible pointer-events-auto" : "invisible pointer-events-none"
-          }`}
-          aria-hidden={!isMenuOpen}
-        >
-          {items.map((item, index) => (
-            <a
-              key={index}
-              href={item.link}
-              className="block"
-              style={{ color: buttonTextColor }}
+      {/* Expanding Right Panel */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.aside
+            key="nav-panel"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            style={{ width }}
+            className="fixed top-0 right-0 h-full shadow-xl flex flex-col p-6"
+          >
+            {/* Close Area (Click Logo again) */}
+            <div
+              className="absolute top-5 right-5 w-12 h-12 cursor-pointer"
+              onClick={toggleMenu}
             >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-      </div>
+              {logo}
+            </div>
+
+            {/* Nav Links */}
+            <nav className="mt-20 space-y-6 text-lg font-semibold">
+              {items.map((item, i) => (
+                <a
+                  key={i}
+                  href={item.link}
+                  className="block"
+                  style={{ color: textColor }}
+                  onClick={() => setIsOpen(false)} // close on click
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </motion.aside>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

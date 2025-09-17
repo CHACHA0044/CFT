@@ -5,7 +5,8 @@ const CardNav = ({
   logo,
   logoAlt = "Menu",
   items,
-  width = "250px", // width of expanding panel
+  width = "150px", 
+  height = "150px",// width of expanding panel
   menuColor = "#111",
   textColor = "#fff",
   logoSize = "w-25 h-25",

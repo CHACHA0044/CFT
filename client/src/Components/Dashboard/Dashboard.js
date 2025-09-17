@@ -384,7 +384,7 @@ useEffect(() => {
   isMenuOpen={isMenuOpen}
   onToggleMenu={setIsMenuOpen}
 >
-  <div className="relative w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+  <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
     <NewEntryButton className="w-40" />
     {data.length > 0 && (
       <VisualizeButton 

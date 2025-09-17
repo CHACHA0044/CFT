@@ -7,7 +7,8 @@ import useAuthRedirect from 'hooks/useAuthRedirect';
 import API from 'api/api';
 import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton } from 'Components/globalbuttons';
 import { useLoading } from 'context/LoadingContext';
-  
+import CardNav from 'Components/CardNav';  
+import LottieLogo from 'Components/LottieLogoComponent';
   const sentence = "Your Climate Dashboard";
   const words = sentence.split(" ");
   
@@ -210,6 +211,39 @@ const AnimatedHeadline = React.memo(() => {
     </div>
   );
 });
+
+ const Navitems = [
+    {
+      label: "About",
+      bgColor: "#0D0716",
+      textColor: "#fff",
+      links: [
+        { label: "Company", ariaLabel: "About Company" },
+        { label: "Careers", ariaLabel: "About Careers" }
+      ]
+    },
+    {
+      label: "Projects", 
+      bgColor: "#170D27",
+      textColor: "#fff",
+      links: [
+        { label: "Featured", ariaLabel: "Featured Projects" },
+        { label: "Case Studies", ariaLabel: "Project Case Studies" }
+      ]
+    },
+    {
+      label: "Contact",
+      bgColor: "#271E37", 
+      textColor: "#fff",
+      links: [
+        { label: "Email", ariaLabel: "Email us" },
+        { label: "Twitter", ariaLabel: "Twitter" },
+        { label: "LinkedIn", ariaLabel: "LinkedIn" }
+      ]
+    }
+  ];
+
+
   const Dashboard = () => {
   useAuthRedirect(); 
   const [data, setData] = useState([]);
@@ -228,6 +262,7 @@ const AnimatedHeadline = React.memo(() => {
   const navigate = useNavigate(); 
   const bottomRef = useRef(null);
   const topRef = useRef(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 useEffect(() => {
   const fetchUser = async () => {
     try {
@@ -369,6 +404,19 @@ useEffect(() => {
     <PageWrapper backgroundImage="/images/dashboard-bk.webp">
     <div ref={topRef}></div>
     <div className="relative w-full px-0">
+      <CardNav
+  logo={  <LottieLogo   isOpen={isMenuOpen}   onClick={() => setIsMenuOpen(!isMenuOpen)}   />}
+  logoAlt="Animated Menu"
+  items={Navitems}
+  baseColor="#fff"
+  menuColor="#000"
+  buttonBgColor="#111"
+  buttonTextColor="#fff"
+  ease="power3.out"
+  isMenuOpen={isMenuOpen}
+  onToggleMenu={setIsMenuOpen}
+/>
+
 <motion.div
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}

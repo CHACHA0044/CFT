@@ -359,7 +359,7 @@ useEffect(() => {
 <motion.div
          
            animate={{ 
-             filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+             filter: isMenuOpen ? 'blur(5px)' : '',
              pointerEvents: isMenuOpen ? 'none' : 'auto'
            }}
            transition={{ duration: 0.35, ease: 'easeInOut' }}

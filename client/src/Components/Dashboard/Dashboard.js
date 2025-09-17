@@ -396,7 +396,7 @@ useEffect(() => {
      <motion.div
   className="relative w-full px-0"
   animate={{ 
-    filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+    filter: isMenuOpen ? 'blur(5px)' : '',
     pointerEvents: isMenuOpen ? 'none' : 'auto'
   }}
   transition={{ duration: 0.35, ease: 'easeInOut' }}
@@ -428,7 +428,7 @@ useEffect(() => {
       <motion.div
   className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"
   animate={{ 
-    filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+    filter: isMenuOpen ? 'blur(5px)' : '',
     pointerEvents: isMenuOpen ? 'none' : 'auto' // Prevents clicks on blurred content
   }}
   transition={{ duration: 0.35, ease: 'easeInOut' }}

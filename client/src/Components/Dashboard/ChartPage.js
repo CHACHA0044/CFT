@@ -664,7 +664,7 @@ return (
 <motion.div
   className="relative w-full px-0"
   animate={{ 
-    filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+    filter: isMenuOpen ? 'blur(5px)' : '',
     pointerEvents: isMenuOpen ? 'none' : 'auto'
   }}
   transition={{ duration: 0.35, ease: 'easeInOut' }}

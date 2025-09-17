@@ -400,8 +400,7 @@ useEffect(() => {
                     className="w-full h-full"
                   >
     <PageWrapper backgroundImage="/images/foot-bk.webp">
-      <div className="flex flex-col items-center justify-center w-full px-6 py-6">
-        <div className=" w-auto px-0">
+            <div className=" w-auto px-0">
 <CardNav
   logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
   logoAlt="Animated Menu"
@@ -420,19 +419,22 @@ useEffect(() => {
   </div>
 </CardNav>
 </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-xl mt-6 p-6 bg-white/10 dark:bg-black/50 backdrop-blur-lg rounded-3xl text-white space-y-6 shadow-xl transition-all duration-500"
-        >
-          <motion.div
+    <motion.div
          
            animate={{ 
-             filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+             filter: isMenuOpen ? 'blur(5px)' : '',
              pointerEvents: isMenuOpen ? 'none' : 'auto'
            }}
            transition={{ duration: 0.35, ease: 'easeInOut' }}
          >
+      <div className="flex flex-col items-center justify-center w-full px-6 py-6">
+
+
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-xl mt-6 p-6  bg-white/10 dark:bg-black/50 backdrop-blur-lg rounded-3xl text-white space-y-6 shadow-xl transition-all duration-500"
+        >
+          
           <h2 className="text-3xl font-bold text-center text-emerald-500 dark:text-gray-100"><AnimatedHeadline /></h2>
             <h3 className="sm:text-xl sm:tracking-wide text-base font-intertight text-center text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Enter your estimated data for a month <span className="animate-pulse">🌍</span></h3>
             {success && <p className="text-green-500 text-base text-shadow-DEFAULT font-intertight font-medium text-center animate-pulse">{success}</p>}
@@ -588,8 +590,8 @@ useEffect(() => {
             />
           </div>
 <SubmitButton text="Submit" loading={loading} success={success} disabled={loading} customColorConfig={buttonColorConfigs.footsave}/>
-        </motion.div></form>
-      </div>
+        </form>
+      </div></motion.div>
     </PageWrapper>
     </motion.div>
   );

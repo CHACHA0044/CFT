@@ -212,38 +212,6 @@ const AnimatedHeadline = React.memo(() => {
   );
 });
 
- const Navitems = [
-    {
-      label: "About",
-      bgColor: "#0D0716",
-      textColor: "#fff",
-      links: [
-        { label: "Company", ariaLabel: "About Company" },
-        { label: "Careers", ariaLabel: "About Careers" }
-      ]
-    },
-    {
-      label: "Projects", 
-      bgColor: "#170D27",
-      textColor: "#fff",
-      links: [
-        { label: "Featured", ariaLabel: "Featured Projects" },
-        { label: "Case Studies", ariaLabel: "Project Case Studies" }
-      ]
-    },
-    {
-      label: "Contact",
-      bgColor: "#271E37", 
-      textColor: "#fff",
-      links: [
-        { label: "Email", ariaLabel: "Email us" },
-        { label: "Twitter", ariaLabel: "Twitter" },
-        { label: "LinkedIn", ariaLabel: "LinkedIn" }
-      ]
-    }
-  ];
-
-
   const Dashboard = () => {
   useAuthRedirect(); 
   const [data, setData] = useState([]);
@@ -404,19 +372,38 @@ useEffect(() => {
     <PageWrapper backgroundImage="/images/dashboard-bk.webp">
     <div ref={topRef}></div>
     <div className="relative w-full px-0">
-      <CardNav
-  logo={  <LottieLogo   isOpen={isMenuOpen}   onClick={() => setIsMenuOpen(!isMenuOpen)}   />}
+<CardNav
+  logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
   logoAlt="Animated Menu"
-  items={Navitems}
   baseColor="#fff"
-  menuColor="#000"
+  menuColor="bg-white/20 dark:bg-gray-800/70"
   buttonBgColor="#111"
   buttonTextColor="#fff"
   logoSize="w-25 h-25"
   ease="power3.out"
   isMenuOpen={isMenuOpen}
   onToggleMenu={setIsMenuOpen}
-/>
+>
+  <div className="relative w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+    <NewEntryButton className="w-40" />
+    {data.length > 0 && (
+      <VisualizeButton 
+        entries={data}  
+        onClick={(entry) => navigate('/chart', { state: { entry } })} 
+        className="w-40" 
+      />
+    )}
+    <EditDeleteButton className="w-40" />
+    <LogoutButton 
+      onLogout={handleLogout} 
+      loading={logoutLoading} 
+      success={logoutSuccess} 
+      error={logoutError} 
+      className="w-40" 
+    />
+  </div>
+</CardNav>
+
 
 <motion.div
   initial={{ y: -30, opacity: 0 }}

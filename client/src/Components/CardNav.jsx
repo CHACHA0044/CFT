@@ -10,6 +10,7 @@ const CardNav = ({
   textColor = "#fff",
   logoSize = "w-25 h-25",
   logoClass = "text-emerald-600 dark:text-gray-100 text-shadow-DEFAULT",
+  children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -55,19 +56,25 @@ const CardNav = ({
             </div>
 
             {/* Nav Links */}
-            <nav className="mt-20 space-y-6 text-lg font-semibold">
-              {items.map((item, i) => (
-                <a
-                  key={i}
-                  href={item.link}
-                  className="block"
-                  style={{ color: textColor }}
-                  onClick={() => setIsOpen(false)} // close on click
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
+
+<nav className="mt-20 space-y-6 text-lg font-semibold">
+  {children ? (
+    children
+  ) : (
+    items?.map((item, i) => (
+      <a
+        key={i}
+        href={item.link}
+        className="block"
+        style={{ color: textColor }}
+        onClick={() => setIsOpen(false)} // close on click
+      >
+        {item.label}
+      </a>
+    ))
+  )}
+</nav>
+
           </motion.aside>
         )}
       </AnimatePresence>

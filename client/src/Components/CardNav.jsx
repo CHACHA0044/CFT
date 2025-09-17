@@ -5,11 +5,11 @@ const CardNav = ({
   logo,
   logoAlt = "Menu",
   items,
-  width = "150px", 
+  width = "200px", 
   height = "150px",// width of expanding panel
   menuColor = "#111",
   textColor = "#fff",
-  logoSize = "w-25 h-25",
+  logoSize = "w-50 h-50",
   logoClass = "text-emerald-600 dark:text-gray-100 text-shadow-DEFAULT",
   children,
 }) => {
@@ -50,7 +50,7 @@ const CardNav = ({
           >
             {/* Close Area (click logo again) */}
             <div
-              className="absolute top-5 left-5 w-12 h-12 cursor-pointer"
+              className="absolute top-5 left-5 cursor-pointer"
               onClick={toggleMenu}
             >
               {logo}

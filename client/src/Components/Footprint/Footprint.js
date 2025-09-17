@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
 import useAuthRedirect from 'hooks/useAuthRedirect';
 import { buttonColorConfigs, SubmitButton } from 'Components/globalbuttons';
-
+import { EditDeleteButton, DashboardButton } from 'Components/globalbuttons';
+import CardNav from 'Components/CardNav';  
+import LottieLogo from 'Components/LottieLogoComponent';
   const sentence = "Footprint Entry";
   const words = sentence.split(" ");
 
@@ -315,6 +317,7 @@ const [loading, setLoading] = useState(false);
 const topRef = useRef(null);
 const bottomRef = useRef(null);
 const navigate = useNavigate(); 
+const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -398,10 +401,38 @@ useEffect(() => {
                   >
     <PageWrapper backgroundImage="/images/foot-bk.webp">
       <div className="flex flex-col items-center justify-center w-full px-6 py-6">
+        <div className=" w-auto px-0">
+<CardNav
+  logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
+  logoAlt="Animated Menu"
+  baseColor="#fff"
+  menuColor="bg-white/20 dark:bg-gray-800/70"
+  buttonBgColor="#111"
+  buttonTextColor="#fff"
+  logoSize="w-25 h-25"
+  ease="power3.out"
+  isMenuOpen={isMenuOpen}
+  onToggleMenu={setIsMenuOpen}
+>
+  <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+    <EditDeleteButton className="w-40" />
+    <DashboardButton className="w-40" />
+  </div>
+</CardNav>
+</div>
+
         <form
           onSubmit={handleSubmit}
           className="w-full max-w-xl mt-6 p-6 bg-white/10 dark:bg-black/50 backdrop-blur-lg rounded-3xl text-white space-y-6 shadow-xl transition-all duration-500"
         >
+          <motion.div
+         
+           animate={{ 
+             filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+             pointerEvents: isMenuOpen ? 'none' : 'auto'
+           }}
+           transition={{ duration: 0.35, ease: 'easeInOut' }}
+         >
           <h2 className="text-3xl font-bold text-center text-emerald-500 dark:text-gray-100"><AnimatedHeadline /></h2>
             <h3 className="sm:text-xl sm:tracking-wide text-base font-intertight text-center text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Enter your estimated data for a month <span className="animate-pulse">🌍</span></h3>
             {success && <p className="text-green-500 text-base text-shadow-DEFAULT font-intertight font-medium text-center animate-pulse">{success}</p>}
@@ -557,7 +588,7 @@ useEffect(() => {
             />
           </div>
 <SubmitButton text="Submit" loading={loading} success={success} disabled={loading} customColorConfig={buttonColorConfigs.footsave}/>
-        </form>
+        </motion.div></form>
       </div>
     </PageWrapper>
     </motion.div>

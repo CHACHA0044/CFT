@@ -15,6 +15,9 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianG
 import { select, zoom, scaleLinear } from 'd3';
 import { easeInOut } from "framer-motion"; 
 import { easeCubicOut } from "d3-ease";
+import CardNav from 'Components/CardNav';  
+import LottieLogo from 'Components/LottieLogoComponent';
+import { NewEntryButton, EditDeleteButton, DashboardButton } from 'Components/globalbuttons';
 
 const globalAverages = {
   food: 141,
@@ -296,7 +299,7 @@ const ChartPage = () => {
   const newMax = Math.min(12, newMin + newRange); setZoomRange([newMin, newMax]);}, [zoomRange]);
   const [data, setData] = useState(null);
   const [expandedWeatherSection, setExpandedWeatherSection] = useState(null);
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
  useEffect(() => {
   const fetchWeatherAndAqi = async () => {
     let lat, lon;
@@ -638,6 +641,34 @@ return (
           {error}
         </div>
       )}
+       <div className=" w-auto px-0">
+<CardNav
+  logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
+  logoAlt="Animated Menu"
+  baseColor="#fff"
+  menuColor="bg-white/20 dark:bg-gray-800/70"
+  buttonBgColor="#111"
+  buttonTextColor="#fff"
+  logoSize="w-25 h-25"
+  ease="power3.out"
+  isMenuOpen={isMenuOpen}
+  onToggleMenu={setIsMenuOpen}
+>
+  <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+    <NewEntryButton className="w-40" />
+    <EditDeleteButton className="w-40" />
+    <DashboardButton className="w-40" />
+  </div>
+</CardNav>
+</div>
+<motion.div
+  className="relative w-full px-0"
+  animate={{ 
+    filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+    pointerEvents: isMenuOpen ? 'none' : 'auto'
+  }}
+  transition={{ duration: 0.35, ease: 'easeInOut' }}
+>
       <div className="max-w-4xl mx-auto space-y-4 px-4 pt-4">
         
         {/* Total Emissions */}
@@ -1431,7 +1462,7 @@ e
   </motion.div>
 </div>
 
-    </div>
+    </div></motion.div>
     </PageWrapper>
   </motion.div>
 );

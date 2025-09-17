@@ -4,6 +4,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
 import { EditButton, DeleteButton, ClearAllButton } from 'Components/globalbuttons';
+import { NewEntryButton, EditDeleteButton, DashboardButton } from 'Components/globalbuttons';
+import CardNav from 'Components/CardNav';  
+import LottieLogo from 'Components/LottieLogoComponent';
 import useAuthRedirect from 'hooks/useAuthRedirect';
   const sentence = "Emission History";
   const words = sentence.split(" ");
@@ -218,6 +221,7 @@ const History = () => {
   const [clearingAll, setClearingAll] = useState(false); // for clear all
   const [deletedId, setDeletedId] = useState(null);
   const [cleared, setCleared] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   //const [openSection, setOpenSection] = useState(null);
   
  
@@ -305,6 +309,33 @@ return (
   >
     <PageWrapper backgroundImage="/images/history-bk.webp">
   <div className="w-full max-w-7xl flex flex-col px-6 py-6 overflow-y-auto overflow-x-hidden overflow-visible text-emerald-500 dark:text-white transition-colors duration-500">
+    <div className=" w-auto px-0">
+<CardNav
+  logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
+  logoAlt="Animated Menu"
+  baseColor="#fff"
+  menuColor="bg-white/20 dark:bg-gray-800/70"
+  buttonBgColor="#111"
+  buttonTextColor="#fff"
+  logoSize="w-25 h-25"
+  ease="power3.out"
+  isMenuOpen={isMenuOpen}
+  onToggleMenu={setIsMenuOpen}
+>
+  <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+    <NewEntryButton className="w-40" />
+    <DashboardButton className="w-40" />
+  </div>
+</CardNav>
+</div>
+<motion.div
+           
+           animate={{ 
+             filter: isMenuOpen ? 'blur(5px)' : '',
+             pointerEvents: isMenuOpen ? 'none' : 'auto'
+           }}
+           transition={{ duration: 0.35, ease: 'easeInOut' }}
+         >
           <h2 className="text-3xl font-bold mb-6 text-center"><AnimatedHeadline /></h2>
 
           <AnimatePresence>
@@ -331,7 +362,6 @@ return (
               </motion.p>
             )}
           </AnimatePresence>
-
           <AnimatePresence mode="wait">
             {history.length === 0 ? (
               <motion.p
@@ -462,7 +492,8 @@ return (
               styleOverride={{ width: '12rem', margin: '1rem auto' }}
             />
           )}
-        </div>
+          </motion.div>
+        </div>  
     </PageWrapper>
   </motion.div>
 );

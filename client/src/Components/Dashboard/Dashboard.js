@@ -371,7 +371,7 @@ useEffect(() => {
           >
     <PageWrapper backgroundImage="/images/dashboard-bk.webp">
     <div ref={topRef}></div>
-    <div className="relative w-auto px-0">
+    <div className=" w-auto px-0">
 <CardNav
   logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
   logoAlt="Animated Menu"
@@ -385,22 +385,11 @@ useEffect(() => {
   onToggleMenu={setIsMenuOpen}
 >
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
-    <NewEntryButton className="w-40" />
-    {data.length > 0 && (
-      <VisualizeButton 
-        entries={data}  
-        onClick={(entry) => navigate('/chart', { state: { entry } })} 
-        className="w-40" 
-      />
-    )}
-    <EditDeleteButton className="w-40" />
-    <LogoutButton 
-      onLogout={handleLogout} 
-      loading={logoutLoading} 
-      success={logoutSuccess} 
-      error={logoutError} 
-      className="w-40" 
-    />
+  <NewEntryButton className="w-40" />
+  {data.length > 0 && (
+  <VisualizeButton entries={data}  onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" /> )}
+  <EditDeleteButton className="w-40" />
+  <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
   </div>
 </CardNav>
 </div>
@@ -827,14 +816,14 @@ useEffect(() => {
 </div>
         </main>
 
-<div className="relative w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+{/* <div className="relative w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
   <NewEntryButton className="w-40" />
    {data.length > 0 && (
     <VisualizeButton entries={data}  onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" />
   )}
   <EditDeleteButton className="w-40" />
   <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
-</div>
+</div> */}
 <div ref={bottomRef}></div>
 </motion.div>    
     </PageWrapper>

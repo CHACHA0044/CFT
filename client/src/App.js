@@ -9,7 +9,8 @@ import NavigationLoader from 'common/NavigationLoader';
 //import { useLoading } from 'context/LoadingContext';
 import { StyleInjector } from 'Components/globalbuttons';
 //import Lottie from 'lottie-react';
-
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
   useEffect(() => {
@@ -27,6 +28,8 @@ function App() {
         <NavigationLoader />
         <StyleInjector />
         <AnimatedRoutes />
+        <Analytics />
+        <SpeedInsights />
       </LoadingProvider>
     </Router>
   );

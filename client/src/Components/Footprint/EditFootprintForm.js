@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
 import useAuthRedirect from 'hooks/useAuthRedirect';
 import { SaveChangesButton } from 'Components/globalbuttons';
+import { EditDeleteButton, DashboardButton } from 'Components/globalbuttons';
+import CardNav from 'Components/CardNav';  
+import LottieLogo from 'Components/LottieLogoComponent';
 const sentence = "Revise Info";
 const words = sentence.split(" ");
   const getLetterVariants = () => ({
@@ -216,6 +219,7 @@ const EditFootprintForm = () => {
     waste: []
   });
   const [loading, setLoading] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [error, setError] = useState('');
   useEffect(() => {
     if (error) {
@@ -331,7 +335,35 @@ useEffect(() => {
               >
     <PageWrapper backgroundImage="/images/edit-bk.webp">
       <div className="flex flex-col justify-center items-center px-4 py-10">
+        <div className=" w-auto px-0">
+<CardNav
+  logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
+  logoAlt="Animated Menu"
+  baseColor="#fff"
+  menuColor="bg-white/20 dark:bg-gray-800/70"
+  buttonBgColor="#111"
+  buttonTextColor="#fff"
+  logoSize="w-25 h-25"
+  ease="power3.out"
+  isMenuOpen={isMenuOpen}
+  onToggleMenu={setIsMenuOpen}
+>
+  <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+    <EditDeleteButton className="w-40" />
+    <DashboardButton className="w-40" />
+  </div>
+</CardNav>
+</div>
         <div className="w-full max-w-2xl bg-white/10 dark:bg-black/50 backdrop-blur-md rounded-3xl shadow-lg p-6 text-green-500 dark:text-white">
+         
+<motion.div
+         
+           animate={{ 
+             filter: isMenuOpen ? 'blur(5px)' : 'blur(0px)',
+             pointerEvents: isMenuOpen ? 'none' : 'auto'
+           }}
+           transition={{ duration: 0.35, ease: 'easeInOut' }}
+         >
           <h2 className="text-2xl font-semibold mb-6 text-center"><AnimatedHeadline /></h2>
           {success && <p className="text-green-500 text-sm text-center animate-pulse font-intertight tracking-wider text-shadow-DEFAULT mb-3">{success}</p>}
           {error && <p className="text-red-500 text-sm text-center animate-bounce font-intertight tracking-wider text-shadow-DEFAULT mb-3">{error}</p>}
@@ -480,7 +512,7 @@ useEffect(() => {
 />
 
 
-          </form>
+          </form></motion.div>
         </div>
       </div>
     </PageWrapper>

@@ -1,21 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
-
+import { useLocation } from "react-router-dom";
 const CardNav = ({
   logo,
   logoAlt = "Menu",
   items,
   width = "200px", 
-  height = "150px",// width of expanding panel
+  height = "155px",// width of expanding panel
   menuColor = "#111",
   textColor = "#fff",
   logoSize = "w-25 h-25",
-  logoClass = "text-emerald-600 dark:text-gray-100 text-shadow-DEFAULT",
+  logoClass = "text-emerald-600 dark:text-gray-100 text-shadow-DEFAULT ",
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const shimmerControls = useAnimation();
   const toggleMenu = () => setIsOpen(!isOpen);
+  const location = useLocation();
+  const topClass = location.pathname === "/dashboard" ? "top-5" : "top-0";
 useEffect(() => {
   let isMounted = true;
   async function loopAnimation() {
@@ -33,7 +35,7 @@ useEffect(() => {
 }, [shimmerControls]);
 
   return (
-    <div className="absolute left-4 top-5 z-50">
+    <div className={`absolute left-0 pl-1 ${topClass} z-50`}>
       {/* Lottie / Logo Button */}
       <div
         className={`cursor-pointer ${logoSize} ${logoClass}`}
@@ -61,7 +63,7 @@ useEffect(() => {
             exit={{ x: `-${width}` }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             style={{ width }}
-            className="absolute top-0 -left-10 h-auto p-4 bg-white/20 dark:bg-gray-800/70 rounded-r-3xl backdrop-blur-md shadow-lg flex flex-col"
+            className="absolute left-0 top-0 h-auto p-4 bg-white/20 dark:bg-gray-800/70 rounded-r-3xl backdrop-blur-md shadow-lg flex flex-col"
           >
             {/* Optional Title */}
 
@@ -69,7 +71,7 @@ useEffect(() => {
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}
   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-  className=" pl-2 md:text-2xl text-xl font-bespoke font-medium sm:font-semibold  text-emerald-600 dark:text-gray-100"
+  className=" pl-2 pt-10 md:text-2xl text-xl font-bespoke font-medium sm:font-semibold  text-emerald-600 dark:text-gray-100"
 >
 <motion.span className="flex flex-wrap">
   {("Menu").split("").map((char, i) => (
@@ -85,7 +87,7 @@ useEffect(() => {
 </motion.span>
 </motion.div>
             {/* Nav Links */}
-            <nav className="mt-10 space-y-4 text-lg font-semibold">
+            <nav className="mt-2 space-y-4 text-lg font-semibold">
             {children ? (
                 children
             ) : (

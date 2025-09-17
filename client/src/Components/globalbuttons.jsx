@@ -91,6 +91,7 @@ const Icons = {
   clear: ({ isFlipping, isHovered }) => <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 2v6h6M21.5 22v-6h-6"/><path d="M22 11.5A10 10 0 0 0 3.5 12.5"/><path d="M2 12.5a10 10 0 0 0 18.5-1"/></motion.svg>,
   logout: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></motion.svg>),
   visualize: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="10" />  <path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z" /> <circle cx="12" cy="12" r="3" /> </motion.svg>),
+  dashboard: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M3 12L12 3l9 9" /> <path d="M9 21V12h6v9" /> </motion.svg>),
 };
 
 const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
@@ -351,6 +352,7 @@ export const buttonColorConfigs = {
     clearAll: { id: 'clearAll', baseColor: '#64748b', schemes: ['linear-gradient(145deg, #64748b, #334155)', 'linear-gradient(145deg, #475569, #1e293b)', 'linear-gradient(145deg, #94a3b8, #475569)', 'linear-gradient(145deg, #334155, #0f172a)', 'linear-gradient(145deg, #ff7f50, #ff4500)']},
     logout: { id: 'logout',  baseColor: '#f43f5e', schemes: ['linear-gradient(145deg, #f43f5e, #be123c)', 'linear-gradient(145deg, #fb7185, #e11d48)', 'linear-gradient(145deg, #ef4444, #b91c1c)', 'linear-gradient(145deg, #f87171, #dc2626)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
     visualize: { id: 'visualize', baseColor: '#14b8a6', schemes: [ 'linear-gradient(145deg, #14b8a6, #0f766e)','linear-gradient(145deg, #2dd4bf, #0d9488)', 'linear-gradient(145deg, #06b6d4, #0891b2)', 'linear-gradient(145deg, #0ea5e9, #0369a1)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ],},
+    dashboard: { id: 'dashboard', baseColor: '#0f172a', schemes: [ 'linear-gradient(145deg, #fcd34d, #f97316)', 'linear-gradient(145deg, #f9a8d4, #f472b6)', 'linear-gradient(145deg, #c4b5fd, #a78bfa)', 'linear-gradient(145deg, #dd6b20, #b45309)','linear-gradient(145deg, #1e3a8a, #3b82f6)', ],},
 };
 
 // Dashboard Button
@@ -402,7 +404,7 @@ export const DeleteButton = ({ className,...props})=> <GlobalButton text="Delete
 export const ClearAllButton = ({ className,...props}) => <GlobalButton text="Clear All" iconType="clear" colorConfig={buttonColorConfigs.clearAll} className={className} styleOverride={{ width: '14rem', height: '4rem', fontSize: '1.1rem' }} {...props} />;
 export const SaveChangesButton = ({ className,...props}) => <GlobalButton text="Save Changes" iconType="save" colorConfig={buttonColorConfigs.save} className={className} {...props} />;
 export const VerifyButton = ({ className,...props}) => <GlobalButton text="Verify" iconType="verify" colorConfig={buttonColorConfigs.verify} className={className} {...props} />;
-
+export const DashboardButton = ({ text = 'Dashboard', ...props }) => ( <GlobalButton text={text} iconType="dashboard" navigateTo="/dashboard" colorConfig={buttonColorConfigs.dashboard} styleOverride={{ width: '10rem', height: '3.5rem' }} {...props} />);
 export const VisualizeButton = ({ entries = [], className, onClick, ...props }) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
@@ -462,7 +464,7 @@ export const VisualizeButton = ({ entries = [], className, onClick, ...props }) 
             className="
               absolute top-[-10rem] sm:top-[-6rem] 
               bg-black/70 backdrop-blur-md rounded-xl shadow-lg p-4 
-              flex flex-col sm:space-x-3 space-y-3 sm:space-y-0 
+              flex flex-col  space-y-3 
               max-w-[90vw] sm:max-h-[10rem] max-h-[60vh] 
               overflow-y-auto sm:overflow-x-auto z-50
             "

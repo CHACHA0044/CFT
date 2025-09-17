@@ -18,7 +18,7 @@ const CardNav = ({
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <div className=" top-5 left-5 z-50">
+    <div className="fixed top-5 left-5 z-50">
       {/* Lottie / Logo Button */}
       <div
         className={`cursor-pointer ${logoSize} ${logoClass}`}
@@ -31,7 +31,7 @@ const CardNav = ({
           <img
             src=""
             alt={logoAlt}
-            className="w-full h-auto object-contain"
+            className="w-full h-full object-contain"
           />
         )}
       </div>

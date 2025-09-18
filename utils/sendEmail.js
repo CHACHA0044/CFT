@@ -91,8 +91,7 @@ const sendEmail = async (to, subject, html) => {
       throw new Error('Email credentials not configured properly');
     }
 
-    // Use explicit SMTP settings instead of 'Gmail' service
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
       secure: false, // true for 465, false for other ports

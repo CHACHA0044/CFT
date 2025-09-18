@@ -91,25 +91,25 @@ const sendEmail = async (to, subject, html) => {
       throw new Error('Email credentials not configured properly');
     }
 
-    console.log('📧 Creating transporter...');
+    console.log('📧 Creating SSL transporter...');
     
-    // Simplified configuration - try the service approach first
+    // Try SSL on port 465
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // true for 465, false for other ports
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Shorter timeouts to fail faster
-      connectionTimeout: 10000,
-      socketTimeout: 10000,
-      greetingTimeout: 5000
+      // Shorter timeouts
+      connectionTimeout: 15000,
+      socketTimeout: 15000,
+      greetingTimeout: 10000
     });
 
     console.log('📧 Sending email to:', to);
-    console.log('📧 Subject:', subject);
     
-    // Skip verification for now and try to send directly
     const info = await transporter.sendMail({
       from: `"Carbon Tracker" <${process.env.EMAIL_USER}>`,
       to,
@@ -126,18 +126,7 @@ const sendEmail = async (to, subject, html) => {
     console.error('❌ Email sending failed:');
     console.error('Error code:', error.code);
     console.error('Error message:', error.message);
-    
-    // Log more details for specific error types
-    if (error.code === 'EAUTH') {
-      console.error('🔑 Authentication failed - check your Gmail App Password');
-    } else if (error.code === 'ENOTFOUND') {
-      console.error('🌐 DNS lookup failed - network issue');
-    } else if (error.code === 'ETIMEDOUT') {
-      console.error('⏰ Connection timed out - network/firewall issue');
-    } else if (error.code === 'ECONNREFUSED') {
-      console.error('🚫 Connection refused - wrong host/port');
-    }
-    
+    console.error('Full error:', error);
     throw error;
   }
 };

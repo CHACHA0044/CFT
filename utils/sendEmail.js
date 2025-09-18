@@ -85,59 +85,40 @@ const nodemailer = require('nodemailer');
 const sendEmail = async (to, subject, html) => {
   try {
     console.log('📧 EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
-    console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
+    console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET (length: ' + process.env.EMAIL_PASS.length + ')' : 'NOT SET');
     
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       throw new Error('Email credentials not configured properly');
     }
 
+    console.log('📧 Creating transporter...');
+    
+    // Simplified configuration - try the service approach first
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Additional options for better reliability
-      pool: true,
-      maxConnections: 1,
-      rateDelta: 20000,
-      rateLimit: 5,
-      connectionTimeout: 60000,
-      socketTimeout: 60000,
-      greetingTimeout: 30000,
-      tls: {
-        // Don't fail on invalid certs
-        rejectUnauthorized: false
-      }
+      // Shorter timeouts to fail faster
+      connectionTimeout: 10000,
+      socketTimeout: 10000,
+      greetingTimeout: 5000
     });
 
-    // Verify transporter configuration
-    console.log('📧 Verifying transporter...');
-    await transporter.verify();
-    console.log('✅ Transporter verified successfully');
-
     console.log('📧 Sending email to:', to);
+    console.log('📧 Subject:', subject);
     
+    // Skip verification for now and try to send directly
     const info = await transporter.sendMail({
       from: `"Carbon Tracker" <${process.env.EMAIL_USER}>`,
       to,
       subject,
-      html,
-      // Add some additional headers
-      headers: {
-        'X-Priority': '3',
-        'X-MSMail-Priority': 'Normal',
-        'X-Mailer': 'Carbon Tracker Bot'
-      }
+      html
     });
 
-    console.log('✅ Email sent successfully. Message ID:', info.messageId);
-    console.log('✅ Response:', info.response);
-    
-    // Close the transporter
-    transporter.close();
+    console.log('✅ Email sent successfully!');
+    console.log('✅ Message ID:', info.messageId);
     
     return info;
     
@@ -145,10 +126,18 @@ const sendEmail = async (to, subject, html) => {
     console.error('❌ Email sending failed:');
     console.error('Error code:', error.code);
     console.error('Error message:', error.message);
-    if (error.responseCode) {
-      console.error('SMTP Response Code:', error.responseCode);
+    
+    // Log more details for specific error types
+    if (error.code === 'EAUTH') {
+      console.error('🔑 Authentication failed - check your Gmail App Password');
+    } else if (error.code === 'ENOTFOUND') {
+      console.error('🌐 DNS lookup failed - network issue');
+    } else if (error.code === 'ETIMEDOUT') {
+      console.error('⏰ Connection timed out - network/firewall issue');
+    } else if (error.code === 'ECONNREFUSED') {
+      console.error('🚫 Connection refused - wrong host/port');
     }
-    console.error('Full error:', error);
+    
     throw error;
   }
 };

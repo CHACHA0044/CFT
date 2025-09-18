@@ -139,7 +139,7 @@ const transporter = nodemailer.createTransport({
 
 
     const info = await transporter.sendMail({
-      from: `"Carbon Tracker" <${process.env.BREVO_USER}>`,
+      from: `"Carbon Tracker" <noreply@carbontracker.com>`,
       to,
       subject,
       html,

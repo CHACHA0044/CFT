@@ -34,7 +34,7 @@ function createTransporter() {
   if (!transporter) {
     transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 993,
+      port: 465,
       secure: true, // use TLS
       auth: {
         user: process.env.EMAIL_USER,

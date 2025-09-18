@@ -103,6 +103,7 @@ async function handleNewMessages(client) {
 
     // Only fetch messages that are unanswered and not already skipped
     const uids = await client.search({ answered: false });
+    console.log(`📨 Found ${uids.length} unanswered messages`);
     if (!uids || uids.length === 0) return;
 
     for (const uid of uids) {
@@ -124,7 +125,7 @@ async function handleNewMessages(client) {
         );
         if (!containsKeyword) {
           // Mark as Seen and Skipped so it won't be checked again
-          await client.messageFlagsAdd(uid, ['\\Seen', SKIPPED_FLAG]);
+          await client.messageFlagsAdd(uid, ['\\Seen']);
           console.log(`ℹ️ Skipped email from ${fromAddr} (subject: "${subject}") - no keyword`);
           continue;
         }
@@ -133,7 +134,7 @@ async function handleNewMessages(client) {
         const msg = await client.fetchOne(uid, { source: true });
         if (!msg?.source) {
           console.warn(`⚠️ No source found for UID ${uid}, skipping`);
-          await client.messageFlagsAdd(uid, ['\\Seen', SKIPPED_FLAG]);
+          await client.messageFlagsAdd(uid, ['\\Seen']);
           continue;
         }
         const parsed = await simpleParser(msg.source);

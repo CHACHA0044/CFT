@@ -156,6 +156,7 @@ async function handleNewMessages(client) {
         while (!sent && attempts < 3) {
           try {
             attempts++;
+            console.log(`📧 Attempting to send reply to ${fromAddr} (attempt ${attempts})`);
             await sendEmail(fromAddr, '🌱 Thanks', replyHtml);
             sent = true;
             console.log(`✅ Replied to ${fromAddr} (attempt ${attempts})`);

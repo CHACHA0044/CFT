@@ -4,6 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
+const redisClient = require('./RedisClient');
 
 // Security + Middleware
 const cors = require('cors');
@@ -82,6 +83,19 @@ app.use('/api/footprint', footprintRoutes);
 // test route
 app.get('/api', (req, res) => {
   res.send('🌱 Carbon Footprint API is live and secure.');
+});
+app.get('/api/redis-test', async (req, res) => {
+  try {
+    let visits = await redisClient.get("visits");
+    visits = visits ? parseInt(visits) + 1 : 1;
+
+    await redisClient.set("visits", visits);
+
+    res.json({ message: "Redis is working!", visits });
+  } catch (err) {
+    console.error("❌ Redis route error:", err);
+    res.status(500).json({ error: "Redis error" });
+  }
 });
 
 app.use((err, req, res, next) => {

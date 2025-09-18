@@ -95,14 +95,14 @@ const SUBJECT_KEYWORDS = ['feedback', 'carbon', 'footprint', 'tracker'];
 //     console.error('❌ handleNewMessages error:', err);
 //   }
 // }
-const SKIPPED_FLAG = '\\Skipped';
+//const SKIPPED_FLAG = '\\Skipped';
 
 async function handleNewMessages(client) {
   try {
     await client.mailboxOpen('INBOX');
 
     // Only fetch messages that are unanswered and not already skipped
-    const uids = await client.search({ answered: false, not: [SKIPPED_FLAG] });
+    const uids = await client.search({ answered: false });
     if (!uids || uids.length === 0) return;
 
     for (const uid of uids) {

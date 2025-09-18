@@ -445,31 +445,4 @@ router.get("/weather-aqi", async (req, res) => {
   }
 });
 
-// Add this route to your app.js or routes file for testing
-app.get('/test-email', async (req, res) => {
-  try {
-    console.log('📧 Testing email functionality...');
-    
-    // Test with a simple email
-    await sendEmail(
-      'pranavdembla200045@gmail.com', // Replace with your email
-      '🧪 Email Test',
-      '<h1>Test Email</h1><p>If you receive this, email is working!</p>'
-    );
-    
-    res.json({ 
-      success: true, 
-      message: 'Test email sent successfully!' 
-    });
-    
-  } catch (error) {
-    console.error('Test email failed:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message,
-      code: error.code 
-    });
-  }
-});
-
 module.exports = router;

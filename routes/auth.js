@@ -388,7 +388,6 @@ router.post('/resend-verification', async (req, res) => {
   }
 });
 
-
 // WAKEUP SON 
 router.get('/ping', (req, res) => {
   res.set({

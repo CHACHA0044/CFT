@@ -85,48 +85,56 @@ const nodemailer = require('nodemailer');
 const sendEmail = async (to, subject, html) => {
   try {
     console.log('📧 EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
-    console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET (length: ' + process.env.EMAIL_PASS.length + ')' : 'NOT SET');
+    console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
     
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       throw new Error('Email credentials not configured properly');
     }
 
-    console.log('📧 Creating SSL transporter...');
-    
-    // Try SSL on port 465
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // true for 465, false for other ports
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      // Shorter timeouts
-      connectionTimeout: 15000,
-      socketTimeout: 15000,
-      greetingTimeout: 10000
-    });
+    // Try different port configurations in order
+    const configs = [
+      { host: 'smtp.gmail.com', port: 25, secure: false },   // Sometimes works on servers
+      { host: 'smtp.gmail.com', port: 2587, secure: false }, // Alternative port
+      { service: 'gmail' }  // Fallback to service
+    ];
 
-    console.log('📧 Sending email to:', to);
-    
-    const info = await transporter.sendMail({
-      from: `"Carbon Tracker" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html
-    });
+    for (let i = 0; i < configs.length; i++) {
+      try {
+        console.log(`📧 Trying config ${i + 1}:`, configs[i]);
+        
+        const transporter = nodemailer.createTransport({
+          ...configs[i],
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          },
+          connectionTimeout: 5000,
+          socketTimeout: 5000,
+          greetingTimeout: 5000
+        });
 
-    console.log('✅ Email sent successfully!');
-    console.log('✅ Message ID:', info.messageId);
-    
-    return info;
+        const info = await transporter.sendMail({
+          from: `"Carbon Tracker" <${process.env.EMAIL_USER}>`,
+          to,
+          subject,
+          html
+        });
+
+        console.log('✅ Email sent successfully with config', i + 1);
+        console.log('✅ Message ID:', info.messageId);
+        return info;
+
+      } catch (configError) {
+        console.log(`❌ Config ${i + 1} failed:`, configError.code || configError.message);
+        if (i === configs.length - 1) {
+          throw configError; // Re-throw the last error
+        }
+      }
+    }
     
   } catch (error) {
-    console.error('❌ Email sending failed:');
-    console.error('Error code:', error.code);
+    console.error('❌ All email configurations failed:');
     console.error('Error message:', error.message);
-    console.error('Full error:', error);
     throw error;
   }
 };

@@ -129,6 +129,9 @@ async function handleNewMessages(client) {
           console.log(`ℹ️ Skipped email from ${fromAddr} (subject: "${subject}") - no keyword`);
           continue;
         }
+        if (containsKeyword) {
+          console.log(`✅ Keyword match for UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
+        }
 
         // ✅ Fetch full source only if needed
         const msg = await client.fetchOne(uid, { source: true });

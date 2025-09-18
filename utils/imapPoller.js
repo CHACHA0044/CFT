@@ -1,15 +1,14 @@
-// utils/imapPoller.js
-const { ImapFlow } = require('imapflow');
-const { simpleParser } = require('mailparser');
-const cron = require('node-cron');
-const User = require('../models/user');
-const sendEmail = require('./sendEmail');
-const { feedbackReplyHtml } = require('./emailTemplate');
+const { ImapFlow } = require("imapflow");
+const { simpleParser } = require("mailparser");
+const cron = require("node-cron");
+const User = require("../models/user");
+const sendEmail = require("./sendEmail");
+const { feedbackReplyHtml } = require("./emailTemplate");
 
 const IMAP_CONFIG = {
   host: process.env.IMAP_HOST,
   port: parseInt(process.env.IMAP_PORT) || 993,
-  secure: process.env.IMAP_SECURE === 'true',
+  secure: process.env.IMAP_SECURE === "true",
   auth: {
     user: process.env.IMAP_USER,
     pass: process.env.IMAP_PASS,

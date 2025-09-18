@@ -7,95 +7,17 @@ const sendEmail = require('./sendEmail');
 const { feedbackReplyHtml } = require('./emailTemplate');
 
 const IMAP_CONFIG = {
-  host: process.env.IMAP_HOST || 'imap.gmail.com',
-  port: process.env.IMAP_PORT ? parseInt(process.env.IMAP_PORT) : 993,
+  host: process.env.IMAP_HOST,
+  port: parseInt(process.env.IMAP_PORT) || 993,
   secure: process.env.IMAP_SECURE === 'true',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.IMAP_USER,
+    pass: process.env.IMAP_PASS,
   },
 };
 
 // Keywords
 const SUBJECT_KEYWORDS = ['feedback', 'carbon', 'footprint', 'tracker'];
-
-// async function handleNewMessages(client) {
-//   try {
-//     await client.mailboxOpen('INBOX');
-
-//     const uids = await client.search({ answered: false });
-//     if (!uids || uids.length === 0) return;
-
-//     for (const uid of uids) {
-//       try {
-//         // Fetch only headers & flags first (lightweight)
-//         const headers = await client.fetchOne(uid, { envelope: true, flags: true });
-//         const alreadyAnswered = headers.flags?.has('\\Answered');
-//         const subject = headers.envelope?.subject?.toLowerCase() || "";
-//         const fromAddr = headers.envelope?.from?.[0]?.address?.toLowerCase();
-
-//         if (alreadyAnswered || !fromAddr) {
-//           await client.messageFlagsAdd(uid, ['\\Seen']);
-//           continue;
-//         }
-
-//         // Keyword check
-//         const containsKeyword = SUBJECT_KEYWORDS.some(keyword =>
-//           subject.includes(keyword)
-//         );
-//         if (!containsKeyword) {
-//           await client.messageFlagsAdd(uid, ['\\Seen']);
-//           console.log(`ℹ️ Skipped email from ${fromAddr} (subject: "${subject}") - no keyword`);
-//           continue;
-//         }
-
-//         // ✅ Fetch full source only if needed
-//         const msg = await client.fetchOne(uid, { source: true });
-//         if (!msg?.source) {
-//           console.warn(`⚠️ No source found for UID ${uid}, skipping`);
-//           await client.messageFlagsAdd(uid, ['\\Seen']);
-//           continue;
-//         }
-//         const parsed = await simpleParser(msg.source);
-
-//         // Find user
-//         const user = await User.findOne({
-//           email: new RegExp(`^${escapeRegExp(fromAddr)}$`, 'i'),
-//         });
-//         const nameToUse = user ? user.name : '';
-
-//         // Reply with retry logic (3 attempts)
-//         const replyHtml = feedbackReplyHtml(nameToUse, { timeZone: 'Asia/Kolkata' });
-//         let attempts = 0;
-//         let sent = false;
-
-//         while (!sent && attempts < 3) {
-//           try {
-//             attempts++;
-//             await sendEmail(fromAddr, '🌱 Thanks', replyHtml);
-//             sent = true;
-//             console.log(`✅ Replied to ${fromAddr} (attempt ${attempts})`);
-//             await client.messageFlagsAdd(uid, ['\\Seen', '\\Answered']);
-//           } catch (errSend) {
-//             console.error(`❌ Send attempt ${attempts} failed for ${fromAddr}:`, errSend.message);
-//             if (attempts >= 3) {
-//               console.error(`⚠️ Giving up on ${fromAddr} after 3 tries`);
-//               await client.messageFlagsAdd(uid, ['\\Seen']);
-//             }
-//           }
-//         }
-//       } catch (errMsg) {
-//         console.error('❌ Error processing message UID', uid, errMsg);
-//         try {
-//           await client.messageFlagsAdd(uid, ['\\Seen']);
-//         } catch {}
-//       }
-//     }
-//   } catch (err) {
-//     console.error('❌ handleNewMessages error:', err);
-//   }
-// }
-//const SKIPPED_FLAG = '\\Skipped';
 
 async function handleNewMessages(client) {
   try {

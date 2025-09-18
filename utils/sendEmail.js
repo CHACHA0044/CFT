@@ -91,16 +91,40 @@ const sendEmail = async (to, subject, html) => {
       throw new Error('Email credentials not configured properly');
     }
 
-    // Try different port configurations in order
+    // Try multiple Gmail configurations with different approaches
     const configs = [
-      { host: 'smtp.gmail.com', port: 25, secure: false },   // Sometimes works on servers
-      { host: 'smtp.gmail.com', port: 2587, secure: false }, // Alternative port
-      { service: 'gmail' }  // Fallback to service
+      // Config 1: Use aspmx.l.google.com (Gmail's MX server)
+      {
+        host: 'aspmx.l.google.com',
+        port: 25,
+        secure: false,
+        requireTLS: false,
+        tls: { rejectUnauthorized: false }
+      },
+      // Config 2: Direct IP approach (Google's SMTP IP)
+      {
+        host: '74.125.133.109', // One of Gmail's SMTP IPs
+        port: 25,
+        secure: false,
+        requireTLS: false,
+        tls: { rejectUnauthorized: false }
+      },
+      // Config 3: Try port 2525 (sometimes less filtered)
+      {
+        host: 'smtp.gmail.com',
+        port: 2525,
+        secure: false,
+        tls: { rejectUnauthorized: false }
+      },
+      // Config 4: Original approach as fallback
+      {
+        service: 'gmail'
+      }
     ];
 
     for (let i = 0; i < configs.length; i++) {
       try {
-        console.log(`📧 Trying config ${i + 1}:`, configs[i]);
+        console.log(`📧 Trying config ${i + 1}:`, configs[i].host || 'gmail service');
         
         const transporter = nodemailer.createTransport({
           ...configs[i],
@@ -108,9 +132,14 @@ const sendEmail = async (to, subject, html) => {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
           },
-          connectionTimeout: 5000,
-          socketTimeout: 5000,
-          greetingTimeout: 5000
+          connectionTimeout: 3000, // Very short timeout
+          socketTimeout: 3000,
+          greetingTimeout: 3000,
+          // Ignore certificate errors
+          tls: {
+            rejectUnauthorized: false,
+            ...configs[i].tls
+          }
         });
 
         const info = await transporter.sendMail({
@@ -120,20 +149,22 @@ const sendEmail = async (to, subject, html) => {
           html
         });
 
-        console.log('✅ Email sent successfully with config', i + 1);
+        console.log(`✅ Email sent successfully with config ${i + 1}`);
         console.log('✅ Message ID:', info.messageId);
         return info;
 
       } catch (configError) {
         console.log(`❌ Config ${i + 1} failed:`, configError.code || configError.message);
         if (i === configs.length - 1) {
-          throw configError; // Re-throw the last error
+          throw configError;
         }
+        // Wait a bit before trying next config
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
     
   } catch (error) {
-    console.error('❌ All email configurations failed:');
+    console.error('❌ All Gmail configurations failed:');
     console.error('Error message:', error.message);
     throw error;
   }

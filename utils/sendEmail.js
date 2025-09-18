@@ -6,11 +6,11 @@ async function sendEmail(to, subject, htmlContent) {
     const response = await axios.post(
       "https://api.brevo.com/v3/smtp/email",
       {
-        sender: { 
-          email: process.env.BREVO_SENDER_EMAIL || "carbontracker.noreply@gmail.com", 
-          name: process.env.BREVO_SENDER_NAME || "Carbon Footprint Tracker" 
+        sender: {
+          email: "carbontracker.noreply@gmail.com", // your verified sender
+          name: "Carbon Footprint Tracker",
         },
-        to: [{ email: to }],
+        to: [{ email: to }], // recipient (e.g. pranavdembla200045@gmail.com)
         subject,
         htmlContent,
       },

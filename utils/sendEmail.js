@@ -80,92 +80,39 @@
 
 
 // module.exports = sendEmail;
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 const sendEmail = async (to, subject, html) => {
   try {
-    console.log('📧 EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
-    console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
-    
+    console.log("📧 EMAIL_USER:", process.env.EMAIL_USER ? "SET" : "NOT SET");
+    console.log("📧 EMAIL_PASS:", process.env.EMAIL_PASS ? "SET" : "NOT SET");
+
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      throw new Error('Email credentials not configured properly');
+      throw new Error("Email credentials not configured properly");
     }
 
-    // Try multiple Gmail configurations with different approaches
-    const configs = [
-      // Config 1: Use aspmx.l.google.com (Gmail's MX server)
-      {
-        host: 'aspmx.l.google.com',
-        port: 25,
-        secure: false,
-        requireTLS: false,
-        tls: { rejectUnauthorized: false }
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,   // smtp-relay.brevo.com
+      port: process.env.EMAIL_PORT,   // 587
+      secure: false,                  // Brevo works on TLS (not SSL)
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
-      // Config 2: Direct IP approach (Google's SMTP IP)
-      {
-        host: '74.125.133.109', // One of Gmail's SMTP IPs
-        port: 25,
-        secure: false,
-        requireTLS: false,
-        tls: { rejectUnauthorized: false }
-      },
-      // Config 3: Try port 2525 (sometimes less filtered)
-      {
-        host: 'smtp.gmail.com',
-        port: 2525,
-        secure: false,
-        tls: { rejectUnauthorized: false }
-      },
-      // Config 4: Original approach as fallback
-      {
-        service: 'gmail'
-      }
-    ];
+    });
 
-    for (let i = 0; i < configs.length; i++) {
-      try {
-        console.log(`📧 Trying config ${i + 1}:`, configs[i].host || 'gmail service');
-        
-        const transporter = nodemailer.createTransport({
-          ...configs[i],
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-          },
-          connectionTimeout: 3000, // Very short timeout
-          socketTimeout: 3000,
-          greetingTimeout: 3000,
-          // Ignore certificate errors
-          tls: {
-            rejectUnauthorized: false,
-            ...configs[i].tls
-          }
-        });
+    const info = await transporter.sendMail({
+      from: `"Carbon Tracker" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    });
 
-        const info = await transporter.sendMail({
-          from: `"Carbon Tracker" <${process.env.EMAIL_USER}>`,
-          to,
-          subject,
-          html
-        });
+    console.log("✅ Email sent:", info.messageId);
+    return info;
 
-        console.log(`✅ Email sent successfully with config ${i + 1}`);
-        console.log('✅ Message ID:', info.messageId);
-        return info;
-
-      } catch (configError) {
-        console.log(`❌ Config ${i + 1} failed:`, configError.code || configError.message);
-        if (i === configs.length - 1) {
-          throw configError;
-        }
-        // Wait a bit before trying next config
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    }
-    
   } catch (error) {
-    console.error('❌ All Gmail configurations failed:');
-    console.error('Error message:', error.message);
+    console.error("❌ Email send failed:", error.message);
     throw error;
   }
 };

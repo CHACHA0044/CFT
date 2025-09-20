@@ -1,5 +1,5 @@
 // backend/utils/sendEmail.js
-const Brevo = require('@getbrevo/brevo');
+const SibApiV3Sdk = require('@getbrevo/brevo');
 const axios = require('axios');
 
 const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'carbontracker.noreply@gmail.com';
@@ -14,7 +14,8 @@ function createBrevoClient() {
   const apiKey = getApiKey();
   if (!apiKey) throw new Error('Brevo API key not configured (BREVO_API_KEY).');
 
-  const defaultClient = Brevo.ApiClient.instance;
+ // const defaultClient = Brevo.ApiClient.instance;
+  const defaultClient = SibApiV3Sdk.ApiClient.instance;
   const apiKeyAuth = defaultClient.authentications['api-key'];
   apiKeyAuth.apiKey = apiKey;
 

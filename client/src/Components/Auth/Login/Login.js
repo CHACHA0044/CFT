@@ -474,7 +474,7 @@ useEffect(() => {
     </p>
   ) : null}
 </div>
-
+ 
 {/* {smtpMessage && (
   <div className="flex justify-center mt-2">
     <p className="text-amber-500 text-sm text-center">

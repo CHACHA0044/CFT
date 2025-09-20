@@ -128,7 +128,7 @@ const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
         </p>
 
         <!-- Globe GIF -->
-        <img src="https://i.ibb.co/235Hgp1t/Globe.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
+        <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
 
         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
           Our team will carefully review your suggestions and work on making the platform better for you and the community.

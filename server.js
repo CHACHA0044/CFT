@@ -21,6 +21,7 @@ const axios = require('axios');
 // express app
 const app = express();
 app.set('trust proxy', 1);
+
 // routes
 const authRoutes = require('./routes/auth');
 const footprintRoutes = require('./routes/footprint');
@@ -55,14 +56,14 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' }));
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 400, // reduce to 100
+  max: 40, // reduce to 100
   message: 'Too many requests, please try again later.'
 });
 app.use('/api', generalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 800, //reduce to 10
+  max: 8, //reduce to 10
   message: 'Too many login/register attempts. Try again later.'
 });
 app.use('/api/auth', authLimiter);
@@ -84,6 +85,7 @@ app.use('/api/footprint', footprintRoutes);
 app.get('/api', (req, res) => {
   res.send('🌱 Carbon Footprint API is live and secure.');
 });
+
 app.get('/api/redis-test', async (req, res) => {
   try {
     let visits = await redisClient.get("visits");
@@ -103,8 +105,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong' });
 });
 
-const PORT = process.env.PORT || 5000;
-
+//const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4950;
 mongoose.connect(process.env.MONGO_URI, {
   dbName: 'carbon-tracker',
   ssl: true,

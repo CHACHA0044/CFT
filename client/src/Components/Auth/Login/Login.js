@@ -475,13 +475,13 @@ useEffect(() => {
   ) : null}
 </div>
 
-{smtpMessage && (
+{/* {smtpMessage && (
   <div className="flex justify-center mt-2">
     <p className="text-amber-500 text-sm text-center">
     <span className="animate-pulse">📧 </span>  {smtpMessage}
     </p>
   </div>
-)}
+)} */}
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
           <input

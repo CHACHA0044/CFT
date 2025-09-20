@@ -26,7 +26,7 @@ async function handleNewMessages(client) {
     const uids = await client.search({ answered: false });
     console.log(`📨 Found ${uids.length} unanswered messages`);
     if (!uids || uids.length === 0) return;
-
+    let skippedCount = 0;
     for (const uid of uids) {
       try {
         // Fetch only headers & flags first (lightweight)
@@ -47,6 +47,7 @@ async function handleNewMessages(client) {
         if (!containsKeyword) {
           // Mark as Seen and Skipped so it won't be checked again
           await client.messageFlagsAdd(uid, ['\\Seen']);
+          skippedCount++;
           //console.log(`ℹ️ Skipped email from ${fromAddr} (subject: "${subject}") - no keyword`);
           continue;
         }
@@ -97,6 +98,7 @@ async function handleNewMessages(client) {
         } catch {}
       }
     }
+    console.log(`📭 Total emails skipped this run: ${skippedCount}`);
   } catch (err) {
     console.error('❌ handleNewMessages error:', err);
   }

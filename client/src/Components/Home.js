@@ -11,7 +11,7 @@ import appVersion from '../version.json';
 import { MdEmail } from "react-icons/md";
   const sentence = "Your  Carbon  Story";
   const words = sentence.split(" ");
-
+   
   const getLetterVariants = () => ({
     initial: { y: 0, opacity: 1, scale: 1 },
     fall: {

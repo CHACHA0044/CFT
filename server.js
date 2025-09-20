@@ -118,7 +118,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
     cron.schedule('*/14 * * * *', async () => {
     try {
-      const url = 'https://cft-cj43.onrender.com/api/ping'; 
+      const url = 'https://cft-cj43.onrender.com/api/auth/ping'; 
       const res = await axios.get(url);
       console.log('⏱️ Pinged self:', res.data.message, res.data.timestamp);
     } catch (err) {

@@ -7,7 +7,6 @@ import { HomeHeaderButton } from './globalbuttons';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 import ScrollDownAnimation from 'animations/ScrollDown.json';
-import appVersion from '../version.json';
 import { MdEmail } from "react-icons/md";
   const sentence = "Your  Carbon  Story";
   const words = sentence.split(" ");

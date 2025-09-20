@@ -59,7 +59,7 @@ const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) =
         </p>
 
         <!-- Globe GIF -->
-        <img src="https://i.ibb.co/hRS5TrsN/Globe.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
+        <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
 
         <!-- Button (email-safe styling) -->
         <a href="${verificationLink}" style="

@@ -1,40 +1,3 @@
-// // backend/utils/sendEmail.js
-// const axios = require("axios");
-
-// async function sendEmail(to, subject, htmlContent) {
-//   try {
-//     const response = await axios.post(
-//       "https://api.brevo.com/v3/smtp/email",
-//       {
-//         sender: {
-//           email: "carbontracker.noreply@gmail.com", // your verified sender
-//           name: "Carbon Footprint Tracker",
-//         },
-//         to: [{ email: to }], // recipient (e.g. pranavdembla200045@gmail.com)
-//         subject,
-//         htmlContent,
-//       },
-//       {
-//         headers: {
-//           "api-key": process.env.BREVO_API_KEY,
-//           "Content-Type": "application/json",
-//           accept: "application/json",
-//         },
-//       }
-//     );
-
-//     console.log(`✅ Email sent to ${to}:`, response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error(
-//       `❌ Failed to send email to ${to}:`,
-//       error.response?.data || error.message
-//     );
-//     throw error;
-//   }
-// }
-
-// module.exports = sendEmail;
 // backend/utils/sendEmail.js
 const Brevo = require('@getbrevo/brevo');
 const axios = require('axios');
@@ -52,7 +15,6 @@ function createBrevoClient() {
   if (!apiKey) throw new Error('Brevo API key not configured (BREVO_API_KEY).');
 
   const defaultClient = Brevo.ApiClient.instance;
-  // authentication 'api-key' is used by the SDK
   const apiKeyAuth = defaultClient.authentications['api-key'];
   apiKeyAuth.apiKey = apiKey;
 
@@ -62,22 +24,12 @@ function createBrevoClient() {
   };
 }
 
-/**
- * Send transactional email using Brevo SDK when possible.
- * Fallback to direct axios POST to Brevo API if SDK fails.
- *
- * to: recipient email string
- * subject: string
- * htmlContent: string (HTML body)
- * options: {replyTo, cc, bcc}
- */
 async function sendEmail(to, subject, htmlContent, options = {}) {
   const apiKey = getApiKey();
   if (!apiKey) {
     throw new Error('Brevo API key not set (env BREVO_API_KEY).');
   }
 
-  // Make a small masked log (do not print full key)
   console.log('📧 Preparing Brevo email -> to:', to, 'subject:', subject, 'brevo_key_set:', !!apiKey);
 
   // Use SDK

@@ -47,7 +47,7 @@ async function handleNewMessages(client) {
         if (!containsKeyword) {
           // Mark as Seen and Skipped so it won't be checked again
           await client.messageFlagsAdd(uid, ['\\Seen']);
-          console.log(`ℹ️ Skipped email from ${fromAddr} (subject: "${subject}") - no keyword`);
+          //console.log(`ℹ️ Skipped email from ${fromAddr} (subject: "${subject}") - no keyword`);
           continue;
         }
         if (containsKeyword) {

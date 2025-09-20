@@ -14,14 +14,13 @@ function createBrevoClient() {
   const apiKey = getApiKey();
   if (!apiKey) throw new Error('Brevo API key not configured (BREVO_API_KEY).');
 
- // const defaultClient = Brevo.ApiClient.instance;
   const defaultClient = SibApiV3Sdk.ApiClient.instance;
   const apiKeyAuth = defaultClient.authentications['api-key'];
   apiKeyAuth.apiKey = apiKey;
 
   return {
-    transactionalApi: new Brevo.TransactionalEmailsApi(),
-    SendSmtpEmail: Brevo.SendSmtpEmail,
+    transactionalApi: new SibApiV3Sdk.TransactionalEmailsApi(),
+    SendSmtpEmail: SibApiV3Sdk.SendSmtpEmail,
   };
 }
 

@@ -32,36 +32,27 @@ import { MdEmail } from "react-icons/md";
     },
   });
   
-  function shuffleArray(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-  
   const AnimatedHeadline = () => {
     const [activeBurstIndex, setActiveBurstIndex] = useState(null);
     const [bursting, setBursting] = useState(false);
     const [fallingLetters, setFallingLetters] = useState([]);
   
-    useEffect(() => {
-      const allChars = sentence.replace(/\s/g, "").length;
+    // useEffect(() => {
+    //   const allChars = sentence.replace(/\s/g, "").length;
   
-      const interval = setInterval(() => {
-        const indices = Array.from({ length: allChars }, (_, i) => i);
-        const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
+    //   const interval = setInterval(() => {
+    //     const indices = Array.from({ length: allChars }, (_, i) => i);
+    //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
   
-        setFallingLetters((prev) => [...prev, ...shuffled]);
+    //     setFallingLetters((prev) => [...prev, ...shuffled]);
   
-        setTimeout(() => {
-          setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
-        }, 3000);
-      }, 4000); // pause for 4s
+    //     setTimeout(() => {
+    //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
+    //     }, 3000);
+    //   }, 4000); // pause for 4s
   
-      return () => clearInterval(interval);
-    }, []);
+    //   return () => clearInterval(interval);
+    // }, []);
   
     const triggerBurst = (index) => {
       setActiveBurstIndex(index);

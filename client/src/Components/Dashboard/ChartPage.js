@@ -17,7 +17,7 @@ import { easeInOut } from "framer-motion";
 import { easeCubicOut } from "d3-ease";
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
-import { NewEntryButton, EditDeleteButton, DashboardButton } from 'Components/globalbuttons';
+import { NewEntryButton, EditDeleteButton, DashboardButton, WeatherButton } from 'Components/globalbuttons';
 
 const globalAverages = {
   food: 141,
@@ -89,22 +89,22 @@ const globalAverages = {
     const [bursting, setBursting] = useState(false);
     const [fallingLetters, setFallingLetters] = useState([]);
   
-    useEffect(() => {
-      const allChars = sentence.replace(/\s/g, "").length;
+    // useEffect(() => {
+    //   const allChars = sentence.replace(/\s/g, "").length;
   
-      const interval = setInterval(() => {
-        const indices = Array.from({ length: allChars }, (_, i) => i);
-        const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
+    //   const interval = setInterval(() => {
+    //     const indices = Array.from({ length: allChars }, (_, i) => i);
+    //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
   
-        setFallingLetters((prev) => [...prev, ...shuffled]);
+    //     setFallingLetters((prev) => [...prev, ...shuffled]);
   
-        setTimeout(() => {
-          setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
-        }, 3000);
-      }, 4000); // pause for 4s
+    //     setTimeout(() => {
+    //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
+    //     }, 3000);
+    //   }, 4000); // pause for 4s
   
-      return () => clearInterval(interval);
-    }, []);
+    //   return () => clearInterval(interval);
+    // }, []);
   
     const triggerBurst = (index) => {
       setActiveBurstIndex(index);
@@ -300,45 +300,118 @@ const ChartPage = () => {
   const [data, setData] = useState(null);
   const [expandedWeatherSection, setExpandedWeatherSection] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
- useEffect(() => {
-  const fetchWeatherAndAqi = async () => {
-    let lat, lon;
-
-    if (navigator.geolocation) {
-      try {
-        const pos = await new Promise((resolve, reject) => {
-          const timer = setTimeout(() => reject(new Error("Geolocation timeout")), 10000);
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              clearTimeout(timer);
-              resolve(position);
-            },
-            (err) => {
-              clearTimeout(timer);
-              reject(err);
-            }
-          );
-        });
-
-        lat = pos.coords.latitude;
-        lon = pos.coords.longitude;
-      } catch (err) {
-        console.warn("Geolocation denied or unavailable. Falling back to IP-based location...");
-      }
-    }
-
+  const [refreshCooldown, setRefreshCooldown] = useState(0);
+  const [weatherRequested, setWeatherRequested] = useState(false);
+  const [loadingWeather, setLoadingWeather] = useState(false);
+  const [weatherTimestamp, setWeatherTimestamp] = useState(null);
+  const [showRefreshButton, setShowRefreshButton] = useState(false);
+const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
+  setLoadingWeather(true);
+  let lat, lon;
+//location loguc
+  if (navigator.geolocation) {
     try {
-      const query = lat && lon ? `?lat=${lat}&lon=${lon}` : "";
-      const res = await API.get(`/auth/weather-aqi${query}`);
-      setData(res.data); 
-    } catch (err) {
-      console.error("Failed to fetch weather/AQI data:", err);
-    }
-  };
+      const pos = await new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error("Geolocation timeout")), 10000);
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            clearTimeout(timer);
+            resolve(position);
+          },
+          (err) => {
+            clearTimeout(timer);
+            reject(err);
+          }
+        );
+      });
 
-  fetchWeatherAndAqi();
+      lat = pos.coords.latitude;
+      lon = pos.coords.longitude;
+    } catch (err) {
+      console.warn("Geolocation denied or unavailable. Falling back to IP-based location...");
+    }
+  }
+
+  try {
+    const query = lat && lon ? `?lat=${lat}&lon=${lon}` : "";
+    const refreshParam = forceRefresh ? (query ? "&refresh=true" : "?refresh=true") : "";
+    const res = await API.get(`/auth/weather-aqi${query}${refreshParam}`);
+
+    setData(res.data);
+    setWeatherRequested(true);
+    setWeatherTimestamp(Date.now());
+    // refresh 
+    if (res.data.refreshAllowedIn !== undefined) {
+      setRefreshCooldown(res.data.refreshAllowedIn);
+    } else {
+      setRefreshCooldown(0);
+    }
+  } catch (err) {
+    console.error("Failed to fetch weather/AQI data:", err);
+  } finally {
+    setLoadingWeather(false);
+  }
+}, []);
+const isWeatherDataExpired = () => {
+  if (!weatherTimestamp) return true;
+  const thirtyMinutes = 30 * 60 * 1000;
+  return (currentTime - weatherTimestamp) > thirtyMinutes;
+};
+const handleGetWeatherInfo = async () => {
+  await fetchWeatherAndAqi();
+};
+useEffect(() => {
+  if (!weatherTimestamp) {
+    setShowRefreshButton(false);
+    return;
+  }
+  
+  const tenMinutes = 10 * 60 * 1000; // 10 minutes
+  const timeElapsed = Date.now() - weatherTimestamp;
+  
+  if (timeElapsed >= tenMinutes) {
+    setShowRefreshButton(true);
+  } else {
+    const timer = setTimeout(() => {
+      setShowRefreshButton(true);
+    }, tenMinutes - timeElapsed);
+    
+    return () => clearTimeout(timer);
+  }
+}, [weatherTimestamp]);
+// countdown effect
+const [currentTime, setCurrentTime] = useState(Date.now());
+
+// Update current time every second
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrentTime(Date.now());
+  }, 1000);
+  
+  return () => clearInterval(timer);
 }, []);
 
+//remaining time 
+const getRemainingTime = () => {
+  if (!weatherTimestamp) return 0;
+  const thirtyMinutes = 30 * 60 * 1000;
+  const elapsed = currentTime - weatherTimestamp;
+  const remaining = Math.max(0, thirtyMinutes - elapsed);
+  return Math.floor(remaining / 1000); // Convert to seconds
+};
+useEffect(() => {
+  if (!weatherTimestamp) return;
+  
+  const interval = setInterval(() => {
+    if (isWeatherDataExpired()) {
+      setWeatherRequested(false);
+      setData(null);
+      setWeatherTimestamp(null);
+    }
+  }, 60000); // Check every minute
+
+  return () => clearInterval(interval);
+}, [weatherTimestamp]);
 useEffect(() => {
   const fetchUser = async () => {
     try {
@@ -698,161 +771,380 @@ return (
             );
           })()}
 
-{data ? (
+{weatherRequested && data && !isWeatherDataExpired() ? (
   <div className="mt-4 space-y-4">
-    {/* Weather Card */}
-    <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
-      <div>
-        <h2 className="pb-2 sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
-          🌤️ Weather<br />
-        </h2>
+    {/* Weather expiry countdown */}
+    <div className="text-center text-xs text-gray-400 mb-2">
+      {(() => {
+        const timeLeft = getRemainingTime();
+        const minutesLeft = Math.floor(timeLeft / 60);
+        const secondsLeft = timeLeft % 60;
         
-        {/* Expandable Weather Condition Section */}
-        {data.weather?.weather_code && (
-          <motion.div
-            className="mb-4 p-3 bg-white/10 rounded-xl cursor-pointer "
-            onClick={() => setExpandedWeatherSection(prev => prev === 'condition' ? null : 'condition')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {/* <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" /> */}
-            
-            <p className="text-lg text-shadow-DEFAULT font-intertight font-normal- sm:tracking-wider text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
-              ☁️ Condition: <p>
-                {(() => {
-                  const code = data.weather.weather_code;
-                  if (code === 0) return '🌞 Clear sky';
-                  if (code <= 3) return '🌨️ Partly cloudy';
-                  if (code <= 48) return '😶‍🌫️ Foggy conditions';
-                  if (code <= 67) return '🌧️ Rainy weather';
-                  if (code <= 77) return '❄️ Snow expected';
-                  if (code <= 82) return '🌩️ Rain showers';
-                  if (code <= 86) return '🧊 Snow showers';
-                  if (code <= 99) return '⛈️ Thunderstorm';
-                  return `Weather code: ${code}`;
-                })()}
-              </p> {expandedWeatherSection === 'condition' ? '▼' : '▶'}
-            </p>
-            
-            <motion.div
-              className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                expandedWeatherSection === 'condition' ? 'max-h-[200px] opacity-100 mt-2' : 'max-h-0 opacity-0'
-              }`}
-            >
-               <div className="grid grid-cols-2 gap-2 mt-3">
-          <p className="text-shadow-DEFAULT font-intertight font-light sm:tracking-wider text-emerald-500 dark:text-gray-100">
-            🌡️ Temperature: {data.weather?.temperature_2m || data.weather?.temp || 'N/A'}°C
-          </p>
-          <p className="text-shadow-DEFAULT font-intertight font-light sm:tracking-wider text-emerald-500 dark:text-gray-100">
-            🌡️ Feels Like: {data.weather?.apparent_temperature || 'N/A'}°C
-          </p>
-          <p className="text-shadow-DEFAULT font-intertight font-light sm:tracking-wider text-emerald-500 dark:text-gray-100">
-            💨 Wind: {data.weather?.windspeed_10m || data.weather?.windspeed || 'N/A'} km/h
-          </p>
-          <p className="text-shadow-DEFAULT font-intertight font-light sm:tracking-wider text-emerald-500 dark:text-gray-100">
-            💧 Humidity: {data.weather?.relative_humidity_2m || 'N/A'}%
-          </p>
+        if (timeLeft > 0) {
+          return (
+            <>
+              {`Weather data expires in ${minutesLeft}m ${secondsLeft}s `}
+              <motion.span
+                animate={{ rotateX: [0, 180, 360] }}
+                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                className="inline-block"
+              >
+                ⌛
+              </motion.span>
+            </>
+          );
+        }
+        return "Weather data expired";
+      })()}
+    </div>
+    
+    {/* Weather Section */}
+    <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6">
+      <motion.div
+        className="cursor-pointer"
+        onClick={() => setExpandedWeatherSection(prev => prev === 'weather' ? null : 'weather')}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        <div className="flex items-center justify-center gap-2 text-center">
+          <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
+            🌤️ Weather
+          </h2>
+          <span className="text-emerald-500 dark:text-gray-100 text-2xl">
+            {expandedWeatherSection === 'weather' ? '▽' : '▷'}
+          </span>
         </div>
-            </motion.div>
-          </motion.div>
-        )}
 
-       
-      </div>
+        {/* Collapsed: Overall condition only */}
+        {expandedWeatherSection !== 'weather' && (
+          <div className="text-center mt-3">
+            <div className="text-sm font-intertight font-extralight text-shadow-DEFAULT sm:text-2xl mb-2">
+              {(() => {
+                const code = data.weather?.weather_code || 0;
+                if (code === 0) return '🌞';
+                if (code <= 3) return '⛅';
+                if (code <= 48) return '🌫️';
+                if (code <= 67) return '🌧️';
+                if (code <= 77) return '❄️';
+                if (code <= 82) return '🌦️';
+                if (code <= 86) return '🌨️';
+                if (code <= 99) return '⛈️';
+                return '🌤️';
+              })()} 
+              {(() => {
+                const code = data.weather?.weather_code || 0;
+                if (code === 0) return 'Clear sky';
+                if (code <= 3) return 'Partly cloudy';
+                if (code <= 48) return 'Foggy conditions';
+                if (code <= 67) return 'Rainy weather';
+                if (code <= 77) return 'Snow expected';
+                if (code <= 82) return 'Rain showers';
+                if (code <= 86) return 'Snow showers';
+                if (code <= 99) return 'Thunderstorm';
+                return 'Weather';
+              })()}
+            </div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Expanded: All weather details in square boxes */}
+      <motion.div
+        className={`transition-all duration-500 ease-in-out overflow-hidden ${
+          expandedWeatherSection === 'weather' ? 'max-h-[800px] opacity-100 mt-6' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {/* Temperature */}
+          <div className="bg-white/10 rounded-xl p-3 text-center">
+            <div className="text-2xl mb-1">🌡️</div>
+            <div className="text-lg font-bold text-white">
+              {data.weather?.temperature_2m || 'N/A'}°C
+            </div>
+            <div className="text-xs text-gray-300">Temperature</div>
+          </div>
+
+          {/* Feels Like */}
+          <div className="bg-white/10 rounded-xl p-3 text-center">
+            <div className="text-2xl mb-1">🌡️</div>
+            <div className="text-lg font-bold text-white">
+              {data.weather?.apparent_temperature || 'N/A'}°C
+            </div>
+            <div className="text-xs text-gray-300">Feels Like</div>
+          </div>
+
+          {/* Wind Speed */}
+          <div className="bg-white/10 rounded-xl p-3 text-center">
+            <div className="text-2xl mb-1">💨</div>
+            <div className="text-lg font-bold text-white">
+              {data.weather?.windspeed_10m?.toFixed(1) || 'N/A'} km/h
+            </div>
+            <div className="text-xs text-gray-300">Wind Speed</div>
+          </div>
+
+          {/* Humidity */}
+          <div className="bg-white/10 rounded-xl p-3 text-center">
+            <div className="text-2xl mb-1">💧</div>
+            <div className="text-lg font-bold text-white">
+              {data.weather?.relative_humidity_2m || 'N/A'}%
+            </div>
+            <div className="text-xs text-gray-300">Humidity</div>
+          </div>
+
+          {/* Visibility */}
+          <div className="bg-white/10 rounded-xl p-3 text-center">
+            <div className="text-2xl mb-1">👁️</div>
+            <div className="text-lg font-bold text-white">
+              {data.weather?.visibility || 'N/A'} km
+            </div>
+            <div className="text-xs text-gray-300">Visibility</div>
+          </div>
+
+          {/* UV Index */}
+          {data.weather?.uv_index !== undefined && data.weather.uv_index > 0 && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">☀️</div>
+              <div className="text-lg font-bold text-white">
+                {data.weather.uv_index}
+              </div>
+              <div className="text-xs text-gray-300">UV Index</div>
+            </div>
+          )}
+
+          {/* Rain Intensity */}
+          {data.weather?.rain_intensity !== undefined && data.weather.rain_intensity > 0 && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">🌧️</div>
+              <div className="text-lg font-bold text-white">
+                {data.weather.rain_intensity.toFixed(1)} mm/h
+              </div>
+              <div className="text-xs text-gray-300">Rain Intensity</div>
+            </div>
+          )}
+
+          {/* Precipitation Type */}
+          {data.weather?.precipitation_type && data.weather.precipitation_type !== "None" && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">☔</div>
+              <div className="text-lg font-bold text-white">
+                {data.weather.precipitation_type}
+              </div>
+              <div className="text-xs text-gray-300">Precipitation</div>
+            </div>
+          )}
+
+          {/* Sunrise */}
+          {data.weather?.sunrise_time && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">🌅</div>
+              <div className="text-lg font-bold text-white">
+                {new Date(data.weather.sunrise_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              </div>
+              <div className="text-xs text-gray-300">Sunrise</div>
+            </div>
+          )}
+
+          {/* Sunset */}
+          {data.weather?.sunset_time && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">🌇</div>
+              <div className="text-lg font-bold text-white">
+                {new Date(data.weather.sunset_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              </div>
+              <div className="text-xs text-gray-300">Sunset</div>
+            </div>
+          )}
+
+          {/* Moon Phase */}
+          {data.weather?.moon_phase_name && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">🌙</div>
+              <div className="text-lg font-bold text-white">
+                {data.weather.moon_phase_name}
+              </div>
+              <div className="text-xs text-gray-300">
+                {(data.weather.moon_phase_value * 100).toFixed(1)}%
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
     </div>
 
-    {/* AQI Card */}
-    <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center">
-      <div>
-        <h2 className="pb-2 sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
-          🌬️ Air Quality<br />
-        </h2>
-        
-        {/* Expandable Overall Air Quality Section */}
-        <motion.div
-          className="mb-4 p-3 bg-white/10 rounded-xl cursor-pointer "
-          onClick={() => setExpandedWeatherSection(prev => prev === 'airquality' ? null : 'airquality')}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          {/* <div className="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" /> */}
-          
-          <p className="text-lg text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100 flex items-center justify-center gap-2">
-            Overall: {(() => {
-              const pm25 = data.air_quality?.pm2_5 || 0;
-              if (pm25 <= 12) return '🌟 Excellent';
-              if (pm25 <= 35) return '😊 Good';
-              if (pm25 <= 55) return '😐 Moderate';
-              if (pm25 <= 150) return '😷 Poor';
-              return '☠️ Hazardous';
-            })()} {expandedWeatherSection === 'airquality' ? '▼' : '▶'}
-          </p>
-          
-          <motion.div
-            className={`transition-all duration-500 ease-in-out overflow-hidden ${
-              expandedWeatherSection === 'airquality' ? 'max-h-[300px] opacity-100 mt-2' : 'max-h-0 opacity-0'
-            }`}
-          >
-            <div className="text-sm text-shadow-DEFAULT font-intertight font-light sm:tracking-wider text-emerald-500 dark:text-gray-100 space-y-2">
+    {/* Air Quality Section */}
+    <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-3xl p-4 mb-6">
+      <motion.div
+        className="cursor-pointer"
+        onClick={() => setExpandedWeatherSection(prev => prev === 'airquality' ? null : 'airquality')}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        <div className="flex items-center justify-center gap-2 text-center">
+          <h2 className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider text-emerald-500 dark:text-gray-100">
+            🌬️ Air Quality
+          </h2>
+          <span className="text-emerald-500 dark:text-gray-100 text-2xl">
+            {expandedWeatherSection === 'airquality' ? '▽' : '▷'}
+          </span>
+        </div>
+
+        {/* Collapsed: Overall AQI only */}
+        {expandedWeatherSection !== 'airquality' && (
+          <div className="text-center mt-3">
+            <div className="text-sm font-intertight font-extralight text-shadow-DEFAULT sm:text-2xl mb-2">
+              {(() => {
+                const pm25 = data.air_quality?.pm2_5 || 0;
+                if (pm25 <= 12) return '🌟';
+                if (pm25 <= 35) return '😊';
+                if (pm25 <= 55) return '😐';
+                if (pm25 <= 150) return '😷';
+                return '☠️';
+              })()}
+              Overall: {(() => {
+                const pm25 = data.air_quality?.pm2_5 || 0;
+                if (pm25 <= 12) return 'Excellent';
+                if (pm25 <= 35) return 'Good';
+                if (pm25 <= 55) return 'Moderate';
+                if (pm25 <= 150) return 'Poor';
+                return 'Hazardous';
+              })()}
+            </div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Expanded: All air quality details in square boxes */}
+      <motion.div
+        className={`transition-all duration-500 ease-in-out overflow-hidden ${
+          expandedWeatherSection === 'airquality' ? 'max-h-[600px] opacity-100 mt-6' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="space-y-4">
+          {/* Health Recommendation */}
+          <div className="bg-white/10 rounded-xl p-4 text-center">
+            <div className="text-sm text-white">
               {(() => {
                 const pm25 = data.air_quality?.pm2_5 || 0;
                 if (pm25 <= 12) return (
-                  <p>🌟 Air quality is excellent! Perfect for outdoor activities, jogging, and spending time outside.</p>
+                  "🌟 Air quality is excellent! Perfect for outdoor activities, jogging, and spending time outside."
                 );
                 if (pm25 <= 35) return (
-                  <p>😊 Good air quality. Safe for everyone including sensitive individuals.</p>
+                  "😊 Good air quality. Safe for everyone including sensitive individuals."
                 );
                 if (pm25 <= 55) return (
-                  <p>😐 Moderate air quality. Most people can enjoy outdoor activities, but very sensitive individuals might experience minor issues.</p>
+                  "😐 Moderate air quality. Most people can enjoy outdoor activities, but very sensitive individuals might experience minor issues."
                 );
                 if (pm25 <= 150) return (
-                  <p>😷 Poor air quality. People with respiratory conditions should limit outdoor exposure. Everyone else should reduce prolonged outdoor activities.</p>
+                  "😷 Poor air quality. People with respiratory conditions should limit outdoor exposure. Everyone else should reduce prolonged outdoor activities."
                 );
                 return (
-                  <p>☠️ Hazardous air quality! Avoid outdoor activities. Stay indoors and use air purifiers if available.</p>
+                  "☠️ Hazardous air quality! Avoid outdoor activities. Stay indoors and use air purifiers if available."
                 );
               })()}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-          <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-light sm:tracking-wider">
-            🔬 Fine Particles: {data.air_quality?.pm2_5?.toFixed(1) || 'N/A'} μg/m³
-          </p>
-          <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-light sm:tracking-wider">
-            🌪️ Dust Particles: {data.air_quality?.pm10?.toFixed(1) || 'N/A'} μg/m³
-          </p>
-          <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-light sm:tracking-wider">
-            ☠️ Carbon Monoxide: {data.air_quality?.carbon_monoxide?.toFixed(0) || 'N/A'} μg/m³
-          </p>
-          {data.air_quality?.ozone && (
-            <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-light sm:tracking-wider">
-              🌍 Ozone: {data.air_quality.ozone.toFixed(1)} μg/m³
-            </p>
-          )}
-          {data.air_quality?.nitrogen_dioxide && (
-            <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-light sm:tracking-wider">
-              🚗 Nitrogen Dioxide: {data.air_quality.nitrogen_dioxide.toFixed(1)} μg/m³
-            </p>
-          )}
-          {data.air_quality?.sulphur_dioxide && (
-            <p className="text-emerald-500 dark:text-gray-100 text-shadow-DEFAULT font-intertight font-light sm:tracking-wider">
-              🏭 Sulphur Dioxide: {data.air_quality.sulphur_dioxide.toFixed(1)} μg/m³
-            </p>
-          )}
-          {data.air_quality?.uv_index !== undefined && data.air_quality.uv_index > 0 && (
-            <p className="text-emerald-500 dark:text-gray-100 col-span-full text-shadow-DEFAULT font-intertight font-light sm:tracking-wider">
-              ☀️ UV Index: {data.air_quality.uv_index}
-            </p>
-          )}
-        </div>
-          </motion.div>
-        </motion.div>
+          </div>
 
-        
+          {/* Air Quality Metrics Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {/* PM2.5 */}
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">🔬</div>
+              <div className="text-lg font-bold text-white">
+                {data.air_quality?.pm2_5?.toFixed(1) || 'N/A'} μg/m³
+              </div>
+              <div className="text-xs text-gray-300">PM2.5</div>
+            </div>
+
+            {/* PM10 */}
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">🌪️</div>
+              <div className="text-lg font-bold text-white">
+                {data.air_quality?.pm10?.toFixed(1) || 'N/A'} μg/m³
+              </div>
+              <div className="text-xs text-gray-300">PM10</div>
+            </div>
+
+            {/* Carbon Monoxide */}
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">☠️</div>
+              <div className="text-lg font-bold text-white">
+                {data.air_quality?.carbon_monoxide?.toFixed(0) || 'N/A'} μg/m³
+              </div>
+              <div className="text-xs text-gray-300">Carbon Monoxide</div>
+            </div>
+
+            {/* Ozone */}
+            {data.air_quality?.ozone && (
+              <div className="bg-white/10 rounded-xl p-3 text-center">
+                <div className="text-2xl mb-1">🌍</div>
+                <div className="text-lg font-bold text-white">
+                  {data.air_quality.ozone.toFixed(1)} μg/m³
+                </div>
+                <div className="text-xs text-gray-300">Ozone</div>
+              </div>
+            )}
+
+            {/* Nitrogen Dioxide */}
+            {data.air_quality?.nitrogen_dioxide && (
+              <div className="bg-white/10 rounded-xl p-3 text-center">
+                <div className="text-2xl mb-1">🚗</div>
+                <div className="text-lg font-bold text-white">
+                  {data.air_quality.nitrogen_dioxide.toFixed(1)} μg/m³
+                </div>
+                <div className="text-xs text-gray-300">NO₂</div>
+              </div>
+            )}
+
+            {/* Sulphur Dioxide */}
+            {data.air_quality?.sulphur_dioxide && (
+              <div className="bg-white/10 rounded-xl p-3 text-center">
+                <div className="text-2xl mb-1">🏭</div>
+                <div className="text-lg font-bold text-white">
+                  {data.air_quality.sulphur_dioxide.toFixed(1)} μg/m³
+                </div>
+                <div className="text-xs text-gray-300">SO₂</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+
+    {/* Data Source Info */}
+    <div className="text-center text-xs text-gray-400 mb-2">
+      Data from: {data.source} • Location: {data.location_source === 'browser' ? 'Device GPS' : 'IP Address'}
+      {data.refreshed && ' • Force Refreshed'}
+    </div>
+    
+    {/* Refresh button */}
+    {showRefreshButton && (
+      <div className="  justify-center">
+        <WeatherButton 
+          textMobile="Refresh Data" 
+          textDesktop="Refresh Weather & AQI Data" 
+          iconType="weather"
+          onClick={() => fetchWeatherAndAqi(true)}
+          loading={loadingWeather}
+          expired={false}
+        />
+      </div>
+    )}
+  </div>
+) : (
+  <div className="mt-4 text-center">
+    <div className="space-y-2">
+      <div className="items-center">
+        <WeatherButton 
+          textDesktop="Get Weather & Air Quality Info" 
+          textMobile="Get Weather Info"
+          iconType="weather"
+          onClick={handleGetWeatherInfo}
+          loading={loadingWeather}
+          expired={weatherRequested && data && isWeatherDataExpired()}
+        />
       </div>
     </div>
   </div>
-) : (
-  <p className="text-center sm:text-lg md:text-xl text-shadow-DEFAULT font-intertight font-light sm:tracking-wider text-emerald-500 dark:text-gray-100">Getting weather and AQI data<AniDot /></p>
 )}
           </motion.div>
         </div>

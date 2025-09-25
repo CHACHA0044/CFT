@@ -73,22 +73,22 @@ const AnimatedHeadline = React.memo(() => {
   const [bursting, setBursting] = useState(false);
   const [fallingLetters, setFallingLetters] = useState([]);
 
-  useEffect(() => {
-    const allChars = sentence.replace(/\s/g, "").length;
+  // useEffect(() => {
+  //   const allChars = sentence.replace(/\s/g, "").length;
 
-    const interval = setInterval(() => {
-      const indices = Array.from({ length: allChars }, (_, i) => i);
-      const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
+  //   const interval = setInterval(() => {
+  //     const indices = Array.from({ length: allChars }, (_, i) => i);
+  //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
 
-      setFallingLetters((prev) => [...prev, ...shuffled]);
+  //     setFallingLetters((prev) => [...prev, ...shuffled]);
 
-      setTimeout(() => {
-        setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
-      }, 3000);
-    }, 4000); // pause for 4s
+  //     setTimeout(() => {
+  //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
+  //     }, 3000);
+  //   }, 4000); // pause for 4s
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const triggerBurst = (index) => {
     setActiveBurstIndex(index);
@@ -402,7 +402,7 @@ useEffect(() => {
   transition={{ duration: 0.35, ease: 'easeInOut' }}
 >
 
-<motion.div
+{/* <motion.div
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}
   transition={{ type: "spring", stiffness: 500, damping: 15 }}
@@ -421,6 +421,26 @@ useEffect(() => {
     </motion.span>
   ))}
 </motion.span>
+</motion.div> */}
+<motion.div
+  initial={{ y: -30, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  transition={{ type: "spring", stiffness: 500, damping: 15 }}
+  className="absolute top-4 left-0 pt-2 md:pt-0 pl-2 md:pl-3 md:text-2xl text-xs sm:text-sm font-bespoke font-medium sm:font-semibold text-emerald-600 dark:text-gray-100 flex gap-1"
+>
+  <span className="not-italic font-sans">🫡</span>
+  <motion.span className="flex flex-wrap">
+    {(` Welcome, ${user?.name || "User"}`).split("").map((char, i) => (
+      <motion.span
+        key={i}
+        custom={i}
+        animate={shimmerControls}
+        className="inline-block"
+      >
+        {char === " " ? "\u00A0" : char}
+      </motion.span>
+    ))}
+  </motion.span>
 </motion.div>
 
     </motion.div>

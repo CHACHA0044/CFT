@@ -7,6 +7,7 @@ const axios = require('axios');
 const authenticateToken = require('../middleware/authmiddleware');
 const router = express.Router();
 const crypto = require('crypto');
+const redisClient = require('../RedisClient');
 // email HTML Template
 const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
   try {
@@ -406,42 +407,479 @@ router.get('/ping', (req, res) => {
 });
 
 // WEATHER & AQI
+// router.get("/weather-aqi", async (req, res) => {
+//   res.set({
+//     "Access-Control-Allow-Origin": req.headers.origin || "*",
+//     "Access-Control-Allow-Credentials": "true",
+//     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+//     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
+//     "Content-Type": "application/json",
+//   });
+
+//   let { lat, lon, refresh, forceApi } = req.query;
+
+//   try {
+//     // Get location from IP if missing
+//     if (!lat || !lon) {
+//       const ipRes = await axios.get("https://ipapi.co/json/");
+//       lat = ipRes.data.latitude;
+//       lon = ipRes.data.longitude;
+//     }
+
+//     const cacheKey = `weather:${lat},${lon}`;
+
+//     // Skip cache if forceApi is set
+//     if (!forceApi) {
+//       let cached = null;
+//       let ttl = -2;
+//       try {
+//         cached = await redisClient.get(cacheKey);
+//         if (cached) ttl = await redisClient.ttl(cacheKey);
+//       } catch (redisErr) {
+//         console.warn("⚠️ Redis read failed:", redisErr.message);
+//       }
+
+//       const refreshBlockThreshold = 1200; // 20 min rule
+//       const refreshAllowedIn = ttl > 0 ? Math.max(ttl - refreshBlockThreshold, 0) : 0;
+
+//       if (refresh && cached && ttl > refreshBlockThreshold) {
+//         return res.status(429).json({
+//           error: "Refresh not allowed yet. Please wait at least 10 minutes.",
+//           refreshAllowedIn,
+//           ttl,
+//           fromCache: true,
+//         });
+//       }
+
+//       if (cached && !refresh) {
+//         console.log("⚡ Serving weather from Redis cache");
+//         return res.json({
+//           ...JSON.parse(cached),
+//           fromCache: true,
+//           ttl,
+//           refreshAllowedIn,
+//         });
+//       }
+//     }
+
+//     // ===========================================================
+//     // CHOOSE API (forceApi or fallback chain)
+//     // ===========================================================
+//     let result = null;
+// // 
+// const useTomorrow = async () => {
+//   console.log("🌍 [Tomorrow.io] Fetching...");
+//     const mapWeatherCode = (tomorrowCode) => {
+//     const weatherCodeMap = {
+//       1000: 0, 1001: 1, 1100: 1, 1101: 2, 1102: 3, 2000: 45, 2100: 45,
+//       4000: 51, 4001: 53, 4200: 61, 4201: 63, 5000: 71, 5001: 73,
+//       5100: 71, 5101: 75, 6000: 80, 6001: 82, 6200: 85, 7000: 85, 8000: 95,
+//     };
+//     return weatherCodeMap[tomorrowCode] || 0;
+//   };
+
+//   const mapPrecipitationType = (type) => {
+//     const precipMap = { 0: "None", 1: "Rain", 2: "Snow", 3: "Freezing Rain", 4: "Ice Pellets" };
+//     return precipMap[type] || "None";
+//   };
+
+//   const mapMoonPhase = (phase) => {
+//     if (phase >= 0.0625 && phase <= 0.1875) return { phase: 1, name: "Waxing Crescent" };
+//     if (phase >= 0.1875 && phase <= 0.3125) return { phase: 2, name: "First Quarter" };
+//     if (phase >= 0.3125 && phase <= 0.4375) return { phase: 3, name: "Waxing Gibbous" };
+//     if (phase >= 0.4375 && phase <= 0.5625) return { phase: 4, name: "Full Moon" };
+//     if (phase >= 0.5625 && phase <= 0.6875) return { phase: 5, name: "Waning Gibbous" };
+//     if (phase >= 0.6875 && phase <= 0.8125) return { phase: 6, name: "Third Quarter" };
+//     if (phase >= 0.8125 && phase <= 0.9375) return { phase: 7, name: "Waning Crescent" };
+//     return { phase: 0, name: "New Moon" };
+//   };
+//   const r = await axios.get(
+//     `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,sunriseTime,sunsetTime,visibility,moonPhase,weatherCodeFullDay&apikey=${process.env.TOMORROW_API_KEY}`
+//   );
+
+//     const airRes = await axios.get(
+//     `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+//   );
+
+//   const values = r.data.data.values;
+//   const moonPhaseData = mapMoonPhase(values.moonPhase || 0);
+
+//   return {
+//     weather: {
+//       temperature_2m: values.temperature,
+//       relative_humidity_2m: values.humidity,
+//       windspeed_10m: values.windSpeed * 3.6, // Convert m/s to km/h
+//       apparent_temperature: values.temperatureApparent,
+//       weather_code: mapWeatherCode(values.weatherCode),
+//       weather_code_full_day: values.weatherCodeFullDay,
+//       uv_index: values.uvIndex || 0,
+//       rain_intensity: values.rainIntensity || 0,
+//       precipitation_type: mapPrecipitationType(values.precipitationType),
+//       precipitation_type_raw: values.precipitationType || 0,
+//       sunrise_time: values.sunriseTime,
+//       sunset_time: values.sunsetTime,
+//       visibility: values.visibility || 0,
+//       moon_phase_value: values.moonPhase || 0,
+//       moon_phase: moonPhaseData.phase,
+//       moon_phase_name: moonPhaseData.name,
+//       // Keep original fields as backup
+//       temp: values.temperature,
+//       windspeed: values.windSpeed * 3.6,
+//     },
+//     air_quality: airRes.data.current, // CHANGE: Use Open-Meteo air quality
+//     source: "Tomorrow.io + Open-Meteo AQI",
+//     location_source: req.query.lat && req.query.lon ? "browser" : "ip",
+//     refreshed: !!refresh,
+//   };
+// };
+
+//   // CHANGE: Get air quality from Open-Meteo instead
+//   const airRes = await axios.get(
+//     `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+//   );
+
+//   const values = r.data.data.values;
+//   const moonPhaseData = mapMoonPhase(values.moonPhase || 0);
+
+//   return {
+//     weather: {
+//       // ... existing weather fields
+//     },
+//     // CHANGE: Use Open-Meteo air quality data
+//     air_quality: airRes.data.current,
+//     source: "Tomorrow.io + Open-Meteo AQI", // CHANGE: Update source info
+//     location_source: req.query.lat && req.query.lon ? "browser" : "ip",
+//     refreshed: !!refresh,
+//   };
+// };
+
+// // CHANGE: Same for useWeatherbit - remove air quality API call
+// const useWeatherbit = async () => {
+//   console.log("🌍 [Weatherbit] Fetching...");
+//   const wbWeather = await axios.get(
+//     `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHERBIT_API_KEY}&units=M`
+//   );
+  
+//   // ADD: Get air quality from Open-Meteo
+//   const airRes = await axios.get(
+//     `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+//   );
+
+//   const weatherData = wbWeather.data.data[0];
+//   console.log("📡 Weatherbit weather data:", weatherData); // ADD: Debug log
+
+//   return {
+//     weather: {
+//       // CHANGE: Map all required fields properly
+//       temperature_2m: weatherData.temp,
+//       relative_humidity_2m: weatherData.rh,
+//       windspeed_10m: weatherData.wind_spd * 3.6, // Convert m/s to km/h
+//       apparent_temperature: weatherData.app_temp,
+//       weather_code: weatherData.weather?.code || 0,
+//       visibility: weatherData.vis || 0, // ADD: Missing visibility
+//       uv_index: weatherData.uv || 0, // ADD: Missing UV index
+//       // Keep backup fields
+//       temp: weatherData.temp,
+//       windspeed: weatherData.wind_spd * 3.6,
+//     },
+//     air_quality: airRes.data.current, // CHANGE: Use Open-Meteo air quality
+//     source: "Weatherbit + Open-Meteo AQI",
+//     location_source: req.query.lat && req.query.lon ? "browser" : "ip",
+//     refreshed: !!refresh,
+//   };
+// };
+
+//     const useOpenMeteo = async () => {
+//       console.log("🌍 [Open-Meteo] Fetching...");
+//       const omWeather = await axios.get(
+//         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
+//       );
+//       const omAir = await axios.get(
+//         `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+//       );
+//       console.log("📡 Open-Meteo weather raw:", omWeather.data);
+//       console.log("📡 Open-Meteo air raw:", omAir.data);
+
+//       return {
+//         weather: omWeather.data.current,
+//         air_quality: omAir.data.current,
+//         source: "Open-Meteo",
+//         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
+//         refreshed: !!refresh,
+//       };
+//     };
+
+//     try {
+//       if (forceApi === "tomorrow") {
+//         result = await useTomorrow();
+//       } else if (forceApi === "weatherbit") {
+//         result = await useWeatherbit();
+//       } else if (forceApi === "openmeteo") {
+//         result = await useOpenMeteo();
+//       } else {
+//         // fallback order
+//         try {
+//           result = await useTomorrow();
+//         } catch (e1) {
+//           console.warn("❌ Tomorrow.io failed:", e1.message);
+//           try {
+//             result = await useWeatherbit();
+//           } catch (e2) {
+//             console.warn("❌ Weatherbit failed:", e2.message);
+//             result = await useOpenMeteo();
+//           }
+//         }
+//       }
+//     } catch (errFinal) {
+//       console.error("❌ Weather route error:", errFinal.message);
+//       return res.status(500).json({ error: errFinal.message });
+//     }
+
+//     // ===========================================================
+//     // CACHE (skip if forceApi)
+//     // ===========================================================
+//     if (!forceApi) {
+//       try {
+//         await redisClient.setEx(cacheKey, 1800, JSON.stringify(result));
+//         console.log(`✅ Weather stored in Redis (source: ${result.source})`);
+//       } catch (redisWriteErr) {
+//         console.warn("⚠️ Failed to store weather in Redis:", redisWriteErr.message);
+//       }
+//     }
+
+//     res.json(result);
+
+//   } catch (error) {
+//     console.error("❌ Weather route error:", error.message);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 router.get("/weather-aqi", async (req, res) => {
   res.set({
-    'Access-Control-Allow-Origin': req.headers.origin || '*',
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
-    'Content-Type': 'application/json'
+    "Access-Control-Allow-Origin": req.headers.origin || "*",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
+    "Content-Type": "application/json",
   });
 
-  let { lat, lon } = req.query;
+  let { lat, lon, refresh, forceApi } = req.query;
 
   try {
+    // Get location from IP if missing
     if (!lat || !lon) {
       const ipRes = await axios.get("https://ipapi.co/json/");
       lat = ipRes.data.latitude;
       lon = ipRes.data.longitude;
     }
 
-    // Weather 
-    const weatherRes = await axios.get(
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
-  );
+    const cacheKey = `weather:${lat},${lon}`;
 
-    // Air Quality 
-    const airRes = await axios.get(
-      `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
-    );
+    // Skip cache if forceApi is set
+    if (!forceApi) {
+      let cached = null;
+      let ttl = -2;
+      try {
+        cached = await redisClient.get(cacheKey);
+        if (cached) ttl = await redisClient.ttl(cacheKey);
+      } catch (redisErr) {
+        console.warn("⚠️ Redis read failed:", redisErr.message);
+      }
 
-    res.json({
-      weather: weatherRes.data.current,
-      air_quality: airRes.data.current,
-      location_source: req.query.lat && req.query.lon ? "browser" : "ip",
-    });
+      const refreshBlockThreshold = 1200; // 20 min rule
+      const refreshAllowedIn = ttl > 0 ? Math.max(ttl - refreshBlockThreshold, 0) : 0;
+
+      if (refresh && cached && ttl > refreshBlockThreshold) {
+        return res.status(429).json({
+          error: "Refresh not allowed yet. Please wait at least 10 minutes.",
+          refreshAllowedIn,
+          ttl,
+          fromCache: true,
+        });
+      }
+
+      if (cached && !refresh) {
+        console.log("⚡ Serving weather from Redis cache");
+        return res.json({
+          ...JSON.parse(cached),
+          fromCache: true,
+          ttl,
+          refreshAllowedIn,
+        });
+      }
+    }
+
+    let result = null;
+
+    const useTomorrow = async () => {
+      console.log("🌍 [Tomorrow.io] Fetching...");
+      
+      const mapWeatherCode = (tomorrowCode) => {
+        const weatherCodeMap = {
+          1000: 0, 1001: 1, 1100: 1, 1101: 2, 1102: 3, 2000: 45, 2100: 45,
+          4000: 51, 4001: 53, 4200: 61, 4201: 63, 5000: 71, 5001: 73,
+          5100: 71, 5101: 75, 6000: 80, 6001: 82, 6200: 85, 7000: 85, 8000: 95,
+        };
+        return weatherCodeMap[tomorrowCode] || 0;
+      };
+
+      const mapPrecipitationType = (type) => {
+        const precipMap = { 0: "None", 1: "Rain", 2: "Snow", 3: "Freezing Rain", 4: "Ice Pellets" };
+        return precipMap[type] || "None";
+      };
+
+      const mapMoonPhase = (phase) => {
+        if (phase >= 0.0625 && phase <= 0.1875) return { phase: 1, name: "Waxing Crescent" };
+        if (phase >= 0.1875 && phase <= 0.3125) return { phase: 2, name: "First Quarter" };
+        if (phase >= 0.3125 && phase <= 0.4375) return { phase: 3, name: "Waxing Gibbous" };
+        if (phase >= 0.4375 && phase <= 0.5625) return { phase: 4, name: "Full Moon" };
+        if (phase >= 0.5625 && phase <= 0.6875) return { phase: 5, name: "Waning Gibbous" };
+        if (phase >= 0.6875 && phase <= 0.8125) return { phase: 6, name: "Third Quarter" };
+        if (phase >= 0.8125 && phase <= 0.9375) return { phase: 7, name: "Waning Crescent" };
+        return { phase: 0, name: "New Moon" };
+      };
+
+      // Fetch weather from Tomorrow.io
+      const r = await axios.get(
+        `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,sunriseTime,sunsetTime,visibility,moonPhase,weatherCodeFullDay&apikey=${process.env.TOMORROW_API_KEY}`
+      );
+
+      // Fetch air quality from Open-Meteo
+      const airRes = await axios.get(
+        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+      );
+
+      const values = r.data.data.values;
+      const moonPhaseData = mapMoonPhase(values.moonPhase || 0);
+
+      return {
+        weather: {
+          temperature_2m: values.temperature,
+          relative_humidity_2m: values.humidity,
+          windspeed_10m: values.windSpeed * 3.6, // m/s to km/h
+          apparent_temperature: values.temperatureApparent,
+          weather_code: mapWeatherCode(values.weatherCode),
+          weather_code_full_day: values.weatherCodeFullDay,
+          uv_index: values.uvIndex || 0,
+          rain_intensity: values.rainIntensity || 0,
+          precipitation_type: mapPrecipitationType(values.precipitationType),
+          precipitation_type_raw: values.precipitationType || 0,
+          sunrise_time: values.sunriseTime,
+          sunset_time: values.sunsetTime,
+          visibility: values.visibility || 0,
+          moon_phase_value: values.moonPhase || 0,
+          moon_phase: moonPhaseData.phase,
+          moon_phase_name: moonPhaseData.name,
+          temp: values.temperature,
+          windspeed: values.windSpeed * 3.6,
+        },
+        air_quality: airRes.data.current,
+        source: "Tomorrow.io + Open-Meteo AQI",
+        location_source: req.query.lat && req.query.lon ? "browser" : "ip",
+        refreshed: !!refresh,
+      };
+    };
+
+    const useWeatherbit = async () => {
+      console.log("🌍 [Weatherbit] Fetching...");
+      
+      // Fetch weather from Weatherbit
+      const wbWeather = await axios.get(
+        `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHERBIT_API_KEY}&units=M`
+      );
+      
+      // Fetch air quality from Open-Meteo
+      const airRes = await axios.get(
+        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+      );
+
+      const weatherData = wbWeather.data.data[0];
+      console.log("📡 Weatherbit weather data:", weatherData);
+
+      return {
+        weather: {
+          temperature_2m: weatherData.temp,
+          relative_humidity_2m: weatherData.rh,
+          windspeed_10m: weatherData.wind_spd * 3.6, // m/s to km/h
+          apparent_temperature: weatherData.app_temp,
+          weather_code: weatherData.weather?.code || 0,
+          visibility: weatherData.vis || 0,
+          uv_index: weatherData.uv || 0,
+          temp: weatherData.temp,
+          windspeed: weatherData.wind_spd * 3.6,
+        },
+        air_quality: airRes.data.current,
+        source: "Weatherbit + Open-Meteo AQI",
+        location_source: req.query.lat && req.query.lon ? "browser" : "ip",
+        refreshed: !!refresh,
+      };
+    };
+
+    const useOpenMeteo = async () => {
+      console.log("🌍 [Open-Meteo] Fetching...");
+      
+      const omWeather = await axios.get(
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
+      );
+      const omAir = await axios.get(
+        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+      );
+      
+      console.log("📡 Open-Meteo weather raw:", omWeather.data);
+      console.log("📡 Open-Meteo air raw:", omAir.data);
+
+      return {
+        weather: omWeather.data.current,
+        air_quality: omAir.data.current,
+        source: "Open-Meteo",
+        location_source: req.query.lat && req.query.lon ? "browser" : "ip",
+        refreshed: !!refresh,
+      };
+    };
+
+    // API selection logic
+    try {
+      if (forceApi === "tomorrow") {
+        result = await useTomorrow();
+      } else if (forceApi === "weatherbit") {
+        result = await useWeatherbit();
+      } else if (forceApi === "openmeteo") {
+        result = await useOpenMeteo();
+      } else {
+        // Fallback chain: Tomorrow.io -> Weatherbit -> Open-Meteo
+        try {
+          result = await useTomorrow();
+        } catch (e1) {
+          console.warn("❌ Tomorrow.io failed:", e1.message);
+          try {
+            result = await useWeatherbit();
+          } catch (e2) {
+            console.warn("❌ Weatherbit failed:", e2.message);
+            result = await useOpenMeteo();
+          }
+        }
+      }
+    } catch (errFinal) {
+      console.error("❌ All weather APIs failed:", errFinal.message);
+      return res.status(500).json({ error: errFinal.message });
+    }
+
+    if (!forceApi) {
+      try {
+        await redisClient.setEx(cacheKey, 1800, JSON.stringify(result));
+        console.log(`✅ Weather stored in Redis (source: ${result.source})`);
+      } catch (redisWriteErr) {
+        console.warn("⚠️ Failed to store weather in Redis:", redisWriteErr.message);
+      }
+    }
+
+    res.json(result);
+
   } catch (error) {
+    console.error("❌ Weather route error:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 module.exports = router;

@@ -15,11 +15,11 @@ const getButtonState = (userEmail) => {
     return {};
   }
 };
-
+// color ki state kaunsi h
 const saveButtonState = (userEmail, newState) => {
   try {
     const key = `buttonState_${userEmail || 'guest'}`;
-    const expires = new Date(Date.now() + 365 * 864e5).toUTCString(); // 1 year expiry
+    const expires = new Date(Date.now() + 365 * 864e5).toUTCString();// 1 saal
     document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(
       JSON.stringify(newState)
     )}; expires=${expires}; path=/; SameSite=Lax`;
@@ -81,7 +81,7 @@ const StyleInjector = () => {
 };
 
 export default StyleInjector;
-
+// icon
 const Icons = {
   new: ({ isFlipping, isHovered }) => <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></motion.svg>,
   edit: ({ isFlipping, isHovered }) => <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></motion.svg>,
@@ -92,6 +92,7 @@ const Icons = {
   logout: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></motion.svg>),
   visualize: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="10" />  <path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z" /> <circle cx="12" cy="12" r="3" /> </motion.svg>),
   dashboard: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M3 12L12 3l9 9" /> <path d="M9 21V12h6v9" /> </motion.svg>),
+  weather: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="4" /> <line x1="12" y1="2" x2="12" y2="6" /> <line x1="12" y1="18" x2="12" y2="22" /> <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /> <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" /> <line x1="2" y1="12" x2="6" y2="12" /> <line x1="18" y1="12" x2="22" y2="12" /> <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /> <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" /> <path d="M17.5 19a4.5 4.5 0 0 0 0-9 5 5 0 0 0-9.9 1.5H7a4 4 0 0 0 0 8h10.5z" /> </motion.svg> ),
 };
 
 const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
@@ -100,9 +101,9 @@ const [isFlipping, setIsFlipping] = useState(false);
 
 useEffect(() => {
   if (disabled && text === 'Processing...') {
-    setIsFlipping(true);  // start continuous flip while loading
+    setIsFlipping(true);  
   } else {
-    setIsFlipping(false); // stop flip when not loading
+    setIsFlipping(false); 
   }
 }, [disabled, text]);
 
@@ -155,7 +156,7 @@ const delay = (disabled && text === 'Processing...') ? 1000 : 400;
     if (onClick) {
         onClick(e);
     }
-}, delay); // delay matches flip duration
+}, delay); 
     };
 
     const tapAnimation = {
@@ -211,7 +212,7 @@ const glowColor = currentScheme.includes('linear-gradient')
   backdropFilter: isTransparent ? 'none' : 'blur(2px)',
           color: isTransparent ? baseColor : 'white',
           transition: 'background 0.4s, border 0.4s, color 0.4s ',
-          ...styleOverride, // <- Applied styleOverride here
+          ...styleOverride, 
         }}
       >
    <div className="animate-shimmer ring-1 ring-white/10 transition-opacity duration-300" style={{ opacity: isTransparent ? 0 : 1 }} />
@@ -223,7 +224,6 @@ const glowColor = currentScheme.includes('linear-gradient')
         </motion.div>
     );
 };
-// --- FORM SUBMISSION BUTTONS ---
 
 export const SubmitButton = ({ text, loading = false, success = false, disabled = false, customColorConfig, userEmail }) => {
     const displayText = loading ? 'Processing...' : success ? 'Success' : text;
@@ -301,14 +301,7 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
     >
       {/* Shimmer */}
      <span
-  // The class list remains the same to ensure it's a drop-in replacement.
-  // The key class 'animate-shimmer' now applies the new, improved glossy effect.
   className="pointer-events-none absolute inset-0 z-0 animate-shimmer rounded-xl"
-  
-  // The inline 'style' attribute with 'maskImage' is no longer necessary.
-  // The improved CSS in the new 'StyleInjector' creates a superior gradient
-  // and metallic effect on its own. Removing the mask simplifies the code
-  // and allows the new 'mix-blend-mode' to work correctly.
 />
 
 
@@ -318,6 +311,78 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
         <span>{text}</span>
       </div>
     </motion.button>
+    </motion.div>
+  );
+};
+export const WeatherButton = ({ textMobile, textDesktop, iconType, onClick, loading = false, expired = false }) => {
+  const [isFlipping, setIsFlipping] = useState(false);
+  const IconComponent = Icons[iconType] || (() => null);
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // Dynamic 
+  const getButtonText = () => {
+    if (loading) return "Getting Data...";
+    if (expired) return "Data Expired - Refresh";
+    return null;
+  };
+
+  const handleClick = () => {
+    setIsFlipping(true);
+    setTimeout(() => setIsFlipping(false), 500);
+    if (onClick) onClick();
+  };
+
+  return (
+    <motion.div onHoverStart={() => setIsHovered(true)} onHoverEnd={() => setIsHovered(false)} className="flex justify-center mt-4">
+      <motion.button
+        onClick={handleClick}
+        disabled={loading}
+        whileTap={{ scale: 0.9, rotate: -0.5 }}
+        whileHover={{
+          scale: loading ? 1 : 1.05,
+          rotateX: 2,
+          rotateY: -2,
+          boxShadow: `
+            0 0 20px rgba(255, 255, 255, 0.25),
+            0 0 10px rgba(255, 255, 255, 0.2),
+            inset 0 2px 4px rgba(255,255,255,0.1),
+            inset 0 -3px 6px rgba(0,0,0,0.3)
+          `,
+          transition: {
+            scale: { type: 'spring', stiffness: 1000, damping: 30 },
+            boxShadow: { duration: 0.1 },
+          },
+        }}
+        className={` relative flex flex-row items-center justify-center gap-2
+           -top-1 h-12 px-2 text-sm sm:px-5 sm:text-base md:px-6 md:text-lg
+          sm:rounded-xl rounded-lg font-semibold font-sriracha tracking-widest shadow-lg overflow-hidden w-[230px] sm:w-[380px]
+          ${loading ? 'opacity-75' : ''}`}
+        style={{
+          background: expired ? 'linear-gradient(145deg, #f59e0b, #d97706)' : 'transparent',
+          border: '1.5px solid rgba(255,255,255,0.08)',
+          borderRadius: '0.75rem',
+          backdropFilter: 'blur(2px)',
+          boxShadow: `
+            0 6px 12px rgba(0,0,0,0.35),
+            inset 0 2px 4px rgba(255,255,255,0.15),
+            inset 0 -3px 6px rgba(0,0,0,0.4)
+          `,
+          transition: 'background 0.4s, border 0.4s, color 0.4s',
+        }}
+      >
+        <span className="pointer-events-none absolute inset-0 z-0 animate-shimmer rounded-xl"/>
+        <div className="relative z-10 flex items-center gap-1">
+          <IconComponent isHovered={isHovered} isFlipping={isFlipping || loading} />
+           {loading || expired ? (
+            <span>{getButtonText()}</span>
+          ) : (
+            <>
+              <span className="block sm:hidden">{textMobile}</span>
+              <span className="hidden sm:block">{textDesktop}</span>
+            </>
+          )}
+        </div>
+      </motion.button>
     </motion.div>
   );
 };
@@ -339,9 +404,7 @@ export const LogoutButton = ({ onLogout, loading = false, success = false, error
   );
 };
 
-
-// --- PRE-CONFIGURED BUTTONS FOR EASY USE ---
-
+// color array
 export const buttonColorConfigs = {
     newEntry: { id: 'newEntry', baseColor: '#ef4444', schemes: ['linear-gradient(145deg, #ef4444, #b91c1c)', 'linear-gradient(145deg, #f472b6, #db2777)', 'linear-gradient(145deg, #f59e0b, #b45309)', 'linear-gradient(145deg, #d946ef, #a855f7)', 'linear-gradient(145deg, #ff7f50, #ff4500)']},
     editDelete: { id: 'editDelete', baseColor: '#3b82f6', schemes: ['linear-gradient(145deg, #3b82f6, #1d4ed8)', 'linear-gradient(145deg, #22d3ee, #0891b2)', 'linear-gradient(145deg, #6366f1, #4338ca)', 'linear-gradient(145deg, #a78bfa, #7c3aed)', 'linear-gradient(145deg, #ff7f50, #ff4500)']},
@@ -355,10 +418,8 @@ export const buttonColorConfigs = {
     dashboard: { id: 'dashboard', baseColor: '#0f172a', schemes: [ 'linear-gradient(145deg, #fcd34d, #f97316)', 'linear-gradient(145deg, #f9a8d4, #f472b6)', 'linear-gradient(145deg, #c4b5fd, #a78bfa)', 'linear-gradient(145deg, #dd6b20, #b45309)','linear-gradient(145deg, #1e3a8a, #3b82f6)', ],},
 };
 
-// Dashboard Button
+// overall exportss
 export const EditDeleteButton = ({ className,...props}) => <GlobalButton text="Edit / Delete" iconType="edit" navigateTo="/history" colorConfig={buttonColorConfigs.editDelete} styleOverride={{width: '10rem'}} {...props} />;
-
-// History Page Buttons (or anywhere else)
 export const NewEntryButton = ({ className, ...props }) => {
   const navigate = useNavigate();
 
@@ -394,11 +455,8 @@ export const NewEntryButton = ({ className, ...props }) => {
       colorConfig={buttonColorConfigs.newEntry}
       styleOverride={{ width: '10rem' }}
       onClick={handleClick}
-      {...props}
-    />
-  );
+      {...props} /> );
 };
-
 export const EditButton = ({ className,...props}) => <GlobalButton text="Edit" iconType="edit" colorConfig={buttonColorConfigs.editDelete} className={className}  styleOverride={{ width: '8rem', height: '3.5rem' }} {...props} />;
 export const DeleteButton = ({ className,...props})=> <GlobalButton text="Delete" iconType="delete" colorConfig={buttonColorConfigs.delete} className={className}  styleOverride={{ width: '8rem', height: '3.5rem' }} {...props} />;
 export const ClearAllButton = ({ className,...props}) => <GlobalButton text="Clear All" iconType="clear" colorConfig={buttonColorConfigs.clearAll} className={className} styleOverride={{ width: '14rem', height: '4rem', fontSize: '1.1rem' }} {...props} />;
@@ -505,6 +563,4 @@ export const VisualizeButton = ({ entries = [], className, onClick, ...props }) 
   );
 };
 
-
-// You must include the StyleInjector once in your main App layout
 export { StyleInjector };

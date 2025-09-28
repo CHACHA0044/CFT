@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
-import { EditButton, DeleteButton, ClearAllButton } from 'Components/globalbuttons';
+import { EditButton, DeleteButton, ClearAllButton, LogoutButton } from 'Components/globalbuttons';
 import { NewEntryButton, VisualizeButton, DashboardButton } from 'Components/globalbuttons';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
@@ -222,6 +222,10 @@ const History = () => {
   const [deletedId, setDeletedId] = useState(null);
   const [cleared, setCleared] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
+  const [logoutSuccess, setLogoutSuccess] = useState('');
+
   //const [openSection, setOpenSection] = useState(null);
   
  
@@ -240,7 +244,33 @@ useEffect(() => {
   }
 }, [error, success]);
 
+const handleLogout = async () => {
+  setLogoutError('');
+  setLogoutSuccess('');
+  setLogoutLoading(true);
 
+  try {
+    // Ask server to clear the cookie
+    await API.post('/auth/logout');
+
+    // Clear mobile/PC fallback session token
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('sessionToken');
+    setLogoutSuccess('✌ Logged out');
+
+    // Optional: clear any other sensitive session data
+    sessionStorage.removeItem('justVerified');
+
+    setTimeout(() => {
+      navigate('/home');
+    }, 600);
+  } catch (err) {
+    console.error('Logout error:', err);
+    setLogoutError('❌ Logout failed');
+  } finally {
+    setLogoutLoading(false);
+  }
+};
  const fetchHistory = async () => {
   
   try {
@@ -326,6 +356,7 @@ return (
     <NewEntryButton className="w-40" />
     <DashboardButton className="w-40" />
     {history.length > 0 && (<VisualizeButton entries={history} onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" /> )}
+    <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
   </div>
 </CardNav>
 </div>

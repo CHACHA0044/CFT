@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom'; 
 import { AnimatePresence, motion } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
 import useAuthRedirect from 'hooks/useAuthRedirect';
@@ -17,7 +17,7 @@ import { easeInOut } from "framer-motion";
 import { easeCubicOut } from "d3-ease";
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
-import { NewEntryButton, EditDeleteButton, DashboardButton, WeatherButton } from 'Components/globalbuttons';
+import { NewEntryButton, EditDeleteButton, DashboardButton, WeatherButton, LogoutButton } from 'Components/globalbuttons';
 
 const globalAverages = {
   food: 141,
@@ -310,6 +310,10 @@ const ChartPage = () => {
   const [loadingWeather, setLoadingWeather] = useState(false);
   const [weatherTimestamp, setWeatherTimestamp] = useState(null);
   const [showRefreshButton, setShowRefreshButton] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
+  const [logoutSuccess, setLogoutSuccess] = useState('');
+  const navigate = useNavigate();
 const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
   setLoadingWeather(true);
   let lat, lon;
@@ -364,6 +368,33 @@ const isWeatherDataExpired = () => {
 };
 const handleGetWeatherInfo = async () => {
   await fetchWeatherAndAqi();
+};
+const handleLogout = async () => {
+  setLogoutError('');
+  setLogoutSuccess('');
+  setLogoutLoading(true);
+
+  try {
+    // Ask server to clear the cookie
+    await API.post('/auth/logout');
+
+    // Clear mobile/PC fallback session token
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('sessionToken');
+    setLogoutSuccess('✌ Logged out');
+
+    // Optional: clear any other sensitive session data
+    sessionStorage.removeItem('justVerified');
+
+    setTimeout(() => {
+      navigate('/home');
+    }, 600);
+  } catch (err) {
+    console.error('Logout error:', err);
+    setLogoutError('❌ Logout failed');
+  } finally {
+    setLogoutLoading(false);
+  }
 };
 useEffect(() => {
   if (!weatherTimestamp) {
@@ -728,6 +759,7 @@ return (
     <NewEntryButton className="w-40" />
     <EditDeleteButton className="w-40" />
     <DashboardButton className="w-40" />
+    <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
   </div>
 </CardNav>
 </div>

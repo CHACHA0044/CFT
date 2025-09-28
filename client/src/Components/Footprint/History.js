@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence, motion } from 'framer-motion';
 import { EditButton, DeleteButton, ClearAllButton } from 'Components/globalbuttons';
-import { NewEntryButton, EditDeleteButton, DashboardButton } from 'Components/globalbuttons';
+import { NewEntryButton, VisualizeButton, DashboardButton } from 'Components/globalbuttons';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
 import useAuthRedirect from 'hooks/useAuthRedirect';
@@ -325,6 +325,7 @@ return (
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
     <NewEntryButton className="w-40" />
     <DashboardButton className="w-40" />
+    {history.length > 0 && (<VisualizeButton entries={history} onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" /> )}
   </div>
 </CardNav>
 </div>

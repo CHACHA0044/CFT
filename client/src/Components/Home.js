@@ -338,7 +338,7 @@ const handleEmailClick = (e) => {
     whileTap={{ scale: 0.95 }}
     className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-green-800 dark:text-green-300 animate-glow tracker-title select-none"
   >
-    Carbon Footprint Tracker
+Carbon Footprint Tracker
   </motion.div>
 
   <motion.div 
@@ -373,7 +373,7 @@ const handleEmailClick = (e) => {
 </div>
 </motion.header>
 
-        {/* Main Section */}
+        {/* Main Section yaha se */}
         <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-10 text-center min-h-screen ">
   {/* Heading */}
   <motion.div

@@ -83,7 +83,7 @@ const AnimatedHeadline = ({ sentence = "" }) => {
     return (
       <div className="relative overflow-visible w-full justify-center items-center">
         <motion.div
-          className=" md:text-3xl text-xl font-germania font-medium sm:font-semibold tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          className="whitespace-nowrap md:text-3xl text-xl font-germania font-medium sm:font-semibold tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
           initial="hidden"
           animate="visible"
           variants={{

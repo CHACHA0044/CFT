@@ -32,6 +32,7 @@ const allowedOrigins = [
   'http://localhost:4950',
   'https://cft-self.vercel.app',       // vercel frontend
   'https://cft-21jftdfuy-chacha0044s-projects.vercel.app',
+   /https:\/\/cft-.*\.vercel\.app$/,
 ];
 
 const corsOptions = {

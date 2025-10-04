@@ -1,4 +1,3 @@
-// api/[...path].js
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
@@ -11,84 +10,79 @@ module.exports = async (req, res) => {
   }
 
   const BACKEND_URL = process.env.BACKEND_URL || 'https://cft-cj43.onrender.com';
-  
-  const urlParts = req.url.split('?');
-  const path = urlParts[0].replace(/^\/api/, '');
-  const queryString = urlParts[1] ? `?${urlParts[1]}` : '';
-  const targetUrl = `${BACKEND_URL}/api${path}${queryString}`;
+  const path = req.url.replace(/^\/api/, '') || '';
+  const targetUrl = `${BACKEND_URL}/api${path}`;
 
-  console.log(`[PROXY] ${req.method} -> ${targetUrl}`);
+  console.log(`[PROXY] ${req.method} ${req.url} -> ${targetUrl}`);
 
   try {
-    const fetch = require('node-fetch');
+    const headers = { 'Content-Type': 'application/json' };
     
-    const headers = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (req.headers.cookie) {
-      headers['Cookie'] = req.headers.cookie;
-      console.log('[PROXY] Forwarding cookies');
-    }
-
-    if (req.headers.authorization) {
-      headers['Authorization'] = req.headers.authorization;
-    }
+    if (req.headers.cookie) headers['Cookie'] = req.headers.cookie;
+    if (req.headers.authorization) headers['Authorization'] = req.headers.authorization;
 
     const options = {
       method: req.method,
       headers,
     };
     
-    // FIX: Vercel already parses req.body, just use it directly
-    if (req.method !== 'GET' && req.method !== 'HEAD') {
-      if (req.body && Object.keys(req.body).length > 0) {
-        options.body = JSON.stringify(req.body);
-        console.log('[PROXY] Body:', JSON.stringify(req.body));
-      }
+    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
+      options.body = JSON.stringify(req.body);
+      console.log('[PROXY] Body:', options.body);
     }
 
+    // Use native fetch
     const backendResponse = await fetch(targetUrl, options);
+    
+    console.log('[PROXY] Backend status:', backendResponse.status);
+    
+    // Get response data
     const contentType = backendResponse.headers.get('content-type') || '';
-    
-    console.log('[PROXY] Status:', backendResponse.status);
-    
     let data;
-    if (contentType.includes('application/json')) {
-      data = await backendResponse.json();
-    } else {
-      data = await backendResponse.text();
+    
+    try {
+      if (contentType.includes('application/json')) {
+        data = await backendResponse.json();
+      } else {
+        data = await backendResponse.text();
+      }
+    } catch (parseErr) {
+      console.error('[PROXY] Failed to parse response:', parseErr);
+      data = { error: 'Failed to parse backend response' };
     }
 
-    const setCookieHeaders = backendResponse.headers.raw()['set-cookie'];
-    if (setCookieHeaders && setCookieHeaders.length > 0) {
-      console.log('[PROXY] Setting cookies');
-      
-      const modifiedCookies = setCookieHeaders.map(cookie => {
-        const parts = cookie.split(';').map(p => p.trim());
-        const filtered = parts.filter(part => !part.toLowerCase().startsWith('domain='));
+    console.log('[PROXY] Response data:', data);
+
+    // Handle cookies
+    const setCookieHeader = backendResponse.headers.get('set-cookie');
+    if (setCookieHeader) {
+      const cookies = setCookieHeader.split(',').map(cookie => {
+        let parts = cookie.split(';').map(p => p.trim());
+        parts = parts.filter(part => !part.toLowerCase().startsWith('domain='));
         
-        // Force SameSite=None and Secure for production
-        const hasSameSite = filtered.some(p => p.toLowerCase().startsWith('samesite='));
-        const hasSecure = filtered.some(p => p.toLowerCase() === 'secure');
+        if (!parts.some(p => p.toLowerCase().startsWith('samesite='))) {
+          parts.push('SameSite=None');
+        }
+        if (!parts.some(p => p.toLowerCase() === 'secure')) {
+          parts.push('Secure');
+        }
         
-        if (!hasSameSite) filtered.push('SameSite=None');
-        if (!hasSecure) filtered.push('Secure');
-        
-        return filtered.join('; ');
+        return parts.join('; ');
       });
       
-      res.setHeader('Set-Cookie', modifiedCookies);
+      res.setHeader('Set-Cookie', cookies);
+      console.log('[PROXY] Cookies set');
     }
 
     res.status(backendResponse.status);
     return contentType.includes('application/json') ? res.json(data) : res.send(data);
     
   } catch (error) {
-    console.error('[PROXY ERROR]:', error.message);
+    console.error('[PROXY ERROR]:', error);
     return res.status(500).json({ 
-      error: 'Proxy failed', 
-      details: error.message 
+      error: 'Proxy request failed', 
+      details: error.message,
+      targetUrl 
     });
   }
 };

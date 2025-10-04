@@ -83,7 +83,7 @@ const AnimatedHeadline = ({ sentence = "" }) => {
     return (
       <div className="relative overflow-visible w-full justify-center items-center">
         <motion.div
-          className=" gap-2 md:text-3xl text-xl font-germania font-medium sm:font-semibold text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          className=" gap-2 md:text-3xl text-xl font-germania font-medium sm:font-semibold tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
           initial="hidden"
           animate="visible"
           variants={{
@@ -107,7 +107,7 @@ const AnimatedHeadline = ({ sentence = "" }) => {
               onClick={() => {
                 if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
               }}
-              className="relative inline-block cursor-pointer"
+              className="relative cursor-pointer"
               variants={{
                 hidden: { opacity: 0, y: 10 },
                 visible: { opacity: 1, y: 0 },
@@ -126,7 +126,7 @@ const AnimatedHeadline = ({ sentence = "" }) => {
                 return (
                   <AnimatePresence key={`${char}-${i}`}>
                     <motion.span
-                      className="inline-block relative"
+                      className=" relative"
                       initial={{
                         x: 0,
                         y: 0,
@@ -318,7 +318,7 @@ useEffect(() => {
             <nav className="mt-2 space-y-4 text-lg font-semibold">
             {children ? (
                 children
-            ) : (
+            ) : ( 
                 items?.map((item, i) => (
                 <a
                     key={i}

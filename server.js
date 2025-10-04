@@ -29,6 +29,7 @@ const footprintRoutes = require('./routes/footprint');
 // CORS
 const allowedOrigins = [
   'http://localhost:3000',             // local dev
+  'http://localhost:4950',
   'https://cft-self.vercel.app',       // vercel frontend
   'https://cft-21jftdfuy-chacha0044s-projects.vercel.app',
 ];
@@ -44,9 +45,11 @@ const corsOptions = {
   credentials: true,
   methods: ['GET','POST','PUT','DELETE'],
   allowedHeaders: ['Content-Type','Authorization'],
+  exposedHeaders: ['Set-Cookie'],
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(cookieParser());
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(mongoSanitize());
@@ -63,7 +66,7 @@ app.use('/api', generalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 8, //reduce to 10
+  max: 80, //reduce to 10
   message: 'Too many login/register attempts. Try again later.'
 });
 app.use('/api/auth', authLimiter);
@@ -118,7 +121,7 @@ mongoose.connect(process.env.MONGO_URI, {
       console.log(`🚀 Server started on ${PORT}`);
       startImapPoller(); 
 
-    cron.schedule('*/14 * * * *', async () => {
+    cron.schedule('*/10 * * * *', async () => {
     try {
       const url = 'https://cft-cj43.onrender.com/api/auth/ping'; 
       const res = await axios.get(url);

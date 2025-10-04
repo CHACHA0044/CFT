@@ -1,40 +1,50 @@
-// client/src/api/api.js
-import axios from 'axios';
-
-const BASE = process.env.REACT_APP_API_URL || 'http://localhost:4950/api';
-
-const API = axios.create({
-  baseURL: BASE,
-  withCredentials: true, // cookies
-});
-API.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem('authToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export default API;
-// client/src/api/api.js
 // import axios from 'axios';
 
-// const BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
-// console.log("🔍 Using API Base URL:", BASE);
+// const BASE = 'http://localhost:4950/api'; // Direct to backend
 
 // const API = axios.create({
 //   baseURL: BASE,
 //   withCredentials: true,
 // });
 
-// API.interceptors.request.use((config) => {
-//   const token = sessionStorage.getItem('authToken');
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
+// API.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401 || error.response?.status === 403) {
+//       if (error.response?.data?.requiresLogin) {
+//         window.location.href = '/login';
+//       }
+//     }
+//     return Promise.reject(error);
 //   }
-//   return config;
-// });
+// );
 
 // export default API;
+// client/src/api/api.js
+// client/src/api/api.js
+import axios from 'axios';
 
+const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+
+// In dev: use proxy (localhost:3001)
+// In prod: use /api (Vercel proxy)
+const BASE = isDev ? 'http://localhost:3001/api' : '/api';
+
+const API = axios.create({
+  baseURL: BASE,
+  withCredentials: true,
+});
+
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      if (error.response?.data?.requiresLogin) {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default API;

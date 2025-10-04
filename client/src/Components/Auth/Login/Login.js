@@ -302,43 +302,54 @@ const handleSubmit = async (e) => {
   setSuccess('');
   setDelayMessage('');
   setShowResend(false);
-await new Promise((resolve) => setTimeout(resolve, 300));
-timers.current = [
-      setTimeout(() => setDelayMessage('Please donot reload... 🙂'), 5000),
-      setTimeout(() => setDelayMessage('Thanks for your patience... ☀️'), 10000),
-      setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 30000),
-      setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 20000),
-      setTimeout(() => setDelayMessage('Almost there...'), 40000),
-    ];
+
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  
+  timers.current = [
+    setTimeout(() => setDelayMessage('Please do not reload... '), 5000),
+    setTimeout(() => setDelayMessage('Thanks for your patience... '), 10000),
+    setTimeout(() => setDelayMessage('Just a bit longer! '), 30000),
+    setTimeout(() => setDelayMessage('The server is waking up...'), 20000),
+    setTimeout(() => setDelayMessage('Almost there...'), 40000),
+  ];
+
   try {
-  const { data } = await API.post('/auth/login', formData);
+    // Login request - cookie will be set automatically by proxy
+    await API.post('/auth/login', formData);
 
-  // 🔹 Mobile fallback — store token in sessionStorage if cookies blocked
-   if (!navigator.cookieEnabled || !document.cookie.includes('token')) {
-      sessionStorage.setItem('authToken', data.token);
+    timers.current.forEach((t) => clearTimeout(t));
+    setDelayMessage('');
+    setSuccess('Login Successful!');
+    setError('');
+
+    // Verify cookie was set
+    try {
+      await API.get('/auth/token-info/me');
+      console.log('Cookie authentication successful');
+      setTimeout(() => navigate('/dashboard'), 1500);
+    } catch (verifyErr) {
+      console.error('Cookie verification failed:', verifyErr);
+      setError('Authentication failed. Please try again.');
+      setLoading(false);
+      return;
     }
-  timers.current.forEach((t) => clearTimeout(t));
-  setDelayMessage('');
-  setSuccess('Login Successful! 😎');
-  setError('');
 
-  setTimeout(() => navigate('/dashboard'), 1500);
-} catch (err) {
-  console.error('❌ Login error:', err);
-  timers.current.forEach((t) => clearTimeout(t));
-  setDelayMessage('');
-  if (err.response?.status === 403) {
-  setError('Please verify your email.');
-  if (cooldown === 0) setShowResend(true);
-  } else if (err.response?.data?.error) {
-    setError(err.response.data.error);
-  } else {
-    setError('❌ Something went wrong. Please try again.');
+  } catch (err) {
+    console.error('Login error:', err);
+    timers.current.forEach((t) => clearTimeout(t));
+    setDelayMessage('');
+    
+    if (err.response?.status === 403) {
+      setError('Please verify your email.');
+      if (cooldown === 0) setShowResend(true);
+    } else if (err.response?.data?.error) {
+      setError(err.response.data.error);
+    } else {
+      setError('Something went wrong. Please try again.');
+    }
+  } finally {
+    setLoading(false);
   }
-} finally {
-  setLoading(false);
-}
-
 };
 useEffect(() => {
   return () => timers.current.forEach((t) => clearTimeout(t));

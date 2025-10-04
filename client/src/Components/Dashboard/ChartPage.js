@@ -417,7 +417,6 @@ useEffect(() => {
 }, [weatherTimestamp]);
 // countdown effect
 const [currentTime, setCurrentTime] = useState(Date.now());
-
 useEffect(() => {
   const fetchUser = async () => {
     try {
@@ -429,7 +428,6 @@ useEffect(() => {
   };
   fetchUser();
 }, []);
-
   const total = processed?.totalEmissionKg;
   const values = {
   food: processed?.foodEmissionKg,
@@ -445,7 +443,6 @@ useEffect(() => {
   }));
   setProjectionData(data);
 }, [total]);
-
 const [projectionData, setProjectionData] = useState([]);
 const [dotMonth, setDotMonth] = useState(1);
 const [ setDotData] = useState(null);
@@ -460,13 +457,11 @@ const comparison = Object.keys(values).map(cat => ({
     user: values[cat],
     global: globalAverages[cat]
   }));
-
 const pieData = Object.entries(values).map(([k, v]) => ({
   x: k.charAt(0).toUpperCase() + k.slice(1),
   y: v,
   label: v != null ? `${k}: ${v.toFixed(1)} kg` : `${k}: No data`
 }));
-
   const yearly = total * 12;
   const yearlyChartData = useMemo(() => {
   if (!total) return [];
@@ -497,7 +492,6 @@ const pieData = Object.entries(values).map(([k, v]) => ({
     electricity: 'Switch to renewable energy and conserve power.',
     waste: 'Reduce and compost waste to minimize emissions.',
   };
-
 const abortControllerRef = useRef(new AbortController());
 useEffect(() => {
   if (!entryData || !entryData._id) return;
@@ -581,8 +575,6 @@ useEffect(() => {
     controller.abort();
   };
 }, [entryData?._id]);
-
-
 useEffect(() => {
   const handleClickOutside = () => {
     setSelectedIndex(null);
@@ -596,31 +588,6 @@ const handleLegendClick = (index) => {
     setSelectedIndex(prev => (prev === index ? null : index));
   });
 };
-// useEffect(() => {
-//   let start = null;
-//   const duration = 1200; // ms
-//   const xStart = 1;
-//   const xEnd = 12;
-//   const yStart = total;
-//   const yEnd = yearly;
-
-//   const animate = (timestamp) => {
-//     if (!start) start = timestamp;
-//     const elapsed = timestamp - start;
-
-//     const progress = Math.min(elapsed / duration, 1); // 0 to 1
-
-//     const currentX = xStart + (xEnd - xStart) * progress;
-//     const currentY = yStart + (yEnd - yStart) * progress;
-
-
-//     if (progress < 1) {
-//       requestAnimationFrame(animate);
-//     }
-//   };
-
-//   requestAnimationFrame(animate);
-// }, [yearly, total]);
 const handleMouseMove = useCallback((e) => {
     if (!chartRef.current || !total) return;
     const rect = chartRef.current.getBoundingClientRect();
@@ -628,7 +595,6 @@ const handleMouseMove = useCallback((e) => {
     const y = total + ((x - 1) / 11) * (total * 12 - total);
     
   }, [total]);
-
   useEffect(() => {
     if (!total) return;
     let raf;
@@ -689,7 +655,6 @@ const handlePointerDown = (e) => {
 let topIndexes = new Set();
 let bottomIndexes = new Set();
 let dragonIndex = leaderboard.length > 0 ? leaderboard.length - 1 : null;
-
 if (leaderboard.length <= 3) {
   topIndexes.add(0); // lowest emission
   if (leaderboard.length > 1) {
@@ -702,7 +667,6 @@ if (leaderboard.length <= 3) {
   for (let i = 0; i < topCount; i++) topIndexes.add(i);
   for (let i = leaderboard.length - bottomCount; i < leaderboard.length; i++) bottomIndexes.add(i);
 }
- 
   const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -712,7 +676,6 @@ if (leaderboard.length <= 3) {
     }
   }
 };
-
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -725,8 +688,6 @@ const yearlyData = [
   { x: "2027", y: 950 },
   { x: "2028", y: 800 },
 ];
-
-
 useEffect(() => {
   if (activePoint) {
     const timer = setTimeout(() => setActivePoint(null), 3000);
@@ -763,14 +724,7 @@ return (
   </div>
 </CardNav>
 </div>
-<motion.div
-  className="relative w-full px-0"
-  animate={{ 
-    filter: isMenuOpen ? 'blur(5px)' : '',
-    pointerEvents: isMenuOpen ? 'none' : 'auto'
-  }}
-  transition={{ duration: 0.35, ease: 'easeInOut' }}
->
+<motion.div className="relative w-full px-0" animate={{ filter: isMenuOpen ? 'blur(5px)' : '', pointerEvents: isMenuOpen ? 'none' : 'auto' }} transition={{ duration: 0.35, ease: 'easeInOut' }}>
       <div className="max-w-4xl mx-auto space-y-4 px-4 pt-4">
         
         {/* Total Emissions */}

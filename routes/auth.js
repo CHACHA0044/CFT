@@ -1,3 +1,410 @@
+// const express = require('express');
+// const jwt = require('jsonwebtoken');
+// const bcrypt = require('bcrypt');
+// const User = require('../models/user');
+// const sendEmail = require('../utils/sendEmail');
+// const axios = require('axios');
+// const authenticateToken = require('../middleware/authmiddleware');
+// const router = express.Router();
+// const crypto = require('crypto');
+// const redisClient = require('../RedisClient');
+// // email HTML Template
+// const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
+//   try {
+//     return new Intl.DateTimeFormat("en-US", {
+//       hour: "numeric",
+//       minute: "2-digit",
+//       hour12: true,
+//       timeZone,
+//     }).format(date);
+//   } catch {
+//     // Fallback: manually add +05:30 to UTC
+//     const utcMs = date.getTime() + date.getTimezoneOffset() * 60000;
+//     const ist = new Date(utcMs + 330 * 60000); // 330 minutes = 5.5 hours
+//     const h = ist.getHours();
+//     const m = ist.getMinutes();
+//     const mer = h >= 12 ? "PM" : "AM";
+//     const hour12 = ((h + 11) % 12) + 1;
+//     const mm = String(m).padStart(2, "0");
+//     return `${hour12}:${mm} ${mer}`;
+//   }
+// };
+
+// const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) => {
+//   const currentTime = formatTime(new Date(), timeZone);
+
+//   return `
+//   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
+
+//     <!-- Header -->
+//     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
+//       <h1 style="margin: 0; font-size: 20px;">🌍 Carbon Footprint Tracker</h1>
+//     </div>
+
+//     <!-- Main Content -->
+//     <div style="padding: 20px 16px 12px; text-align: center;">
+//       <div style="
+//         background: rgba(255, 255, 255, 0.08);
+//         border-radius: 14px;
+//         border: 1px solid rgba(255, 255, 255, 0.15);
+//         max-width: 360px;
+//         margin: auto;
+//         padding: 24px 20px;
+//         box-shadow: 0 0 22px rgba(255, 255, 255, 0.18);
+//         backdrop-filter: blur(14px);
+//         -webkit-backdrop-filter: blur(14px);
+//       ">
+//         <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hello👋, ${name}</h2>
+//         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
+//           Welcome to <strong>Carbon Footprint Tracker</strong>!<br>Please verify your email to activate your account.
+//         </p>
+
+//         <!-- Globe GIF -->
+//         <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
+
+//         <!-- Button (email-safe styling) -->
+//         <a href="${verificationLink}" style="
+//           display: inline-block;
+//           background: linear-gradient(90deg, #2f80ed, #56ccf2);
+//           color: #ffffff;
+//           padding: 14px 20px;
+//           font-size: 15px;
+//           font-weight: bold;
+//           text-decoration: none;
+//           border-radius: 30px;
+//           border: 1px solid rgba(255,255,255,0.25);
+//           box-shadow: 0 0 18px rgba(47,128,237,0.35);
+//         ">
+//           ✅ Verify Email
+//         </a>
+
+//         <!-- Time & info -->
+//         <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">
+//           Sent at: <strong>${currentTime}</strong><br>
+//           <span style="color: #FF4C4C;">Link expires in <strong>10 minutes</strong>.</span>
+//         </p>
+
+//         <p style="font-size: 11px; color: #999; margin-top: 8px;">
+//           Didn’t sign up? You can safely ignore this email.
+//         </p>
+//       </div>
+//     </div>
+
+//     <!-- Footer -->
+//     <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">
+//       © 2025 Carbon Tracker • Carbon down. Future up.
+//     </div>
+//   </div>
+//   `;
+// };
+
+// const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
+//   const currentTime = formatTime(new Date(), timeZone);
+
+//   return `
+//   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
+
+//     <!-- Header -->
+//     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
+//       <h1 style="margin: 0; font-size: 20px;">🌍 Carbon Footprint Tracker</h1>
+//     </div>
+
+//     <!-- Main Content -->
+//     <div style="padding: 20px 16px 12px; text-align: center;">
+//       <div style="
+//         background: rgba(255, 255, 255, 0.08);
+//         border-radius: 14px;
+//         border: 1px solid rgba(255, 255, 255, 0.15);
+//         max-width: 360px;
+//         margin: auto;
+//         padding: 24px 20px;
+//         box-shadow: 0 0 22px rgba(255, 255, 255, 0.18);
+//         backdrop-filter: blur(14px);
+//         -webkit-backdrop-filter: blur(14px);
+//       ">
+//         <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hello👋, ${name}</h2>
+//         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
+//           Thank you for sharing your valuable feedback with us ✨<br/>
+//           We truly appreciate the time you took to help us improve <strong>Carbon Footprint Tracker</strong>.
+//         </p>
+
+//         <!-- Globe GIF -->
+//         <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
+
+//         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
+//           Our team will carefully review your suggestions and work on making the platform better for you and the community.
+//         </p>
+
+//         <!-- Time Info -->
+//         <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">
+//           Sent at: <strong>${currentTime}</strong>
+//         </p>
+//       </div>
+//     </div>
+
+//     <!-- Footer -->
+//     <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">
+//       © 2025 Carbon Tracker • Thanks for helping us improve 🌱
+//     </div>
+//   </div>
+//   `;
+// };
+
+// // FEEDBACK 
+// router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user.userId);
+//     if (!user) return res.status(404).json({ error: "User not found." });
+
+//     if (!user.email) return res.status(400).json({ error: "User email not found." });
+
+//     try {
+//       await sendEmail(
+//         user.email,
+//         "Thanks for your feedback ✨",
+//         feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
+//       );
+//       console.log(`✅ Thank-you email resent to ${user.email}`);
+//       return res.json({ message: "Thank-you email resent successfully." });
+//     } catch (err) {
+//       console.error(`❌ Failed to resend thank-you email to ${user.email}:`, err);
+//       return res.status(500).json({ error: "Failed to resend thank-you email." });
+//     }
+
+//   } catch (err) {
+//     console.error("❌ Resend thank-you route error:", err);
+//     res.status(500).json({ error: "Server error while resending thank-you email." });
+//   }
+// });
+
+// // SUBMIT FEEDBACK 
+// router.post('/feedback/submit', authenticateToken, async (req, res) => {
+//   try {
+//     const { feedback } = req.body;
+//     if (!feedback || feedback.trim() === '') {
+//       return res.status(400).json({ error: "Feedback message is required." });
+//     }
+
+//     const user = await User.findById(req.user.userId);
+//     if (!user) return res.status(404).json({ error: "User not found." });
+
+//     if (!user.email) return res.status(400).json({ error: "User email not found." });
+
+//     console.log(`📝 Feedback received from ${user.email}: ${feedback}`);
+
+//     try {
+//       await sendEmail(
+//         user.email,
+//         "Thanks for your feedback ✨",
+//         feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
+//       );
+//       console.log(`✅ Thank-you email sent to ${user.email}`);
+      
+//       return res.json({ 
+//         message: "Feedback submitted successfully! Thank-you email sent.",
+//         feedbackReceived: true 
+//       });
+//     } catch (emailError) {
+//       console.error(`❌ Failed to send thank-you email to ${user.email}:`, emailError);
+//       return res.json({ 
+//         message: "Feedback submitted successfully, but thank-you email failed to send.",
+//         feedbackReceived: true,
+//         emailSent: false 
+//       });
+//     }
+
+//   } catch (err) {
+//     console.error("❌ Feedback submission error:", err);
+//     res.status(500).json({ error: "Server error while submitting feedback." });
+//   }
+// });
+
+// // REGISTER
+// router.post('/register', async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+//     if (!name || !email || !password) return res.status(400).json({ error: 'All fields are required.' });
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) return res.status(409).json({ error: 'Email already in use.' });
+
+//     const passwordHash = await bcrypt.hash(password, 12);
+//     //const verificationToken = jwt.sign({ email, jti: Math.random().toString(36).substring(2) }, process.env.JWT_SECRET, { expiresIn: '10m' });
+//     const verificationToken = jwt.sign({ email, jti: crypto.randomBytes(16).toString('hex')},  process.env.JWT_SECRET,  { expiresIn: '10m' });
+//     const newUser = new User({
+//       name,
+//       email,
+//       passwordHash,
+//       verificationToken,
+//       isVerified: false,
+//       resendAttempts: 0,        
+//       lastResendAt: Date.now(), 
+//     });
+//     await newUser.save();
+
+//     const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+//     await sendEmail(email, 'Verify your Carbon Footprint Tracker account', emailHtml(name, verificationLink));
+
+//     res.status(201).json({ message: 'User registered. Please check your email to verify your account.' });
+//   } catch (err) {
+//     console.error('❌ Registration error:', err);
+//     res.status(500).json({ error: 'Server error during registration.' });
+//   }
+// });
+
+// // LOGIN
+// router.post('/login', async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
+
+//     const user = await User.findOne({ email });
+//     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+//       return res.status(401).json({ error: 'Invalid credentials.' });
+//     }
+
+//     if (!user.isVerified) {
+//       return res.status(403).json({ error: 'Please verify your email before logging in.' });
+//     }
+
+//     const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+//     const isProd = process.env.NODE_ENV === 'production';
+
+//     res.cookie('token', token, {
+//       httpOnly: true,
+//       secure: isProd,
+//       sameSite: 'None',
+//       maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+//     }).json({
+//       message: 'Login successful',
+//       user: {
+//         name: user.name,
+//         email: user.email,
+//       },
+//       token,
+//     });
+//   } catch (err) {
+//     console.error('❌ Login error:', err);
+//     res.status(500).json({ error: 'Server error during login.' });
+//   }
+// });
+
+// // GET /me (auth check via cookie)
+// router.get('/token-info/me', async (req, res) => {
+//   try {
+//     let token = req.cookies.token || req.query.token;
+//     if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+//       token = req.headers.authorization.split(' ')[1];
+//     }
+//     if (!token) return res.status(401).json({ error: 'Missing token' });
+
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const user = await User.findOne({ email: new RegExp(`^${decoded.email}$`, 'i') });
+
+//     if (!user) return res.status(404).json({ error: 'User not found' });
+
+//     res.json({
+//       name: user.name,
+//       email: user.email,
+//       verified: user.isVerified,
+//     });
+//   } catch (err) {
+//     console.error('❌ /me error:', err);
+//     res.status(400).json({ error: 'Invalid or expired token' });
+//   }
+// });
+
+// // LOGOUT (clear cookie)
+// router.post('/logout', (req, res) => {
+//   const isProd = process.env.NODE_ENV === 'production';
+
+//   res.clearCookie('token', {
+//     httpOnly: true,
+//     secure: isProd,
+//     sameSite: 'None',
+//   });
+
+//   res.json({ message: 'Logged out successfully' });
+// });
+
+// // VERIFY EMAIL
+// router.get('/verify-email/:token', async (req, res) => {
+//   try {
+//     const { token } = req.params;
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+//     const user = await User.findOne({ email: decoded.email, verificationToken: token });
+//     if (!user) return res.status(400).json({ error: 'Invalid or expired token' });
+
+//     user.isVerified = true;
+//     user.verificationToken = undefined;
+//     user.resendAttempts = undefined;
+//     user.lastResendAt = undefined;
+//     await user.save();
+
+//     res.status(200).json({ message: 'Email verified successfully!' });
+//   } catch (err) {
+//     console.error('❌ Email verification error:', err);
+//     res.status(400).json({ error: 'Email verification failed or token expired' });
+//   }
+// });
+
+// // RESEND VERIFICATION
+// router.post('/resend-verification', async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     const user = await User.findOne({ email });
+//     if (!user) return res.status(404).json({ error: 'User not found.' });
+//     if (user.isVerified) return res.status(400).json({ error: 'Account already verified.' });
+
+//     const now = Date.now();
+//     if (!user.lastResendAt || now - user.lastResendAt > 24 * 60 * 60 * 1000) {
+//       user.resendAttempts = 0;
+//     }
+
+//     if (user.resendAttempts >= 4) {
+//       return res.status(429).json({ error: 'Resend limit reached.' });
+//     }
+   
+//     // const verificationToken = jwt.sign(
+//     //   { email: user.email },
+//     //   process.env.JWT_SECRET,
+//     //   { expiresIn: '10m' }
+//     // );
+//     const verificationToken = jwt.sign( { email, jti: crypto.randomBytes(16).toString('hex') }, process.env.JWT_SECRET, { expiresIn: '10m' });
+
+//     user.verificationToken = verificationToken;
+//     user.resendAttempts += 1;
+//     user.lastResendAt = now;
+//     await user.save();
+
+//     const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
+//     await sendEmail(user.email, 'Verify your Carbon Tracker account', emailHtml(user.name, verificationLink));
+
+//     res.status(200).json({ message: 'Verification email resent. Please check your inbox.' });
+
+//   } catch (err) {
+//     console.error('❌ Resend verification error:', err);
+//     res.status(500).json({ error: 'Server error while resending verification.' });
+//   }
+// });
+
+// // WAKEUP SON 
+// router.get('/ping', (req, res) => {
+//   res.set({
+//     'Access-Control-Allow-Origin': req.headers.origin || '*',
+//     'Access-Control-Allow-Credentials': 'true',
+//     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+//     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+//     'Content-Type': 'application/json'
+//   });
+  
+//   res.status(200).json({ 
+//     message: 'Server server wake up!',
+//     timestamp: new Date().toISOString(),
+//     status: 'healthy'
+//   });
+// });
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -8,7 +415,8 @@ const authenticateToken = require('../middleware/authmiddleware');
 const router = express.Router();
 const crypto = require('crypto');
 const redisClient = require('../RedisClient');
-// email HTML Template
+
+// HELPER FUNCTIONS
 const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
   try {
     return new Intl.DateTimeFormat("en-US", {
@@ -18,9 +426,8 @@ const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
       timeZone,
     }).format(date);
   } catch {
-    // Fallback: manually add +05:30 to UTC
     const utcMs = date.getTime() + date.getTimezoneOffset() * 60000;
-    const ist = new Date(utcMs + 330 * 60000); // 330 minutes = 5.5 hours
+    const ist = new Date(utcMs + 330 * 60000);
     const h = ist.getHours();
     const m = ist.getMinutes();
     const mer = h >= 12 ? "PM" : "AM";
@@ -32,165 +439,376 @@ const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
 
 const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) => {
   const currentTime = formatTime(new Date(), timeZone);
-
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
-
-    <!-- Header -->
     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
       <h1 style="margin: 0; font-size: 20px;">🌍 Carbon Footprint Tracker</h1>
     </div>
-
-    <!-- Main Content -->
     <div style="padding: 20px 16px 12px; text-align: center;">
-      <div style="
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        max-width: 360px;
-        margin: auto;
-        padding: 24px 20px;
-        box-shadow: 0 0 22px rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-      ">
+      <div style="background: rgba(255, 255, 255, 0.08); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); max-width: 360px; margin: auto; padding: 24px 20px; box-shadow: 0 0 22px rgba(255, 255, 255, 0.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
         <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hello👋, ${name}</h2>
-        <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
-          Welcome to <strong>Carbon Footprint Tracker</strong>!<br>Please verify your email to activate your account.
-        </p>
-
-        <!-- Globe GIF -->
+        <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">Welcome to <strong>Carbon Footprint Tracker</strong>!<br>Please verify your email to activate your account.</p>
         <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
-
-        <!-- Button (email-safe styling) -->
-        <a href="${verificationLink}" style="
-          display: inline-block;
-          background: linear-gradient(90deg, #2f80ed, #56ccf2);
-          color: #ffffff;
-          padding: 14px 20px;
-          font-size: 15px;
-          font-weight: bold;
-          text-decoration: none;
-          border-radius: 30px;
-          border: 1px solid rgba(255,255,255,0.25);
-          box-shadow: 0 0 18px rgba(47,128,237,0.35);
-        ">
-          ✅ Verify Email
-        </a>
-
-        <!-- Time & info -->
-        <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">
-          Sent at: <strong>${currentTime}</strong><br>
-          <span style="color: #FF4C4C;">Link expires in <strong>10 minutes</strong>.</span>
-        </p>
-
-        <p style="font-size: 11px; color: #999; margin-top: 8px;">
-          Didn’t sign up? You can safely ignore this email.
-        </p>
+        <a href="${verificationLink}" style="display: inline-block; background: linear-gradient(90deg, #2f80ed, #56ccf2); color: #ffffff; padding: 14px 20px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 18px rgba(47,128,237,0.35);">✅ Verify Email</a>
+        <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>10 minutes</strong>.</span></p>
+        <p style="font-size: 11px; color: #999; margin-top: 8px;">Didn't sign up? You can safely ignore this email.</p>
       </div>
     </div>
-
-    <!-- Footer -->
-    <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">
-      © 2025 Carbon Tracker • Carbon down. Future up.
-    </div>
-  </div>
-  `;
+    <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Carbon down. Future up.</div>
+  </div>`;
 };
 
 const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
   const currentTime = formatTime(new Date(), timeZone);
-
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
-
-    <!-- Header -->
     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
       <h1 style="margin: 0; font-size: 20px;">🌍 Carbon Footprint Tracker</h1>
     </div>
-
-    <!-- Main Content -->
     <div style="padding: 20px 16px 12px; text-align: center;">
-      <div style="
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        max-width: 360px;
-        margin: auto;
-        padding: 24px 20px;
-        box-shadow: 0 0 22px rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-      ">
+      <div style="background: rgba(255, 255, 255, 0.08); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); max-width: 360px; margin: auto; padding: 24px 20px; box-shadow: 0 0 22px rgba(255, 255, 255, 0.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
         <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hello👋, ${name}</h2>
-        <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
-          Thank you for sharing your valuable feedback with us ✨<br/>
-          We truly appreciate the time you took to help us improve <strong>Carbon Footprint Tracker</strong>.
-        </p>
-
-        <!-- Globe GIF -->
+        <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">Thank you for sharing your valuable feedback with us ✨<br/>We truly appreciate the time you took to help us improve <strong>Carbon Footprint Tracker</strong>.</p>
         <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
-
-        <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">
-          Our team will carefully review your suggestions and work on making the platform better for you and the community.
-        </p>
-
-        <!-- Time Info -->
-        <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">
-          Sent at: <strong>${currentTime}</strong>
-        </p>
+        <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">Our team will carefully review your suggestions and work on making the platform better for you and the community.</p>
+        <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong></p>
       </div>
     </div>
-
-    <!-- Footer -->
-    <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">
-      © 2025 Carbon Tracker • Thanks for helping us improve 🌱
-    </div>
-  </div>
-  `;
+    <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Thanks for helping us improve 🌱</div>
+  </div>`;
 };
 
-// FEEDBACK 
-router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => {
+const getCachedData = async (key) => {
   try {
-    const user = await User.findById(req.user.userId);
-    if (!user) return res.status(404).json({ error: "User not found." });
+    const data = await redisClient.get(key);
+    if (data) {
+      const ttl = await redisClient.ttl(key);
+      console.log(`✅ [REDIS CACHE HIT] Key: ${key} | TTL: ${ttl}s`);
+      return { data: JSON.parse(data), ttl };
+    }
+    console.log(`❌ [REDIS CACHE MISS] Key: ${key}`);
+    return null;
+  } catch (err) {
+    console.error(`⚠️ [REDIS READ ERROR] Key: ${key} | Error:`, err.message);
+    return null;
+  }
+};
 
-    if (!user.email) return res.status(400).json({ error: "User email not found." });
+const setCachedData = async (key, data, ttl) => {
+  try {
+    await redisClient.setEx(key, ttl, JSON.stringify(data));
+    console.log(`✅ [REDIS CACHE SET] Key: ${key} | TTL: ${ttl}s | Size: ${JSON.stringify(data).length} bytes`);
+    return true;
+  } catch (err) {
+    console.error(`⚠️ [REDIS WRITE ERROR] Key: ${key} | Error:`, err.message);
+    return false;
+  }
+};
 
-    try {
-      await sendEmail(
-        user.email,
-        "Thanks for your feedback ✨",
-        feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
-      );
-      console.log(`✅ Thank-you email resent to ${user.email}`);
-      return res.json({ message: "Thank-you email resent successfully." });
-    } catch (err) {
-      console.error(`❌ Failed to resend thank-you email to ${user.email}:`, err);
-      return res.status(500).json({ error: "Failed to resend thank-you email." });
+const getRateLimitData = async (key) => {
+  try {
+    const count = await redisClient.get(key);
+    const ttl = count ? await redisClient.ttl(key) : -1;
+    console.log(`🔍 [REDIS RATE LIMIT CHECK] Key: ${key} | Count: ${count || 0} | TTL: ${ttl}s`);
+    return { count: count ? parseInt(count) : 0, ttl };
+  } catch (err) {
+    console.error(`⚠️ [REDIS RATE LIMIT ERROR] Key: ${key} | Error:`, err.message);
+    return { count: 0, ttl: -1 };
+  }
+};
+
+const incrementRateLimit = async (key, ttl) => {
+  try {
+    const current = await redisClient.get(key);
+    if (current) {
+      await redisClient.incr(key);
+      console.log(`📈 [REDIS RATE LIMIT INCREMENT] Key: ${key} | New Count: ${parseInt(current) + 1}`);
+    } else {
+      await redisClient.setEx(key, ttl, '1');
+      console.log(`🆕 [REDIS RATE LIMIT NEW] Key: ${key} | TTL: ${ttl}s`);
+    }
+    return true;
+  } catch (err) {
+    console.error(`⚠️ [REDIS RATE LIMIT INCREMENT ERROR] Key: ${key} | Error:`, err.message);
+    return false;
+  }
+};
+
+const deleteKey = async (key) => {
+  try {
+    await redisClient.del(key);
+    console.log(`🗑️ [REDIS DELETE] Key: ${key}`);
+    return true;
+  } catch (err) {
+    console.error(`⚠️ [REDIS DELETE ERROR] Key: ${key} | Error:`, err.message);
+    return false;
+  }
+};
+
+// Get me 
+router.get('/token-info/me', async (req, res) => {
+  const startTime = Date.now();
+  console.log('\n🔐 [/token-info/me] Request received');
+
+  try {
+    // Extract token
+    let token = req.cookies.token || req.query.token;
+    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    
+    if (!token) {
+      console.log('❌ [AUTH] No token provided');
+      return res.status(401).json({ error: 'Missing token' });
     }
 
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(`✅ [JWT] Token verified for userId: ${decoded.userId}`);
+
+    const cacheKey = `user:profile:${decoded.userId}`;
+    
+    // Try cache first
+    const cached = await getCachedData(cacheKey);
+    if (cached) {
+      const responseTime = Date.now() - startTime;
+      console.log(`⚡ [RESPONSE] Sent from cache in ${responseTime}ms`);
+      return res.json({
+        ...cached.data,
+        fromCache: true,
+        cacheTTL: cached.ttl,
+        responseTime: `${responseTime}ms`
+      });
+    }
+
+    // Fetch from database
+    console.log(`🔍 [DATABASE] Fetching user from MongoDB...`);
+    const dbStartTime = Date.now();
+    
+    const user = await User.findById(decoded.userId).select('name email isVerified');
+    
+    const dbTime = Date.now() - dbStartTime;
+    console.log(`📊 [DATABASE] Query completed in ${dbTime}ms`);
+
+    if (!user) {
+      console.log(`❌ [DATABASE] User not found: ${decoded.userId}`);
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userData = {
+      name: user.name,
+      email: user.email,
+      verified: user.isVerified,
+    };
+
+    // Cache for 30 minutes (1800 seconds)
+    const cacheTTL = 1800;
+    await setCachedData(cacheKey, userData, cacheTTL);
+
+    const responseTime = Date.now() - startTime;
+    console.log(`✅ [RESPONSE] Sent from database in ${responseTime}ms`);
+    
+    res.json({
+      ...userData,
+      fromCache: false,
+      cacheTTL,
+      responseTime: `${responseTime}ms`,
+      dbQueryTime: `${dbTime}ms`
+    });
+
   } catch (err) {
-    console.error("❌ Resend thank-you route error:", err);
-    res.status(500).json({ error: "Server error while resending thank-you email." });
+    if (err.name === 'JsonWebTokenError') {
+      console.error('❌ [JWT ERROR] Invalid token:', err.message);
+      return res.status(400).json({ error: 'Invalid token' });
+    }
+    if (err.name === 'TokenExpiredError') {
+      console.error('❌ [JWT ERROR] Token expired:', err.message);
+      return res.status(400).json({ error: 'Token expired' });
+    }
+    console.error('❌ [SERVER ERROR] /me route error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// SUBMIT FEEDBACK 
+//LOGIN
+router.post('/login', async (req, res) => {
+  console.log('\n🔑 [/login] Login attempt started');
+  
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      console.log('❌ [VALIDATION] Missing email or password');
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    console.log(`📧 [LOGIN] Attempt for email: ${email}`);
+
+    // Check rate limit
+    const loginAttemptKey = `login:attempts:${email}`;
+    const rateLimit = await getRateLimitData(loginAttemptKey);
+    
+    if (rateLimit.count >= 5) {
+      console.log(`🚫 [RATE LIMIT] Login blocked for ${email}`);
+      return res.status(429).json({ 
+        error: 'Too many login attempts. Please try again later.',
+        retryAfter: rateLimit.ttl,
+        attemptsRemaining: 0
+      });
+    }
+
+    // Find user (cache this query)
+    const userCacheKey = `user:auth:${email}`;
+    let user;
+    
+    const cached = await getCachedData(userCacheKey);
+    if (cached) {
+      console.log(`✅ [CACHE] User data from cache`);
+      // Still need to fetch from DB to verify current state
+      user = await User.findById(cached.data.userId);
+    } else {
+      console.log(`🔍 [DATABASE] Looking up user: ${email}`);
+      user = await User.findOne({ email });
+      
+      // Cache user lookup for 5 minutes
+      if (user) {
+        await setCachedData(userCacheKey, { userId: user._id }, 300);
+      }
+    }
+    
+    if (!user) {
+      console.log(`❌ [AUTH] User not found: ${email}`);
+      await incrementRateLimit(loginAttemptKey, 900);
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    // Rest of your password verification logic...
+    console.log(`🔐 [AUTH] Verifying password...`);
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    
+    if (!isPasswordValid) {
+      console.log(`❌ [AUTH] Invalid password for: ${email}`);
+      await incrementRateLimit(loginAttemptKey, 900);
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    if (!user.isVerified) {
+      console.log(`⚠️ [AUTH] Unverified account: ${email}`);
+      return res.status(403).json({ error: 'Please verify your email before logging in.' });
+    }
+
+    // Clear failed attempts
+    await deleteKey(loginAttemptKey);
+    console.log(`✅ [RATE LIMIT] Cleared failed attempts for: ${email}`);
+
+    // Generate token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '3d' }
+    );
+    const isProd = process.env.NODE_ENV === 'production';
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: isProd,           // true in prod
+      sameSite: isProd ? 'None' : 'Lax',  // None for cross-origin in prod
+      path: '/',
+      maxAge: 3 * 24 * 60 * 60 * 1000,
+    });
+
+    console.log(`✅ [LOGIN SUCCESS] User logged in: ${email} | From cache: ${!!cached}`);
+    
+    res.json({
+      message: 'Login successful',
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+    });
+
+  } catch (err) {
+    console.error('❌ [SERVER ERROR] Login error:', err);
+    res.status(500).json({ error: 'Server error during login.' });
+  }
+});
+
+//LOGOUTT
+router.post('/logout', authenticateToken, async (req, res) => {
+  console.log('\n🚪 [/logout] Logout request received');
+  
+  try {
+    const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+    
+    if (token) {
+      const decoded = jwt.decode(token);
+      const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+      
+      if (ttl > 0) {
+        const blacklistKey = `blacklist:token:${token}`;
+        await setCachedData(blacklistKey, { invalidated: true }, ttl);
+        console.log(`🔒 [TOKEN BLACKLIST] Token invalidated | TTL: ${ttl}s`);
+      }
+
+      if (req.user?.userId) {
+        const userCacheKey = `user:profile:${req.user.userId}`;
+        await deleteKey(userCacheKey);
+        console.log(`🗑️ [CACHE] User cache invalidated: ${userCacheKey}`);
+      }
+    }
+
+    const isProd = process.env.NODE_ENV === 'production';
+    
+     res.clearCookie('token', {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'None' : 'Lax',
+      path: '/',
+    });
+
+    console.log(`✅ [LOGOUT SUCCESS]`);
+    res.json({ message: 'Logged out successfully' });
+
+  } catch (err) {
+    console.error('❌ [SERVER ERROR] Logout error:', err);
+    res.status(500).json({ error: 'Server error during logout.' });
+  }
+});
+
+// dont need it now 
 router.post('/feedback/submit', authenticateToken, async (req, res) => {
+  console.log('\n📝 [/feedback/submit] Feedback submission started');
+  
   try {
     const { feedback } = req.body;
+    
     if (!feedback || feedback.trim() === '') {
+      console.log('❌ [VALIDATION] Empty feedback message');
       return res.status(400).json({ error: "Feedback message is required." });
     }
 
+    // Rate limit: 3 submissions per hour
+    const feedbackRateKey = `feedback:submissions:${req.user.userId}`;
+    const rateLimit = await getRateLimitData(feedbackRateKey);
+    
+    if (rateLimit.count >= 3) {
+      console.log(`🚫 [RATE LIMIT] Feedback blocked for userId: ${req.user.userId} | Submissions: ${rateLimit.count}`);
+      return res.status(429).json({ 
+        error: 'You can only submit 3 feedbacks per hour.',
+        retryAfter: rateLimit.ttl
+      });
+    }
+
     const user = await User.findById(req.user.userId);
-    if (!user) return res.status(404).json({ error: "User not found." });
+    if (!user) {
+      console.log(`❌ [DATABASE] User not found: ${req.user.userId}`);
+      return res.status(404).json({ error: "User not found." });
+    }
 
-    if (!user.email) return res.status(400).json({ error: "User email not found." });
+    console.log(`📝 [FEEDBACK] Received from ${user.email}: ${feedback.substring(0, 50)}...`);
 
-    console.log(`📝 Feedback received from ${user.email}: ${feedback}`);
+    // Increment feedback counter
+    await incrementRateLimit(feedbackRateKey, 3600); // 1 hour
 
     try {
       await sendEmail(
@@ -198,14 +816,14 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
         "Thanks for your feedback ✨",
         feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
       );
-      console.log(`✅ Thank-you email sent to ${user.email}`);
+      console.log(`✅ [EMAIL] Thank-you email sent to: ${user.email}`);
       
       return res.json({ 
         message: "Feedback submitted successfully! Thank-you email sent.",
         feedbackReceived: true 
       });
     } catch (emailError) {
-      console.error(`❌ Failed to send thank-you email to ${user.email}:`, emailError);
+      console.error(`❌ [EMAIL ERROR] Failed to send to ${user.email}:`, emailError.message);
       return res.json({ 
         message: "Feedback submitted successfully, but thank-you email failed to send.",
         feedbackReceived: true,
@@ -214,12 +832,36 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
     }
 
   } catch (err) {
-    console.error("❌ Feedback submission error:", err);
+    console.error("❌ [SERVER ERROR] Feedback submission error:", err);
     res.status(500).json({ error: "Server error while submitting feedback." });
   }
 });
 
-// REGISTER
+// dont need this also
+router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => {
+  console.log('\n📧 [/feedback/resend-thankyou] Resend request received');
+  
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) return res.status(404).json({ error: "User not found." });
+    if (!user.email) return res.status(400).json({ error: "User email not found." });
+
+    await sendEmail(
+      user.email,
+      "Thanks for your feedback ✨",
+      feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
+    );
+    
+    console.log(`✅ [EMAIL] Thank-you email resent to: ${user.email}`);
+    return res.json({ message: "Thank-you email resent successfully." });
+
+  } catch (err) {
+    console.error("❌ [SERVER ERROR] Resend thank-you error:", err);
+    res.status(500).json({ error: "Server error while resending thank-you email." });
+  }
+});
+
+//REGISTER
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -229,8 +871,8 @@ router.post('/register', async (req, res) => {
     if (existingUser) return res.status(409).json({ error: 'Email already in use.' });
 
     const passwordHash = await bcrypt.hash(password, 12);
-    //const verificationToken = jwt.sign({ email, jti: Math.random().toString(36).substring(2) }, process.env.JWT_SECRET, { expiresIn: '10m' });
     const verificationToken = jwt.sign({ email, jti: crypto.randomBytes(16).toString('hex')},  process.env.JWT_SECRET,  { expiresIn: '10m' });
+    
     const newUser = new User({
       name,
       email,
@@ -252,82 +894,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// LOGIN
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
-
-    const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-      return res.status(401).json({ error: 'Invalid credentials.' });
-    }
-
-    if (!user.isVerified) {
-      return res.status(403).json({ error: 'Please verify your email before logging in.' });
-    }
-
-    const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    const isProd = process.env.NODE_ENV === 'production';
-
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: 'None',
-      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
-    }).json({
-      message: 'Login successful',
-      user: {
-        name: user.name,
-        email: user.email,
-      },
-      token,
-    });
-  } catch (err) {
-    console.error('❌ Login error:', err);
-    res.status(500).json({ error: 'Server error during login.' });
-  }
-});
-
-// GET /me (auth check via cookie)
-router.get('/token-info/me', async (req, res) => {
-  try {
-    let token = req.cookies.token || req.query.token;
-    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
-      token = req.headers.authorization.split(' ')[1];
-    }
-    if (!token) return res.status(401).json({ error: 'Missing token' });
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ email: new RegExp(`^${decoded.email}$`, 'i') });
-
-    if (!user) return res.status(404).json({ error: 'User not found' });
-
-    res.json({
-      name: user.name,
-      email: user.email,
-      verified: user.isVerified,
-    });
-  } catch (err) {
-    console.error('❌ /me error:', err);
-    res.status(400).json({ error: 'Invalid or expired token' });
-  }
-});
-
-// LOGOUT (clear cookie)
-router.post('/logout', (req, res) => {
-  const isProd = process.env.NODE_ENV === 'production';
-
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: 'None',
-  });
-
-  res.json({ message: 'Logged out successfully' });
-});
-
-// VERIFY EMAIL
+//VERIFYROUTE
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -349,7 +916,7 @@ router.get('/verify-email/:token', async (req, res) => {
   }
 });
 
-// RESEND VERIFICATION
+//RESEND VERIFICATION EMAIL
 router.post('/resend-verification', async (req, res) => {
   try {
     const { email } = req.body;
@@ -365,12 +932,7 @@ router.post('/resend-verification', async (req, res) => {
     if (user.resendAttempts >= 4) {
       return res.status(429).json({ error: 'Resend limit reached.' });
     }
-   
-    // const verificationToken = jwt.sign(
-    //   { email: user.email },
-    //   process.env.JWT_SECRET,
-    //   { expiresIn: '10m' }
-    // );
+
     const verificationToken = jwt.sign( { email, jti: crypto.randomBytes(16).toString('hex') }, process.env.JWT_SECRET, { expiresIn: '10m' });
 
     user.verificationToken = verificationToken;
@@ -389,7 +951,7 @@ router.post('/resend-verification', async (req, res) => {
   }
 });
 
-// WAKEUP SON 
+//WAKEUP SON
 router.get('/ping', (req, res) => {
   res.set({
     'Access-Control-Allow-Origin': req.headers.origin || '*',
@@ -658,6 +1220,5 @@ router.get("/weather-aqi", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 module.exports = router;

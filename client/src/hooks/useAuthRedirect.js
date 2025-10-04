@@ -1,3 +1,4 @@
+// client/src/hooks/useAuthRedirect.js
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
@@ -5,42 +6,46 @@ import API from '../api/api';
 const useAuthRedirect = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     const checkAuth = async () => {
       try {
-        // 1️⃣ Try cookie-based auth first
         await API.get('/auth/token-info/me');
-
+        
+        if (isMounted) {
+          console.log('✅ Cookie authentication successful');
+          setIsAuthenticated(true);
+        }
+        
       } catch (err) {
-        console.warn('⚠ Cookie auth failed, checking sessionStorage token...');
-
-        // 2️⃣ Mobile fallback: check sessionStorage token
-        const mobileToken = sessionStorage.getItem('sessionToken');
-        if (mobileToken) {
-          try {
-            await API.get('/auth/token-info/me', {
-              headers: { Authorization: `Bearer ${mobileToken}` }
-            });
-            console.log('✅ Mobile sessionStorage auth succeeded.');
-            return; // success, stop redirect
-          } catch (err2) {
-            console.warn('❌ Mobile sessionStorage token invalid.');
+        console.warn('❌ Cookie authentication failed:', err.response?.status);
+        
+        if (isMounted) {
+          setIsAuthenticated(false);
+          
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            console.warn('🔒 Redirecting to login due to invalid session.');
+            navigate('/login', { replace: true });
           }
         }
-
-        // 3️⃣ No valid auth → redirect
-        console.warn('🔒 Redirecting to login due to invalid session.');
-        navigate('/login');
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
-  return { loading };
+  return { loading, isAuthenticated };
 };
 
 export default useAuthRedirect;

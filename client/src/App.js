@@ -13,13 +13,6 @@ import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 
 function App() {
-  useEffect(() => {
-  const timeout = setTimeout(() => {
-    sessionStorage.removeItem('authToken');
-  }, 60 * 60 * 1000); // 1 hour auto-clear
-
-  return () => clearTimeout(timeout);
-}, []);
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <LoadingProvider>

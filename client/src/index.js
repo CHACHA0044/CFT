@@ -4,6 +4,12 @@ import './index.css';
 import App from './App.js';
 //import reportWebVitals from './reportWebVitals';
 
+if (process.env.NODE_ENV === 'production') {
+  console.log = () => {};
+  console.warn = () => {};
+  console.error = () => {};
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const originalWarn = console.warn;
 console.warn = (...args) => {

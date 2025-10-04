@@ -95,17 +95,156 @@ const Icons = {
   weather: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="4" /> <line x1="12" y1="2" x2="12" y2="6" /> <line x1="12" y1="18" x2="12" y2="22" /> <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /> <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" /> <line x1="2" y1="12" x2="6" y2="12" /> <line x1="18" y1="12" x2="22" y2="12" /> <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /> <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" /> <path d="M17.5 19a4.5 4.5 0 0 0 0-9 5 5 0 0 0-9.9 1.5H7a4 4 0 0 0 0 8h10.5z" /> </motion.svg> ),
 };
 
+// const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
+//     const [isHovered, setIsHovered] = useState(false);
+// const [isFlipping, setIsFlipping] = useState(false);
+
+// useEffect(() => {
+//   if (disabled && text === 'Processing...') {
+//     setIsFlipping(true);  
+//   } else {
+//     setIsFlipping(false); 
+//   }
+// }, [disabled, text]);
+
+//     const navigate = useNavigate();
+
+//     const [schemeIndex, setSchemeIndex] = useState(() => {
+//         const state = getButtonState(userEmail);
+//         return state[colorConfig.id] || 0;
+//     });
+//     useEffect(() => {
+//         const state = getButtonState(userEmail);
+//         state[colorConfig.id] = schemeIndex;
+//         saveButtonState(userEmail, state);
+//     }, [schemeIndex, colorConfig.id, userEmail]);
+    
+//     const IconComponent = Icons[iconType] || (() => null);
+//     const { schemes, baseColor } = colorConfig;
+//     const currentScheme = schemes[schemeIndex];
+//     const isTransparent = currentScheme === 'transparent';
+
+//     const handleClick = (e) => {
+//         if (e && typeof e.stopPropagation === 'function') {
+//         e.stopPropagation();
+//     }
+//         requestAnimationFrame(() => setIsFlipping(true));
+//         setTimeout(() => setIsFlipping(false), 400);
+
+//         if (navigator.vibrate) {
+//       const vibrationPatterns = {
+//         new: [30],
+//         edit: [20, 40, 20],
+//         delete: [50, 100, 50],
+//         save: [15, 30, 15],
+//         verify: [60],
+//         clear: [40, 60, 40],
+//         logout: [25, 50, 25],
+//         visualize: [10, 20, 10, 20],
+//         default: [20]
+//       };
+//       navigator.vibrate(vibrationPatterns[iconType] || vibrationPatterns.default);
+//     }
+
+//         const newIndex = (schemeIndex + 1) % schemes.length;
+//         setSchemeIndex(newIndex);
+// const delay = (disabled && text === 'Processing...') ? 1000 : 400; 
+//         setTimeout(() => {
+//     if (navigateTo) {
+//         navigate(navigateTo);
+//     }
+//     if (onClick) {
+//         onClick(e);
+//     }
+// }, delay); 
+//     };
+
+//     const tapAnimation = {
+//   scale: 0.90,
+//   y: 2,
+//  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
+//   filter: "brightness(1.15)",
+//   transition: { type: 'spring', stiffness: 500, damping:26}
+// };
+
+// const glowColor = currentScheme.includes('linear-gradient')
+//   ? currentScheme.match(/#([0-9a-f]{3,8})/i)?.[0] || baseColor
+//   : currentScheme;
+
+//     return (
+//         <motion.div className="relative" onHoverStart={() => setIsHovered(true)} onHoverEnd={() => setIsHovered(false)}>
+//           <motion.button
+//         type={type || "button"}
+//         whileTap={tapAnimation}
+//         whileHover={{
+//         scale: 1.05,
+//         rotateX: 2, rotateY: -2,
+//         boxShadow: `
+//     0 0 20px ${glowColor}80,
+//     0 0 10px ${glowColor}80,
+//     inset 0 2px 4px rgba(255,255,255,0.1),
+//     inset 0 -3px 6px rgba(0,0,0,0.4)
+//   `,
+//         transition: {
+//         scale: { type: 'spring', stiffness: 1000, damping: 30 },
+//         boxShadow: { duration: 0.1 } }}}
+//         onClick={handleClick}
+//         disabled={disabled}
+//         className="relative flex items-center justify-center gap-3 h-14 rounded-xl font-semibold font-sriracha tracking-wider shadow-lg overflow-hidden text-white"
+//         style={{
+//           transformStyle: 'preserve-3d',
+//     perspective: '1000px',
+//     transformOrigin: 'center',
+//           width: '100%',
+//           background: isTransparent ? 'transparent' : currentScheme,
+//           border: isTransparent
+//   ? `1.5px solid ${baseColor}`
+//   : '1.5px solid rgba(255, 255, 255, 0.08)',
+
+//     borderRadius: '0.75rem',
+//            boxShadow: isTransparent
+//     ? 'none'
+//     : `
+//       0 6px 12px rgba(0,0,0,0.35),           /* Strong base shadow */
+//       inset 0 2px 4px rgba(255,255,255,0.15), /* Top light highlight */
+//       inset 0 -3px 6px rgba(0,0,0,0.4)        /* Bottom depth */
+//     `,
+//   backdropFilter: isTransparent ? 'none' : 'blur(2px)',
+//           color: isTransparent ? baseColor : 'white',
+//           transition: 'background 0.4s, border 0.4s, color 0.4s ',
+//           ...styleOverride, 
+//         }}
+//       >
+//    <div className="animate-shimmer ring-1 ring-white/10 transition-opacity duration-300" style={{ opacity: isTransparent ? 0 : 1 }} />
+//                 <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2">
+//                     <IconComponent isFlipping={isFlipping} isHovered={isHovered} />
+//                     <span>{text}</span>
+//                 </div>
+//             </motion.button>
+//         </motion.div>
+//     );
+// };
 const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
     const [isHovered, setIsHovered] = useState(false);
-const [isFlipping, setIsFlipping] = useState(false);
+    const [isFlipping, setIsFlipping] = useState(false);
+    const hoverTimeoutRef = useRef(null);
 
-useEffect(() => {
-  if (disabled && text === 'Processing...') {
-    setIsFlipping(true);  
-  } else {
-    setIsFlipping(false); 
-  }
-}, [disabled, text]);
+    useEffect(() => {
+      if (disabled && text === 'Processing...') {
+        setIsFlipping(true);  
+      } else {
+        setIsFlipping(false); 
+      }
+    }, [disabled, text]);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+        }
+      };
+    }, []);
 
     const navigate = useNavigate();
 
@@ -113,6 +252,7 @@ useEffect(() => {
         const state = getButtonState(userEmail);
         return state[colorConfig.id] || 0;
     });
+    
     useEffect(() => {
         const state = getButtonState(userEmail);
         state[colorConfig.id] = schemeIndex;
@@ -124,103 +264,137 @@ useEffect(() => {
     const currentScheme = schemes[schemeIndex];
     const isTransparent = currentScheme === 'transparent';
 
+    const handleHoverStart = () => {
+      // Clear any pending timeout
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      // Debounce hover state
+      hoverTimeoutRef.current = setTimeout(() => {
+        setIsHovered(true);
+      }, 50);
+    };
+
+    const handleHoverEnd = () => {
+      // Clear any pending timeout
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      setIsHovered(false);
+    };
+
     const handleClick = (e) => {
         if (e && typeof e.stopPropagation === 'function') {
-        e.stopPropagation();
-    }
+          e.stopPropagation();
+        }
         requestAnimationFrame(() => setIsFlipping(true));
         setTimeout(() => setIsFlipping(false), 400);
 
         if (navigator.vibrate) {
-      const vibrationPatterns = {
-        new: [30],
-        edit: [20, 40, 20],
-        delete: [50, 100, 50],
-        save: [15, 30, 15],
-        verify: [60],
-        clear: [40, 60, 40],
-        logout: [25, 50, 25],
-        visualize: [10, 20, 10, 20],
-        default: [20]
-      };
-      navigator.vibrate(vibrationPatterns[iconType] || vibrationPatterns.default);
-    }
+          const vibrationPatterns = {
+            new: [30],
+            edit: [20, 40, 20],
+            delete: [50, 100, 50],
+            save: [15, 30, 15],
+            verify: [60],
+            clear: [40, 60, 40],
+            logout: [25, 50, 25],
+            visualize: [10, 20, 10, 20],
+            default: [20]
+          };
+          navigator.vibrate(vibrationPatterns[iconType] || vibrationPatterns.default);
+        }
 
         const newIndex = (schemeIndex + 1) % schemes.length;
         setSchemeIndex(newIndex);
-const delay = (disabled && text === 'Processing...') ? 1000 : 400; 
+        const delay = (disabled && text === 'Processing...') ? 1000 : 400; 
         setTimeout(() => {
-    if (navigateTo) {
-        navigate(navigateTo);
-    }
-    if (onClick) {
-        onClick(e);
-    }
-}, delay); 
+          if (navigateTo) {
+            navigate(navigateTo);
+          }
+          if (onClick) {
+            onClick(e);
+          }
+        }, delay); 
     };
 
     const tapAnimation = {
-  scale: 0.90,
-  y: 2,
- boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
-  filter: "brightness(1.15)",
-  transition: { type: 'spring', stiffness: 500, damping:26}
-};
+      scale: 0.90,
+      y: 2,
+      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
+      filter: "brightness(1.15)",
+      transition: { type: 'spring', stiffness: 500, damping: 26 }
+    };
 
-const glowColor = currentScheme.includes('linear-gradient')
-  ? currentScheme.match(/#([0-9a-f]{3,8})/i)?.[0] || baseColor
-  : currentScheme;
+    const glowColor = currentScheme.includes('linear-gradient')
+      ? currentScheme.match(/#([0-9a-f]{3,8})/i)?.[0] || baseColor
+      : currentScheme;
 
     return (
-        <motion.div className="relative" onHoverStart={() => setIsHovered(true)} onHoverEnd={() => setIsHovered(false)}>
+        <motion.div 
+          className="relative" 
+          onHoverStart={handleHoverStart}
+          onHoverEnd={handleHoverEnd}
+        >
           <motion.button
-        type={type || "button"}
-        whileTap={tapAnimation}
-        whileHover={{
-        scale: 1.05,
-        rotateX: 2, rotateY: -2,
-        boxShadow: `
-    0 0 20px ${glowColor}80,
-    0 0 10px ${glowColor}80,
-    inset 0 2px 4px rgba(255,255,255,0.1),
-    inset 0 -3px 6px rgba(0,0,0,0.4)
-  `,
-        transition: {
-        scale: { type: 'spring', stiffness: 1000, damping: 30 },
-        boxShadow: { duration: 0.1 } }}}
-        onClick={handleClick}
-        disabled={disabled}
-        className="relative flex items-center justify-center gap-3 h-14 rounded-xl font-semibold font-sriracha tracking-wider shadow-lg overflow-hidden text-white"
-        style={{
-          transformStyle: 'preserve-3d',
-    perspective: '1000px',
-    transformOrigin: 'center',
-          width: '100%',
-          background: isTransparent ? 'transparent' : currentScheme,
-          border: isTransparent
-  ? `1.5px solid ${baseColor}`
-  : '1.5px solid rgba(255, 255, 255, 0.08)',
-
-    borderRadius: '0.75rem',
-           boxShadow: isTransparent
-    ? 'none'
-    : `
-      0 6px 12px rgba(0,0,0,0.35),           /* Strong base shadow */
-      inset 0 2px 4px rgba(255,255,255,0.15), /* Top light highlight */
-      inset 0 -3px 6px rgba(0,0,0,0.4)        /* Bottom depth */
-    `,
-  backdropFilter: isTransparent ? 'none' : 'blur(2px)',
-          color: isTransparent ? baseColor : 'white',
-          transition: 'background 0.4s, border 0.4s, color 0.4s ',
-          ...styleOverride, 
-        }}
-      >
-   <div className="animate-shimmer ring-1 ring-white/10 transition-opacity duration-300" style={{ opacity: isTransparent ? 0 : 1 }} />
-                <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2">
-                    <IconComponent isFlipping={isFlipping} isHovered={isHovered} />
-                    <span>{text}</span>
-                </div>
-            </motion.button>
+            type={type || "button"}
+            whileTap={tapAnimation}
+            whileHover={{
+              scale: 1.05,
+              rotateX: 2, 
+              rotateY: -2,
+              boxShadow: `
+                0 0 20px ${glowColor}80,
+                0 0 10px ${glowColor}80,
+                inset 0 2px 4px rgba(255,255,255,0.1),
+                inset 0 -3px 6px rgba(0,0,0,0.4)
+              `,
+              transition: {
+                scale: { type: 'spring', stiffness: 800, damping: 25 },
+                boxShadow: { duration: 0.2 },
+                rotateX: { duration: 0.2 },
+                rotateY: { duration: 0.2 }
+              }
+            }}
+            onClick={handleClick}
+            disabled={disabled}
+            className="relative flex items-center justify-center gap-3 h-14 rounded-xl font-semibold font-sriracha tracking-wider shadow-lg overflow-hidden text-white"
+            style={{
+              transformStyle: 'preserve-3d',
+              perspective: '1000px',
+              transformOrigin: 'center',
+              width: '100%',
+              background: isTransparent ? 'transparent' : currentScheme,
+              border: isTransparent
+                ? `1.5px solid ${baseColor}`
+                : '1.5px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '0.75rem',
+              boxShadow: isTransparent
+                ? 'none'
+                : `
+                  0 6px 12px rgba(0,0,0,0.35),
+                  inset 0 2px 4px rgba(255,255,255,0.15),
+                  inset 0 -3px 6px rgba(0,0,0,0.4)
+                `,
+              backdropFilter: isTransparent ? 'none' : 'blur(2px)',
+              color: isTransparent ? baseColor : 'white',
+              transition: 'background 0.3s ease, border 0.3s ease, color 0.3s ease',
+              willChange: 'transform, box-shadow',
+              ...styleOverride, 
+            }}
+          >
+            <div 
+              className="animate-shimmer ring-1 ring-white/10" 
+              style={{ 
+                opacity: isTransparent ? 0 : 1,
+                transition: 'opacity 0.3s ease'
+              }} 
+            />
+            <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2">
+              <IconComponent isFlipping={isFlipping} isHovered={isHovered} />
+              <span>{text}</span>
+            </div>
+          </motion.button>
         </motion.div>
     );
 };
@@ -239,6 +413,7 @@ export const SubmitButton = ({ text, loading = false, success = false, disabled 
         />
     );
 };
+
 export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
 
   const [isFlipping, setIsFlipping] = useState(false);
@@ -314,6 +489,7 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
     </motion.div>
   );
 };
+
 export const WeatherButton = ({ textMobile, textDesktop, iconType, onClick, loading = false, expired = false }) => {
   const [isFlipping, setIsFlipping] = useState(false);
   const IconComponent = Icons[iconType] || (() => null);
@@ -386,6 +562,7 @@ export const WeatherButton = ({ textMobile, textDesktop, iconType, onClick, load
     </motion.div>
   );
 };
+
 export const LogoutButton = ({ onLogout, loading = false, success = false, error = false, className }) => {
   let buttonText = 'Logout';
   if (loading) buttonText = 'Processing...';
@@ -447,16 +624,7 @@ export const NewEntryButton = ({ className, ...props }) => {
       }
     }
   };
-
-  return (
-    <GlobalButton
-      text="New Entry"
-      iconType="new"
-      colorConfig={buttonColorConfigs.newEntry}
-      styleOverride={{ width: '10rem' }}
-      onClick={handleClick}
-      {...props} /> );
-};
+ return ( <GlobalButton text="New Entry" iconType="new" colorConfig={buttonColorConfigs.newEntry} styleOverride={{ width: '10rem' }} onClick={handleClick} {...props} /> );};
 export const EditButton = ({ className,...props}) => <GlobalButton text="Edit" iconType="edit" colorConfig={buttonColorConfigs.editDelete} className={className}  styleOverride={{ width: '8rem', height: '3.5rem' }} {...props} />;
 export const DeleteButton = ({ className,...props})=> <GlobalButton text="Delete" iconType="delete" colorConfig={buttonColorConfigs.delete} className={className}  styleOverride={{ width: '8rem', height: '3.5rem' }} {...props} />;
 export const ClearAllButton = ({ className,...props}) => <GlobalButton text="Clear All" iconType="clear" colorConfig={buttonColorConfigs.clearAll} className={className} styleOverride={{ width: '14rem', height: '4rem', fontSize: '1.1rem' }} {...props} />;

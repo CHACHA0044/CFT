@@ -4,6 +4,17 @@ import './index.css';
 import App from './App.js';
 //import reportWebVitals from './reportWebVitals';
 
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  if (
+    typeof args[0] === "string" &&
+    (args[0].includes("preload") || args[0].includes("was preloaded"))
+  ) {
+    return;
+  }
+  originalWarn(...args);
+};
+
 if (process.env.NODE_ENV === 'production') {
   console.log = () => {};
   console.warn = () => {};
@@ -11,16 +22,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const originalWarn = console.warn;
-console.warn = (...args) => {
-  if (
-    typeof args[0] === "string" &&
-    args[0].includes("preload")
-  ) {
-    return; // Ignore preload warnings
-  }
-  originalWarn(...args); // Keep all other warnings
-};
 root.render(
   <React.StrictMode>
     <App />

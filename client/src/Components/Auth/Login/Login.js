@@ -316,9 +316,10 @@ const handleSubmit = async (e) => {
   try {
     // Login request - cookie will be set automatically by proxy
     await API.post('/auth/login', formData);
-
     timers.current.forEach((t) => clearTimeout(t));
     setDelayMessage('');
+    const userResponse = await API.get('/auth/token-info/me');
+    sessionStorage.setItem('userName', userResponse.data.name);
     setSuccess('Login Successful!');
     setError('');
 

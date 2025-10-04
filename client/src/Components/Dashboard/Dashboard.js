@@ -215,7 +215,6 @@ const AnimatedHeadline = React.memo(() => {
   const Dashboard = () => {
   useAuthRedirect(); 
   const [data, setData] = useState([]);
-  const [user, setUser] = useState(null);
   const { loading } = useLoading();
   const [openSection, setOpenSection] = useState(null);
   const [version] = useState(0);
@@ -231,11 +230,16 @@ const AnimatedHeadline = React.memo(() => {
   const bottomRef = useRef(null);
   const topRef = useRef(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState(() => {
+  const cachedName = sessionStorage.getItem('userName');
+  return cachedName ? { name: cachedName } : null;
+});
 useEffect(() => {
   const fetchUser = async () => {
     try {
-      const res = await API.get('/auth/token-info/me'); // backend returns name, email
+      const res = await API.get('/auth/token-info/me');
       setUser(res.data);
+      sessionStorage.setItem('userName', res.data.name);
     } catch (err) {
       console.error('Failed to fetch user info:', err);
       setUser(null);
@@ -325,6 +329,8 @@ useEffect(() => {
     // Clear mobile/PC fallback session token
     sessionStorage.removeItem('authToken');
     sessionStorage.removeItem('sessionToken');
+    sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('justVerified');
     setLogoutSuccess('✌ Logged out');
 
     // Optional: clear any other sensitive session data

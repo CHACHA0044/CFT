@@ -11,7 +11,6 @@ import CardNav from 'Components/CardNav';
 import LottieLogo from 'Components/LottieLogoComponent';
   const sentence = "Your Climate Dashboard";
   const words = sentence.split(" ");
-  
 
 const getLetterVariants = () => ({
   initial: { y: 0, opacity: 1, scale: 1 },
@@ -333,9 +332,6 @@ useEffect(() => {
     sessionStorage.removeItem('justVerified');
     setLogoutSuccess('✌ Logged out');
 
-    // Optional: clear any other sensitive session data
-    sessionStorage.removeItem('justVerified');
-
     setTimeout(() => {
       navigate('/home');
     }, 600);
@@ -346,7 +342,6 @@ useEffect(() => {
     setLogoutLoading(false);
   }
 };
-
 
 useEffect(() => {
   let isMounted = true;

@@ -210,6 +210,31 @@ import useAuthRedirect from 'hooks/useAuthRedirect';
       </div>
     );
   };
+  const AniDot = () => (
+    <span aria-hidden="true" className="inline-flex items-center">
+      <motion.span
+        className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+      > 
+        .
+      </motion.span>
+      <motion.span
+        className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+      >
+        .
+      </motion.span>
+      <motion.span
+        className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
+      >
+        .
+      </motion.span>
+    </span>
+  );
 const History = () => {
   useAuthRedirect();
   const [history, setHistory] = useState([]);
@@ -225,10 +250,7 @@ const History = () => {
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [logoutError, setLogoutError] = useState('');
   const [logoutSuccess, setLogoutSuccess] = useState('');
-
-  //const [openSection, setOpenSection] = useState(null);
-  
- 
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchHistory();
@@ -256,10 +278,9 @@ const handleLogout = async () => {
     // Clear mobile/PC fallback session token
     sessionStorage.removeItem('authToken');
     sessionStorage.removeItem('sessionToken');
-    setLogoutSuccess('✌ Logged out');
-
-    // Optional: clear any other sensitive session data
+    sessionStorage.removeItem('userName');
     sessionStorage.removeItem('justVerified');
+    setLogoutSuccess('✌ Logged out');
 
     setTimeout(() => {
       navigate('/home');
@@ -272,7 +293,7 @@ const handleLogout = async () => {
   }
 };
  const fetchHistory = async () => {
-  
+  setLoading(true);
   try {
     const response = await API.get('/footprint/history');
     const sorted = (Array.isArray(response.data) ? response.data : [])
@@ -281,9 +302,10 @@ setHistory(sorted);
   } catch (err) {
     console.error(err);
     setError('An error occurred while fetching history');
+  } finally {
+    setLoading(false);
   }
 };
-
 
   const handleDelete = async (id) => {
   setLoadingId(id);
@@ -309,7 +331,6 @@ setHistory(sorted);
   }
 };
 
-
  const handleClearAll = async () => {
   setClearingAll(true);
   try {
@@ -327,7 +348,6 @@ setHistory(sorted);
     setClearingAll(false); 
   }
 };
-
 
 return (
   <motion.div
@@ -394,125 +414,125 @@ return (
               </motion.p>
             )}
           </AnimatePresence>
-          <AnimatePresence mode="wait">
-            {history.length === 0 ? (
-              <motion.p
-                key="no-entries"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-center sm:text-xl -mt-4 ml-5 font-intertight text-shadow-DEFAULT"
-              >
-                No entries found<motion.span
-        className="inline-block text-lg font-normal sm:text-2xl sm:font-bold ml-1"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-      >
-        .
-      </motion.span>
-      <motion.span
-        className="inline-block text-lg font-normal sm:text-2xl sm:font-bold"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-      >
-        .
-      </motion.span>
-      <motion.span
-        className="inline-block text-lg font-normal sm:text-2xl sm:font-bold"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
-      >
-        .
-      </motion.span>
-              </motion.p>
-            ) : (
-              <motion.div
-  variants={{
-    visible: { transition: { staggerChildren: 0.1 } },
-    hidden: {},
-  }}
-  initial="hidden"
-  animate="visible"
->
-  {history.map((entry, index) => (
-    <motion.div
-      key={entry._id}
-      layout
-      initial={{ opacity: 0, y: -30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
-      transition={{
-        type: 'spring',
-        stiffness: 400,
-        damping: 17,
-      }}
-      whileHover={{
-        scale: 1.03,
-        boxShadow: '0px 8px 20px rgba(0,0,0,0.2)',
-      }}
-      whileTap={{
-        scale: 0.97,
-        transition: { duration: 0.05 },
-      }}
-      className="relative group bg-white/20 dark:bg-gray-800/70 backdrop-blur-md shadow-md rounded-3xl font-intertight font-normal sm:font-semibold sm:tracking-wider text-shadow-DEFAULT p-4 mb-4 md:ml-64 md:w-7/12 origin-center transition-colors duration-300"
+<AnimatePresence mode="wait">
+  {loading ? (
+    <motion.p
+      key="loading"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="text-center sm:text-xl -mt-4 ml-5 font-intertight text-shadow-DEFAULT"
     >
-      <div className="absolute inset-0 rounded-3xl border-2 border-transparent 
-                  opacity-0 group-hover:opacity-100 animate-borderFlow 
-                  border-emerald-500 dark:border-gray-100 pointer-events-none" />
-      <div className="text-lg sm:text-2xl md:text-3xl text-emerald-500 dark:text-white transition-colors duration-500">
-     <div className="relative inline-block"> <span className="absolute left-[4px] -top-[6px] animate-smoke text-sm opacity-50 delay-0">☁️</span>
-  <span className="absolute left-[8px] -top-[8px] animate-smoke text-xs opacity-40 delay-400">☁️</span>
-  <span className="absolute left-[2px] -top-[10px] animate-smoke text-[10px] opacity-30 delay-800">☁️</span>
-  <span className="inline-block">🏭</span></div> Total Emission <motion.span
-  animate={{ opacity: [1, 0.3, 1] }}
-  transition={{ duration: 0.8, repeat: Infinity }}
->
-  :
-</motion.span> <span>
-  {Math.floor(entry.totalEmissionKg)}
-  <span className="hidden sm:inline">
-    .{String(entry.totalEmissionKg.toFixed(2)).split('.')[1]}
-</span><span className="hidden sm:inline"> </span>
-</span> kg CO<span
-  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-  style={{ '--random': Math.random() }}
->
-2
-</span>
-      </div>
-      <p className="text-xs italic text-emerald-500 dark:text-white mt-1">
-        {entry.updatedAt && entry.updatedAt !== entry.createdAt
-          ? `Updated on ${new Date(entry.updatedAt).toLocaleString()}`
-          : `Created on ${new Date(entry.createdAt).toLocaleString()}`}
-      </p>
-      <div className="mt-3 flex flex-col sm:flex-row gap-3">
-        <EditButton
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/edit/${entry._id}`);
+      Getting entries <AniDot />
+    </motion.p>
+  ) : history.length === 0 ? (
+    <motion.p
+      key="no-entries"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="text-center sm:text-xl -mt-4 ml-5 font-intertight text-shadow-DEFAULT"
+    >
+      No entries found <AniDot />
+    </motion.p>
+  ) : (
+    <motion.div
+      variants={{
+        visible: { transition: { staggerChildren: 0.1 } },
+        hidden: {},
+      }}
+      initial="hidden"
+      animate="visible"
+    >
+      {history.map((entry, index) => (
+        <motion.div
+          key={entry._id}
+          layout
+          initial={{ opacity: 0, y: -30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          transition={{
+            type: 'spring',
+            stiffness: 400,
+            damping: 17,
           }}
-        />
-        <DeleteButton
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete(entry._id);
+          whileHover={{
+            scale: 1.03,
+            boxShadow: '0px 8px 20px rgba(0,0,0,0.2)',
           }}
-          disabled={loadingId === entry._id}
-          text={
-            loadingId === entry._id
-              ? 'Processing...'
-              : deletedId === entry._id
-              ? 'Deleted'
-              : 'Delete'
-          }
-        />
-      </div>
-    </motion.div>
-  ))}
-</motion.div>
+          whileTap={{
+            scale: 0.97,
+            transition: { duration: 0.05 },
+          }}
+          className="relative group bg-white/20 dark:bg-gray-800/70 backdrop-blur-md shadow-md rounded-3xl font-intertight font-normal sm:font-semibold sm:tracking-wider text-shadow-DEFAULT p-4 mb-4 md:ml-64 md:w-7/12 origin-center transition-colors duration-300"
+        >
+          <div className="absolute inset-0 rounded-3xl border-2 border-transparent 
+                      opacity-0 group-hover:opacity-100 animate-borderFlow 
+                      border-emerald-500 dark:border-gray-100 pointer-events-none" />
+          <div className="text-lg sm:text-2xl md:text-3xl text-emerald-500 dark:text-white transition-colors duration-500">
+            <div className="relative inline-block">
+              <span className="absolute left-[4px] -top-[6px] animate-smoke text-sm opacity-50 delay-0">☁️</span>
+              <span className="absolute left-[8px] -top-[8px] animate-smoke text-xs opacity-40 delay-400">☁️</span>
+              <span className="absolute left-[2px] -top-[10px] animate-smoke text-[10px] opacity-30 delay-800">☁️</span>
+              <span className="inline-block">🏭</span>
+            </div>{' '}
+            Total Emission{' '}
+            <motion.span
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ duration: 0.8, repeat: Infinity }}
+            >
+              :
+            </motion.span>{' '}
+            <span>
+              {Math.floor(entry.totalEmissionKg)}
+              <span className="hidden sm:inline">
+                .{String(entry.totalEmissionKg.toFixed(2)).split('.')[1]}
+              </span>
+              <span className="hidden sm:inline"> </span>
+            </span>{' '}
+            kg CO
+            <span
+              className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+              style={{ '--random': Math.random() }}
+            >
+              2
+            </span>
+          </div>
 
-            )}
-          </AnimatePresence>
+          <p className="text-xs italic text-emerald-500 dark:text-white mt-1">
+            {entry.updatedAt && entry.updatedAt !== entry.createdAt
+              ? `Updated on ${new Date(entry.updatedAt).toLocaleString()}`
+              : `Created on ${new Date(entry.createdAt).toLocaleString()}`}
+          </p>
+
+          <div className="mt-3 flex flex-col sm:flex-row gap-3">
+            <EditButton
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/edit/${entry._id}`);
+              }}
+            />
+            <DeleteButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(entry._id);
+              }}
+              disabled={loadingId === entry._id}
+              text={
+                loadingId === entry._id
+                  ? 'Processing...'
+                  : deletedId === entry._id
+                  ? 'Deleted'
+                  : 'Delete'
+              }
+            />
+          </div>
+        </motion.div>
+      ))}
+    </motion.div>
+  )}
+</AnimatePresence>
+
 
           {history.length > 0 && (
             <ClearAllButton

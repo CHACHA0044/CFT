@@ -381,10 +381,9 @@ const handleLogout = async () => {
     // Clear mobile/PC fallback session token
     sessionStorage.removeItem('authToken');
     sessionStorage.removeItem('sessionToken');
-    setLogoutSuccess('✌ Logged out');
-
-    // Optional: clear any other sensitive session data
+    sessionStorage.removeItem('userName');
     sessionStorage.removeItem('justVerified');
+    setLogoutSuccess('✌ Logged out');
 
     setTimeout(() => {
       navigate('/home');

@@ -79,7 +79,7 @@ app.use('/api', generalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: 80, //reduce to 10
+  max: 8, //reduce to 10
   message: 'Too many login/register attempts. Try again later.'
 });
 app.use('/api/auth', authLimiter);

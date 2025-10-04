@@ -26,6 +26,173 @@ const AniDot = () => (
     </motion.span>
   </span>
 );
+  
+  const getLetterVariants = () => ({
+    initial: { y: 0, opacity: 1, scale: 1 },
+    fall: {
+      y: [0, 20, -10, 100],
+      x: [0, 10, -10, 0],
+      opacity: [1, 0.7, 0],
+      rotate: [0, 10, -10, 0],
+      transition: { duration: 2, ease: "easeInOut" },
+    },
+    reenter: {
+      y: [-120, 20, -10, 5, 0],
+      x: [0, 4, -4, 2, 0],
+      scale: [0.9, 1.2, 0.95, 1.05, 1],
+      opacity: [0, 1],
+      transition: {
+        duration: 1.6,
+        ease: [0.34, 1.56, 0.64, 1],
+      },
+    },
+  });
+  
+const AnimatedHeadline = ({ sentence = "" }) => {
+    const words = sentence.split(" ");
+    const [activeBurstIndex, setActiveBurstIndex] = useState(null);
+    const [bursting, setBursting] = useState(false);
+    const [fallingLetters, setFallingLetters] = useState([]);
+  
+    // useEffect(() => {
+    //   const allChars = sentence.replace(/\s/g, "").length;
+  
+    //   const interval = setInterval(() => {
+    //     const indices = Array.from({ length: allChars }, (_, i) => i);
+    //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
+  
+    //     setFallingLetters((prev) => [...prev, ...shuffled]);
+  
+    //     setTimeout(() => {
+    //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
+    //     }, 3000);
+    //   }, 4000); // pause for 4s
+  
+    //   return () => clearInterval(interval);
+    // }, []);
+  
+    const triggerBurst = (index) => {
+      setActiveBurstIndex(index);
+      setBursting(true);
+      setTimeout(() => {
+        setBursting(false);
+        setActiveBurstIndex(null);
+      }, 1800);
+    };
+  
+    return (
+      <div className="relative overflow-visible w-full flex sm:flex-row justify-center items-center mt-2 ml-4 sm:ml-0 mb-2 px-4">
+        <motion.div
+          className="flex flex-wrap justify-center gap-2 text-5xl sm:text-6xl md:text-8xl font-black font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.3,
+              },
+            },
+          }}
+        >
+          {words.map((word, wordIndex) => (
+            <motion.span
+              key={wordIndex}
+              onMouseEnter={() => {
+                if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+              }}
+              onClick={() => {
+                if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+              }}
+              className="relative inline-block cursor-pointer"
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: { opacity: 1, y: 0 },
+              }}
+            >
+              {word.split("").map((char, i) => {
+                const allChars = sentence.replace(/\s/g, "").split("");
+                const charIndex = allChars.findIndex(
+                  (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
+                );
+  
+                const isBursting = activeBurstIndex === wordIndex;
+  
+                const randomDelay = Math.random() * 0.5 + i * 0.05;
+  
+                return (
+                  <AnimatePresence key={`${char}-${i}`}>
+                    <motion.span
+                      className="inline-block relative"
+                      initial={{
+                        x: 0,
+                        y: 0,
+                        rotate: 0,
+                        opacity: 1,
+                        scale: 1,
+                      }}
+                      animate={
+                        isBursting
+                          ? {
+                              x: Math.random() * 80 - 40,
+                              y: Math.random() * 60 - 30,
+                              rotate: Math.random() * 180 - 90,
+                              opacity: [1, 0],
+                              scale: [1, 1.2, 0.4],
+                              transition: {
+                                duration: 0.8,
+                                delay: randomDelay,
+                                ease: "easeOut",
+                              },
+                            }
+                          : fallingLetters.includes(charIndex)
+                          ? "reenter"
+                          : "initial"
+                      }
+                      variants={getLetterVariants()}
+                    >
+                      {char}
+                      {/* Confetti burst */}
+                      {isBursting && (
+                        <span className="absolute top-1/2 left-1/2 z-[-1]">
+                          {[...Array(5)].map((_, j) => {
+                            const confX = Math.random() * 30 - 15;
+                            const confY = Math.random() * 30 - 15;
+                            return (
+                              <motion.span
+                                key={j}
+                                className="absolute w-1 h-1 bg-emerald-400 rounded-full"
+                                initial={{ opacity: 1, scale: 1 }}
+                                animate={{
+                                  x: confX,
+                                  y: confY,
+                                  opacity: [1, 0],
+                                  scale: [1, 0.4],
+                                }}
+                                transition={{
+                                  duration: 0.6,
+                                  delay: randomDelay,
+                                  ease: "easeOut",
+                                }}
+                              />
+                            );
+                          })}
+                        </span>
+                      )}
+                    </motion.span>
+                  </AnimatePresence>
+                );
+              })}
+            </motion.span>
+          ))}
+        </motion.div>
+      </div>
+    );
+  };
+
   const pageDescriptions = {
   "/dashboard": "View your entries 📊, visualize data 🔍, and much more 🌱",
   "/history": "See all entries 🗂️, edit ✏️ or delete 🗑️ past data",
@@ -113,7 +280,7 @@ useEffect(() => {
           >
             {/* Optional Title */}
 
-<motion.div
+{/* <motion.div
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}
   transition={{ type: "spring", stiffness: 500, damping: 15 }}
@@ -131,7 +298,11 @@ useEffect(() => {
     </motion.span>
   ))}
 </motion.span>
-</motion.div>
+</motion.div> */}
+<div className="pl-2 pt-10">
+  <AnimatedHeadline sentence={`Menu ${currentPage}`} />
+</div>
+
 {/* Page Description */}
 {description && (
   <motion.div

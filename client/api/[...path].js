@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
   console.log(`[PROXY] ${req.method} -> ${targetUrl}`);
 
   try {
-    const fetch = (await import('node-fetch')).default;
+    const fetch = require('node-fetch');
     
     const headers = {
       'Content-Type': 'application/json',

@@ -320,7 +320,7 @@ const handleSubmit = async (e) => {
     setDelayMessage('');
     const userResponse = await API.get('/auth/token-info/me');
     sessionStorage.setItem('userName', userResponse.data.name);
-    setSuccess('Login Successful!');
+    setSuccess('Login Successful! 😎');
     setError('');
 
     // Verify cookie was set

@@ -107,7 +107,7 @@ const AnimatedHeadline = ({ sentence = "" }) => {
               onClick={() => {
                 if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
               }}
-              className="relative cursor-pointer"
+              className="relative inline-block cursor-pointer mr-2"
               variants={{
                 hidden: { opacity: 0, y: 10 },
                 visible: { opacity: 1, y: 0 },
@@ -126,7 +126,7 @@ const AnimatedHeadline = ({ sentence = "" }) => {
                 return (
                   <AnimatePresence key={`${char}-${i}`}>
                     <motion.span
-                      className=" relative"
+                      className="inline-block relative"
                       initial={{
                         x: 0,
                         y: 0,

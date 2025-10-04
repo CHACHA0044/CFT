@@ -423,7 +423,7 @@ return (
       exit={{ opacity: 0 }}
       className="text-center sm:text-xl -mt-4 ml-5 font-intertight text-shadow-DEFAULT"
     >
-      Getting entries <AniDot />
+      Getting entries<AniDot />
     </motion.p>
   ) : history.length === 0 ? (
     <motion.p
@@ -433,7 +433,7 @@ return (
       exit={{ opacity: 0 }}
       className="text-center sm:text-xl -mt-4 ml-5 font-intertight text-shadow-DEFAULT"
     >
-      No entries found <AniDot />
+      No entries found<AniDot />
     </motion.p>
   ) : (
     <motion.div

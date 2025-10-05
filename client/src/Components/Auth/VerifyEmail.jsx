@@ -15,28 +15,33 @@ const VerifyEmail = () => {
   const [status, setStatus] = useState('idle'); // idle, verifying, success, error
   const [userName, setUserName] = useState('');
   const shimmerControls = useAnimation();
-  // Fetch username associated with the token
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const { data } = await API.get(`/auth/token-info/me?token=${token}`);
-        setUserName(data.name);
-      } catch (error) {
-        console.error('❌ Could not fetch user info:', error);
-        setStatus('error');
-      }
-    };
-    fetchUser();
-  }, [token]);
+  // not needed
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       const { data } = await API.get(`/auth/token-info/me?token=${token}`);
+  //       setUserName(data.name);
+  //     } catch (error) {
+  //       console.error('❌ Could not fetch user info:', error);
+  //       setStatus('error');
+  //     }
+  //   };
+  //   fetchUser();
+  // }, [token]);
 
   const handleVerify = async () => {
     setStatus('verifying');
     await new Promise((resolve) => setTimeout(resolve, 600));
+    
     try {
-      await API.get(`/auth/verify-email/${token}`);
+      // Single endpoint that both verifies AND returns user info
+      const { data } = await API.get(`/auth/verify-email/${token}`);
+      
+      setUserName(data.user.name); // name 
       setStatus('success');
       sessionStorage.setItem('justVerified', 'true');
-      setTimeout(() => navigate('/login'), 3000); // subtle 3s delay
+      setTimeout(() => navigate('/login'), 3000);
+      
     } catch (error) {
       console.error('❌ Email verification failed:', error);
       setStatus('error');

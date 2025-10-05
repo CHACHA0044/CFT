@@ -487,14 +487,13 @@ router.post('/register', async (req, res) => {
   }
 });
 
-//VERIFYROUTE - Fixed
+//VERIFYROUTE - user info + token
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
     
     console.log('🔍 [VERIFY] Token received');
     
-    // Verify the JWT
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -507,28 +506,19 @@ router.get('/verify-email/:token', async (req, res) => {
       });
     }
 
-    // Find user by email and verify the token matches
     const user = await User.findOne({ 
       email: decoded.email,
-      isVerified: false  // Only verify unverified users
+      verificationToken: token 
     });
     
     if (!user) {
-      console.error('❌ [VERIFY] User not found or already verified');
+      console.error('❌ [VERIFY] User not found or token mismatch');
       return res.status(400).json({ 
-        error: 'User not found or already verified' 
+        error: 'Invalid or expired verification link' 
       });
     }
 
-    // Check if the stored token matches (prevents token reuse)
-    if (user.verificationToken !== token) {
-      console.error('❌ [VERIFY] Token mismatch');
-      return res.status(400).json({ 
-        error: 'Invalid verification link' 
-      });
-    }
-
-    // Verify the user
+    // Update user
     user.isVerified = true;
     user.verificationToken = undefined;
     user.resendAttempts = 0;
@@ -537,9 +527,13 @@ router.get('/verify-email/:token', async (req, res) => {
 
     console.log('✅ [VERIFY] Email verified for:', user.email);
     
+    // Return user info including name
     res.status(200).json({ 
       message: 'Email verified successfully!',
-      email: user.email
+      user: {
+        name: user.name,
+        email: user.email
+      }
     });
     
   } catch (err) {

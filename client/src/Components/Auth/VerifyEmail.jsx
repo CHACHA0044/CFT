@@ -37,7 +37,9 @@ const VerifyEmail = () => {
       // Single endpoint that both verifies AND returns user info
       const { data } = await API.get(`/auth/verify-email/${token}`);
       
-      setUserName(data.user.name); // name 
+      if (data.user && data.user.name) {
+        setUserName(data.user.name);
+      } // name 
       setStatus('success');
       sessionStorage.setItem('justVerified', 'true');
       setTimeout(() => navigate('/login'), 3000);

@@ -491,20 +491,45 @@ router.post('/register', async (req, res) => {
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    console.log('🔍 [VERIFY] Token received:', token.substring(0, 30) + '...');
+    
+    // Verify token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('✅ [VERIFY] Token decoded:', decoded);
+    } catch (jwtErr) {
+      console.error('❌ [VERIFY] JWT verification failed:', jwtErr.message);
+      return res.status(400).json({ 
+        error: 'Invalid or expired token',
+        details: jwtErr.message 
+      });
+    }
 
-    const user = await User.findOne({ email: decoded.email, verificationToken: token });
-    if (!user) return res.status(400).json({ error: 'Invalid or expired token' });
+    // Find user
+    const user = await User.findOne({ 
+      email: decoded.email, 
+      verificationToken: token 
+    });
+    
+    if (!user) {
+      console.error('❌ [VERIFY] User not found or token mismatch');
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
 
+    // Update user
     user.isVerified = true;
     user.verificationToken = undefined;
     user.resendAttempts = undefined;
     user.lastResendAt = undefined;
     await user.save();
 
+    console.log('✅ [VERIFY] Email verified successfully for:', user.email);
     res.status(200).json({ message: 'Email verified successfully!' });
+    
   } catch (err) {
-    console.error('❌ Email verification error:', err);
+    console.error('❌ [VERIFY] Verification error:', err);
     res.status(400).json({ error: 'Email verification failed or token expired' });
   }
 });

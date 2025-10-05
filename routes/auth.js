@@ -541,7 +541,41 @@ router.get('/verify-email/:token', async (req, res) => {
     res.status(500).json({ error: 'Verification failed' });
   }
 });
+// Add this route BEFORE the main verify-email route in auth.js
 
+// Get username from verification token (read-only, doesn't verify)
+router.get('/verify-email/:token/preview', async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (jwtErr) {
+      return res.status(400).json({ 
+        error: 'Invalid or expired token',
+        expired: jwtErr.name === 'TokenExpiredError'
+      });
+    }
+
+    // Find user by email only (don't verify token match yet)
+    const user = await User.findOne({ email: decoded.email }).select('name email');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Just return the name, don't verify the account
+    res.json({ 
+      name: user.name,
+      email: user.email
+    });
+    
+  } catch (err) {
+    console.error('❌ [PREVIEW] Error:', err);
+    res.status(500).json({ error: 'Failed to fetch user info' });
+  }
+});
 //RESEND VERIFICATION EMAIL
 router.post('/resend-verification', async (req, res) => {
   try {

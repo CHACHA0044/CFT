@@ -367,3 +367,207 @@ html {
 .VictoryContainer {
   touch-action: pan-y !important; 
 }
+@keyframes cookiePop {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: ease-in-out;
+  }
+  40% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  55% {
+    transform: translateY(-30px) scale(1.25);
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+  70% {
+    transform: translateY(-15px) scale(1.15);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  85% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: ease-out;
+  }
+}
+
+.cookie-pop {
+  animation: cookiePop 3s infinite;
+  display: inline-block;
+  transform-origin: center bottom;
+}
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Cookie explode animation - pops up, explodes at peak, pieces scatter */
+@keyframes cookieMain {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  45% {
+    transform: translateY(-50px) scale(1.4);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50px) scale(1.4);
+    opacity: 0;
+  }
+  95% {
+    transform: translateY(-50px) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes crumb1 {
+  0%, 49% {
+    transform: translate(0, -50px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, -50px) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(-45px, -90px) rotate(-180deg) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes crumb2 {
+  0%, 49% {
+    transform: translate(0, -50px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, -50px) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(45px, -90px) rotate(180deg) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes crumb3 {
+  0%, 49% {
+    transform: translate(0, -50px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, -50px) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(-40px, -10px) rotate(-90deg) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes crumb4 {
+  0%, 49% {
+    transform: translate(0, -50px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, -50px) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(40px, -10px) rotate(90deg) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.cookie-explode-wrapper {
+  display: inline-block;
+  position: relative;
+  height: 1.2em;
+  width: 2.5em;
+  vertical-align: middle;
+  margin-bottom: -0.1em;
+}
+
+.cookie-main {
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  animation: cookieMain 4s ease-in-out infinite;
+}
+
+.cookie-crumb {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-size: 0.7em;
+  pointer-events: none;
+}
+
+.cookie-crumb-1 {
+  animation: crumb1 4s ease-out infinite;
+}
+
+.cookie-crumb-2 {
+  animation: crumb2 4s ease-out infinite;
+}
+
+.cookie-crumb-3 {
+  animation: crumb3 4s ease-out infinite;
+}
+
+.cookie-crumb-4 {
+  animation: crumb4 4s ease-out infinite;
+}
+  

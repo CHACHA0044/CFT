@@ -702,7 +702,7 @@ return (
           {error}
         </div>
       )}
-       <div className=" w-auto px-0">
+<div className=" w-auto px-0">
 <CardNav
   logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
   logoAlt="Animated Menu"
@@ -738,7 +738,7 @@ return (
             <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
             <h2 className="sm:text-3xl md:text-5xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🗓️ </span>Monthly Emissions</h2>
 
-                      {(() => {
+          {(() => {
             const [intPart, decimalPart] = total.toFixed(2).split('.');
             return (
               <p className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">

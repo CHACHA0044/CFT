@@ -430,7 +430,7 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
   }
 });
 
-// dont need this also
+//THANKS MY G
 router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => {
   console.log('\n📧 [/feedback/resend-thankyou] Resend request received');
   
@@ -487,7 +487,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-//VERIFYROUTE - user info + token
+//VERIFYROUTE
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -541,9 +541,8 @@ router.get('/verify-email/:token', async (req, res) => {
     res.status(500).json({ error: 'Verification failed' });
   }
 });
-// Add this route BEFORE the main verify-email route in auth.js
 
-// Get username from verification token (read-only, doesn't verify)
+//USERNAME FROM EMAIL
 router.get('/verify-email/:token/preview', async (req, res) => {
   try {
     const { token } = req.params;
@@ -558,14 +557,14 @@ router.get('/verify-email/:token/preview', async (req, res) => {
       });
     }
 
-    // Find user by email only (don't verify token match yet)
+    // Find user by email
     const user = await User.findOne({ email: decoded.email }).select('name email');
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Just return the name, don't verify the account
+    // returnin the name
     res.json({ 
       name: user.name,
       email: user.email
@@ -576,6 +575,7 @@ router.get('/verify-email/:token/preview', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch user info' });
   }
 });
+
 //RESEND VERIFICATION EMAIL
 router.post('/resend-verification', async (req, res) => {
   try {

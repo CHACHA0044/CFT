@@ -367,6 +367,7 @@ Carbon Footprint Tracker
       >
         <HomeHeaderButton text="Login" iconType="verify" navigateTo="/login" />
         <HomeHeaderButton text="Register" iconType="new" navigateTo="/register" />
+        <HomeHeaderButton text="About" iconType="info" navigateTo="/about" className="hidden sm:inline-flex"/>
       </motion.div>
     )}
   </AnimatePresence>

@@ -93,6 +93,7 @@ const Icons = {
   visualize: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="10" />  <path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z" /> <circle cx="12" cy="12" r="3" /> </motion.svg>),
   dashboard: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M3 12L12 3l9 9" /> <path d="M9 21V12h6v9" /> </motion.svg>),
   weather: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="4" /> <line x1="12" y1="2" x2="12" y2="6" /> <line x1="12" y1="18" x2="12" y2="22" /> <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /> <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" /> <line x1="2" y1="12" x2="6" y2="12" /> <line x1="18" y1="12" x2="22" y2="12" /> <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /> <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" /> <path d="M17.5 19a4.5 4.5 0 0 0 0-9 5 5 0 0 0-9.9 1.5H7a4 4 0 0 0 0 8h10.5z" /> </motion.svg> ),
+  info: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="10" /> <line x1="12" y1="16" x2="12" y2="12" /> <line x1="12" y1="8" x2="12.01" y2="8" /> </motion.svg> ),
 };
 
 // const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
@@ -414,7 +415,7 @@ export const SubmitButton = ({ text, loading = false, success = false, disabled 
     );
 };
 
-export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
+export const HomeHeaderButton = ({ text, navigateTo, iconType, className = ""  }) => {
 
   const [isFlipping, setIsFlipping] = useState(false);
   const IconComponent = Icons[iconType] || (() => null);
@@ -452,13 +453,12 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType }) => {
   },
 }}
 
-      className="
+      className={`
   relative flex items-center justify-center gap-2
   h-6 px-2 text-sm
   sm:h-10 sm:px-5 sm:text-base
   md:h-12 md:px-6 md:text-lg
-  sm:rounded-xl rounded-lg font-semibold font-sriracha sm:tracking-wide shadow-lg overflow-hidden dark:text-gray-100 text-emerald-500 
-"
+  sm:rounded-xl rounded-lg font-semibold font-sriracha sm:tracking-wide shadow-lg overflow-hidden dark:text-gray-100 text-emerald-500 ${className}`}
 
       style={{
   background: 'transparent',

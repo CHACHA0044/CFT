@@ -90,7 +90,7 @@ import { MdEmail } from "react-icons/md";
               onClick={() => {
                 if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
               }}
-              className="relative inline-block cursor-pointer"
+              className="relative mr-2 inline-block cursor-pointer"
               variants={{
                 hidden: { opacity: 0, y: 10 },
                 visible: { opacity: 1, y: 0 },

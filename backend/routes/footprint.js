@@ -178,7 +178,6 @@ router.put('/:entryId', authenticateToken, async (req, res) => {
   }
 });
 
-
 //DELETE single entry 
 router.delete('/:entryId', authenticateToken, async (req, res) => {
   try {

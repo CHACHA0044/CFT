@@ -7,6 +7,7 @@ const axios = require('axios');
 const authenticateToken = require('../middleware/authmiddleware');
 const router = express.Router();
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 const redisClient = require('../RedisClient');
 
 // HELPER FUNCTIONS

@@ -72,7 +72,7 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' }));
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 40, // reduce to 100
+  max: 50, // reduce to 100
   message: 'Too many requests, please try again later.'
 });
 app.use('/api', generalLimiter);
@@ -99,7 +99,7 @@ app.use('/api/footprint', footprintRoutes);
 
 // test route
 app.get('/api', (req, res) => {
-  res.send('🌱 Carbon Footprint API is live and secure.');
+  res.send('✅ Carbon Footprint API is live and secure.');
 });
 
 app.get('/api/redis-test', async (req, res) => {
@@ -131,12 +131,12 @@ mongoose.connect(process.env.MONGO_URI, {
   .then(() => {
     console.log('✅ MongoDB connected');
     app.listen(PORT, () => {
-      console.log(`🚀 Server started on ${PORT}`);
+      console.log(`✅ Server started on ${PORT}`);
       startImapPoller(); 
-
-    cron.schedule('*/10 * * * *', async () => {
+    // 2 min cron ping
+    cron.schedule('*/2 * * * *', async () => {
     try {
-      const url = 'https://cft-cj43.onrender.com/api/auth/ping'; 
+      const url = `https://cft-cj43.onrender.com/api/auth/ping?ts=${Date.now()}`; 
       const res = await axios.get(url);
       console.log('⏱️ Pinged self:', res.data.message, res.data.timestamp);
     } catch (err) {

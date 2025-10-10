@@ -611,8 +611,9 @@ router.post('/resend-verification', async (req, res) => {
   }
 });
 
-//WAKEUP SON
-router.get('/ping', (req, res) => {
+// WAKEUP SON
+router.get('/ping', async (req, res) => {
+  //setting headers for cors issues sos tht fe can call this endpoint across domains
   res.set({
     'Access-Control-Allow-Origin': req.headers.origin || '*',
     'Access-Control-Allow-Credentials': 'true',
@@ -620,12 +621,29 @@ router.get('/ping', (req, res) => {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
     'Content-Type': 'application/json'
   });
-  
-  res.status(200).json({ 
-    message: 'Server server wake up!',
-    timestamp: new Date().toISOString(),
-    status: 'healthy'
-  });
+
+  try {
+    // Lightweight CPU work (dummy hash calc)
+    const sum = Array.from({ length: 1000 }, (_, i) => Math.sqrt(i * Math.random())).reduce((a, b) => a + b, 0);
+
+    // Lightweight Redis operation, incr is a redis command that automatically creates pinghit adn increments it, then return incremented value
+    const hits = await redisClient.incr('ping_hits');
+
+    // MDB checking 
+    const mongooseStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+
+    res.status(200).json({
+      message: 'Server is awake and did something...',
+      cpuSample: sum.toFixed(2),
+      redisHits: hits,
+      mongo: mongooseStatus,
+      timestamp: new Date().toISOString(),
+      status: 'healthy'
+    });
+  } catch (err) {
+    console.error('❌ Ping error:', err);
+    res.status(500).json({ error: 'Ping failed', details: err.message });
+  }
 });
 
 // WEATHER & AQI

@@ -139,7 +139,7 @@ const deleteKey = async (key) => {
   }
 };
 
-// Get me 
+//GETME
 router.get('/token-info/me', async (req, res) => {
   const startTime = Date.now();
   console.log('\n🔐 [/token-info/me] Request received');
@@ -340,6 +340,7 @@ router.post('/logout', authenticateToken, async (req, res) => {
       
       if (ttl > 0) {
         const blacklistKey = `blacklist:token:${token}`;
+        // blacklisting token when user logs out,storing it in Redis with a TTL equal to its remaining lifetime...prevents reuse of that JWT even before its natural expiry
         await setCachedData(blacklistKey, { invalidated: true }, ttl);
         console.log(`🔒 [TOKEN BLACKLIST] Token invalidated | TTL: ${ttl}s`);
       }
@@ -614,7 +615,7 @@ router.post('/resend-verification', async (req, res) => {
 
 // WAKEUP SON
 router.get('/ping', async (req, res) => {
-  //setting headers for cors issues sos tht fe can call this endpoint across domains
+  //setting headers for cors issues so tht fe can call this endpoint across domains
   res.set({
     'Access-Control-Allow-Origin': req.headers.origin || '*',
     'Access-Control-Allow-Credentials': 'true',
@@ -632,13 +633,13 @@ router.get('/ping', async (req, res) => {
 
     // MDB checking 
     const mongooseStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-
+    const readableTime = formatTime(new Date(), "Asia/Kolkata");
     res.status(200).json({
-      message: 'Server is awake and did something...',
+      message: `Server is awake and did 14,000,605 calculations...${readableTime}`,
       cpuSample: sum.toFixed(2),
       redisHits: hits,
       mongo: mongooseStatus,
-      timestamp: new Date().toISOString(),
+      timestamp: readableTime,
       status: 'healthy'
     });
   } catch (err) {
@@ -658,14 +659,19 @@ router.get("/weather-aqi", async (req, res) => {
   });
 
   let { lat, lon, refresh, forceApi } = req.query;
-
+  console.log("📥 Query Params:", { lat, lon, refresh, forceApi });
+  
   try {
     // Get location from IP if missing
     if (!lat || !lon) {
       const ipRes = await axios.get("https://ipapi.co/json/");
+      console.log("🌐 IP Location fetched:", ipRes.data);
       lat = ipRes.data.latitude;
       lon = ipRes.data.longitude;
     }
+    //rounding coordinates to prevent cache key fragmentation
+    lat = parseFloat(parseFloat(lat).toFixed(4));
+    lon = parseFloat(parseFloat(lon).toFixed(4));
 
     const cacheKey = `weather:${lat},${lon}`;
     console.log(`🔍 Checking cache for key: ${cacheKey}`);
@@ -699,26 +705,111 @@ router.get("/weather-aqi", async (req, res) => {
         });
       }
 
-      // Handle refresh logic with rate limiting
-      if (refresh && cached) {
-        const refreshBlockThreshold = 1200; // 20 min rule
-        if (ttl > refreshBlockThreshold) {
-          const refreshAllowedIn = Math.max(ttl - refreshBlockThreshold, 0);
-          console.log(`🚫 Refresh blocked - TTL: ${ttl}s, must wait ${refreshAllowedIn}s more`);
-          return res.status(429).json({
-            error: "Refresh not allowed yet. Please wait at least 10 minutes.",
-            refreshAllowedIn,
-            ttl,
-            fromCache: true,
-          });
-        }
+      //refresh logic with rate limiting
+      if (refresh === "true" && cached) {
+      const refreshBlockThreshold = 600; // 10 min rule
+      if (ttl > refreshBlockThreshold) {
+        const refreshAllowedIn = Math.max(ttl - refreshBlockThreshold, 0);
+        console.log(`🚫 Refresh blocked - TTL: ${ttl}s, must wait ${refreshAllowedIn}s more`);
+        return res.status(429).json({
+          error: "Refresh not allowed yet. Please wait at least 10 minutes.",
+          refreshAllowedIn,
+          ttl,
+          fromCache: true,
+        });
       }
+    }
     } else {
       console.log(`🔧 Force API mode: ${forceApi} - Skipping cache`);
     }
+    if (forceApi) {
+  const ip = req.ip || req.headers["x-forwarded-for"] || "unknown_ip";
+  const forceKey = `force-refresh:${ip}`;
+  
+  try {
+    let count = await redisClient.get(forceKey);
+    count = count ? parseInt(count) : 0;
+
+    if (count >= 2) {
+      console.log(`🚫 Force refresh limit reached for IP: ${ip}`);
+      return res.status(429).json({
+        error: "Force refresh limit reached. Max 2 per hour allowed.",
+        fromCache: true,
+      });
+    }
+
+    //counter with expiry of 1 hour
+    await redisClient.multi()
+      .incr(forceKey)
+      .expire(forceKey, 3600) // 1 hour
+      .exec();
+
+    console.log(`⚡ Force refresh count for IP ${ip}: ${count + 1}`);
+  } catch (err) {
+    console.warn("⚠️ Redis error during force refresh rate limit:", err.message);
+  }
+}
 
     console.log("🌐 Cache miss or refresh requested - Making API calls...");
     let result = null;
+
+    // IMPROVED: Calculate moon phase locally using astronomical formula
+    const calculateMoonPhase = (date = new Date()) => {
+      // Using the astronomical formula for moon phase calculation
+      const year = date.getUTCFullYear();
+      const month = date.getUTCMonth() + 1;
+      const day = date.getUTCDate();
+      
+      // Calculate Julian Date
+      let jd = 367 * year - Math.floor(7 * (year + Math.floor((month + 9) / 12)) / 4) 
+             + Math.floor(275 * month / 9) + day + 1721013.5;
+      
+      // Days since new moon on January 6, 2000
+      const daysSinceNew = jd - 2451549.5;
+      
+      // Moon's synodic period (average)
+      const synodicMonth = 29.53058867;
+      
+      // Calculate phase (0 to 1)
+      const phase = (daysSinceNew % synodicMonth) / synodicMonth;
+      
+      let phaseName = "New Moon";
+      let phaseNum = 0;
+      
+      if (phase < 0.03 || phase > 0.97) {
+        phaseName = "New Moon";
+        phaseNum = 0;
+      } else if (phase >= 0.03 && phase < 0.22) {
+        phaseName = "Waxing Crescent";
+        phaseNum = 1;
+      } else if (phase >= 0.22 && phase < 0.28) {
+        phaseName = "First Quarter";
+        phaseNum = 2;
+      } else if (phase >= 0.28 && phase < 0.47) {
+        phaseName = "Waxing Gibbous";
+        phaseNum = 3;
+      } else if (phase >= 0.47 && phase < 0.53) {
+        phaseName = "Full Moon";
+        phaseNum = 4;
+      } else if (phase >= 0.53 && phase < 0.72) {
+        phaseName = "Waning Gibbous";
+        phaseNum = 5;
+      } else if (phase >= 0.72 && phase < 0.78) {
+        phaseName = "Third Quarter";
+        phaseNum = 6;
+      } else if (phase >= 0.78 && phase < 0.97) {
+        phaseName = "Waning Crescent";
+        phaseNum = 7;
+      }
+      
+      console.log("🌙 Calculated moon phase:", { phase, phaseName, phaseNum });
+      
+      return {
+      phase: phaseNum,
+      name: phaseName,
+      value: parseFloat((Math.cos(phase * 2 * Math.PI) * -0.5 + 0.5).toFixed(4))
+    };
+    };
 
     const useTomorrow = async () => {
       console.log("🌍 [Tomorrow.io] Fetching...");
@@ -737,48 +828,57 @@ router.get("/weather-aqi", async (req, res) => {
         return precipMap[type] || "None";
       };
 
-      const mapMoonPhase = (phase) => {
-        if (phase >= 0.0625 && phase <= 0.1875) return { phase: 1, name: "Waxing Crescent" };
-        if (phase >= 0.1875 && phase <= 0.3125) return { phase: 2, name: "First Quarter" };
-        if (phase >= 0.3125 && phase <= 0.4375) return { phase: 3, name: "Waxing Gibbous" };
-        if (phase >= 0.4375 && phase <= 0.5625) return { phase: 4, name: "Full Moon" };
-        if (phase >= 0.5625 && phase <= 0.6875) return { phase: 5, name: "Waning Gibbous" };
-        if (phase >= 0.6875 && phase <= 0.8125) return { phase: 6, name: "Third Quarter" };
-        if (phase >= 0.8125 && phase <= 0.9375) return { phase: 7, name: "Waning Crescent" };
-        return { phase: 0, name: "New Moon" };
+      // Get sunrise/sunset times from separate API
+      const getSunTimes = async () => {
+        try {
+          const sunRes = await axios.get(
+            `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`
+          );
+          console.log("🌅 Sunrise/Sunset data:", sunRes.data);
+          return {
+            sunrise: sunRes.data.results.sunrise,
+            sunset: sunRes.data.results.sunset
+          };
+        } catch (err) {
+          console.warn("⚠️ Failed to fetch sun times:", err.message);
+          return { sunrise: null, sunset: null };
+        }
       };
 
-      // Fetch weather from Tomorrow.io
-      const r = await axios.get(
-        `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,sunriseTime,sunsetTime,visibility,moonPhase,weatherCodeFullDay&apikey=${process.env.TOMORROW_API_KEY}`
-      );
+      // Fetch all data in parallel
+      const [tomorrowRes, airRes, moonPhase, sunTimes] = await Promise.all([
+        axios.get(
+          `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,visibility&apikey=${process.env.TOMORROW_API_KEY}`
+        ),
+        axios.get(
+          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+        ),
+        Promise.resolve(calculateMoonPhase()),
+        getSunTimes()
+      ]);
 
-      // Fetch air quality from Open-Meteo
-      const airRes = await axios.get(
-        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
-      );
-
-      const values = r.data.data.values;
-      const moonPhaseData = mapMoonPhase(values.moonPhase || 0);
-
-      return {
+      console.log("📡 Tomorrow.io FULL raw response:", JSON.stringify(tomorrowRes.data, null, 2));
+      console.log("📡 AQI raw response:", JSON.stringify(airRes.data, null, 2));
+      
+      const values = tomorrowRes.data.data.values;
+      
+      const processedResult = {
         weather: {
           temperature_2m: values.temperature,
           relative_humidity_2m: values.humidity,
           windspeed_10m: values.windSpeed * 3.6, // m/s to km/h
           apparent_temperature: values.temperatureApparent,
           weather_code: mapWeatherCode(values.weatherCode),
-          weather_code_full_day: values.weatherCodeFullDay,
           uv_index: values.uvIndex || 0,
           rain_intensity: values.rainIntensity || 0,
           precipitation_type: mapPrecipitationType(values.precipitationType),
           precipitation_type_raw: values.precipitationType || 0,
-          sunrise_time: values.sunriseTime,
-          sunset_time: values.sunsetTime,
+          sunrise_time: sunTimes.sunrise,
+          sunset_time: sunTimes.sunset,
           visibility: values.visibility || 0,
-          moon_phase_value: values.moonPhase || 0,
-          moon_phase: moonPhaseData.phase,
-          moon_phase_name: moonPhaseData.name,
+          moon_phase_value: moonPhase.value,
+          moon_phase: moonPhase.phase,
+          moon_phase_name: moonPhase.name,
           temp: values.temperature,
           windspeed: values.windSpeed * 3.6,
         },
@@ -788,25 +888,49 @@ router.get("/weather-aqi", async (req, res) => {
         refreshed: !!refresh,
         timestamp: new Date().toISOString()
       };
+      
+      console.log("📤 Tomorrow.io processed result:", JSON.stringify(processedResult, null, 2));
+      return processedResult;
     };
 
     const useWeatherbit = async () => {
       console.log("🌍 [Weatherbit] Fetching...");
       
+      // FIXED: Get sunrise/sunset from sunrise-sunset.org instead of Weatherbit
+      const getSunTimes = async () => {
+        try {
+          const sunRes = await axios.get(
+            `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`
+          );
+          console.log("🌅 Sunrise/Sunset data:", sunRes.data);
+          return {
+            sunrise: sunRes.data.results.sunrise,
+            sunset: sunRes.data.results.sunset
+          };
+        } catch (err) {
+          console.warn("⚠️ Failed to fetch sun times:", err.message);
+          return { sunrise: null, sunset: null };
+        }
+      };
+
       // Fetch weather from Weatherbit
-      const wbWeather = await axios.get(
-        `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHERBIT_API_KEY}&units=M`
-      );
+      const [wbWeather, airRes, moonPhase, sunTimes] = await Promise.all([
+        axios.get(
+          `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHERBIT_API_KEY}&units=M`
+        ),
+        axios.get(
+          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+        ),
+        Promise.resolve(calculateMoonPhase()),
+        getSunTimes()
+      ]);
+
+      console.log("📡 Weatherbit FULL raw response:", JSON.stringify(wbWeather.data, null, 2));
       
-      // Fetch air quality from Open-Meteo
-      const airRes = await axios.get(
-        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
-      );
-
       const weatherData = wbWeather.data.data[0];
-      console.log("📡 Weatherbit weather data:", weatherData);
+      console.log("📡 Weatherbit weather data extracted:", JSON.stringify(weatherData, null, 2));
 
-      return {
+      const processedResult = {
         weather: {
           temperature_2m: weatherData.temp,
           relative_humidity_2m: weatherData.rh,
@@ -815,6 +939,11 @@ router.get("/weather-aqi", async (req, res) => {
           weather_code: weatherData.weather?.code || 0,
           visibility: weatherData.vis || 0,
           uv_index: weatherData.uv || 0,
+          sunrise_time: sunTimes.sunrise, // Using sunrise-sunset.org API
+          sunset_time: sunTimes.sunset,   // Using sunrise-sunset.org API
+          moon_phase_value: moonPhase.value,
+          moon_phase: moonPhase.phase,
+          moon_phase_name: moonPhase.name,
           temp: weatherData.temp,
           windspeed: weatherData.wind_spd * 3.6,
         },
@@ -824,23 +953,53 @@ router.get("/weather-aqi", async (req, res) => {
         refreshed: !!refresh,
         timestamp: new Date().toISOString()
       };
+      
+      console.log("📤 Weatherbit processed result:", JSON.stringify(processedResult, null, 2));
+      return processedResult;
     };
 
     const useOpenMeteo = async () => {
       console.log("🌍 [Open-Meteo] Fetching...");
       
-      const omWeather = await axios.get(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
-      );
-      const omAir = await axios.get(
-        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
-      );
+      // Get sunrise/sunset
+      const getSunTimes = async () => {
+        try {
+          const sunRes = await axios.get(
+            `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`
+          );
+          return {
+            sunrise: sunRes.data.results.sunrise,
+            sunset: sunRes.data.results.sunset
+          };
+        } catch (err) {
+          console.warn("⚠️ Failed to fetch sun times:", err.message);
+          return { sunrise: null, sunset: null };
+        }
+      };
       
-      console.log("📡 Open-Meteo weather raw:", omWeather.data);
-      console.log("📡 Open-Meteo air raw:", omAir.data);
+      const [omWeather, omAir, moonPhase, sunTimes] = await Promise.all([
+        axios.get(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
+        ),
+        axios.get(
+          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+        ),
+        Promise.resolve(calculateMoonPhase()),
+        getSunTimes()
+      ]);
+      
+      console.log("📡 Open-Meteo weather raw:", JSON.stringify(omWeather.data, null, 2));
+      console.log("📡 Open-Meteo air raw:", JSON.stringify(omAir.data, null, 2));
 
       return {
-        weather: omWeather.data.current,
+        weather: {
+          ...omWeather.data.current,
+          sunrise_time: sunTimes.sunrise,
+          sunset_time: sunTimes.sunset,
+          moon_phase_value: moonPhase.value,
+          moon_phase: moonPhase.phase,
+          moon_phase_name: moonPhase.name,
+        },
         air_quality: omAir.data.current,
         source: "Open-Meteo",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
@@ -875,7 +1034,7 @@ router.get("/weather-aqi", async (req, res) => {
       return res.status(500).json({ error: errFinal.message });
     }
 
-    // Redis cache (1800)
+    // Redis cache (1800s = 30 minutes)
     if (!forceApi) {
       try {
         const cacheExpiry = 1800; 
@@ -896,6 +1055,7 @@ router.get("/weather-aqi", async (req, res) => {
 
   } catch (error) {
     console.error("❌ Weather route error:", error.message);
+    console.error("❌ Full error:", error);
     res.status(500).json({ error: error.message });
   }
 });

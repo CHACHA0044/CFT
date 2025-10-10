@@ -281,6 +281,48 @@ const WeatherCountdown = React.memo(({ weatherTimestamp, onExpire }) => {
     </>
   );
 });
+const RefreshCountdown = React.memo(({ weatherTimestamp, onRefreshAvailable }) => {
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (!weatherTimestamp) return;
+
+    const updateTimer = () => {
+      const tenMinutes = 10 * 60 * 1000;
+      const elapsed = Date.now() - weatherTimestamp;
+      const remaining = Math.max(0, tenMinutes - elapsed);
+      
+      setTimeLeft(Math.floor(remaining / 1000));
+      
+      if (remaining <= 0) {
+        onRefreshAvailable();
+      }
+    };
+
+    updateTimer(); // Initial call
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [weatherTimestamp, onRefreshAvailable]);
+
+  if (timeLeft <= 0) return null;
+
+  const minutesLeft = Math.floor(timeLeft / 60);
+  const secondsLeft = timeLeft % 60;
+
+  return (
+    <div className="text-center text-xs text-gray-400 mb-2">
+      {`Refresh available in ${minutesLeft}m ${secondsLeft}s `}
+      <motion.span
+        animate={{ rotateY: [0, 180, 360] }}
+        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+        className="inline-block"
+      >
+        🔄
+      </motion.span>
+    </div>
+  );
+});
 const ChartPage = () => {
   useAuthRedirect();
   const location = useLocation();
@@ -314,10 +356,12 @@ const ChartPage = () => {
   const [logoutError, setLogoutError] = useState('');
   const [logoutSuccess, setLogoutSuccess] = useState('');
   const navigate = useNavigate();
+
 const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
   setLoadingWeather(true);
   let lat, lon;
-//location loguc
+
+  // Location logic
   if (navigator.geolocation) {
     try {
       const pos = await new Promise((resolve, reject) => {
@@ -334,29 +378,53 @@ const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
         );
       });
 
-      lat = pos.coords.latitude;
-      lon = pos.coords.longitude;
+      //Rounding coordinates to match backend and prevent cache key fragmentation
+      lat = parseFloat(pos.coords.latitude.toFixed(4));
+      lon = parseFloat(pos.coords.longitude.toFixed(4));
+      console.log("📍 Browser location:", { lat, lon });
     } catch (err) {
-      console.warn("Geolocation denied or unavailable. Falling back to IP-based location...");
+      console.warn("⚠️ Geolocation denied or unavailable. Falling back to IP-based location...");
     }
   }
 
   try {
-    const query = lat && lon ? `?lat=${lat}&lon=${lon}` : "";
-    const refreshParam = forceRefresh ? (query ? "&refresh=true" : "?refresh=true") : "";
-    const res = await API.get(`/auth/weather-aqi${query}${refreshParam}`);
+    // Build query params properly
+    const params = new URLSearchParams();
+    if (lat && lon) {
+      params.append("lat", lat);
+      params.append("lon", lon);
+    }
+    if (forceRefresh) {
+      params.append("refresh", "true");
+    }
+    // Default to tomorrow.io - change this to test different APIs
+   // params.append("forceApi", "tomorrow");
+    
+    const queryString = params.toString();
+    console.log("🌐 Fetching weather with params:", queryString);
 
+    const res = await API.get(`/auth/weather-aqi?${queryString}`);
+
+    console.log("✅ Weather response received:", res.data);
+    
     setData(res.data);
     setWeatherRequested(true);
     setWeatherTimestamp(Date.now());
-    // refresh 
+    
+    // Handle refresh cooldown
+    if (forceRefresh) {
+      setShowRefreshButton(false);
+    }
+    
+    // refresh option
     if (res.data.refreshAllowedIn !== undefined) {
       setRefreshCooldown(res.data.refreshAllowedIn);
     } else {
       setRefreshCooldown(0);
     }
   } catch (err) {
-    console.error("Failed to fetch weather/AQI data:", err);
+    console.error("❌ Failed to fetch weather/AQI data:", err);
+    console.error("❌ Error response:", err.response?.data);
   } finally {
     setLoadingWeather(false);
   }
@@ -395,38 +463,24 @@ const handleLogout = async () => {
     setLogoutLoading(false);
   }
 };
-useEffect(() => {
-  if (!weatherTimestamp) {
-    setShowRefreshButton(false);
-    return;
-  }
-  
-  const tenMinutes = 10 * 60 * 1000; // 10 minutes
-  const timeElapsed = Date.now() - weatherTimestamp;
-  
-  if (timeElapsed >= tenMinutes) {
-    setShowRefreshButton(true);
-  } else {
-    const timer = setTimeout(() => {
-      setShowRefreshButton(true);
-    }, tenMinutes - timeElapsed);
-    
-    return () => clearTimeout(timer);
-  }
-}, [weatherTimestamp]);
+const handleRefreshAvailable = useCallback(() => {
+  setShowRefreshButton(true);
+}, []);
 // countdown effect
 const [currentTime, setCurrentTime] = useState(Date.now());
+//getting user name , route does other things also
 useEffect(() => {
   const fetchUser = async () => {
     try {
-      const res = await API.get('/auth/token-info/me'); // Cookie will be sent automatically
+      const res = await API.get('/auth/token-info/me'); 
       setUser(res.data);
+      sessionStorage.setItem('userName', res.data.name);
     } catch (err) {
       console.error('Failed to load user info:', err);
     }
   };
   fetchUser();
-}, []);
+}, []); // using empty array to make it run only once
   const total = processed?.totalEmissionKg;
   const values = {
   food: processed?.foodEmissionKg,
@@ -763,9 +817,16 @@ return (
       setWeatherRequested(false);
       setData(null);
       setWeatherTimestamp(null);
+      setShowRefreshButton(false);
     }}
   />
 </div>
+{!showRefreshButton && (
+      <RefreshCountdown 
+        weatherTimestamp={weatherTimestamp}
+        onRefreshAvailable={handleRefreshAvailable}
+      />
+    )}
     
     {/* Weather Section */}
     <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6">
@@ -1101,9 +1162,12 @@ return (
 
     {/* Data Source Info */}
     <div className="text-center text-xs text-gray-400 mb-2">
-      Data from: {data.source} • Location: {data.location_source === 'browser' ? 'Device GPS' : 'IP Address'}
-      {data.refreshed && ' • Force Refreshed'}
-    </div>
+    Data from: {data.source}
+    {data.weather?.sunrise_time && ' + Sunrise-Sunset.org'}
+    {data.weather?.moon_phase_name && ' + Astronomical Calculation'}
+    {' • Location: ' + (data.location_source === 'browser' ? 'Device GPS' : 'IP Address')}
+    {data.refreshed && ' • Force Refreshed'}
+  </div>
     
     {/* Refresh button */}
     {showRefreshButton && (

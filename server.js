@@ -1,26 +1,5 @@
 require('dotenv').config();
 
-//time format
-const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
-  try {
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone,
-    }).format(date);
-  } catch {
-    const utcMs = date.getTime() + date.getTimezoneOffset() * 60000;
-    const ist = new Date(utcMs + 330 * 60000);
-    const h = ist.getHours();
-    const m = ist.getMinutes();
-    const mer = h >= 12 ? "PM" : "AM";
-    const hour12 = ((h + 11) % 12) + 1;
-    const mm = String(m).padStart(2, "0");
-    return `${hour12}:${mm} ${mer}`;
-  }
-};
-
 // core modules
 const express = require('express');
 const mongoose = require('mongoose');
@@ -157,10 +136,9 @@ mongoose.connect(process.env.MONGO_URI, {
     // 2 min cron ping
     cron.schedule('*/3 * * * *', async () => {
     try {
-      const readableTime = formatTime(new Date(), "Asia/Kolkata");
       const url = `https://cft-cj43.onrender.com/api/auth/ping?ts=${Date.now()}`; 
       const res = await axios.get(url);
-      console.log(`⏱️ Pinged self: ${res.data.message} ${readableTime}`);
+      console.log(`⏱️ Pinged self: ${res.data.message}`);
     } catch (err) {
       console.error('❌ Ping failed:', err.message);
     }

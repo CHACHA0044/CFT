@@ -53,7 +53,7 @@ const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) =
 };
 
 const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
-  const currentTime = formatTime(new Date(), timeZone);
+
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
@@ -65,7 +65,7 @@ const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">Thank you for sharing your valuable feedback with us ✨<br/>We truly appreciate the time you took to help us improve <strong>Carbon Footprint Tracker</strong>.</p>
         <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">Our team will carefully review your suggestions and work on making the platform better for you and the community.</p>
-        <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong></p>
+        
       </div>
     </div>
     <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Thanks for helping us improve 🌱</div>
@@ -77,13 +77,13 @@ const getCachedData = async (key) => {
     const data = await redisClient.get(key);
     if (data) {
       const ttl = await redisClient.ttl(key);
-      console.log(`✅ [REDIS CACHE HIT] Key: ${key} | TTL: ${ttl}s`);
+    //  console.log(` [REDIS CACHE HIT] Key: ${key} | TTL: ${ttl}s`);
       return { data: JSON.parse(data), ttl };
     }
-    console.log(`❌ [REDIS CACHE MISS] Key: ${key}`);
+    //console.log(`[REDIS CACHE MISS] Key: ${key}`);
     return null;
   } catch (err) {
-    console.error(`⚠️ [REDIS READ ERROR] Key: ${key} | Error:`, err.message);
+   // console.error(`[REDIS READ ERROR] Key: ${key} | Error:`, err.message);
     return null;
   }
 };
@@ -91,10 +91,10 @@ const getCachedData = async (key) => {
 const setCachedData = async (key, data, ttl) => {
   try {
     await redisClient.setEx(key, ttl, JSON.stringify(data));
-    console.log(`✅ [REDIS CACHE SET] Key: ${key} | TTL: ${ttl}s | Size: ${JSON.stringify(data).length} bytes`);
+   // console.log(`[REDIS CACHE SET] Key: ${key} | TTL: ${ttl}s | Size: ${JSON.stringify(data).length} bytes`);
     return true;
   } catch (err) {
-    console.error(`⚠️ [REDIS WRITE ERROR] Key: ${key} | Error:`, err.message);
+   // console.error(`[REDIS WRITE ERROR] Key: ${key} | Error:`, err.message);
     return false;
   }
 };
@@ -103,10 +103,10 @@ const getRateLimitData = async (key) => {
   try {
     const count = await redisClient.get(key);
     const ttl = count ? await redisClient.ttl(key) : -1;
-    console.log(`🔍 [REDIS RATE LIMIT CHECK] Key: ${key} | Count: ${count || 0} | TTL: ${ttl}s`);
+   // console.log(`[REDIS RATE LIMIT CHECK] Key: ${key} | Count: ${count || 0} | TTL: ${ttl}s`);
     return { count: count ? parseInt(count) : 0, ttl };
   } catch (err) {
-    console.error(`⚠️ [REDIS RATE LIMIT ERROR] Key: ${key} | Error:`, err.message);
+   // console.error(`[REDIS RATE LIMIT ERROR] Key: ${key} | Error:`, err.message);
     return { count: 0, ttl: -1 };
   }
 };
@@ -116,14 +116,14 @@ const incrementRateLimit = async (key, ttl) => {
     const current = await redisClient.get(key);
     if (current) {
       await redisClient.incr(key);
-      console.log(`📈 [REDIS RATE LIMIT INCREMENT] Key: ${key} | New Count: ${parseInt(current) + 1}`);
+     // console.log(`[REDIS RATE LIMIT INCREMENT] Key: ${key} | New Count: ${parseInt(current) + 1}`);
     } else {
       await redisClient.setEx(key, ttl, '1');
-      console.log(`🆕 [REDIS RATE LIMIT NEW] Key: ${key} | TTL: ${ttl}s`);
+     // console.log(` [REDIS RATE LIMIT NEW] Key: ${key} | TTL: ${ttl}s`);
     }
     return true;
   } catch (err) {
-    console.error(`⚠️ [REDIS RATE LIMIT INCREMENT ERROR] Key: ${key} | Error:`, err.message);
+    //console.error(`[REDIS RATE LIMIT INCREMENT ERROR] Key: ${key} | Error:`, err.message);
     return false;
   }
 };
@@ -131,10 +131,10 @@ const incrementRateLimit = async (key, ttl) => {
 const deleteKey = async (key) => {
   try {
     await redisClient.del(key);
-    console.log(`🗑️ [REDIS DELETE] Key: ${key}`);
+    //console.log(` [REDIS DELETE] Key: ${key}`);
     return true;
   } catch (err) {
-    console.error(`⚠️ [REDIS DELETE ERROR] Key: ${key} | Error:`, err.message);
+    //console.error(` [REDIS DELETE ERROR] Key: ${key} | Error:`, err.message);
     return false;
   }
 };
@@ -226,24 +226,24 @@ router.get('/token-info/me', async (req, res) => {
 
 //LOGIN
 router.post('/login', async (req, res) => {
-  console.log('\n🔑 [/login] Login attempt started');
+  console.log(' [/login] Login attempt started');
   
   try {
     const { email, password } = req.body;
     
     if (!email || !password) {
-      console.log('❌ [VALIDATION] Missing email or password');
+      console.log(' [VALIDATION] Missing email or password');
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    console.log(`📧 [LOGIN] Attempt for email: ${email}`);
+    console.log(` [LOGIN] Attempt for email: ${email}`);
 
     // Check rate limit
     const loginAttemptKey = `login:attempts:${email}`;
     const rateLimit = await getRateLimitData(loginAttemptKey);
     
     if (rateLimit.count >= 5) {
-      console.log(`🚫 [RATE LIMIT] Login blocked for ${email}`);
+      console.log(` [RATE LIMIT] Login blocked for ${email}`);
       return res.status(429).json({ 
         error: 'Too many login attempts. Please try again later.',
         retryAfter: rateLimit.ttl,
@@ -257,11 +257,11 @@ router.post('/login', async (req, res) => {
     
     const cached = await getCachedData(userCacheKey);
     if (cached) {
-      console.log(`✅ [CACHE] User data from cache`);
+      console.log(`[CACHE] User data from cache`);
       // Still need to fetch from DB to verify current state
       user = await User.findById(cached.data.userId);
     } else {
-      console.log(`🔍 [DATABASE] Looking up user: ${email}`);
+      console.log(`[DATABASE] Looking up user: ${email}`);
       user = await User.findOne({ email });
       
       // Cache user lookup for 5 minutes
@@ -271,29 +271,29 @@ router.post('/login', async (req, res) => {
     }
     
     if (!user) {
-      console.log(`❌ [AUTH] User not found: ${email}`);
+      console.log(`[AUTH] User not found: ${email}`);
       await incrementRateLimit(loginAttemptKey, 900);
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
     // Rest of your password verification logic...
-    console.log(`🔐 [AUTH] Verifying password...`);
+    console.log(` [AUTH] Verifying password...`);
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     
     if (!isPasswordValid) {
-      console.log(`❌ [AUTH] Invalid password for: ${email}`);
+      console.log(` [AUTH] Invalid password for: ${email}`);
       await incrementRateLimit(loginAttemptKey, 900);
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
     if (!user.isVerified) {
-      console.log(`⚠️ [AUTH] Unverified account: ${email}`);
+      console.log(` [AUTH] Unverified account: ${email}`);
       return res.status(403).json({ error: 'Please verify your email before logging in.' });
     }
 
     // Clear failed attempts
     await deleteKey(loginAttemptKey);
-    console.log(`✅ [RATE LIMIT] Cleared failed attempts for: ${email}`);
+    console.log(` [RATE LIMIT] Cleared failed attempts for: ${email}`);
 
     // Generate token
     const token = jwt.sign(
@@ -311,7 +311,7 @@ router.post('/login', async (req, res) => {
       maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 
-    console.log(`✅ [LOGIN SUCCESS] User logged in: ${email} | From cache: ${!!cached}`);
+    console.log(` [LOGIN SUCCESS] User logged in: ${email} | From cache: ${!!cached}`);
     
     res.json({
       message: 'Login successful',
@@ -659,13 +659,13 @@ router.get("/weather-aqi", async (req, res) => {
   });
 
   let { lat, lon, refresh, forceApi } = req.query;
-  console.log("📥 Query Params:", { lat, lon, refresh, forceApi });
+  //console.log("📥 Query Params:", { lat, lon, refresh, forceApi });
   
   try {
     // Get location from IP if missing
     if (!lat || !lon) {
       const ipRes = await axios.get("https://ipapi.co/json/");
-      console.log("🌐 IP Location fetched:", ipRes.data);
+      //console.log("🌐 IP Location fetched:", ipRes.data);
       lat = ipRes.data.latitude;
       lon = ipRes.data.longitude;
     }
@@ -674,7 +674,7 @@ router.get("/weather-aqi", async (req, res) => {
     lon = parseFloat(parseFloat(lon).toFixed(4));
 
     const cacheKey = `weather:${lat},${lon}`;
-    console.log(`🔍 Checking cache for key: ${cacheKey}`);
+    //console.log(`🔍 Checking cache for key: ${cacheKey}`);
 
     // Check Redis cache first (unless forceApi is set)
     if (!forceApi) {
@@ -685,17 +685,17 @@ router.get("/weather-aqi", async (req, res) => {
         if (cached) ttl = await redisClient.ttl(cacheKey);
         
         if (cached) {
-          console.log(`✅ Cache HIT - Data found in Redis (TTL: ${ttl}s)`);
+          //console.log(`✅ Cache HIT - Data found in Redis (TTL: ${ttl}s)`);
         } else {
-          console.log(`❌ Cache MISS - No data in Redis`);
+          //console.log(`❌ Cache MISS - No data in Redis`);
         }
       } catch (redisErr) {
-        console.warn("⚠️ Redis read failed:", redisErr.message);
+        //console.warn("⚠️ Redis read failed:", redisErr.message);
       }
 
       // If we have cached data and not forcing refresh
       if (cached && !refresh) {
-        console.log("⚡ Serving weather data from Redis cache");
+        //console.log("⚡ Serving weather data from Redis cache");
         const cachedData = JSON.parse(cached);
         return res.json({
           ...cachedData,
@@ -710,7 +710,7 @@ router.get("/weather-aqi", async (req, res) => {
       const refreshBlockThreshold = 600; // 10 min rule
       if (ttl > refreshBlockThreshold) {
         const refreshAllowedIn = Math.max(ttl - refreshBlockThreshold, 0);
-        console.log(`🚫 Refresh blocked - TTL: ${ttl}s, must wait ${refreshAllowedIn}s more`);
+        //console.log(`🚫 Refresh blocked - TTL: ${ttl}s, must wait ${refreshAllowedIn}s more`);
         return res.status(429).json({
           error: "Refresh not allowed yet. Please wait at least 10 minutes.",
           refreshAllowedIn,
@@ -720,7 +720,7 @@ router.get("/weather-aqi", async (req, res) => {
       }
     }
     } else {
-      console.log(`🔧 Force API mode: ${forceApi} - Skipping cache`);
+      //console.log(`🔧 Force API mode: ${forceApi} - Skipping cache`);
     }
     if (forceApi) {
   const ip = req.ip || req.headers["x-forwarded-for"] || "unknown_ip";
@@ -731,7 +731,7 @@ router.get("/weather-aqi", async (req, res) => {
     count = count ? parseInt(count) : 0;
 
     if (count >= 2) {
-      console.log(`🚫 Force refresh limit reached for IP: ${ip}`);
+      //console.log(`🚫 Force refresh limit reached for IP: ${ip}`);
       return res.status(429).json({
         error: "Force refresh limit reached. Max 2 per hour allowed.",
         fromCache: true,
@@ -744,16 +744,16 @@ router.get("/weather-aqi", async (req, res) => {
       .expire(forceKey, 3600) // 1 hour
       .exec();
 
-    console.log(`⚡ Force refresh count for IP ${ip}: ${count + 1}`);
+   // console.log(`⚡ Force refresh count for IP ${ip}: ${count + 1}`);
   } catch (err) {
-    console.warn("⚠️ Redis error during force refresh rate limit:", err.message);
+   // console.warn("⚠️ Redis error during force refresh rate limit:", err.message);
   }
 }
 
-    console.log("🌐 Cache miss or refresh requested - Making API calls...");
+   // console.log("🌐 Cache miss or refresh requested - Making API calls...");
     let result = null;
 
-    // IMPROVED: Calculate moon phase locally using astronomical formula
+    //Calculating moon phase locally using astronomical formula
     const calculateMoonPhase = (date = new Date()) => {
       // Using the astronomical formula for moon phase calculation
       const year = date.getUTCFullYear();
@@ -802,7 +802,7 @@ router.get("/weather-aqi", async (req, res) => {
         phaseNum = 7;
       }
       
-      console.log("🌙 Calculated moon phase:", { phase, phaseName, phaseNum });
+      //console.log("" Calculated moon phase:", { phase, phaseName, phaseNum });
       
       return {
       phase: phaseNum,
@@ -812,7 +812,7 @@ router.get("/weather-aqi", async (req, res) => {
     };
 
     const useTomorrow = async () => {
-      console.log("🌍 [Tomorrow.io] Fetching...");
+      //console.log(" [Tomorrow.io] Fetching...");
       
       const mapWeatherCode = (tomorrowCode) => {
         const weatherCodeMap = {
@@ -834,13 +834,13 @@ router.get("/weather-aqi", async (req, res) => {
           const sunRes = await axios.get(
             `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`
           );
-          console.log("🌅 Sunrise/Sunset data:", sunRes.data);
+          //console.log(" Sunrise/Sunset data:", sunRes.data);
           return {
             sunrise: sunRes.data.results.sunrise,
             sunset: sunRes.data.results.sunset
           };
         } catch (err) {
-          console.warn("⚠️ Failed to fetch sun times:", err.message);
+          //console.warn(" Failed to fetch sun times:", err.message);
           return { sunrise: null, sunset: null };
         }
       };
@@ -857,8 +857,8 @@ router.get("/weather-aqi", async (req, res) => {
         getSunTimes()
       ]);
 
-      console.log("📡 Tomorrow.io FULL raw response:", JSON.stringify(tomorrowRes.data, null, 2));
-      console.log("📡 AQI raw response:", JSON.stringify(airRes.data, null, 2));
+      //console.log(" Tomorrow.io FULL raw response:", JSON.stringify(tomorrowRes.data, null, 2));
+      //console.log("AQI raw response:", JSON.stringify(airRes.data, null, 2));
       
       const values = tomorrowRes.data.data.values;
       
@@ -889,7 +889,7 @@ router.get("/weather-aqi", async (req, res) => {
         timestamp: new Date().toISOString()
       };
       
-      console.log("📤 Tomorrow.io processed result:", JSON.stringify(processedResult, null, 2));
+      //console.log(" Tomorrow.io processed result:", JSON.stringify(processedResult, null, 2));
       return processedResult;
     };
 
@@ -902,13 +902,13 @@ router.get("/weather-aqi", async (req, res) => {
           const sunRes = await axios.get(
             `https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`
           );
-          console.log("🌅 Sunrise/Sunset data:", sunRes.data);
+          //console.log(" Sunrise/Sunset data:", sunRes.data);
           return {
             sunrise: sunRes.data.results.sunrise,
             sunset: sunRes.data.results.sunset
           };
         } catch (err) {
-          console.warn("⚠️ Failed to fetch sun times:", err.message);
+          //console.warn("Failed to fetch sun times:", err.message);
           return { sunrise: null, sunset: null };
         }
       };
@@ -925,10 +925,10 @@ router.get("/weather-aqi", async (req, res) => {
         getSunTimes()
       ]);
 
-      console.log("📡 Weatherbit FULL raw response:", JSON.stringify(wbWeather.data, null, 2));
+      //console.log("Weatherbit FULL raw response:", JSON.stringify(wbWeather.data, null, 2));
       
       const weatherData = wbWeather.data.data[0];
-      console.log("📡 Weatherbit weather data extracted:", JSON.stringify(weatherData, null, 2));
+      //console.log(" Weatherbit weather data extracted:", JSON.stringify(weatherData, null, 2));
 
       const processedResult = {
         weather: {
@@ -954,12 +954,12 @@ router.get("/weather-aqi", async (req, res) => {
         timestamp: new Date().toISOString()
       };
       
-      console.log("📤 Weatherbit processed result:", JSON.stringify(processedResult, null, 2));
+     // console.log("Weatherbit processed result:", JSON.stringify(processedResult, null, 2));
       return processedResult;
     };
 
     const useOpenMeteo = async () => {
-      console.log("🌍 [Open-Meteo] Fetching...");
+     // console.log("[Open-Meteo] Fetching...");
       
       // Get sunrise/sunset
       const getSunTimes = async () => {
@@ -972,7 +972,7 @@ router.get("/weather-aqi", async (req, res) => {
             sunset: sunRes.data.results.sunset
           };
         } catch (err) {
-          console.warn("⚠️ Failed to fetch sun times:", err.message);
+         // console.warn(" Failed to fetch sun times:", err.message);
           return { sunrise: null, sunset: null };
         }
       };
@@ -988,8 +988,8 @@ router.get("/weather-aqi", async (req, res) => {
         getSunTimes()
       ]);
       
-      console.log("📡 Open-Meteo weather raw:", JSON.stringify(omWeather.data, null, 2));
-      console.log("📡 Open-Meteo air raw:", JSON.stringify(omAir.data, null, 2));
+     // console.log(" Open-Meteo weather raw:", JSON.stringify(omWeather.data, null, 2));
+      //console.log(" Open-Meteo air raw:", JSON.stringify(omAir.data, null, 2));
 
       return {
         weather: {
@@ -1039,14 +1039,14 @@ router.get("/weather-aqi", async (req, res) => {
       try {
         const cacheExpiry = 1800; 
         await redisClient.setEx(cacheKey, cacheExpiry, JSON.stringify(result));
-        console.log(`✅ Weather data stored in Redis cache for 30 minutes (source: ${result.source})`);
-        console.log(`📦 Cache key: ${cacheKey}, Expiry: ${cacheExpiry}s`);
+        console.log(` Weather data stored (30 min) (source: ${result.source})`);
+        console.log(`Cache key: ${cacheKey}, Expiry: ${cacheExpiry}s`);
       } catch (redisWriteErr) {
-        console.warn("⚠️ Failed to store weather in Redis:", redisWriteErr.message);
+        console.warn("Failed to store weather in Redis:", redisWriteErr.message);
       }
     }
 
-    console.log(`📤 Sending fresh weather data from ${result.source}`);
+    console.log(`Sending fresh weather data from ${result.source}`);
     res.json({
       ...result,
       fromCache: false,

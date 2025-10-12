@@ -17,7 +17,7 @@ import { easeInOut } from "framer-motion";
 import { easeCubicOut } from "d3-ease";
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
-import { NewEntryButton, EditDeleteButton, DashboardButton, WeatherButton, LogoutButton } from 'Components/globalbuttons';
+import { NewEntryButton, EditDeleteButton, DashboardButton, WeatherButton, LogoutButton, VisualizeButton } from 'Components/globalbuttons';
 
 const globalAverages = {
   food: 141,
@@ -214,31 +214,6 @@ const sentence = "Your Emission Trends";const words = sentence.split(" ");
   );
 };
 
-const AniDot = () => (
-  <span aria-hidden="true" className="inline-flex items-center">
-    <motion.span
-      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
-      animate={{ opacity: [0, 1, 0] }}
-      transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-    > 
-      .
-    </motion.span>
-    <motion.span
-      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
-      animate={{ opacity: [0, 1, 0] }}
-      transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-    >
-      .
-    </motion.span>
-    <motion.span
-      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
-      animate={{ opacity: [0, 1, 0] }}
-      transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
-    >
-      .
-    </motion.span>
-  </span>
-);
 const WeatherCountdown = React.memo(({ weatherTimestamp, onExpire }) => {
   const [timeLeft, setTimeLeft] = useState(0);
 
@@ -354,6 +329,8 @@ const ChartPage = () => {
   const [showRefreshButton, setShowRefreshButton] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [logoutError, setLogoutError] = useState('');
+  const [allEntries, setAllEntries] = useState([]);
+  const [showECM, setShowECM] = useState(false);
   const [logoutSuccess, setLogoutSuccess] = useState('');
   const navigate = useNavigate();
 
@@ -496,6 +473,23 @@ useEffect(() => {
   }));
   setProjectionData(data);
 }, [total]);
+useEffect(() => {
+  const fetchAllEntries = async () => {
+    try {
+      const res = await API.get('/footprint/history');
+      const result = res.data;
+      const entries = Array.isArray(result) ? result : result.history || [];
+      const sortedEntries = entries.sort(
+        (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+      );
+      setAllEntries(sortedEntries);
+    } catch (err) {
+      console.error('Failed to fetch entries:', err);
+    }
+  };
+
+  fetchAllEntries();
+}, []);
 const [projectionData, setProjectionData] = useState([]);
 const [dotMonth, setDotMonth] = useState(1);
 const [ setDotData] = useState(null);
@@ -770,8 +764,24 @@ return (
   onToggleMenu={setIsMenuOpen}
 >
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+    <AnimatePresence>
+      {showECM && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0, y: -20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.8, opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="absolute -top-16 bg-emerald-500/90 dark:bg-black text-white px-2 py-2 rounded-xl shadow-lg text-shadow-DEFAULT text-sm font-intertight text-center z-50"
+        >
+          <div className="flex items-center gap-2">
+            <span>Entry changed! Close menu to view it</span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
     <NewEntryButton className="w-40" />
     <EditDeleteButton className="w-40" />
+    {allEntries.length > 1 && ( <VisualizeButton entries={allEntries} onClick={(entry) => { setEntryData(entry); setShowECM(true); setTimeout(() => { setShowECM(false); }, 5000); }} className="w-40" /> )}
     <DashboardButton className="w-40" />
     <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
   </div>

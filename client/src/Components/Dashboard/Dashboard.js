@@ -33,15 +33,6 @@ const getLetterVariants = () => ({
   },
 });
 
-function shuffleArray(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 const triggerConfetti = (element) => {
   if (!element) return;
 
@@ -403,26 +394,6 @@ useEffect(() => {
   transition={{ duration: 0.35, ease: 'easeInOut' }}
 >
 
-{/* <motion.div
-  initial={{ y: -30, opacity: 0 }}
-  animate={{ y: 0, opacity: 1 }}
-  transition={{ type: "spring", stiffness: 500, damping: 15 }}
-  className="absolute top-4 left-0 pt-2 md:pt-0 pl-2 md:pl-3 md:text-2xl text-xs sm:text-sm font-bespoke font-medium sm:font-semibold  text-emerald-600 dark:text-gray-100 flex gap-1"
->
-  🫡 Welcome,
-<motion.span className="flex flex-wrap">
-  {(user?.name || "User").split("").map((char, i) => (
-    <motion.span
-      key={i}
-      custom={i}
-      animate={shimmerControls}
-      className="inline-block"
-    >
-      {char === " " ? "\u00A0" : char}
-    </motion.span>
-  ))}
-</motion.span>
-</motion.div> */}
 <motion.div
   initial={{ y: -30, opacity: 0 }}
   animate={{ y: 0, opacity: 1 }}

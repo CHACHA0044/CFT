@@ -321,7 +321,7 @@ timers.current = [
     <PageWrapper backgroundImage="/images/register-bk.webp">
       <div className={` ${boxglow}`}>
       <AnimatedHeadline />  {/* <h1 className="text-5xl font-extrabold font-germania tracking-wider text-shadow-DEFAULT text-center text-emerald-700 dark:text-gray-100 mb-0">Track. Reduce. Inspire</h1> */}
-        <p className="text-sm animate-glow text-center text-emerald-500 dark:text-gray-100 mt-2 mb-3">Build your carbon footprint journal with us.</p>
+        <p className="text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-emerald-500 dark:text-gray-100 mt-2 mb-3">Build your carbon footprint journal with us.</p>
 
 <div className="flex flex-col items-center space-y-1 mb-2">
   {success ? (
@@ -339,7 +339,7 @@ timers.current = [
   ) : null}
 </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
           <input
             name="name"
             placeholder="Name"
@@ -406,13 +406,13 @@ timers.current = [
             {passwordStrength !== null && (
               <div className="text-sm text-center mb-2">
                 <p>
-                  <span className="text-emerald-500 dark:text-gray-100">Password strength:</span>
+                  <span className="text-emerald-500 dark:text-gray-100 font-intertight text-shadow-DEFAULT tracking-wide">Password strength:</span>
                   {' '}
                   <span className={`${
                     passwordStrength < 2 ? 'text-red-500' :
                     passwordStrength === 2 ? 'text-yellow-500' :
                     'text-green-500'
-                  } animate-pulse`}>
+                  } animate-pulse font-intertight text-shadow-DEFAULT tracking-wide`}>
                     {strengthLabel[passwordStrength]}
                   </span>
                 </p>
@@ -424,7 +424,28 @@ timers.current = [
               success={!!success}
               disabled={loading || !!success}
             />
-
+<div className="ml-1 text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
+  <p>
+    By registering, you agree to our{' '}
+    <a
+      href="https://cft-self.vercel.app/privacypolicy.html"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline hover:text-emerald-500 transition-colors duration-200"
+    >
+      Privacy Policy
+    </a>{' '}
+    and{' '}
+    <a
+      href="https://cft-self.vercel.app/termsofservice.html"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline hover:text-emerald-500 transition-colors duration-200"
+    >
+      Terms
+    </a>.
+  </p>
+</div>
         </form>
       </div>
     </PageWrapper>

@@ -113,7 +113,6 @@ app.use(hpp());
 app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' })); //For APIs sending JSON
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); //HTML <form> submissions
-app.use(passport.initialize());
 
 //limiter
 const generalLimiter = rateLimit({

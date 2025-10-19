@@ -1,3 +1,4 @@
+//backend/config/passport.js
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/user');
@@ -7,9 +8,8 @@ const crypto = require('crypto');
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.NODE_ENV === 'production'
-    ? 'https://cft-cj43.onrender.com/api/auth/google/callback'
-    : 'http://localhost:4950/api/auth/google/callback',
+  callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:4950/api/auth/google/callback',
+  proxy: true,
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     const email = profile.emails[0].value;
@@ -34,11 +34,12 @@ passport.use(new GoogleStrategy({
         email,
         isVerified: true, // Google emails are verified
         passwordHash, // hashed dummy password
+        tempPasswordCreatedAt: new Date(),
         tempPassword: mixPass,
         provider: 'google'
       });
       await user.save();
-      user.tempPasswordCreatedAt = new Date();
+      // user.tempPasswordCreatedAt = new Date();
       console.log(`✅ New Google user created: ${email}`);
     } else {
       console.log(`✅ Existing Google user logged in: ${email}`);
@@ -50,16 +51,5 @@ passport.use(new GoogleStrategy({
     done(err, null);
   }
 }));
-
-// Serialize and deserialize user
-passport.serializeUser((user, done) => done(null, user.id));
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
 
 module.exports = passport;

@@ -3,18 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
-import { SubmitButton } from 'Components/globalbuttons';
-import {
-  inputBase,
-  inputDark,
-  buttonBase,
-  buttonGreen,
-  heading,
-  subheading,
-  inputMail,
-  inputPass,
-  boxglow
-} from 'utils/styles';
+import { SubmitButton, GoogleAuthButton } from 'Components/globalbuttons';
+import { inputBase, inputMail, inputPass, boxglow } from 'utils/styles';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 
@@ -41,61 +31,10 @@ import GlobeAnimation from 'animations/Globe.json';
     },
   });
   
-  function shuffleArray(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-  
-  const triggerConfetti = (element) => {
-    if (!element) return;
-  
-    for (let i = 0; i < 8; i++) {
-      const conf = document.createElement('span');
-      const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#F43F5E', '#22D3EE'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-  
-      conf.className = 'absolute w-1.5 h-1.5 rounded-full pointer-events-none';
-      conf.style.backgroundColor = randomColor;
-      conf.style.left = '50%';
-      conf.style.top = '50%';
-      conf.style.position = 'absolute';
-  
-      const x = `${Math.random() * 60 - 30}px`;
-      const y = `${Math.random() * 60 - 30}px`;
-      conf.style.setProperty('--x', x);
-      conf.style.setProperty('--y', y);
-      conf.style.animation = `confetti-burst 600ms ease-out forwards`;
-  
-      element.appendChild(conf);
-      setTimeout(() => conf.remove(), 700);
-    }
-  };
-  
   const AnimatedHeadline = React.memo(() => {
     const [activeBurstIndex, setActiveBurstIndex] = useState(null);
     const [bursting, setBursting] = useState(false);
     const [fallingLetters, setFallingLetters] = useState([]);
-  
-    // useEffect(() => {
-    //   const allChars = sentence.replace(/\s/g, "").length;
-  
-    //   const interval = setInterval(() => {
-    //     const indices = Array.from({ length: allChars }, (_, i) => i);
-    //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
-  
-    //     setFallingLetters((prev) => [...prev, ...shuffled]);
-  
-    //     setTimeout(() => {
-    //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
-    //     }, 3000);
-    //   }, 4000); // pause for 4s
-  
-    //   return () => clearInterval(interval);
-    // }, []);
   
     const triggerBurst = (index) => {
       setActiveBurstIndex(index);
@@ -367,8 +306,6 @@ useEffect(() => {
     <PageWrapper backgroundImage="/images/login-bk.webp">
       <div className={`${boxglow} flex items-center sm:space-x-1 sm:mb-2 mb-0`}>
         <div className="flex items-center ml-12 space-x-0"><AnimatedHeadline />
-        {/* <h1 className="text-5xl font-extrabold font-germania tracking-wider text-shadow-DEFAULT text-center text-emerald-700 dark:text-gray-100 mb-0" >Login</h1> */}
-
         <motion.div
     key="globe"
     initial="hidden"
@@ -486,15 +423,6 @@ useEffect(() => {
     </p>
   ) : null}
 </div>
- 
-{/* {smtpMessage && (
-  <div className="flex justify-center mt-2">
-    <p className="text-amber-500 text-sm text-center">
-    <span className="animate-pulse">📧 </span>  {smtpMessage}
-    </p>
-  </div>
-)} */}
-
         <form onSubmit={handleSubmit} className="mt-5 space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
           <input
             name="email"
@@ -506,19 +434,7 @@ useEffect(() => {
             required
             autoComplete="email"
             title="The email u used"
-          />
-           {/* <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className={`${inputBase} ${inputPass}`}
-            required
-            autoComplete="current-password"
-            title="Password used"
-          />  */}
-          
+          />        
             <input
               name="password"
               type={showPassword ? "text" : "password"}
@@ -549,13 +465,8 @@ useEffect(() => {
             </button>
             )}
           
-   <SubmitButton
-              text="Login"
-              loading={loading}
-              success={success.startsWith('Login Successful')}
-              disabled={loading}
-            />
-
+   <SubmitButton text="Login" loading={loading} success={success.startsWith('Login Successful')} disabled={loading} />
+   <GoogleAuthButton loading={false} />
         </form>
       </div>
     </PageWrapper>

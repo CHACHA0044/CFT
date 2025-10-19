@@ -82,7 +82,7 @@ const isDev = process.env.NODE_ENV === 'development';
 // In dev: direct to backend, in prod: use proxy
 const BASE = isDev 
   ? 'http://localhost:4950/api' 
-  : '/api';  // This uses the Vercel proxy
+  : 'https://api.carbonft.app/api';  
 
 console.log('API Base URL:', BASE);
 

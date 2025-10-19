@@ -5,18 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import zxcvbn from 'zxcvbn';
 import PageWrapper from 'common/PageWrapper';
-import { SubmitButton } from 'Components/globalbuttons';
-import {
-  inputBase,
-  inputDark,
-  buttonBase,
-  buttonGreen,
-  heading,
-  subheading,
-  inputMail,
-  inputPass,
-  boxglow
-} from 'utils/styles';
+import { SubmitButton, GoogleAuthButton } from 'Components/globalbuttons';
+import {  inputBase,  inputDark,  inputMail, inputPass,  boxglow} from 'utils/styles';
 
   const sentence = "Track. Reduce. Inspire.";
   const words = sentence.split(" ");
@@ -41,61 +31,36 @@ import {
     },
   });
   
-  function shuffleArray(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-  
-  const triggerConfetti = (element) => {
-    if (!element) return;
-  
-    for (let i = 0; i < 8; i++) {
-      const conf = document.createElement('span');
-      const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#F43F5E', '#22D3EE'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-  
-      conf.className = 'absolute w-1.5 h-1.5 rounded-full pointer-events-none';
-      conf.style.backgroundColor = randomColor;
-      conf.style.left = '50%';
-      conf.style.top = '50%';
-      conf.style.position = 'absolute';
-  
-      const x = `${Math.random() * 60 - 30}px`;
-      const y = `${Math.random() * 60 - 30}px`;
-      conf.style.setProperty('--x', x);
-      conf.style.setProperty('--y', y);
-      conf.style.animation = `confetti-burst 600ms ease-out forwards`;
-  
-      element.appendChild(conf);
-      setTimeout(() => conf.remove(), 700);
-    }
-  };
+const AniDot = () => (
+  <span aria-hidden="true" className="inline-flex items-center">
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+    > 
+      .
+    </motion.span>
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+    >
+      .
+    </motion.span>
+    <motion.span
+      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
+    >
+      .
+    </motion.span>
+  </span>
+);
   
   const AnimatedHeadline = () => {
     const [activeBurstIndex, setActiveBurstIndex] = useState(null);
     const [bursting, setBursting] = useState(false);
     const [fallingLetters, setFallingLetters] = useState([]);
-  
-    // useEffect(() => {
-    //   const allChars = sentence.replace(/\s/g, "").length;
-  
-    //   const interval = setInterval(() => {
-    //     const indices = Array.from({ length: allChars }, (_, i) => i);
-    //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
-  
-    //     setFallingLetters((prev) => [...prev, ...shuffled]);
-  
-    //     setTimeout(() => {
-    //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
-    //     }, 3000);
-    //   }, 4000); // pause for 4s
-  
-    //   return () => clearInterval(interval);
-    // }, []);
   
     const triggerBurst = (index) => {
       setActiveBurstIndex(index);
@@ -109,7 +74,7 @@ import {
     return (
       <div className="relative overflow-visible w-full flex justify-center items-center mt-2 mb-0">
         <motion.div
-          className="flex gap-2 flex-wrap justify-center text-5xl font-black font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          className="flex gap-2 flex-wrap justify-center text-3xl sm:text-5xl font-black font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
           initial="hidden"
           animate="visible"
           variants={{
@@ -236,8 +201,22 @@ const Register = () => {
   useEffect(() => {
   const timer = setTimeout(() => {
     setPasswordPlaceholder("Password");
-  }, 5000); // 5 s
+  }, 7000); // 5 s
   return () => clearTimeout(timer); 
+}, []);
+useEffect(() => {
+  // Show message when component mounts
+  const timer = setTimeout(() => {
+    setShowMessage(true);
+    
+    // Hide message after 4 seconds
+    setTimeout(() => {
+      setShowMessage(false);
+    }, 5000);
+  }, 1500); // 1 second delay before showing
+
+  // Cleanup timer on unmount
+  return () => clearTimeout(timer);
 }, []);
 
   const handleChange = (e) => {
@@ -306,10 +285,10 @@ timers.current = [
   }
 };
 
-
   const strengthLabel = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
   const [showPassword, setShowPassword] = useState(false);
   const [hidePasswordToggle, setHidePasswordToggle] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
   return (
     <motion.div
                 initial={{ x:100, opacity: 0}}
@@ -319,26 +298,40 @@ timers.current = [
                 className="w-full h-full"
               >
     <PageWrapper backgroundImage="/images/register-bk.webp">
-      <div className={` ${boxglow}`}>
-      <AnimatedHeadline />  {/* <h1 className="text-5xl font-extrabold font-germania tracking-wider text-shadow-DEFAULT text-center text-emerald-700 dark:text-gray-100 mb-0">Track. Reduce. Inspire</h1> */}
-        <p className="text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-emerald-500 dark:text-gray-100 mt-2 mb-3">Build your carbon footprint journal with us.</p>
+      <div className={`${boxglow}`}>
+      <AnimatedHeadline />    
+        <p className="text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-emerald-500 dark:text-gray-100 mt-2 mb-0">Build your carbon footprint journal with us.</p>
 
-<div className="flex flex-col items-center space-y-1 mb-2">
+<div className="flex flex-col items-center space-y-1 mt-2 mb-2 font-intertight text-shadow-DEFAULT tracking-wide">
   {success ? (
-    <p className="text-green-500 text-sm text-center animate-pulse">
+    <p className="text-green-500 text-xs sm:text-sm text-center animate-pulse">
       {success}
     </p>
   ) : error ? (
-    <p className="text-red-600 text-sm text-center animate-bounce">
+    <p className="text-red-600 text-xs sm:text-sm text-center animate-bounce">
       {error}
     </p>
   ) : delayMessage ? (
-    <p className="text-yellow-500 text-sm text-center animate-pulse">
+    <p className="text-yellow-500 text-xs sm:text-sm text-center animate-pulse">
       {delayMessage}
     </p>
   ) : null}
 </div>
-
+<AnimatePresence>
+    {showMessage && (
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0, y: -20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
+        className=" bg-emerald-500/90 dark:bg-black text-white px-3 py-2 -mt-3 mb-2 rounded-xl shadow-lg text-shadow-DEFAULT text-xs sm:text-sm font-intertight text-center z-50"
+      >
+        <div className="flex items-center sm:ml-6 sm:gap-2">
+          <span>Want to skip registration<span className="animate-pulse">?</span> Register with Google<AniDot /></span>
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
         <form onSubmit={handleSubmit} className="space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
           <input
             name="name"
@@ -361,17 +354,6 @@ timers.current = [
             autoComplete="email"
             title="We'll never spam you, trust me bro"
           />
-          {/* <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className={`${inputBase} ${inputPass}`}
-            required
-            autoComplete="new-password"
-            title="Just for this app"
-          /> */}
           <div className="relative">
   <input
     name="password"
@@ -418,13 +400,9 @@ timers.current = [
                 </p>
               </div>
             )}
-             <SubmitButton
-              text={success || 'Register'}
-              loading={loading}
-              success={!!success}
-              disabled={loading || !!success}
-            />
-<div className="ml-1 text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
+             <SubmitButton text={success || 'Register'} loading={loading} success={!!success} disabled={loading || !!success} />
+             <GoogleAuthButton loading={false} />
+<div className="ml-1 text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
   <p>
     By registering, you agree to our{' '}
     <a

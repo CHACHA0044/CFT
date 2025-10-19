@@ -16,6 +16,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const redisClient = require('./RedisClient');
+const user = require('./models/user');
 
 // Security + Middleware
 const cors = require('cors');
@@ -28,6 +29,7 @@ const cookieParser = require('cookie-parser');
 const startImapPoller = require('./utils/imapPoller');
 const cron = require('node-cron');
 const axios = require('axios');
+const passport = require('./config/passport');
 
 // express app
 const app = express();
@@ -39,13 +41,17 @@ if (isProd) {
 // routes
 const authRoutes = require('./routes/auth');
 const footprintRoutes = require('./routes/footprint');
-
+const adminRoutes = require('./routes/admin');
 // CORS(Cross-Origin Resource Sharing)
 const allowedOrigins = [
   'http://localhost:3000',             // local dev
   'http://localhost:4950',
   'https://cft-self.vercel.app',       // vercel frontend
   'https://cft-21jftdfuy-chacha0044s-projects.vercel.app',
+  'https://carbonft.app',   // name.com domain
+  'https://www.carbonft.app',
+  'https://api.carbonft.app',
+  'https://accounts.google.com',       // google accounts
    /https:\/\/cft-.*\.vercel\.app$/,   // any subdomain matching cft-*.vercel.app
 ];
 
@@ -69,7 +75,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'x-admin-secret', 'x-admin-code'],
   exposedHeaders: ['Set-Cookie'],
   preflightContinue: false,
   optionsSuccessStatus: 204
@@ -107,6 +113,7 @@ app.use(hpp());
 app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' })); //For APIs sending JSON
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); //HTML <form> submissions
+app.use(passport.initialize());
 
 //limiter
 const generalLimiter = rateLimit({
@@ -139,7 +146,7 @@ if (isProd) {
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/footprint', footprintRoutes);
-
+app.use('/api/admin', adminRoutes);
 // test route
 app.get('/api', (req, res) => {
   res.send('CFT API is live!');
@@ -190,6 +197,36 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
       console.error('❌ Ping failed:', err.message);
     }
   });
+  cron.schedule('0 0 * * *', async () => { // Runs every day at midnight
+  try {
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    const result = await user.updateMany(
+      {
+        provider: 'google',
+        $or: [
+          { tempPasswordCreatedAt: { $lte: threeDaysAgo } },
+          { passwordTokenCreatedAt: { $lte: threeDaysAgo } },
+        ],
+      },
+      {
+        $unset: {
+          tempPassword: "",
+          tempPasswordCreatedAt: "",
+          passwordToken: "",
+          passwordTokenCreatedAt: "",
+        },
+      }
+    );
+
+    if (result.modifiedCount > 0) {
+      console.log(`🧹 Cleaned ${result.modifiedCount} expired temp/password fields for Google users`);
+    } else {
+      //console.log('🧹 No expired temp/password fields found for Google users');
+    }
+  } catch (err) {
+    console.error('❌ Cron cleanup error:', err);
+  }
+});
 
     });
   })

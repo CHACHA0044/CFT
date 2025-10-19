@@ -9,6 +9,8 @@ const router = express.Router();
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const redisClient = require('../RedisClient');
+const passport = require('passport');
+router.use(passport.initialize());
 
 // HELPER FUNCTIONS
 const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
@@ -52,6 +54,55 @@ const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) =
   </div>`;
 };
 
+const welcomeEmailHtml = (name) => {
+  return `
+  <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
+    <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
+      <h1 style="margin: 0; font-size: 20px;">🌍 Carbon Footprint Tracker</h1>
+    </div>
+    <div style="padding: 20px 16px 12px; text-align: center;">
+      <div style="background: rgba(255, 255, 255, 0.08); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); max-width: 360px; margin: auto; padding: 24px 20px; box-shadow: 0 0 22px rgba(255, 255, 255, 0.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+        <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hello👋, ${name}</h2>
+        <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">Welcome to <strong>Carbon Footprint Tracker</strong>!<br></p>
+        <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
+         <p style="font-size: 16px; color: #e0e0e0;">
+      Welcome aboard! <strong>Carbon Footprint Tracker (CFT)</strong> helps you track and reduce your environmental impact. 
+      Log your monthly data on <strong>food, transport, electricity,</strong> and <strong>waste</strong>, get <strong>personalized reduction tips</strong>, 
+      and see how you rank on the community leaderboard.
+    </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+      Built for simplicity and accuracy, CFT combines clean design, secure authentication, and interactive visuals — 
+      making climate action easy, insightful, and motivating.
+    </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+      Let’s take a step toward a greener future — one entry at a time 🌱
+    </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+      <strong>Start exploring:</strong> 
+      <a href="https://cft-self.vercel.app" style="color: #1d4ed8; text-decoration: none;">CFT</a>
+    </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+      We’d love to hear about your experience! Feel free to reach out at:
+  <a 
+  href="https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback%20on%20Carbon%20Footprint%20Tracker"
+  target="_blank"
+  style="color: #3A7BD5; text-decoration: underline;"
+>
+  carbontracker.noreply@gmail.com
+</a>
+
+
+    </p>
+    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+      — Regards<br/>
+      <a href="https://github.com/CHACHA0044/CFT" style="color: #1d4ed8; text-decoration: none;">Pranav</a>
+    </p>
+    </div>
+    </div>
+    <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Carbon down. Future up.</div>
+  </div>`;
+};
+
 const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
 
   return `
@@ -69,6 +120,61 @@ const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
       </div>
     </div>
     <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Thanks for helping us improve 🌱</div>
+  </div>`;
+};
+
+const welcomeEmailHtmlG = (name, passwordLink, { timeZone = "Asia/Kolkata" } = {} ) => {
+  const currentTime = formatTime(new Date(), timeZone);
+  return `
+  <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
+    <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
+      <h1 style="margin: 0; font-size: 20px;">🌍 Carbon Footprint Tracker</h1>
+    </div>
+    <div style="padding: 20px 16px 12px; text-align: center;">
+      <div style="background: rgba(255, 255, 255, 0.08); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); max-width: 360px; margin: auto; padding: 24px 20px; box-shadow: 0 0 22px rgba(255, 255, 255, 0.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+        <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hello👋, ${name}</h2>
+        <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">Welcome to <strong>Carbon Footprint Tracker</strong>!<br></p>
+        <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
+         <p style="font-size: 16px; color: #e0e0e0;">
+      Welcome aboard! <strong>Carbon Footprint Tracker (CFT)</strong> helps you track and reduce your environmental impact. 
+      Log your monthly data on <strong>food, transport, electricity,</strong> and <strong>waste</strong>, get <strong>personalized reduction tips</strong>, 
+      and see how you rank on the community leaderboard.
+    </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+      Built for simplicity and accuracy, CFT combines clean design, secure authentication, and interactive visuals — 
+      making climate action easy, insightful, and motivating.
+    </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+      Let’s take a step toward a greener future — one entry at a time 🌱
+    </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+    You can login using your email(or google as u just did) along with the following password:<br />
+    <a href="${passwordLink}" style="display: inline-block; background: linear-gradient(90deg, #2f80ed, #56ccf2); margin-top: 20px; color: #ffffff; padding: 14px 20px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 18px rgba(47,128,237,0.35);">Password</a>
+    <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>3 Days</strong>.</span></p>
+   </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+      <strong>Start exploring:</strong> 
+      <a href="https://cft-self.vercel.app" style="color: #1d4ed8; text-decoration: none;">CFT</a>
+    </p>
+    <p style="font-size: 16px; color: #e0e0e0;">
+      We’d love to hear about your experience! Feel free to reach out at:
+  <a 
+  href="https://mail.google.com/mail/?view=cm&fs=1&to=carbontracker.noreply@gmail.com&su=Feedback%20on%20Carbon%20Footprint%20Tracker"
+  target="_blank"
+  style="color: #3A7BD5; text-decoration: underline;"
+>
+  carbontracker.noreply@gmail.com
+</a>
+
+
+    </p>
+    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+      — Regards<br/>
+      <a href="https://github.com/CHACHA0044/CFT" style="color: #1d4ed8; text-decoration: none;">Pranav</a>
+    </p>
+    </div>
+    </div>
+    <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Carbon down. Future up.</div>
   </div>`;
 };
 
@@ -404,7 +510,8 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
 
     // Increment feedback counter
     await incrementRateLimit(feedbackRateKey, 3600); // 1 hour
-
+    user.feedbackGiven = true;
+    await user.save();
     try {
       await sendEmail(
         user.email,
@@ -528,6 +635,17 @@ router.get('/verify-email/:token', async (req, res) => {
     await user.save();
 
     console.log('✅ [VERIFY] Email verified for:', user.email);
+     try {
+      await sendEmail(
+        user.email,
+        'Welcome to Carbon Footprint Tracker! 🌍',
+        welcomeEmailHtml(user.name)
+      );
+      console.log('✅ [EMAIL] Welcome email sent to:', user.email);
+    } catch (emailError) {
+      console.error('❌ [EMAIL ERROR] Failed to send welcome email to', user.email, ':', emailError.message);
+      // Dosent fails the verification if welcome email fails
+    }
     
     // Return user info including name
     res.status(200).json({ 
@@ -1060,4 +1178,117 @@ router.get("/weather-aqi", async (req, res) => {
   }
 });
 
+// GOOGLE OAUTH GET INFO ROUTE
+router.get('/google', passport.authenticate('google', {
+  scope: ['profile', 'email']
+}));
+
+// GET PASSWORD INFO FROM TOKEN
+router.get('/password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (jwtErr) {
+      console.error('❌ [PASSWORD] JWT error:', jwtErr.message);
+      return res.status(400).json({ 
+        error: 'Invalid or expired password link',
+        expired: jwtErr.name === 'TokenExpiredError'
+      });
+    }
+
+    // FIND USER BY EMAIL AND VERIFY TOKEN MATCHES
+    const user = await User.findOne({ 
+      email: decoded.email,
+      passwordToken: token  // Verify this is the correct token
+    });
+    
+    if (!user) {
+      console.error('❌ [PASSWORD] User not found or token mismatch');
+      return res.status(404).json({ error: 'Invalid or expired password link' });
+    }
+
+    // Return user info with password
+    res.json({ 
+      name: user.name,
+      email: user.email,
+      password: user.tempPassword,
+      passwordTime: user.tempPasswordCreatedAt
+    });
+   // console.log('user details=',user.name,user.email, user.tempPassword, user.tempPasswordCreatedAt);
+  } catch (err) {
+    console.error('❌ [PASSWORD] Server error:', err);
+    res.status(500).json({ error: 'Failed to retrieve password' });
+  }
+});
+
+// GOOGLE OAUTH CALLBACK 
+router.get('/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: '/' }),
+  async (req, res) => {
+    try {
+      const user = req.user;
+      const isProd = process.env.NODE_ENV === 'production';
+      
+      // JWT token
+      const token = jwt.sign(
+        { userId: user._id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '3d' }
+      );
+      
+      const passwordToken = jwt.sign(
+        { email: user.email, jti: crypto.randomBytes(16).toString('hex') },
+        process.env.JWT_SECRET,
+        { expiresIn: '3d' }
+      );
+      
+      // STORE THE PASSWORD TOKEN IN DB
+      user.passwordToken = passwordToken;
+      user.passwordTokenCreatedAt = new Date();
+      const passwordLink = `${process.env.FRONTEND_URL}/password/${passwordToken}`;
+      
+      // Cookie
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'None' : 'Lax',
+        maxAge: 3 * 24 * 60 * 60 * 1000,
+      });
+
+      // Send welcome email ONLY if not sent before
+      if (user.provider === 'google' && !user.welcomeEmailSent) {
+        try {
+          await sendEmail(
+            user.email,
+            'Welcome to Carbon Footprint Tracker! 🌍',
+            welcomeEmailHtmlG(user.name, passwordLink)
+          );
+          
+          user.welcomeEmailSent = true;
+          console.log('✅ [GOOGLE OAUTH] Welcome email sent to:', user.email);
+        } catch (emailError) {
+          console.error('[GOOGLE OAUTH] Failed to send welcome email:', emailError.message);
+        }
+      } else if (user.provider === 'google') {
+        console.log(`[GOOGLE OAUTH] Welcome email already sent to: ${user.email}`);
+      }
+
+      // ALWAYS SAVE (to store passwordToken)
+      await user.save();
+
+      // Redirect
+      const redirectURL = isProd
+        ? 'https://carbonft.app/dashboard'
+        : 'http://localhost:3000/dashboard';
+      
+      res.redirect(redirectURL);
+    } catch (error) {
+      console.error('Google OAuth callback error:', error);
+      res.redirect(isProd ? 'https://cft-self.vercel.app/?error=auth_failed' : 'http://localhost:3000/?error=auth_failed');
+    }
+  }
+);
 module.exports = router;

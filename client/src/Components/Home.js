@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AnimatePresence, easeOut, motion } from 'framer-motion';
-import { useLoading } from 'context/LoadingContext';
+import { AnimatePresence, motion } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
 import { HomeHeaderButton } from './globalbuttons';
 import Lottie from 'lottie-react';
@@ -90,7 +89,7 @@ import { MdEmail } from "react-icons/md";
               onClick={() => {
                 if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
               }}
-              className="relative mr-2 inline-block cursor-pointer"
+              className="relative sm:mr-2 inline-block cursor-pointer"
               variants={{
                 hidden: { opacity: 0, y: 10 },
                 visible: { opacity: 1, y: 0 },
@@ -179,21 +178,21 @@ import { MdEmail } from "react-icons/md";
 const AniDot = () => (
   <span aria-hidden="true" className="inline-flex items-center">
     <motion.span
-      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      className="inline-block text-lg font-normal sm:font-semibold ml-1"
       animate={{ opacity: [0, 1, 0] }}
       transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
     > 
       .
     </motion.span>
     <motion.span
-      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      className="inline-block text-lg font-normal sm:font-semibold ml-1"
       animate={{ opacity: [0, 1, 0] }}
       transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
     >
       .
     </motion.span>
     <motion.span
-      className="inline-block text-lg font-normal sm:text-xl sm:font-semibold ml-1"
+      className="inline-block text-lg font-normal sm:font-semibold ml-1"
       animate={{ opacity: [0, 1, 0] }}
       transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
     >
@@ -247,8 +246,6 @@ useEffect(() => {
   return () => window.removeEventListener('resize', updateHeight);
 }, []);
 
-
-
   useEffect(() => {
   const handleClickOutside = (event) => {
     if (titleRef.current && !titleRef.current.contains(event.target)) {
@@ -259,7 +256,6 @@ useEffect(() => {
   document.addEventListener('mousedown', handleClickOutside);
   return () => document.removeEventListener('mousedown', handleClickOutside);
 }, []);
-
 
 const handleTap = () => {
   setIsHeaderExpanded(prev => !prev); // Toggle expanded state
@@ -279,7 +275,6 @@ const containerVariants = {
   },
   exit: { opacity: 0 },
 };
-
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
@@ -353,8 +348,6 @@ Carbon Footprint Tracker
     <Lottie animationData={GlobeAnimation} loop />
   </motion.div>
 </div>
-
-
   <AnimatePresence>
     {isHeaderExpanded && (
       <motion.div
@@ -374,40 +367,39 @@ Carbon Footprint Tracker
 </div>
 </motion.header>
 
-        {/* Main Section yaha se */}
-        <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-10 text-center min-h-screen ">
-  {/* Heading */}
-  <motion.div
-    initial={{ opacity: 1, y: 0 }}
-    animate={showContent ? { opacity: 0, y: -50 } : { opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-    className="fixed inset-0 flex items-center justify-center z-0"
-  >
-   <motion.div
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: [10, 0, 10] }}
-  transition={{
-    duration: 2,
-    repeat: Infinity,
-    ease: "easeInOut"
-  }}
-  className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-sm flex flex-col items-center z-20"
-><button onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
-  <div className="scroll-indicator -ml-4">
-  <Lottie
-  animationData={ScrollDownAnimation}
-  loop
-  autoplay
-  style={{ width: 40, height: 40 }}
-/></div></button>
-</motion.div>
-
+    {/* Main Section yaha se */}
+    <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-10 text-center min-h-screen ">
+    {/* Heading */}
+    <motion.div
+        initial={{ opacity: 1, y: 0 }}
+        animate={showContent ? { opacity: 0, y: -50 } : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        className="fixed inset-0 flex items-center justify-center z-0"
+      >
+      <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: [10, 0, 10] }}
+      transition={{
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }}
+      className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-sm flex flex-col items-center z-20"
+    ><button onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
+      <div className="scroll-indicator -ml-4">
+      <Lottie
+      animationData={ScrollDownAnimation}
+      loop
+      autoplay
+      style={{ width: 40, height: 40 }}
+    /></div></button>
+    </motion.div>
     <AnimatedHeadline />
-  </motion.div>
+    </motion.div>
 
-  {/* Paragraph */}
-  <AnimatePresence>
-  {showContent && (
+    {/* Paragraph */}
+    <AnimatePresence>
+    {showContent && (
     <motion.div
       key="bottom-text"
       initial="hidden"
@@ -415,93 +407,90 @@ Carbon Footprint Tracker
       exit="hidden"
       className="sm:mt-52 mt-44 -mb-7 max-w-2xl text-center z-10"
     >
-  <div className="flex flex-grow justify-center items-center relative z-10">
-  {/* Background overlay to improve visibility */}
-  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1] rounded-3xl" />
+    <div className="flex flex-grow justify-center items-center relative z-10">
+    {/* Background overlay to improve visibility */}
+    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1] rounded-3xl" />
 
-  <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-12 space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+    <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-8 space-y-6" variants={containerVariants} initial="hidden" animate="visible">
     
     {/* Heading */}
-    <motion.h2
-            variants={itemVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold text-emerald-500 dark:text-gray-100">
-      What<span className="animate-pulse">'</span>s Your Carbon Impact <span className="animate-pulse">?</span>
+    <motion.h2 variants={itemVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold text-emerald-500 dark:text-gray-100">
+    What<span className="animate-pulse">'</span>s Your Carbon Impact <span className="animate-pulse">?</span>
     </motion.h2>
 
     {/* Full version for tablets and up */}
-    <motion.p
-            variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"><br />
-      Go beyond guessing — discover your true <span className="font-semibold">Carbon Footprint</span> based on your real lifestyle<AniDot />
-      </motion.p>
-       <motion.p
-            variants={itemVariants}
-            className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"
-          >
-      
-      <span className="animate-pulse">✈️</span> <span className="font-medium">Travel</span>, <span className="animate-pulse">🔌</span> <span className="font-medium">electricity use</span>, <span className="animate-pulse">🍽️</span> <span className="font-medium">daily meals</span> — it all adds up.
-      </motion.p>
-      <motion.p
-            variants={itemVariants}
-            className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"
-          >
-      Our tracker gives you <span className="font-semibold">clear visual insights</span> into your impact, 
-      projects your yearly footprint, 
-      and helps you <span className="font-semibold">compare your progress</span> with the community.
-      </motion.p>
-      <motion.p
-            variants={itemVariants}
-            className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"
-          >
-      
-      <span className="font-medium">Ready to begin <span className="animate-pulse">?</span></span> Tap the <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
-       <br />
-      <span className="italic font-medium text-base md:text-lg leading-relaxed text-yellow-300">
-  P.S. Stay in dark mode for the best experience <span className="animate-pulse">✨</span>
-</span>
+    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"><br />
+    Go beyond guessing — discover your true <span className="font-semibold">Carbon Footprint</span> based on your real lifestyle<AniDot />
+    </motion.p>
 
+    <motion.p variants={itemVariants}  className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100">
+    <span className="animate-pulse">✈️</span> <span className="font-medium">Travel</span>, <span className="animate-pulse">🔌</span> <span className="font-medium">electricity use</span>, <span className="animate-pulse">🍽️</span> <span className="font-medium">daily meals</span> — it all adds up.
+    </motion.p>
+    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100" >
+    Our tracker gives you <span className="font-semibold">clear visual insights</span> into your impact, projects your yearly footprint, and helps you <span className="font-semibold">compare your progress</span> with the community.
+    </motion.p>
+    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100" >
+    <span className="font-medium">Ready to begin <span className="animate-pulse">?</span></span> Tap the <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.<br />
+    <span className="italic font-medium text-base md:text-lg leading-relaxed text-yellow-300">
+    P.S. Stay in dark mode for the best experience.<span className="animate-pulse">✨</span>
+    </span>
     </motion.p>
 
     {/* Compact version for mobile */}
-     <motion.p
-            variants={itemVariants}
- className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
-      Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually<AniDot />
-      </motion.p>
-      <motion.p
-            variants={itemVariants}
- className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
-      Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
+    <motion.p variants={itemVariants} className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
+    Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually<AniDot />
+    </motion.p>
+    <motion.p variants={itemVariants} className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
+    Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
     <br />  <span className="italic text-sm leading-relaxed text-yellow-300">
-P.S. For the best experience, stay in dark mode and view on a laptop/PC. <span className="animate-pulse">🌎</span>
-</span>
-
+    P.S. Dark mode + laptop = best experience. <span className="animate-pulse">🌎</span>
+    </span>
     </motion.p> 
 
     {/* Feedback Email */}
-<motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
-We value your feedback<span className="animate-pulse font-extrabold">!</span> Please share it at{' '}
-  <a
+    <motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
+    Tell us what you think<span className=" font-extrabold">!</span>{' '}
+    <a
     href={`mailto:carbontracker.noreply@gmail.com?subject=${subject}`}
     onClick={handleEmailClick}
     target="_blank"
     rel="noopener noreferrer"
     className="inline-flex items-center gap-1 underline text-blue-300 hover:text-blue-500 transition-colors duration-200"
-  >
+    >
     <MdEmail className="text-base relative top-[2.5px] animate-pulse" />
-    <span className="leading-none mt-1">carbontracker.noreply@gmail.com</span>
-  </a>
+    <span className="leading-none mt-1">your feedback is welcome</span>
+    </a>.
+    <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
+    By registering, you agree to our{' '}
+    <a
+      href="https://cft-self.vercel.app/privacypolicy.html"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline text-emerald-300 hover:text-emerald-500 transition-colors duration-200"
+    >
+      Privacy Policy
+    </a>{' '}
+    and{' '}
+    <a
+      href="https://cft-self.vercel.app/termsofservice.html"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline text-emerald-300 hover:text-emerald-500 transition-colors duration-200"
+    >
+      Terms
+    </a>.
+    </p>
 </motion.p>
-  </motion.div>
+</motion.div>
 </div>
-
 </motion.div>
 )}
- </AnimatePresence>
+</AnimatePresence>
 </section>
-
-      </div>
-    </PageWrapper>
-    </motion.div>
-  );
+</div>
+</PageWrapper>
+</motion.div>
+);
 };
 
 

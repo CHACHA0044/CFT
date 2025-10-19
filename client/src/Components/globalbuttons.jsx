@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const getButtonState = (userEmail) => {
   try {
@@ -94,6 +95,9 @@ const Icons = {
   dashboard: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M3 12L12 3l9 9" /> <path d="M9 21V12h6v9" /> </motion.svg>),
   weather: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="4" /> <line x1="12" y1="2" x2="12" y2="6" /> <line x1="12" y1="18" x2="12" y2="22" /> <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /> <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" /> <line x1="2" y1="12" x2="6" y2="12" /> <line x1="18" y1="12" x2="22" y2="12" /> <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /> <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" /> <path d="M17.5 19a4.5 4.5 0 0 0 0-9 5 5 0 0 0-9.9 1.5H7a4 4 0 0 0 0 8h10.5z" /> </motion.svg> ),
   info: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <circle cx="12" cy="12" r="10" /> <line x1="12" y1="16" x2="12" y2="12" /> <line x1="12" y1="8" x2="12.01" y2="8" /> </motion.svg> ),
+  GI: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" role="img" > <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" /> </motion.svg>),
+  email: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /> <polyline points="22,6 12,13 2,6" /> <path d="M16 10l4-3" /> <path d="M8 10l-4-3" /> </motion.svg> ),
+  copy: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect> <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path> </motion.svg>),
 };
 
 // const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
@@ -420,7 +424,7 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType, className = ""  }
   const [isFlipping, setIsFlipping] = useState(false);
   const IconComponent = Icons[iconType] || (() => null);
   const [isHovered, setIsHovered] = useState(false);
-
+  const iconSize = window.innerWidth < 640 ? 5 : 24;
   const handleClick = () => {
     setIsFlipping(true);
     setTimeout(() => setIsFlipping(false), 400); // reset flip after animation
@@ -482,7 +486,7 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType, className = ""  }
 
       {/* Icon + Text */}
       <div className="relative z-10 flex items-center gap-1">
-        <IconComponent isHovered={isHovered} isFlipping={isFlipping} />
+        <IconComponent isHovered={isHovered} isFlipping={isFlipping} size={iconSize}/>
         <span>{text}</span>
       </div>
     </motion.button>
@@ -593,6 +597,9 @@ export const buttonColorConfigs = {
     logout: { id: 'logout',  baseColor: '#f43f5e', schemes: ['linear-gradient(145deg, #f43f5e, #be123c)', 'linear-gradient(145deg, #fb7185, #e11d48)', 'linear-gradient(145deg, #ef4444, #b91c1c)', 'linear-gradient(145deg, #f87171, #dc2626)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
     visualize: { id: 'visualize', baseColor: '#14b8a6', schemes: [ 'linear-gradient(145deg, #14b8a6, #0f766e)','linear-gradient(145deg, #2dd4bf, #0d9488)', 'linear-gradient(145deg, #06b6d4, #0891b2)', 'linear-gradient(145deg, #0ea5e9, #0369a1)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ],},
     dashboard: { id: 'dashboard', baseColor: '#0f172a', schemes: [ 'linear-gradient(145deg, #fcd34d, #f97316)', 'linear-gradient(145deg, #f9a8d4, #f472b6)', 'linear-gradient(145deg, #c4b5fd, #a78bfa)', 'linear-gradient(145deg, #dd6b20, #b45309)','linear-gradient(145deg, #1e3a8a, #3b82f6)', ],},
+    google: { id: 'googleAuth', baseColor: '#4285F4', schemes: [ 'linear-gradient(145deg, #0ea5e9, #0284c7)', 'linear-gradient(145deg, #34A853, #188038)', 'linear-gradient(145deg, #EA4335, #c5221f)', 'linear-gradient(145deg, #FBBC05, #f29900)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
+    verifyEmail: { id: 'verifyEmail', baseColor: '#10b981', schemes: [ 'linear-gradient(145deg, #10b981, #059669)', 'linear-gradient(145deg, #14b8a6, #0d9488)', 'linear-gradient(145deg, #06b6d4, #0284c7)', 'linear-gradient(145deg, #3b82f6, #2563eb)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
+    copy: { id: 'copy', baseColor: '#10b981', schemes: [ 'linear-gradient(145deg, #10b981, #059669)', 'linear-gradient(145deg, #3b82f6, #2563eb)', 'linear-gradient(145deg, #8b5cf6, #7c3aed)', 'linear-gradient(145deg, #f59e0b, #d97706)','linear-gradient(145deg, #ff7f50, #ff4500)' ]},
 };
 
 // overall exportss
@@ -624,7 +631,7 @@ export const NewEntryButton = ({ className, ...props }) => {
       }
     }
   };
- return ( <GlobalButton text="New Entry" iconType="new" colorConfig={buttonColorConfigs.newEntry} styleOverride={{ width: '10rem' }} onClick={handleClick} {...props} /> );};
+   return ( <GlobalButton text="New Entry" iconType="new" colorConfig={buttonColorConfigs.newEntry} styleOverride={{ width: '10rem' }} onClick={handleClick} {...props} /> );};
 export const EditButton = ({ className,...props}) => <GlobalButton text="Edit" iconType="edit" colorConfig={buttonColorConfigs.editDelete} className={className}  styleOverride={{ width: '8rem', height: '3.5rem' }} {...props} />;
 export const DeleteButton = ({ className,...props})=> <GlobalButton text="Delete" iconType="delete" colorConfig={buttonColorConfigs.delete} className={className}  styleOverride={{ width: '8rem', height: '3.5rem' }} {...props} />;
 export const ClearAllButton = ({ className,...props}) => <GlobalButton text="Clear All" iconType="clear" colorConfig={buttonColorConfigs.clearAll} className={className} styleOverride={{ width: '14rem', height: '4rem', fontSize: '1.1rem' }} {...props} />;
@@ -728,6 +735,65 @@ export const VisualizeButton = ({ entries = [], className, onClick, ...props }) 
         )}
       </AnimatePresence>
     </div>
+  );
+};
+export const GoogleAuthButton = ({ text, className = '', disabled = false, ...props }) => {
+  const location = useLocation();
+
+const routeText = (() => {
+  if (location.pathname.endsWith('/login')) return 'Login with Google';
+  if (location.pathname.endsWith('/register')) return 'Register with Google';
+  return text; // fallback
+})();
+
+  const handleGoogleAuth = () => {
+    const isDev = process.env.NODE_ENV === 'development';
+    const backendUrl = isDev 
+      ? 'http://localhost:4950' 
+      : 'https://cft-cj43.onrender.com';
+    
+    window.location.href = `${backendUrl}/api/auth/google`;
+  };
+
+  return (
+    <GlobalButton
+      text={routeText}
+      iconType="GI"
+      onClick={handleGoogleAuth}
+      disabled={disabled}
+      colorConfig={buttonColorConfigs.google}
+      {...props}
+    />
+  );
+};
+export const VerifyEmailButton = ({ className, ...props }) => (
+  <GlobalButton
+    text="Verify Email"
+    iconType="email"
+    colorConfig={buttonColorConfigs.verifyEmail}
+    className={className}
+    styleOverride={{ width: '100%' }}
+    {...props}
+  />
+);
+export const CopyButton = ({ textToCopy, className, ...props }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <GlobalButton
+      text={copied ? 'Solid Copy!' : 'Copy?'}
+      iconType="copy"
+      onClick={handleCopy}
+      colorConfig={buttonColorConfigs.copy}
+      className={className}
+      {...props}
+    />
   );
 };
 

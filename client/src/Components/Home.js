@@ -478,7 +478,7 @@ P.S. For the best experience, stay in dark mode and view on a laptop/PC. <span c
 
     {/* Feedback Email */}
 <motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
-We value your feedback<span className="font-extrabold">!</span>{' '}
+Tell us what you think<span className="font-extrabold">!</span>{' '}
   <a
     href={`mailto:carbontracker.noreply@gmail.com?subject=${subject}`}
     onClick={handleEmailClick}
@@ -487,7 +487,7 @@ We value your feedback<span className="font-extrabold">!</span>{' '}
     className="inline-flex items-center gap-1 underline text-blue-300 hover:text-blue-500 transition-colors duration-200"
   >
     <MdEmail className="text-base relative top-[2.5px] animate-pulse" />
-    <span className="leading-none mt-1">Send us an email</span>
+    <span className="leading-none mt-1">your feedback is welcome</span>
   </a>.
           <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
     By registering, you agree to our{' '}

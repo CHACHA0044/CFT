@@ -487,8 +487,28 @@ We value your feedback<span className="animate-pulse font-extrabold">!</span> Pl
     className="inline-flex items-center gap-1 underline text-blue-300 hover:text-blue-500 transition-colors duration-200"
   >
     <MdEmail className="text-base relative top-[2.5px] animate-pulse" />
-    <span className="leading-none mt-1">carbontracker.noreply@gmail.com</span>
-  </a>
+    <span className="leading-none mt-1">Send us an email</span>
+  </a>.
+          <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
+    By registering, you agree to our{' '}
+    <a
+      href="https://cft-self.vercel.app/privacypolicy.html"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline text-emerald-300 hover:text-emerald-500 transition-colors duration-200"
+    >
+      Privacy Policy
+    </a>{' '}
+    and{' '}
+    <a
+      href="https://cft-self.vercel.app/termsofservice.html"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline text-emerald-300 hover:text-emerald-500 transition-colors duration-200"
+    >
+      Terms
+    </a>.
+    </p>
 </motion.p>
   </motion.div>
 </div>

@@ -10,7 +10,6 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const redisClient = require('../RedisClient');
 const passport = require('passport');
-router.use(passport.initialize());
 
 // HELPER FUNCTIONS
 const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {

@@ -29,7 +29,6 @@ const cookieParser = require('cookie-parser');
 const startImapPoller = require('./utils/imapPoller');
 const cron = require('node-cron');
 const axios = require('axios');
-const passport = require('./config/passport');
 
 // express app
 const app = express();

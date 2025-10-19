@@ -9,7 +9,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const redisClient = require('../RedisClient');
-const passport = require('passport');
+const passport = require('../config/passport');
 
 // HELPER FUNCTIONS
 const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {

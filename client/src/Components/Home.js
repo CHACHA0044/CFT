@@ -478,7 +478,7 @@ P.S. For the best experience, stay in dark mode and view on a laptop/PC. <span c
 
     {/* Feedback Email */}
 <motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
-We value your feedback<span className="animate-pulse font-extrabold">!</span> Please share it at{' '}
+We value your feedback<span className="font-extrabold">!</span>{' '}
   <a
     href={`mailto:carbontracker.noreply@gmail.com?subject=${subject}`}
     onClick={handleEmailClick}

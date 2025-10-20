@@ -463,7 +463,7 @@ Carbon Footprint Tracker
     <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
     By registering, you agree to our{' '}
     <a
-      href="https://cft-self.vercel.app/privacypolicy.html"
+      href="https://carbonft.app/privacypolicy.html"
       target="_blank"
       rel="noopener noreferrer"
       className="underline text-emerald-300 hover:text-emerald-500 transition-colors duration-200"
@@ -472,7 +472,7 @@ Carbon Footprint Tracker
     </a>{' '}
     and{' '}
     <a
-      href="https://cft-self.vercel.app/termsofservice.html"
+      href="https://carbonft.app/termsofservice.html"
       target="_blank"
       rel="noopener noreferrer"
       className="underline text-emerald-300 hover:text-emerald-500 transition-colors duration-200"

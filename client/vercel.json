@@ -13,12 +13,5 @@
         }
       ]
     }
-  ],
-  "redirects": [
-    {
-      "source": "/:path*",
-      "destination": "https://carbonft.app/:path*",
-      "permanent": true
-    }
   ]
 }

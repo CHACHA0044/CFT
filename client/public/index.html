@@ -29,51 +29,366 @@
 <meta name="twitter:description" content="Your individual actions have a collective impact. Monitor your carbon emissions, compare your progress within the community, and be part of the global solution to climate change." />
 <meta name="twitter:image" content="https://www.carbonft.app//Social-preview.jpg" />
 <meta name="google-site-verification" content="8QHWPRtWqKpTBpU8gYKFN_sNmz0CpcYMVWoP1nD2IvU" />
-    <style>
+<style>
 @font-face {
   font-family: 'GermaniaOne';
   src: url('/fonts/GermaniaOne-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.info-section {
+  max-width: 900px;
+  margin: 60px auto 40px;
+  padding: 50px 40px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.hero-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.main-heading {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 20px;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #1f2937 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tagline {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin-bottom: 40px;
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.description-section {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 30px;
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+  border-radius: 2px;
+}
+
+.description-text {
+  font-size: 1.05rem;
+  color: #4b5563;
+  line-height: 1.9;
+  margin-bottom: 30px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.feature-card {
+  padding: 25px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 12px;
+  border-left: 4px solid #10b981;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.feature-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #065f46;
+  margin-bottom: 8px;
+}
+
+.feature-desc {
+  font-size: 0.95rem;
+  color: #047857;
+  line-height: 1.6;
+}
+
+.tech-stack {
+  margin-top: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.tech-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 15px;
+}
+
+.tech-badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.tech-badge {
+  display: inline-block;
+  padding: 8px 18px;
+  background: white;
+  color: #1e40af;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.1);
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 30px;
+  padding: 14px 28px;
+  background: #24292e;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.github-link:hover {
+  background: #1a1e21;
+}
+
+footer {
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 40px 20px;
+  color: #6b7280;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+footer p {
+  margin-bottom: 0;
+}
+
+footer a {
+  color: #10b981;
+  text-decoration: none;
+  margin: 0 8px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: #059669;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .info-section {
+    margin: 30px 20px;
+    padding: 35px 25px;
+  }
+  
+  .main-heading {
+    font-size: 2rem;
+  }
+  
+  .tagline {
+    font-size: 1.1rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  }
+  
+  .info-section {
+    background: #1f2937;
+  }
+  
+  .main-heading {
+    background: linear-gradient(135deg, #f9fafb 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .tagline {
+    color: #9ca3af;
+  }
+  
+  .section-title {
+    color: #f9fafb;
+  }
+  
+  .description-text {
+    color: #d1d5db;
+  }
+  
+  .description-section {
+    border-top-color: #374151;
+  }
+  
+  footer {
+    color: #9ca3af;
+  }
+}
 </style>
 
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/Logo.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
     <title>Carbon Footprint Tracker</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-      <footer style="text-align:center; padding: 20px; font-family: sans-serif; font-size: 14px; color: gray;">
+    
+    <div class="info-section">
+      <div class="hero-badge">🌍 Pranav Dembla</div>
+      
+      <h1 class="main-heading">Carbon Footprint Tracker</h1>
+      
+      <p class="tagline">
+        Your individual actions have a collective impact. Monitor your carbon emissions, 
+        compare your progress within the community, and be part of the global solution to climate change.
+      </p>
+      
+      <div class="description-section">
+        <h2 class="section-title">About CFT</h2>
+        
+        <p class="description-text">
+          CFT (Carbon Footprint Tracker) is a full-featured web application that enables users to calculate, 
+          monitor, and reduce their personal carbon emissions through transparent, verifiable calculations. 
+          After creating a secure account with email verification, users log monthly lifestyle data across 
+          four key categories: food consumption, transportation methods, electricity usage, and waste generation. 
+          The platform then computes accurate CO₂ equivalents and presents this data through interactive 
+          Recharts visualizations, allowing users to track their environmental impact over time, project 
+          yearly footprints, and receive personalized reduction recommendations. A unique community leaderboard 
+          feature fosters motivation by enabling users to compare their progress anonymously with others. 
+          Built on a production-grade MERN stack (MongoDB, Express.js, React 18, Node.js) with enterprise-level 
+          security including bcrypt password hashing, JWT authentication, HTTP-only cookies, Redis caching, 
+          rate limiting, and protection against XSS and NoSQL injection attacks, CFT delivers a fast, secure, 
+          and scalable solution. The application features dark mode support, responsive design, and is hosted 
+          on Vercel (frontend) and Render (backend) with MongoDB Atlas for data persistence, demonstrating 
+          professional full-stack development practices while democratizing meaningful climate action.
+        </p>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Interactive Analytics</div>
+            <div class="feature-desc">Visualize your carbon footprint with dynamic charts and comprehensive reports</div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <div class="feature-title">Community Insights</div>
+            <div class="feature-desc">Compare your progress with others and learn from collective data</div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-title">Privacy First</div>
+            <div class="feature-desc">Your data is protected with industry-leading security measures</div>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Real-Time Tracking</div>
+            <div class="feature-desc">Log activities instantly and see immediate impact calculations</div>
+          </div>
+        </div>
+        
+        <div class="tech-stack">
+          <div class="tech-title">Built with Modern Technology</div>
+          <p style="color: #1e40af; margin-top: 10px;">
+            Developed using the MERN stack for optimal performance, scalability, and user experience
+          </p>
+          <div class="tech-badges">
+            <span class="tech-badge">MongoDB</span>
+            <span class="tech-badge">Express.js</span>
+            <span class="tech-badge">React</span>
+            <span class="tech-badge">Node.js</span>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+          <a href="https://github.com/CHACHA0044/CFT.git" class="github-link" target="_blank" rel="noopener noreferrer">
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
       <p>
-        © 2025 Carbon Footprint Tracker ·
-        <a href="https://carbonft.app/privacypolicy.html" target="_blank" rel="noopener noreferrer" style="color:#10b981; text-decoration:underline;">Privacy Policy</a>
-        ·
-        <a href="https://carbonft.app/termsofservice.html" target="_blank" rel="noopener noreferrer" style="color:#10b981; text-decoration:underline;">Terms of Service</a>
+        © 2025 Carbon Footprint Tracker · 
+        <a href="https://carbonft.app/privacypolicy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> · 
+        <a href="https://carbonft.app/termsofservice.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>
       </p>
     </footer>
   </body>

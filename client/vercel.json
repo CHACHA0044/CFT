@@ -1,24 +1,23 @@
 {
+  "redirects": [
+    {
+      "source": "/privacy.html",
+      "destination": "https://carbonft.app/privacy.html",
+      "permanent": true
+    },
+    {
+      "source": "/terms.html",
+      "destination": "https://carbonft.app/terms.html",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Access-Control-Allow-Credentials",
-          "value": "true"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "https://api.carbonft.app"
-        }
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "https://api.carbonft.app" }
       ]
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "destination": "https://carbonft.app/$1",
-      "permanent": true
     }
   ]
 }

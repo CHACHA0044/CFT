@@ -29,12 +29,12 @@
     "zxcvbn": "^4.4.2"
   },
   "scripts": {
-  "build": "react-scripts build",
-  "postbuild": "echo Skipping redirects copy for Vercel",
-  "start": "react-scripts start",
-  "test": "react-scripts test",
-  "eject": "react-scripts eject"
-},
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "postbuild": "echo Redirects copied && cp public/_redirects build/_redirects",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",

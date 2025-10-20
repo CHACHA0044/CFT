@@ -406,7 +406,7 @@ timers.current = [
   <p>
     By registering, you agree to our{' '}
     <a
-      href="https://cft-self.vercel.app/privacypolicy.html"
+      href="https://carbonft.app/privacypolicy.html"
       target="_blank"
       rel="noopener noreferrer"
       className="underline hover:text-emerald-500 transition-colors duration-200"
@@ -415,7 +415,7 @@ timers.current = [
     </a>{' '}
     and{' '}
     <a
-      href="https://cft-self.vercel.app/termsofservice.html"
+      href="https://carbonft.app/privacypolicy.html"
       target="_blank"
       rel="noopener noreferrer"
       className="underline hover:text-emerald-500 transition-colors duration-200"

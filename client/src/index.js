@@ -8,7 +8,7 @@ const originalWarn = console.warn;
 console.warn = (...args) => {
   if (
     typeof args[0] === "string" &&
-    (args[0].includes("preload") || args[0].includes("was preloaded"))
+    (args[0].includes("preload") || args[0].includes("was preloaded") || args[0].includes('validateDOMNesting') || args[0].includes('value-not-animatable'))
   ) {
     return;
   }

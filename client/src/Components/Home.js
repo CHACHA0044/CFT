@@ -6,6 +6,7 @@ import { HomeHeaderButton } from './globalbuttons';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 import ScrollDownAnimation from 'animations/ScrollDown.json';
+import { useNavigate } from 'react-router-dom';
 import { MdEmail } from "react-icons/md";
   const sentence = "Your  Carbon  Story";
   const words = sentence.split(" ");
@@ -205,6 +206,7 @@ const Home = () => {
   const titleRef = useRef(null);
   const [showContent, setShowContent] = useState(false);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
+  const navigate = useNavigate();
   const contentVariants = {
   hidden: { opacity: 0, y: -10, transition: { duration: 0.2, delay: 0.6 } }, // exit
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.8 } }, // entry
@@ -226,11 +228,32 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/auth/ping`)
-      .then(res => res.json())
-      .then(data => console.log('✅ Ping success:', data.message))
-      .catch(err => console.log('⚠️ Ping failed:', err));
-  }, []);
+  const pingServer = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/ping`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // If you need cookies
+      });
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('❌ Server returned non-JSON response:', await response.text());
+        return;
+      }
+      
+      const data = await response.json();
+      console.log('✅ Ping success:', data.message);
+    } catch (err) {
+      console.error('⚠️ Ping failed:', err);
+    }
+  };
+  
+  pingServer();
+}, []);
 
 useEffect(() => {
   const updateHeight = () => {
@@ -430,9 +453,36 @@ Carbon Footprint Tracker
     Our tracker gives you <span className="font-semibold">clear visual insights</span> into your impact, projects your yearly footprint, and helps you <span className="font-semibold">compare your progress</span> with the community.
     </motion.p>
     <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100" >
-    <span className="font-medium">Ready to begin <span className="animate-pulse">?</span></span> Tap the <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.<br />
+    <span className="font-medium">Ready to begin <span className="animate-pulse">?</span></span> Tap the <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to 
+    <span onClick={() => navigate('/register')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Register</span> or 
+    <span onClick={() => navigate('/login')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Login</span>.<br />
     <span className="italic font-medium text-base md:text-lg leading-relaxed text-yellow-300">
-    P.S. Stay in dark mode for the best experience.<span className="animate-pulse">✨</span>
+    P.S. Stay in dark mode for the best experience.
+<motion.span
+  className="inline-block"
+  animate={{
+    scale: [1, 1.3, 0.95, 1.25, 1, 1.15, 1],
+    rotate: [0, 15, -12, 20, -8, 10, 0],
+    y: [0, -2, 0, -3, 0, -1, 0],
+    filter: [
+      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))",
+      "brightness(1.5) drop-shadow(0 0 12px rgba(255,215,0,0.8))",
+      "brightness(1.1) drop-shadow(0 0 3px rgba(255,215,0,0.3))",
+      "brightness(1.4) drop-shadow(0 0 10px rgba(255,215,0,0.7))",
+      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))",
+      "brightness(1.3) drop-shadow(0 0 8px rgba(255,215,0,0.5))",
+      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))"
+    ]
+  }}
+  transition={{
+    duration: 3,
+    repeat: Infinity,
+    ease: [0.45, 0.05, 0.55, 0.95],
+    times: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1]
+  }}
+>
+  ✨
+</motion.span>
     </span>
     </motion.p>
 
@@ -441,9 +491,34 @@ Carbon Footprint Tracker
     Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually<AniDot />
     </motion.p>
     <motion.p variants={itemVariants} className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
-    Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <Link to="/register" className="underline">Register</Link> or <Link to="/login" className="underline">Log In</Link>.
+   Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <span onClick={() => navigate('/register')} className="underline decoration-emerald-500/50 hover:decoration-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-1px] active:translate-y-[1px] active:text-emerald-300 active:scale-95 inline-block">Register</span> or <span onClick={() => navigate('/login')} className="underline decoration-emerald-500/50 hover:decoration-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-1px] active:translate-y-[1px] active:text-emerald-300 active:scale-95 inline-block">Log In</span>.
     <br />  <span className="italic text-sm leading-relaxed text-yellow-300">
-    P.S. Dark mode + laptop = best experience. <span className="animate-pulse">🌎</span>
+    P.S. Dark mode + laptop = best experience. 
+<motion.span
+  className="inline-block"
+  animate={{
+    scale: [1, 1.3, 0.95, 1.25, 1, 1.15, 1],
+    rotate: [0, 15, -12, 20, -8, 10, 0],
+    y: [0, -2, 0, -3, 0, -1, 0],
+    filter: [
+      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))",
+      "brightness(1.5) drop-shadow(0 0 12px rgba(255,215,0,0.8))",
+      "brightness(1.1) drop-shadow(0 0 3px rgba(255,215,0,0.3))",
+      "brightness(1.4) drop-shadow(0 0 10px rgba(255,215,0,0.7))",
+      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))",
+      "brightness(1.3) drop-shadow(0 0 8px rgba(255,215,0,0.5))",
+      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))"
+    ]
+  }}
+  transition={{
+    duration: 3,
+    repeat: Infinity,
+    ease: [0.45, 0.05, 0.55, 0.95],
+    times: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1]
+  }}
+>
+  ✨
+</motion.span>
     </span>
     </motion.p> 
 
@@ -455,9 +530,22 @@ Carbon Footprint Tracker
     onClick={handleEmailClick}
     target="_blank"
     rel="noopener noreferrer"
-    className="inline-flex items-center gap-1 underline text-blue-300 hover:text-blue-500 transition-colors duration-200"
+    className="items-center gap-1 underline decoration-blue-500/50 hover:decoration-blue-500 text-blue-300 hover:text-blue-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-flex"
     >
-    <MdEmail className="text-base relative top-[2.5px] animate-pulse" />
+    <motion.div
+    className="inline-block"
+    animate={{
+      y: [0, -3, 0, -2, 0],
+      rotate: [0, -5, 0, 5, 0]
+    }}
+    transition={{
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }}
+  >
+  <MdEmail className="text-base relative top-[2.5px]" />
+  </motion.div>
     <span className="leading-none mt-1">your feedback is welcome</span>
     </a>.
     <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
@@ -466,7 +554,7 @@ Carbon Footprint Tracker
       href="https://carbonft.app/privacypolicy.html"
       target="_blank"
       rel="noopener noreferrer"
-      className="underline text-emerald-300 hover:text-emerald-500 transition-colors duration-200"
+      className="underline decoration-emerald-500/50 hover:decoration-emerald-500 text-emerald-300 hover:text-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"
     >
       Privacy Policy
     </a>{' '}
@@ -475,7 +563,7 @@ Carbon Footprint Tracker
       href="https://carbonft.app/termsofservice.html"
       target="_blank"
       rel="noopener noreferrer"
-      className="underline text-emerald-300 hover:text-emerald-500 transition-colors duration-200"
+      className="underline decoration-emerald-500/50 hover:decoration-emerald-500 text-emerald-300 hover:text-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"
     >
       Terms
     </a>.

@@ -15,5 +15,5 @@ export const inputMail = "w-full px-4 py-3 border border-gray-400 dark:border-gr
 
 export const inputPass = "w-full px-4 py-3 border border-gray-400 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring focus:ring-slate-300";
 
-export const boxglow = `rounded-xl bg-black/60 dark:bg-black/60  p-6 sm:p-8 lg:p-10 shadow-[0_0_30px_5px_rgba(34,197,94,0.6)] backdrop-blur-md w-[90%] sm:w-[80%] md:w-[70%] lg:w-[28rem] max-w-lg mx-auto flex flex-col justify-center `;
+export const boxglow = `rounded-3xl bg-black/60 dark:bg-black/60  p-6 sm:p-8 lg:p-10 shadow-[0_0_30px_5px_rgba(34,197,94,0.6)] backdrop-blur-md w-[90%] sm:w-[80%] md:w-[70%] lg:w-[28rem] max-w-lg mx-auto flex flex-col justify-center `;
 

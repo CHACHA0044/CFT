@@ -304,7 +304,7 @@ useEffect(() => {
         className="w-full h-full"
       >
     <PageWrapper backgroundImage="/images/login-bk.webp">
-      <div className={`${boxglow} flex items-center sm:space-x-1 sm:mb-2 mb-0`}>
+      <div className={`${boxglow} flex items-center sm:space-x-1 sm:mb-2 mb-0 mt-12`}>
         <div className="flex items-center ml-12 space-x-0"><AnimatedHeadline />
         <motion.div
     key="globe"

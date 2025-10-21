@@ -298,7 +298,7 @@ timers.current = [
                 className="w-full h-full"
               >
     <PageWrapper backgroundImage="/images/register-bk.webp">
-      <div className={`${boxglow}`}>
+      <div className={`${boxglow} mt-10`}>
       <AnimatedHeadline />    
         <p className="text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-emerald-500 dark:text-gray-100 mt-2 mb-0">Build your carbon footprint journal with us.</p>
 

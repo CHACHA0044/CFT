@@ -7,7 +7,7 @@ import { useAnimation } from 'framer-motion';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 import {  inputBase, inputMail,  boxglow} from 'utils/styles';
-import { VerifyEmailButton, CopyButton } from 'Components/globalbuttons';
+import { VerifyEmailButton, CopyButton, SubmitButton, HomeHeaderButton } from 'Components/globalbuttons';
 const PasswordDisplay = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -287,7 +287,7 @@ const getFirstName = (fullName) => {
     <h1 className="text-5xl font-extrabold font-germania tracking-wider text-center text-shadow-DEFAULT text-red-600 mb-0">
       Link Invalid
     </h1>
-    <p className="text-sm text-center text-shadow-glow text-green-500 dark:text-gray-100 mb-6">
+    <p className="text-sm text-center text-shadow-DEFAULT text-green-500 dark:text-red-400 mb-6">
       Your password link is invalid or has expired.
     </p>
 
@@ -299,22 +299,14 @@ const getFirstName = (fullName) => {
       <Lottie animationData={GlobeAnimation} loop={true} />
     </motion.div>
 
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => navigate('/login')}
-      className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200"
-    >
-     Login
-    </motion.button>
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => navigate('/home')}
-      className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200"
-    >
-     Home
-    </motion.button>
+     <div className="flex flex-col gap-4 w-full">
+                <div className="w-full">
+                  <HomeHeaderButton text="Login" navigateTo="/login" iconType="verify" className="w-full h-14 text-red-500 dark:text-red-400" />
+                </div>
+                <div className="w-full">
+                  <HomeHeaderButton text="Home" navigateTo="/home" iconType="dashboard" className="w-full h-14 text-red-500 dark:text-red-400" />
+                </div>
+              </div>
   </>
 )}
 

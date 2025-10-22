@@ -7,7 +7,7 @@ import zxcvbn from 'zxcvbn';
 import PageWrapper from 'common/PageWrapper';
 import { SubmitButton, GoogleAuthButton } from 'Components/globalbuttons';
 import {  inputBase,  inputDark,  inputMail, inputPass,  boxglow} from 'utils/styles';
-
+import { useLocation } from 'react-router-dom';
   const sentence = "Track. Reduce. Inspire.";
   const words = sentence.split(" ");
   const getLetterVariants = () => ({
@@ -189,7 +189,7 @@ const Register = () => {
     email: '',
     password: ''
   });
-
+  const location = useLocation;
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -236,11 +236,13 @@ const handleSubmit = async (e) => {
 
   if (!validateEmail(formData.email)) {
     setError('Please enter a valid email address...');
+    setTimeout(() => { setError(''); }, 3000);
     return;
   }
 
   if (passwordStrength !== null && passwordStrength < 2) {
     setError('Password is too weak. Use a mix of letters, numbers, and symbols...');
+    setTimeout(() => { setError(''); }, 3000);
     return;
   }
 
@@ -277,6 +279,7 @@ timers.current = [
     setDelayMessage('');
     const msg = error.response?.data?.error || '❌ Registration failed. Try again.';
     setError(msg);
+    setTimeout(() => { setError(''); }, 3000);
     setSuccess('');
     setFormData({ name: '', email: '', password: '' });
     setPasswordStrength(null);
@@ -284,7 +287,40 @@ timers.current = [
     setLoading(false);
   }
 };
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const googleAuth = params.get('googleAuth');
+  const userName = params.get('userName');
+  const source = params.get('source');
+  
+  if (googleAuth === 'success' && source === 'register') {
+    // Store user name in session storage
+    if (userName) {
+      sessionStorage.setItem('userName', decodeURIComponent(userName));
+    }
 
+    setSuccess('🎉 Registration successful! Email sent containing your password. Redirecting to dashboard...');
+    
+    // Clear URL parameters
+    window.history.replaceState({}, '', '/register');
+    
+    // Redirect to dashboard after showing message
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 3000);
+  }
+}, [location.search, navigate]);
+
+// Also add error handling for failed OAuth on register page
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const authError = params.get('error');
+  
+  if (authError === 'auth_failed') {
+    setError('Google registration failed. Please try again.');
+    window.history.replaceState({}, '', '/register');
+  }
+}, [location]);
   const strengthLabel = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
   const [showPassword, setShowPassword] = useState(false);
   const [hidePasswordToggle, setHidePasswordToggle] = useState(false);

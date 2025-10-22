@@ -18,7 +18,7 @@ const path = require('path');
 const redisClient = require('./RedisClient');
 const user = require('./models/user');
 
-// Security + Middleware
+// Security + Middleware + others
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -29,6 +29,7 @@ const cookieParser = require('cookie-parser');
 const startImapPoller = require('./utils/imapPoller');
 const cron = require('node-cron');
 const axios = require('axios');
+const checkFeedbackEmails = require('./utils/feedbackPoller');
 
 // express app
 const app = express();
@@ -223,6 +224,15 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
     }
   } catch (err) {
     console.error('❌ Cron cleanup error:', err);
+  }
+});
+//feedback poller every 10 minutes
+cron.schedule('*/3 * * * *', async () => {
+  try {
+    console.log('Running feedback poller...');
+    await checkFeedbackEmails();
+  } catch (err) {
+    console.error('Feedback poller error:', err);
   }
 });
 

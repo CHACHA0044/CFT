@@ -32,8 +32,18 @@ const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
   }
 };
 
+const formatDate = (date, timeZone = "Asia/Kolkata") => {
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+};
+
 const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) => {
   const currentTime = formatTime(new Date(), timeZone);
+  const currentDate = formatDate(new Date(), timeZone);
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
@@ -45,7 +55,7 @@ const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) =
         <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">Welcome to <strong>Carbon Footprint Tracker</strong>!<br>Please verify your email to activate your account.</p>
         <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
         <a href="${verificationLink}" style="display: inline-block; background: linear-gradient(90deg, #2f80ed, #56ccf2); color: #ffffff; padding: 14px 20px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 18px rgba(47,128,237,0.35);">✅ Verify Email</a>
-        <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>10 minutes</strong>.</span></p>
+        <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong> on <strong>${currentDate}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>10 minutes</strong>!</span></p>
         <p style="font-size: 11px; color: #999; margin-top: 8px;">Didn't sign up? You can safely ignore this email.</p>
       </div>
     </div>
@@ -124,6 +134,7 @@ const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
 
 const welcomeEmailHtmlG = (name, passwordLink, { timeZone = "Asia/Kolkata" } = {} ) => {
   const currentTime = formatTime(new Date(), timeZone);
+  const currentDate = formatDate(new Date(), timeZone);
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
@@ -149,7 +160,7 @@ const welcomeEmailHtmlG = (name, passwordLink, { timeZone = "Asia/Kolkata" } = {
     <p style="font-size: 16px; color: #e0e0e0;">
     You can login using your email(or google as u just did) along with the following password:<br />
     <a href="${passwordLink}" style="display: inline-block; background: linear-gradient(90deg, #2f80ed, #56ccf2); margin-top: 20px; color: #ffffff; padding: 14px 20px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 18px rgba(47,128,237,0.35);">Password</a>
-    <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>3 Days</strong>.</span></p>
+    <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong> on <strong>${currentDate}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>3 Days</strong>!</span></p>
    </p>
     <p style="font-size: 16px; color: #e0e0e0;">
       <strong>Start exploring:</strong> 
@@ -417,7 +428,31 @@ router.post('/login', async (req, res) => {
     });
 
     console.log(` [LOGIN SUCCESS] User logged in: ${email} | From cache: ${!!cached}`);
-    
+     // WELCOME EMAIL ON FIRST LOGIN (for local users only)
+    if (user.provider === 'local' && !user.welcomeEmailSent) {
+      // email after a delay to avoid Gmail spam filters
+      setTimeout(async () => {
+        try {
+          console.log(`[1st] Sending welcome email to: ${email}`);
+          
+          await sendEmail(
+            user.email,
+            '🎉 Welcome to Your Carbon Journey!',
+            welcomeEmailHtml(user.name)
+          );
+          
+          // Update the welcomeEmailSent flag
+          await User.findByIdAndUpdate(user._id, { welcomeEmailSent: true });
+          
+          console.log(`[1st]Welcome email sent successfully to: ${email}`);
+        } catch (emailError) {
+          console.error(`❌ [1st] Failed to send to ${email}:`, emailError.message);
+          // not blocking login if email fails
+        }
+      }, 10000); // 10 second delay - user will be on dashboard by then
+    } else if (user.provider === 'local') {
+      console.log(`ℹ️ [LOGIN] Welcome email already sent to: ${email}`);
+    }
     res.json({
       message: 'Login successful',
       user: {
@@ -626,6 +661,19 @@ router.get('/verify-email/:token', async (req, res) => {
       });
     }
 
+    // Check if already verified (to prevent duplicate welcome emails)
+    if (user.isVerified) {
+      console.log('⚠️ [VERIFY] User already verified:', user.email);
+      return res.status(200).json({ 
+        message: 'Email already verified!',
+        user: {
+          name: user.name,
+          email: user.email
+        },
+        alreadyVerified: true
+      });
+    }
+
     // Update user
     user.isVerified = true;
     user.verificationToken = undefined;
@@ -634,25 +682,33 @@ router.get('/verify-email/:token', async (req, res) => {
     await user.save();
 
     console.log('✅ [VERIFY] Email verified for:', user.email);
-     try {
+    
+    // Send welcome email with better error handling
+    let welcomeEmailStatus = 'not_sent';
+    try {
       await sendEmail(
         user.email,
         'Welcome to Carbon Footprint Tracker! 🌍',
         welcomeEmailHtml(user.name)
       );
-      console.log('✅ [EMAIL] Welcome email sent to:', user.email);
+      
+      welcomeEmailStatus = 'sent';
+      console.log('✅ [EMAIL] Welcome email sent successfully to:', user.email);
     } catch (emailError) {
-      console.error('❌ [EMAIL ERROR] Failed to send welcome email to', user.email, ':', emailError.message);
-      // Dosent fails the verification if welcome email fails
+      welcomeEmailStatus = 'failed';
+      console.error('❌ [EMAIL ERROR] Failed to send welcome email to', user.email);
+      console.error('Error details:', emailError.message);
+      // Verification still succeeds even if welcome email fails
     }
     
-    // Return user info including name
+    // Return success regardless of welcome email status
     res.status(200).json({ 
       message: 'Email verified successfully!',
       user: {
         name: user.name,
         email: user.email
-      }
+      },
+      welcomeEmailSent: welcomeEmailStatus === 'sent'
     });
     
   } catch (err) {
@@ -1230,7 +1286,7 @@ router.get('/google/callback',
     try {
       const user = req.user;
       const isProd = process.env.NODE_ENV === 'production';
-      
+      const source = req.query.state;
       // JWT token
       const token = jwt.sign(
         { userId: user._id, email: user.email },
@@ -1278,16 +1334,25 @@ router.get('/google/callback',
       // ALWAYS SAVE (to store passwordToken)
       await user.save();
 
-      // Redirect
-      const redirectURL = isProd
-        ? 'https://carbonft.app/dashboard'
-        : 'http://localhost:3000/dashboard';
-      
+      // Build redirect path
+      let redirectPath = '/login';
+      if (source === 'register') redirectPath = '/register';
+      else if (source === 'login') redirectPath = '/login';
+
+      const baseURL = isProd ? 'https://carbonft.app' : 'http://localhost:3000';
+
+      const redirectURL = `${baseURL}${redirectPath}?googleAuth=success&userName=${encodeURIComponent(user.name)}`;
+
       res.redirect(redirectURL);
     } catch (error) {
       console.error('Google OAuth callback error:', error);
-      res.redirect(isProd ? 'https://cft-self.vercel.app/?error=auth_failed' : 'http://localhost:3000/?error=auth_failed');
+      const errorRedirect = isProd 
+        ? 'https://carbonft.app/login?error=auth_failed'
+        : 'http://localhost:3000/login?error=auth_failed';
+
+      return res.redirect(errorRedirect);
     }
   }
 );
+
 module.exports = router;

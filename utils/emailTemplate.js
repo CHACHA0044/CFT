@@ -18,7 +18,14 @@ const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
     return `${hour12}:${mm} ${mer}`;
   }
 };
-
+const formatDate = (date, timeZone = "Asia/Kolkata") => {
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+};
 const emailHtml = (name, verificationLink, { timeZone = "Asia/Kolkata" } = {}) => {
   const currentTime = formatTime(new Date(), timeZone);
 
@@ -191,7 +198,9 @@ const welcomeEmailHtml = (name) => {
     <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Carbon down. Future up.</div>
   </div>`;
 };
-const welcomeEmailHtmlG = (name) => {
+const welcomeEmailHtmlG = (name, passwordLink, { timeZone = "Asia/Kolkata" } = {} ) => {
+  const currentTime = formatTime(new Date(), timeZone);
+  const currentDate = formatDate(new Date(), timeZone);
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
@@ -215,8 +224,9 @@ const welcomeEmailHtmlG = (name) => {
       Let’s take a step toward a greener future — one entry at a time 🌱
     </p>
     <p style="font-size: 16px; color: #e0e0e0;">
-    You can login using your email(or google if u want) along with the following password:<br/>
-    <strong>777777777</strong>
+    You can login using your email(or google as u just did) along with the following password:<br />
+    <a href="${passwordLink}" style="display: inline-block; background: linear-gradient(90deg, #2f80ed, #56ccf2); margin-top: 20px; color: #ffffff; padding: 14px 20px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 18px rgba(47,128,237,0.35);">Password</a>
+    <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong> on <strong>${currentDate}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>3 Days</strong>!</span></p>
    </p>
     <p style="font-size: 16px; color: #e0e0e0;">
       <strong>Start exploring:</strong> 
@@ -243,4 +253,4 @@ const welcomeEmailHtmlG = (name) => {
     <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Carbon down. Future up.</div>
   </div>`;
 };
-module.exports = { emailHtml, feedbackReplyHtml, welcomeEmailHtml };
+module.exports = { emailHtml, feedbackReplyHtml, welcomeEmailHtml, welcomeEmailHtmlG };

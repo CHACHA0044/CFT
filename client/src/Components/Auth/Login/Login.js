@@ -7,6 +7,7 @@ import { SubmitButton, GoogleAuthButton } from 'Components/globalbuttons';
 import { inputBase, inputMail, inputPass, boxglow } from 'utils/styles';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
+import { useLocation } from 'react-router-dom';
 
   const sentence = "Log in";
   const words = sentence.split(" ");
@@ -160,6 +161,7 @@ import GlobeAnimation from 'animations/Globe.json';
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const location = useLocation();
   const [showResend, setShowResend] = useState(false);
   const [resendCount, setResendCount] = useState( Number(sessionStorage.getItem("resendCount")) || 0);
   const [hidePasswordToggle, setHidePasswordToggle] = useState(false);
@@ -291,6 +293,37 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const googleAuth = params.get('googleAuth');
+  const userName = params.get('userName');
+  
+  if (googleAuth === 'success') {
+    // Store user name in session storage
+    if (userName) {
+      sessionStorage.setItem('userName', decodeURIComponent(userName));
+    }
+      setSuccess('Login Successful! 😎');
+    
+    // Clear URL parameters
+    window.history.replaceState({}, '', '/login');
+    
+    // Redirect to dashboard after showing message
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 3000);
+  }
+}, [location.search,navigate]);
+
+useEffect(() => {
+  const params = new URLSearchParams(location.search);
+  const authError = params.get('error');
+  
+  if (authError === 'auth_failed') {
+    setError('Google authentication failed. Please try again.');
+    window.history.replaceState({}, '', '/login');
+  }
+}, [location]);
 useEffect(() => {
   return () => timers.current.forEach((t) => clearTimeout(t));
 }, []);

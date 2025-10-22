@@ -100,135 +100,6 @@ const Icons = {
   copy: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect> <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path> </motion.svg>),
 };
 
-// const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
-//     const [isHovered, setIsHovered] = useState(false);
-// const [isFlipping, setIsFlipping] = useState(false);
-
-// useEffect(() => {
-//   if (disabled && text === 'Processing...') {
-//     setIsFlipping(true);  
-//   } else {
-//     setIsFlipping(false); 
-//   }
-// }, [disabled, text]);
-
-//     const navigate = useNavigate();
-
-//     const [schemeIndex, setSchemeIndex] = useState(() => {
-//         const state = getButtonState(userEmail);
-//         return state[colorConfig.id] || 0;
-//     });
-//     useEffect(() => {
-//         const state = getButtonState(userEmail);
-//         state[colorConfig.id] = schemeIndex;
-//         saveButtonState(userEmail, state);
-//     }, [schemeIndex, colorConfig.id, userEmail]);
-    
-//     const IconComponent = Icons[iconType] || (() => null);
-//     const { schemes, baseColor } = colorConfig;
-//     const currentScheme = schemes[schemeIndex];
-//     const isTransparent = currentScheme === 'transparent';
-
-//     const handleClick = (e) => {
-//         if (e && typeof e.stopPropagation === 'function') {
-//         e.stopPropagation();
-//     }
-//         requestAnimationFrame(() => setIsFlipping(true));
-//         setTimeout(() => setIsFlipping(false), 400);
-
-//         if (navigator.vibrate) {
-//       const vibrationPatterns = {
-//         new: [30],
-//         edit: [20, 40, 20],
-//         delete: [50, 100, 50],
-//         save: [15, 30, 15],
-//         verify: [60],
-//         clear: [40, 60, 40],
-//         logout: [25, 50, 25],
-//         visualize: [10, 20, 10, 20],
-//         default: [20]
-//       };
-//       navigator.vibrate(vibrationPatterns[iconType] || vibrationPatterns.default);
-//     }
-
-//         const newIndex = (schemeIndex + 1) % schemes.length;
-//         setSchemeIndex(newIndex);
-// const delay = (disabled && text === 'Processing...') ? 1000 : 400; 
-//         setTimeout(() => {
-//     if (navigateTo) {
-//         navigate(navigateTo);
-//     }
-//     if (onClick) {
-//         onClick(e);
-//     }
-// }, delay); 
-//     };
-
-//     const tapAnimation = {
-//   scale: 0.90,
-//   y: 2,
-//  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
-//   filter: "brightness(1.15)",
-//   transition: { type: 'spring', stiffness: 500, damping:26}
-// };
-
-// const glowColor = currentScheme.includes('linear-gradient')
-//   ? currentScheme.match(/#([0-9a-f]{3,8})/i)?.[0] || baseColor
-//   : currentScheme;
-
-//     return (
-//         <motion.div className="relative" onHoverStart={() => setIsHovered(true)} onHoverEnd={() => setIsHovered(false)}>
-//           <motion.button
-//         type={type || "button"}
-//         whileTap={tapAnimation}
-//         whileHover={{
-//         scale: 1.05,
-//         rotateX: 2, rotateY: -2,
-//         boxShadow: `
-//     0 0 20px ${glowColor}80,
-//     0 0 10px ${glowColor}80,
-//     inset 0 2px 4px rgba(255,255,255,0.1),
-//     inset 0 -3px 6px rgba(0,0,0,0.4)
-//   `,
-//         transition: {
-//         scale: { type: 'spring', stiffness: 1000, damping: 30 },
-//         boxShadow: { duration: 0.1 } }}}
-//         onClick={handleClick}
-//         disabled={disabled}
-//         className="relative flex items-center justify-center gap-3 h-14 rounded-xl font-semibold font-sriracha tracking-wider shadow-lg overflow-hidden text-white"
-//         style={{
-//           transformStyle: 'preserve-3d',
-//     perspective: '1000px',
-//     transformOrigin: 'center',
-//           width: '100%',
-//           background: isTransparent ? 'transparent' : currentScheme,
-//           border: isTransparent
-//   ? `1.5px solid ${baseColor}`
-//   : '1.5px solid rgba(255, 255, 255, 0.08)',
-
-//     borderRadius: '0.75rem',
-//            boxShadow: isTransparent
-//     ? 'none'
-//     : `
-//       0 6px 12px rgba(0,0,0,0.35),           /* Strong base shadow */
-//       inset 0 2px 4px rgba(255,255,255,0.15), /* Top light highlight */
-//       inset 0 -3px 6px rgba(0,0,0,0.4)        /* Bottom depth */
-//     `,
-//   backdropFilter: isTransparent ? 'none' : 'blur(2px)',
-//           color: isTransparent ? baseColor : 'white',
-//           transition: 'background 0.4s, border 0.4s, color 0.4s ',
-//           ...styleOverride, 
-//         }}
-//       >
-//    <div className="animate-shimmer ring-1 ring-white/10 transition-opacity duration-300" style={{ opacity: isTransparent ? 0 : 1 }} />
-//                 <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-2">
-//                     <IconComponent isFlipping={isFlipping} isHovered={isHovered} />
-//                     <span>{text}</span>
-//                 </div>
-//             </motion.button>
-//         </motion.div>
-//     );
-// };
 const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isFlipping, setIsFlipping] = useState(false);
@@ -747,13 +618,21 @@ const routeText = (() => {
 })();
 
   const handleGoogleAuth = () => {
-    const isDev = process.env.NODE_ENV === 'development';
-    const backendUrl = isDev 
-      ? 'http://localhost:4950' 
-      : 'https://cft-cj43.onrender.com';
-    
-    window.location.href = `${backendUrl}/api/auth/google`;
-  };
+  const isDev = process.env.NODE_ENV === 'development';
+  const backendUrl = isDev 
+    ? 'http://localhost:4950' 
+    : 'https://cft-cj43.onrender.com';
+
+  const source = (() => {
+    if (location.pathname.endsWith('/login')) return 'login';
+    if (location.pathname.endsWith('/register')) return 'register';
+    return '';
+  })();
+
+  const redirectUrl = `${backendUrl}/api/auth/google${source ? `?source=${source}` : ''}`;
+  window.location.href = redirectUrl;
+};
+
 
   return (
     <GlobalButton

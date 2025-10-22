@@ -1,3 +1,150 @@
+// const { ImapFlow } = require("imapflow");
+// const { simpleParser } = require("mailparser");
+// const cron = require("node-cron");
+// const User = require("../models/user");
+// const sendEmail = require("./sendEmail");
+// const { feedbackReplyHtml } = require("./emailTemplate");
+
+// const IMAP_CONFIG = {
+//   host: process.env.IMAP_HOST,
+//   port: parseInt(process.env.IMAP_PORT) || 993,
+//   secure: process.env.IMAP_SECURE === "true",
+//   auth: {
+//     user: process.env.IMAP_USER,
+//     pass: process.env.IMAP_PASS,
+//   },
+// };
+
+// // Keywords
+// const SUBJECT_KEYWORDS = ['feedback', 'carbon', 'footprint', 'tracker'];
+
+// async function handleNewMessages(client) {
+//   try {
+//     await client.mailboxOpen('INBOX');
+
+//     // Only fetch messages that are unanswered and not already skipped
+//     const uids = await client.search({ answered: false });
+//     console.log(`📨 Mail count: ${uids.length}`);
+//     if (!uids || uids.length === 0) return;
+//     let skippedCount = 0;
+//     for (const uid of uids) {
+//       try {
+//         // Fetch only headers & flags first (lightweight)
+//         const headers = await client.fetchOne(uid, { envelope: true, flags: true });
+//         const alreadyAnswered = headers.flags?.has('\\Answered');
+//         const subject = headers.envelope?.subject?.toLowerCase() || "";
+//         const fromAddr = headers.envelope?.from?.[0]?.address?.toLowerCase();
+
+//         if (alreadyAnswered || !fromAddr) {
+//           await client.messageFlagsAdd(uid, ['\\Seen']);
+//           continue;
+//         }
+
+//         // Keyword check
+//         const containsKeyword = SUBJECT_KEYWORDS.some(keyword =>
+//           subject.includes(keyword)
+//         );
+//         if (!containsKeyword) {
+//           // Mark as Seen and Skipped so it won't be checked again
+//           await client.messageFlagsAdd(uid, ['\\Seen']);
+//           skippedCount++;
+//           //console.log(`ℹ️ Skipped email from ${fromAddr} (subject: "${subject}") - no keyword`);
+//           continue;
+//         }
+//         if (containsKeyword) {
+//           console.log(`✅ Keyword match for UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
+//         }
+
+//         // ✅ Fetch full source only if needed
+//         const msg = await client.fetchOne(uid, { source: true });
+//         if (!msg?.source) {
+//           console.warn(`⚠️ No source found for UID ${uid}, skipping`);
+//           await client.messageFlagsAdd(uid, ['\\Seen']);
+//           continue;
+//         }
+//         const parsed = await simpleParser(msg.source);
+
+//         // Find user
+//         const user = await User.findOne({
+//           email: new RegExp(`^${escapeRegExp(fromAddr)}$`, 'i'),
+//         });
+//         const nameToUse = user ? user.name : '';
+
+//         // Reply with retry logic (3 attempts)
+//         const replyHtml = feedbackReplyHtml(nameToUse, { timeZone: 'Asia/Kolkata' });
+//         let attempts = 0;
+//         let sent = false;
+
+//         while (!sent && attempts < 3) {
+//           try {
+//             attempts++;
+//             console.log(`📧 Attempting to send reply to ${fromAddr} (attempt ${attempts})`);
+//             await sendEmail(fromAddr, '🌱 Thanks', replyHtml);
+//             sent = true;
+//             console.log(`✅ Replied to ${fromAddr} (attempt ${attempts})`);
+//             await client.messageFlagsAdd(uid, ['\\Seen', '\\Answered']);
+//           } catch (errSend) {
+//             console.error(`❌ Send attempt ${attempts} failed for ${fromAddr}:`, errSend.message);
+//             if (attempts >= 3) {
+//               console.error(`⚠️ Giving up on ${fromAddr} after 3 tries`);
+//               await client.messageFlagsAdd(uid, ['\\Seen']);
+//             }
+//           }
+//         }
+//       } catch (errMsg) {
+//         console.error('❌ Error processing message UID', uid, errMsg);
+//         try {
+//           await client.messageFlagsAdd(uid, ['\\Seen']);
+//         } catch {}
+//       }
+//     }
+//     console.log(`📭 Mail skipped: ${skippedCount}`);
+//   } catch (err) {
+//     console.error('❌ handleNewMessages error:', err);
+//   }
+// }
+
+// function escapeRegExp(string) {
+//   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// }
+
+// const silentLogger = {
+//   debug: () => {},
+//   info: () => {},
+//   warn: () => {},
+//   error: console.error,
+// };
+
+// async function checkNow() {
+//   const client = new ImapFlow({
+//     ...IMAP_CONFIG,
+//     logger: silentLogger,   
+//   });
+//   try {
+//     await client.connect();
+//     await handleNewMessages(client);
+//   } catch (err) {
+//     console.error('❌ IMAP check failed:', err);
+//   } finally {
+//     try {
+//       await client.logout();
+//     } catch {}
+//   }
+// }
+
+// function startImapPoller() {
+//   const schedule = process.env.IMAP_POLL_CRON || '*/3 * * * *';
+//   console.log('⏰ IMAP poller scheduled:', schedule);
+//   checkNow();
+//   cron.schedule(schedule, () => {
+//     checkNow();
+//   });
+// }
+
+// module.exports = startImapPoller;
+// ✅ IMAP Poller with Persistent Counter Logic
+const fs = require("fs");
+const path = require("path");
 const { ImapFlow } = require("imapflow");
 const { simpleParser } = require("mailparser");
 const cron = require("node-cron");
@@ -16,62 +163,85 @@ const IMAP_CONFIG = {
 };
 
 // Keywords
-const SUBJECT_KEYWORDS = ['feedback', 'carbon', 'footprint', 'tracker'];
+const SUBJECT_KEYWORDS = ["feedback", "carbon", "footprint", "tracker"];
+
+// 🧾 JSON state file to store progress
+const STATE_FILE = path.join(__dirname, "imapState.json");
+
+// 🧠 Load saved state
+function loadState() {
+  try {
+    if (fs.existsSync(STATE_FILE)) {
+      return JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
+    }
+  } catch (err) {
+    console.error("⚠️ Failed to read state file:", err);
+  }
+  return { lastProcessedUid: 0, totalProcessed: 0, totalReplied: 0, totalSkipped: 0 };
+}
+
+// 💾 Save updated state
+function saveState(state) {
+  try {
+    fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), "utf8");
+  } catch (err) {
+    console.error("⚠️ Failed to save state file:", err);
+  }
+}
 
 async function handleNewMessages(client) {
   try {
-    await client.mailboxOpen('INBOX');
+    await client.mailboxOpen("INBOX");
 
-    // Only fetch messages that are unanswered and not already skipped
-    const uids = await client.search({ answered: false });
-    console.log(`📨 Mail count: ${uids.length}`);
-    if (!uids || uids.length === 0) return;
-    let skippedCount = 0;
-    for (const uid of uids) {
+    const state = loadState();
+    const { lastProcessedUid } = state;
+
+    // 🟢 Fetch all message UIDs beyond last processed UID
+    const allUids = await client.search({});
+    const newUids = allUids.filter((uid) => uid > lastProcessedUid);
+
+    console.log(`📨 Found ${newUids.length} new emails to check.`);
+
+    if (newUids.length === 0) return;
+
+    for (const uid of newUids) {
       try {
-        // Fetch only headers & flags first (lightweight)
         const headers = await client.fetchOne(uid, { envelope: true, flags: true });
-        const alreadyAnswered = headers.flags?.has('\\Answered');
         const subject = headers.envelope?.subject?.toLowerCase() || "";
         const fromAddr = headers.envelope?.from?.[0]?.address?.toLowerCase();
 
-        if (alreadyAnswered || !fromAddr) {
-          await client.messageFlagsAdd(uid, ['\\Seen']);
-          continue;
-        }
+        if (!fromAddr) continue;
 
-        // Keyword check
-        const containsKeyword = SUBJECT_KEYWORDS.some(keyword =>
+        const containsKeyword = SUBJECT_KEYWORDS.some((keyword) =>
           subject.includes(keyword)
         );
+
         if (!containsKeyword) {
-          // Mark as Seen and Skipped so it won't be checked again
-          await client.messageFlagsAdd(uid, ['\\Seen']);
-          skippedCount++;
-          //console.log(`ℹ️ Skipped email from ${fromAddr} (subject: "${subject}") - no keyword`);
+          state.totalSkipped++;
           continue;
         }
-        if (containsKeyword) {
-          console.log(`✅ Keyword match for UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
-        }
 
-        // ✅ Fetch full source only if needed
+        console.log(`✅ Keyword match for UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
+
+        // ✅ Fetch and parse full message
         const msg = await client.fetchOne(uid, { source: true });
         if (!msg?.source) {
           console.warn(`⚠️ No source found for UID ${uid}, skipping`);
-          await client.messageFlagsAdd(uid, ['\\Seen']);
+          state.totalSkipped++;
           continue;
         }
+
         const parsed = await simpleParser(msg.source);
 
         // Find user
         const user = await User.findOne({
-          email: new RegExp(`^${escapeRegExp(fromAddr)}$`, 'i'),
+          email: new RegExp(`^${escapeRegExp(fromAddr)}$`, "i"),
         });
-        const nameToUse = user ? user.name : '';
+
+        const nameToUse = user ? user.name : "";
 
         // Reply with retry logic (3 attempts)
-        const replyHtml = feedbackReplyHtml(nameToUse, { timeZone: 'Asia/Kolkata' });
+        const replyHtml = feedbackReplyHtml(nameToUse, { timeZone: "Asia/Kolkata" });
         let attempts = 0;
         let sent = false;
 
@@ -79,33 +249,40 @@ async function handleNewMessages(client) {
           try {
             attempts++;
             console.log(`📧 Attempting to send reply to ${fromAddr} (attempt ${attempts})`);
-            await sendEmail(fromAddr, '🌱 Thanks', replyHtml);
+            await sendEmail(fromAddr, "🌱 Thanks", replyHtml);
             sent = true;
             console.log(`✅ Replied to ${fromAddr} (attempt ${attempts})`);
-            await client.messageFlagsAdd(uid, ['\\Seen', '\\Answered']);
+            state.totalReplied++;
           } catch (errSend) {
             console.error(`❌ Send attempt ${attempts} failed for ${fromAddr}:`, errSend.message);
-            if (attempts >= 3) {
-              console.error(`⚠️ Giving up on ${fromAddr} after 3 tries`);
-              await client.messageFlagsAdd(uid, ['\\Seen']);
-            }
+            if (attempts >= 3) console.error(`⚠️ Giving up on ${fromAddr} after 3 tries`);
           }
         }
+
+        // 🟢 Update last processed UID
+        if (uid > state.lastProcessedUid) {
+          state.lastProcessedUid = uid;
+        }
+
+        // 🟢 Increment processed count
+        state.totalProcessed++;
+
+        // 💾 Save after each email for reliability
+        saveState(state);
+
       } catch (errMsg) {
-        console.error('❌ Error processing message UID', uid, errMsg);
-        try {
-          await client.messageFlagsAdd(uid, ['\\Seen']);
-        } catch {}
+        console.error("❌ Error processing message UID", uid, errMsg);
       }
     }
-    console.log(`📭 Mail skipped: ${skippedCount}`);
+
+    console.log(`📊 Summary: Processed=${state.totalProcessed}, Replied=${state.totalReplied}, Skipped=${state.totalSkipped}`);
   } catch (err) {
-    console.error('❌ handleNewMessages error:', err);
+    console.error("❌ handleNewMessages error:", err);
   }
 }
 
 function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 const silentLogger = {
@@ -118,13 +295,13 @@ const silentLogger = {
 async function checkNow() {
   const client = new ImapFlow({
     ...IMAP_CONFIG,
-    logger: silentLogger,   
+    logger: silentLogger,
   });
   try {
     await client.connect();
     await handleNewMessages(client);
   } catch (err) {
-    console.error('❌ IMAP check failed:', err);
+    console.error("❌ IMAP check failed:", err);
   } finally {
     try {
       await client.logout();
@@ -133,8 +310,8 @@ async function checkNow() {
 }
 
 function startImapPoller() {
-  const schedule = process.env.IMAP_POLL_CRON || '*/3 * * * *';
-  console.log('⏰ IMAP poller scheduled:', schedule);
+  const schedule = process.env.IMAP_POLL_CRON || "*/3 * * * *";
+  console.log("⏰ IMAP poller scheduled:", schedule);
   checkNow();
   cron.schedule(schedule, () => {
     checkNow();

@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   provider: { type: String, enum: ['local', 'google'], default: 'local'},
   welcomeEmailSent: { type: Boolean, default: false },
   feedbackGiven: { type: Boolean, default: false },
+  feedbackCount: {type: Number, default: 0},
   passwordHash: { type: String, required: true },
   resendAttempts: { type: Number, default: 0 },
   lastResendAt: { type: Number, default: 0 },

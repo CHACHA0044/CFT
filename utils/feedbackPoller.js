@@ -1,4 +1,4 @@
-// feedback Email Scanner (simplified, no counter)
+// feedback Email Scanner (check all emails)
 const { ImapFlow } = require("imapflow");
 const { simpleParser } = require("mailparser");
 const User = require("../models/user");
@@ -50,23 +50,18 @@ async function checkFeedbackEmails() {
         );
 
         if (containsKeyword && fromAddr) {
-          const user = await User.findOneAndUpdate(
+          await User.updateOne(
             { email: new RegExp(`^${escapeRegExp(fromAddr)}$`, "i") },
             {
+              $set: { feedbackGiven: true, welcomeEmailSent: true },
               $inc: { feedbackCount: 1 },
-              $set: { feedbackGiven: true },
-            },
-            { new: true }
+            }
           );
 
-          if (user) {
-            console.log(`✅ Feedback marked for: ${fromAddr}`);
-          } else {
-            console.log(`⚠️ No user found for: ${fromAddr}`);
-          }
+          console.log(`✅ Feedback updated for: ${fromAddr}`);
         }
       } catch (err) {
-        console.error(`❌ Error reading UID ${uid}:`, err);
+        console.error(`❌ Error processing UID ${uid}:`, err);
       }
     }
 

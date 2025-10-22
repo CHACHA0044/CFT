@@ -677,7 +677,7 @@ router.get('/verify-email/:token', async (req, res) => {
     // Update user
     user.isVerified = true;
     user.verificationToken = undefined;
-    user.resendAttempts = 0;
+    user.resendAttempts = undefined;
     user.lastResendAt = undefined;
     await user.save();
 
@@ -1330,7 +1330,10 @@ router.get('/google/callback',
       } else if (user.provider === 'google') {
         console.log(`[GOOGLE OAUTH] Welcome email already sent to: ${user.email}`);
       }
-
+      if (user.isVerified) {
+        user.resendAttempts = undefined; // remove field
+        user.lastResendAt = undefined;   // remove field
+      }
       // ALWAYS SAVE (to store passwordToken)
       await user.save();
 

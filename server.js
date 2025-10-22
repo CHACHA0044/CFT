@@ -227,12 +227,12 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
   }
 });
 //feedback poller every 10 minutes
-cron.schedule('*/3 * * * *', async () => {
+cron.schedule("*/3 * * * *", async () => {
   try {
-    console.log('Running feedback poller...');
+    console.log("Running feedback poller...");
     await checkFeedbackEmails();
   } catch (err) {
-    console.error('Feedback poller error:', err);
+    console.error("Feedback poller error:", err);
   }
 });
 

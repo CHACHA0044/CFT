@@ -610,39 +610,57 @@ export const VisualizeButton = ({ entries = [], className, onClick, ...props }) 
 };
 export const GoogleAuthButton = ({ text, className = '', disabled = false, ...props }) => {
   const location = useLocation();
-
-const routeText = (() => {
-  if (location.pathname.endsWith('/login')) return 'Login with Google';
-  if (location.pathname.endsWith('/register')) return 'Register with Google';
-  return text; // fallback
-})();
-
-  const handleGoogleAuth = () => {
-  const isDev = process.env.NODE_ENV === 'development';
-  const backendUrl = isDev 
-    ? 'http://localhost:4950' 
-    : 'https://cft-cj43.onrender.com';
-
-  const source = (() => {
-    if (location.pathname.endsWith('/login')) return 'login';
-    if (location.pathname.endsWith('/register')) return 'register';
-    return '';
+  const [showDevMessage, setShowDevMessage] = useState(false);
+  
+  const routeText = (() => {
+    if (location.pathname.endsWith('/login')) return 'Login with Google';
+    if (location.pathname.endsWith('/register')) return 'Register with Google';
+    return text;
   })();
 
-  const redirectUrl = `${backendUrl}/api/auth/google${source ? `?source=${source}` : ''}`;
-  window.location.href = redirectUrl;
-};
+  const handleGoogleAuth = () => {
+    setShowDevMessage(true);
+    setTimeout(() => setShowDevMessage(false), 4000);
+    // const isDev = process.env.NODE_ENV === 'development';
+    // const backendUrl = isDev 
+    //   ? 'http://localhost:4950' 
+    //   : 'https://cft-cj43.onrender.com';
 
+    // const source = (() => {
+    //   if (location.pathname.endsWith('/login')) return 'login';
+    //   if (location.pathname.endsWith('/register')) return 'register';
+    //   return '';
+    // })();
+
+    // const redirectUrl = `${backendUrl}/api/auth/google${source ? `?source=${source}` : ''}`;
+    // window.location.href = redirectUrl;
+  };
 
   return (
-    <GlobalButton
-      text={routeText}
-      iconType="GI"
-      onClick={handleGoogleAuth}
-      disabled={disabled}
-      colorConfig={buttonColorConfigs.google}
-      {...props}
-    />
+    <>
+      <GlobalButton
+        text={routeText}
+        iconType="GI"
+        onClick={handleGoogleAuth}
+        disabled={disabled}
+        colorConfig={buttonColorConfigs.google}
+        {...props}
+      />
+      
+      <AnimatePresence>
+        {showDevMessage && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0, y: -20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className=" bg-amber-500/90 dark:bg-amber-600/90 text-white px-4 py-2 rounded-xl shadow-lg text-xs sm:text-sm font-intertight text-shadow-DEFAULT text-center z-50"
+          >
+            <span>🚧 Under Development <span className="animate-pulse">...</span></span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 export const VerifyEmailButton = ({ className, ...props }) => (

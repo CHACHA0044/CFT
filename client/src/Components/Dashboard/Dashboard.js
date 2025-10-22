@@ -11,7 +11,10 @@ import CardNav from 'Components/CardNav';
 import LottieLogo from 'Components/LottieLogoComponent';
   const sentence = "Your Climate Dashboard";
   const words = sentence.split(" ");
-
+  const sentence2 = "Marks of Change: The Story Our Footprints Tell";
+  const words2 = sentence2.split(" ");
+  const sentence3 = "The Breath of Earth: Understanding Our Shared Air";
+  const words3 = sentence3.split(" ");
 const getLetterVariants = () => ({
   initial: { y: 0, opacity: 1, scale: 1 },
   fall: {
@@ -201,7 +204,258 @@ const AnimatedHeadline = React.memo(() => {
     </div>
   );
 });
+const AnimatedHeadline2 = React.memo(() => {
+  const [activeBurstIndex, setActiveBurstIndex] = useState(null);
+  const [bursting, setBursting] = useState(false);
+  const [fallingLetters, setFallingLetters] = useState([]);
 
+  const triggerBurst = (index) => {
+    setActiveBurstIndex(index);
+    setBursting(true);
+    setTimeout(() => {
+      setBursting(false);
+      setActiveBurstIndex(null);
+    }, 1800);
+  };
+
+  return (
+    <div className="relative overflow-visible w-full flex justify-center items-center -mt-1 px-4">
+      <motion.div
+        className="flex flex-wrap sm:-ml-60 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0, y: 20 },
+          visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+              staggerChildren: 0.1,
+              delayChildren: 0.3,
+            },
+          },
+        }}
+      >
+        {words2.map((word, wordIndex) => (
+          <motion.span
+            key={wordIndex}
+            onMouseEnter={() => {
+              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+            }}
+            onClick={() => {
+              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+            }}
+            className="relative inline-block cursor-pointer"
+            variants={{
+              hidden: { opacity: 0, y: 10 },
+              visible: { opacity: 1, y: 0 },
+            }}
+          >
+            {word.split("").map((char, i) => {
+              const allChars = sentence.replace(/\s/g, "").split("");
+              const charIndex = allChars.findIndex(
+                (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
+              );
+
+              const isBursting = activeBurstIndex === wordIndex;
+
+              const randomDelay = Math.random() * 0.5 + i * 0.05;
+
+              return (
+                <AnimatePresence key={`${char}-${i}`}>
+                  <motion.span
+                    className="inline-block relative"
+                    initial={{
+                      x: 0,
+                      y: 0,
+                      rotate: 0,
+                      opacity: 1,
+                      scale: 1,
+                    }}
+                    animate={
+                      isBursting
+                        ? {
+                            x: Math.random() * 80 - 40,
+                            y: Math.random() * 60 - 30,
+                            rotate: Math.random() * 180 - 90,
+                            opacity: [1, 0],
+                            scale: [1, 1.2, 0.4],
+                            transition: {
+                              duration: 0.8,
+                              delay: randomDelay,
+                              ease: "easeOut",
+                            },
+                          }
+                        : fallingLetters.includes(charIndex)
+                        ? "reenter"
+                        : "initial"
+                    }
+                    variants={getLetterVariants()}
+                  >
+                    {char}
+                    {/* Confetti burst */}
+                    {isBursting && (
+                      <span className="absolute top-1/2 left-1/2 z-[-1]">
+                        {[...Array(5)].map((_, j) => {
+                          const confX = Math.random() * 30 - 15;
+                          const confY = Math.random() * 30 - 15;
+                          return (
+                            <motion.span
+                              key={j}
+                              className="absolute w-1 h-1 bg-emerald-400 rounded-full"
+                              initial={{ opacity: 1, scale: 1 }}
+                              animate={{
+                                x: confX,
+                                y: confY,
+                                opacity: [1, 0],
+                                scale: [1, 0.4],
+                              }}
+                              transition={{
+                                duration: 0.6,
+                                delay: randomDelay,
+                                ease: "easeOut",
+                              }}
+                            />
+                          );
+                        })}
+                      </span>
+                    )}
+                  </motion.span>
+                </AnimatePresence>
+              );
+            })}
+          </motion.span>
+        ))}
+      </motion.div>
+    </div>
+  );
+});
+const AnimatedHeadline3 = React.memo(() => {
+  const [activeBurstIndex, setActiveBurstIndex] = useState(null);
+  const [bursting, setBursting] = useState(false);
+  const [fallingLetters, setFallingLetters] = useState([]);
+
+  const triggerBurst = (index) => {
+    setActiveBurstIndex(index);
+    setBursting(true);
+    setTimeout(() => {
+      setBursting(false);
+      setActiveBurstIndex(null);
+    }, 1800);
+  };
+
+  return (
+    <div className="relative overflow-visible w-full flex justify-center items-center -mt-1 px-4">
+      <motion.div
+        className="flex flex-wrap sm:-ml-44 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0, y: 20 },
+          visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+              staggerChildren: 0.1,
+              delayChildren: 0.3,
+            },
+          },
+        }}
+      >
+        {words3.map((word, wordIndex) => (
+          <motion.span
+            key={wordIndex}
+            onMouseEnter={() => {
+              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+            }}
+            onClick={() => {
+              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+            }}
+            className="relative inline-block cursor-pointer"
+            variants={{
+              hidden: { opacity: 0, y: 10 },
+              visible: { opacity: 1, y: 0 },
+            }}
+          >
+            {word.split("").map((char, i) => {
+              const allChars = sentence.replace(/\s/g, "").split("");
+              const charIndex = allChars.findIndex(
+                (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
+              );
+
+              const isBursting = activeBurstIndex === wordIndex;
+
+              const randomDelay = Math.random() * 0.5 + i * 0.05;
+
+              return (
+                <AnimatePresence key={`${char}-${i}`}>
+                  <motion.span
+                    className="inline-block relative"
+                    initial={{
+                      x: 0,
+                      y: 0,
+                      rotate: 0,
+                      opacity: 1,
+                      scale: 1,
+                    }}
+                    animate={
+                      isBursting
+                        ? {
+                            x: Math.random() * 80 - 40,
+                            y: Math.random() * 60 - 30,
+                            rotate: Math.random() * 180 - 90,
+                            opacity: [1, 0],
+                            scale: [1, 1.2, 0.4],
+                            transition: {
+                              duration: 0.8,
+                              delay: randomDelay,
+                              ease: "easeOut",
+                            },
+                          }
+                        : fallingLetters.includes(charIndex)
+                        ? "reenter"
+                        : "initial"
+                    }
+                    variants={getLetterVariants()}
+                  >
+                    {char}
+                    {/* Confetti burst */}
+                    {isBursting && (
+                      <span className="absolute top-1/2 left-1/2 z-[-1]">
+                        {[...Array(5)].map((_, j) => {
+                          const confX = Math.random() * 30 - 15;
+                          const confY = Math.random() * 30 - 15;
+                          return (
+                            <motion.span
+                              key={j}
+                              className="absolute w-1 h-1 bg-emerald-400 rounded-full"
+                              initial={{ opacity: 1, scale: 1 }}
+                              animate={{
+                                x: confX,
+                                y: confY,
+                                opacity: [1, 0],
+                                scale: [1, 0.4],
+                              }}
+                              transition={{
+                                duration: 0.6,
+                                delay: randomDelay,
+                                ease: "easeOut",
+                              }}
+                            />
+                          );
+                        })}
+                      </span>
+                    )}
+                  </motion.span>
+                </AnimatePresence>
+              );
+            })}
+          </motion.span>
+        ))}
+      </motion.div>
+    </div>
+  );
+});
   const Dashboard = () => {
   useAuthRedirect(); 
   const [data, setData] = useState([]);
@@ -482,6 +736,7 @@ useEffect(() => {
 
           ) : data.length > 0 ? (
             <AnimatePresence>
+              <AnimatedHeadline2 />
             <motion.div
             className="flex flex-col gap-4 sm:gap-6"
               variants={{
@@ -498,10 +753,11 @@ useEffect(() => {
                 initial={{ opacity: 0, y: -30, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17, duration: 0.25, ease: "easeOut" }}
                 whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.2)" }}
+                style={{ willChange: "transform, opacity", transform: "translateZ(0)", fontFamily: 'InterTight', fontWeight: 700 }}
                 whileTap={{ scale: 0.97, transition: { duration: 0.05 } }}
-                className="relative group bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md p-4 shadow-md text-xs sm:text-sm origin-center transition-colors duration-300 cursor-pointer md:ml-28 md:w-4/5"
+                className={` relative group bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md p-4 shadow-md text-xs sm:text-sm origin-center transition-colors duration-300 cursor-pointer md:ml-28 md:w-4/5`}
        onClick={() => {
   setOpenSection(prev => prev === `suggestion-${index}` ? null : `suggestion-${index}`);
 }}
@@ -633,6 +889,7 @@ useEffect(() => {
 
           {/* Expandable Sections */}
           <div className="mb-2 sm:mb-6 pb-2 sm:pb-4 flex flex-col gap-4 sm:gap-6 pr-2 will-change-transform">
+            <AnimatedHeadline3 />
           {[
   {
     id: 'understanding',
@@ -760,16 +1017,17 @@ useEffect(() => {
         initial={{ opacity: 0, y: -30, scale: 0.95  }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, scale: 0.8 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17, duration: 0.25, ease: "easeOut" }}
         whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.2)" }}
+        style={{ willChange: "transform, opacity", transform: "translateZ(0)", fontFamily: 'InterTight', fontWeight: 700 }}
         whileTap={{ scale: 0.97, transition: { duration: 0.05 } }}
-        className="p-4 relative group bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md shadow-lg cursor-pointer origin-center transition-colors duration-300 md:ml-28 md:w-4/5"
+        className={`p-4 relative group bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md shadow-lg cursor-pointer origin-center transition-colors duration-300 md:ml-28 md:w-4/5`}
         onClick={() =>{ setOpenSection(prev => prev === section.id ? null : section.id); setTimeout(() => {
     const emojiEl = document.getElementById(`emoji-${section.id}`);
     if (emojiEl) triggerConfetti(emojiEl);
   }, 200);
 }}
-        style={{ fontFamily: 'InterTight', fontWeight: 700 }}
+        //style={{ fontFamily: 'InterTight', fontWeight: 700 }}
       >
          {/* animatedborder */}
         <div className="absolute inset-0 rounded-3xl border-2 border-transparent 

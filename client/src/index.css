@@ -571,3 +571,34 @@ html {
   animation: crumb4 4s ease-out infinite;
 }
   
+/* Prevent flickering when fast-hovering motion divs */
+.group, .motion-div, .motion-section {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Ensure backdrop-blur layers render on GPU properly */
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transform: translateZ(0);
+}
+
+/* Smooth border animation transitions */
+.animate-borderFlow {
+  transform: translateZ(0);
+  will-change: border-color, opacity;
+}
+/* global.css */
+.text-glow-amber {
+  text-shadow: 0 0 30px rgba(251,191,36,0.6);
+}
+
+.text-glow-emerald {
+  text-shadow: 0 0 30px rgba(16,185,129,0.6);
+}
+
+.text-glow-blue {
+  text-shadow: 0 0 30px rgba(59,130,246,0.6);
+}

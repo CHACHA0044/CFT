@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify';
 import zxcvbn from 'zxcvbn';
 import PageWrapper from 'common/PageWrapper';
 import { SubmitButton, GoogleAuthButton } from 'Components/globalbuttons';
-import {  inputBase,  inputDark,  inputMail, inputPass,  boxglow} from 'utils/styles';
+import {  inputBase,  inputDark,  inputMail, inputPass,  boxglow, boxglowR} from 'utils/styles';
 import { useLocation } from 'react-router-dom';
   const sentence = "Track. Reduce. Inspire.";
   const words = sentence.split(" ");
@@ -334,7 +334,7 @@ useEffect(() => {
                 className="w-full h-full"
               >
     <PageWrapper backgroundImage="/images/register-bk.webp">
-      <div className={`${boxglow} mt-10`}>
+      <div className={`${boxglowR} mt-10`}>
       <AnimatedHeadline />    
         <p className="text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-emerald-500 dark:text-gray-100 mt-2 mb-0">Build your carbon footprint journal with us.</p>
 
@@ -353,7 +353,7 @@ useEffect(() => {
     </p>
   ) : null}
 </div>
-<AnimatePresence>
+{/* <AnimatePresence>
     {showMessage && (
       <motion.div
         initial={{ scale: 0.8, opacity: 0, y: -20 }}
@@ -367,7 +367,7 @@ useEffect(() => {
         </div>
       </motion.div>
     )}
-  </AnimatePresence>
+  </AnimatePresence> */}
         <form onSubmit={handleSubmit} className="space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
           <input
             name="name"

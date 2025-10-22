@@ -6,6 +6,7 @@ import PageWrapper from 'common/PageWrapper';
 import useAuthRedirect from 'hooks/useAuthRedirect';
 import { buttonColorConfigs, SubmitButton } from 'Components/globalbuttons';
 import { EditDeleteButton, DashboardButton } from 'Components/globalbuttons';
+import { boxglowF } from 'utils/styles';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
   const sentence = "Footprint Entry";
@@ -432,7 +433,7 @@ useEffect(() => {
 
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-xl mt-6 p-6  bg-white/10 dark:bg-black/50 backdrop-blur-lg rounded-3xl text-white space-y-6 shadow-xl transition-all duration-500"
+          className={`${boxglowF} w-full max-w-xl mt-6 p-6  bg-white/10 dark:bg-black/50 backdrop-blur-lg rounded-3xl text-white space-y-6 shadow-xl transition-all duration-500`}
         >
           
           <h2 className="text-3xl font-bold text-center text-emerald-500 dark:text-gray-100"><AnimatedHeadline /></h2>

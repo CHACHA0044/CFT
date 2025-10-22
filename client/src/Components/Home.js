@@ -8,6 +8,7 @@ import GlobeAnimation from 'animations/Globe.json';
 import ScrollDownAnimation from 'animations/ScrollDown.json';
 import { useNavigate } from 'react-router-dom';
 import { MdEmail } from "react-icons/md";
+import { boxglowD, boxglowH } from 'utils/styles';
   const sentence = "Your  Carbon  Story";
   const words = sentence.split(" ");
    
@@ -230,7 +231,7 @@ useEffect(() => {
 useEffect(() => {
   const pingServer = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/ping`, {
+      const response = await fetch(`https://api.carbonft.app/api/auth/ping?ts=${Date.now()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -342,7 +343,7 @@ const handleEmailClick = (e) => {
   initial={false}
   animate={{ height: isHeaderExpanded ? screenHeight.expanded : screenHeight.collapsed }}
   transition={{ duration: 0.5, ease: 'easeInOut' }}
-  className={`w-full fixed top-0 left-0 z-40 px-6 py-4
+  className={`${boxglowH} w-full fixed top-0 left-0 z-40 px-6 py-4
     bg-black/60 dark:bg-black/80 backdrop-blur-md transition-all duration-500`}
 >
   
@@ -432,7 +433,7 @@ Carbon Footprint Tracker
     >
     <div className="flex flex-grow justify-center items-center relative z-10">
     {/* Background overlay to improve visibility */}
-    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1] rounded-3xl" />
+    <div className={`${boxglowD} absolute inset-0 bg-black/50 backdrop-blur-sm z-[-1] rounded-3xl`} />
 
     <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-8 space-y-6" variants={containerVariants} initial="hidden" animate="visible">
     

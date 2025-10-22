@@ -1,6 +1,6 @@
-// feedback Email Scanner (check all emails)
 const { ImapFlow } = require("imapflow");
 const { simpleParser } = require("mailparser");
+const cron = require("node-cron");
 const User = require("../models/user");
 
 const IMAP_CONFIG = {
@@ -13,57 +13,100 @@ const IMAP_CONFIG = {
   },
 };
 
+// Keywords to identify feedback emails
 const SUBJECT_KEYWORDS = ["feedback", "carbon", "footprint", "tracker"];
 
-async function checkFeedbackEmails() {
-  const client = new ImapFlow({
-    ...IMAP_CONFIG,
-    logger: {
-      debug: () => {},
-      info: () => {},
-      warn: () => {},
-      error: console.error,
-    },
-  });
-
+async function scanFeedbackMessages(client) {
   try {
-    await client.connect();
-    await client.mailboxOpen("INBOX");
+    await client.mailboxOpen('INBOX');
 
-    // Fetch all messages in INBOX
-    const allUids = await client.search({});
-    console.log(`📨 Feedback Mail count: ${allUids.length}`);
+    // Fetch all messages for feedback scanning
+    const uids = await client.search({});
+    console.log(`📬 Total messages to scan: ${uids.length}`);
+    if (!uids || uids.length === 0) return;
 
-    for (const uid of allUids) {
+    let processedCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+
+    for (const uid of uids) {
       try {
-        const msg = await client.fetchOne(uid, { source: true });
-        if (!msg?.source) continue;
+        // Fetch headers first (lightweight check)
+        const headers = await client.fetchOne(uid, { envelope: true });
+        const subject = headers.envelope?.subject?.toLowerCase() || "";
+        const fromAddr = headers.envelope?.from?.[0]?.address?.toLowerCase();
 
-        const parsed = await simpleParser(msg.source);
-        const subject = parsed.subject?.toLowerCase() || "";
-        const fromAddr = parsed.from?.value?.[0]?.address?.toLowerCase() || "";
+        if (!fromAddr) {
+          skippedCount++;
+          continue;
+        }
 
-        const containsKeyword = SUBJECT_KEYWORDS.some((keyword) =>
+        // Keyword check
+        const containsKeyword = SUBJECT_KEYWORDS.some(keyword =>
           subject.includes(keyword)
         );
 
-        if (containsKeyword && fromAddr) {
-          await User.updateOne(
-            { email: new RegExp(`^${escapeRegExp(fromAddr)}$`, "i") },
+        if (!containsKeyword) {
+          skippedCount++;
+          continue;
+        }
+
+        console.log(`🔍 Feedback detected | UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
+
+        // Update user feedback status
+        try {
+          const result = await User.updateOne(
+            { email: new RegExp(`^${escapeRegExp(fromAddr)}$`, 'i') },
             {
               $set: { feedbackGiven: true, welcomeEmailSent: true },
               $inc: { feedbackCount: 1 },
             }
           );
+
+          if (result.matchedCount > 0) {
+            updatedCount++;
+            console.log(`✨ Updated user record for ${fromAddr}`);
+          } else {
+            console.log(`ℹ️ No user found for ${fromAddr} (feedback logged anyway)`);
+          }
+
+          processedCount++;
+        } catch (errDb) {
+          console.error(`❌ Database update failed for ${fromAddr}:`, errDb.message);
         }
-      } catch (err) {
-        console.error(`❌ Error processing UID ${uid}:`, err);
+      } catch (errMsg) {
+        console.error('❌ Error processing message UID', uid, errMsg.message);
       }
     }
 
-    console.log("Feedback scan completed.");
+    console.log(`📊 Scan summary: ${processedCount} processed | ${updatedCount} updated | ${skippedCount} skipped`);
   } catch (err) {
-    console.error("❌ IMAP check failed:", err);
+    console.error('❌ scanFeedbackMessages error:', err);
+  }
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const silentLogger = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: console.error,
+};
+
+async function scanNow() {
+  const client = new ImapFlow({
+    ...IMAP_CONFIG,
+    logger: silentLogger,
+  });
+
+  try {
+    await client.connect();
+    await scanFeedbackMessages(client);
+  } catch (err) {
+    console.error('❌ Feedback scan failed:', err);
   } finally {
     try {
       await client.logout();
@@ -71,9 +114,13 @@ async function checkFeedbackEmails() {
   }
 }
 
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function startFeedbackScanner() {
+  const schedule = process.env.FEEDBACK_SCAN_CRON || '0 */6 * * *'; // Default: every 6 hours
+  console.log('⏰ Feedback scanner scheduled:', schedule);
+  scanNow();
+  cron.schedule(schedule, () => {
+    scanNow();
+  });
 }
 
-module.exports = checkFeedbackEmails;
-
+module.exports = startFeedbackScanner;

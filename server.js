@@ -29,7 +29,7 @@ const cookieParser = require('cookie-parser');
 const startImapPoller = require('./utils/imapPoller');
 const cron = require('node-cron');
 const axios = require('axios');
-const checkFeedbackEmails = require('./utils/feedbackPoller');
+const startFeedbackScanner = require('./utils/feedbackPoller');
 
 // express app
 const app = express();
@@ -187,16 +187,17 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
     app.listen(PORT, () => {
     console.log(`✅ Server started on ${PORT}`);
     startImapPoller(); 
+    startFeedbackScanner();
     cron.schedule('*/3 * * * *', async () => {
     try {
-      const url = `https://cft-cj43.onrender.com/api/auth/ping?ts=${Date.now()}`; 
+      const url = `https://api.carbonft.app/api/auth/ping?ts=${Date.now()}`; 
       const res = await axios.get(url);
       console.log(`⏱️ Pinged self: ${res.data.message}`);
     } catch (err) {
       console.error('❌ Ping failed:', err.message);
     }
   });
-  cron.schedule('0 0 * * *', async () => { // Runs every day at midnight
+  cron.schedule("*/30 * * * *", async () => { // Runs every day at midnight
   try {
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
     const result = await user.updateMany(
@@ -224,15 +225,6 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
     }
   } catch (err) {
     console.error('❌ Cron cleanup error:', err);
-  }
-});
-//feedback poller every 10 minutes
-cron.schedule("*/3 * * * *", async () => {
-  try {
-    console.log("Running feedback poller...");
-    await checkFeedbackEmails();
-  } catch (err) {
-    console.error("Feedback poller error:", err);
   }
 });
 

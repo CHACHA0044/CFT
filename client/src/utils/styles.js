@@ -15,5 +15,14 @@ export const inputMail = "w-full px-4 py-3 border border-gray-400 dark:border-gr
 
 export const inputPass = "w-full px-4 py-3 border border-gray-400 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none focus:ring focus:ring-slate-300";
 
-export const boxglow = `rounded-3xl bg-black/60 dark:bg-black/60  p-6 sm:p-8 lg:p-10 shadow-[0_0_30px_5px_rgba(34,197,94,0.6)] backdrop-blur-md w-[90%] sm:w-[80%] md:w-[70%] lg:w-[28rem] max-w-lg mx-auto flex flex-col justify-center `;
+export const boxglow = `rounded-3xl bg-black/60 dark:bg-black/60 p-6 sm:p-8 lg:p-10 shadow-[0_0_30px_5px_rgba(251,191,36,0.5)] backdrop-blur-md w-[90%] sm:w-[80%] md:w-[70%] lg:w-[28rem] max-w-lg mx-auto flex flex-col justify-center`;
 
+export const boxglowR = `rounded-3xl bg-black/60 dark:bg-black/60 p-6 sm:p-8 lg:p-10 shadow-[0_0_30px_5px_rgba(96,165,250,0.5)] backdrop-blur-md w-[90%] sm:w-[80%] md:w-[70%] lg:w-[28rem] max-w-lg mx-auto flex flex-col justify-center`;
+
+export const boxglowF = `rounded-3xl bg-black/60 dark:bg-black/60 shadow-[0_0_35px_8px_rgba(255,255,255,0.3)] backdrop-blur-md`;
+
+export const boxglowRI = `rounded-3xl bg-black/60 dark:bg-black/60 shadow-[0_0_40px_10px_rgba(0,0,0,0.6)] backdrop-blur-md`;
+
+export const boxglowD = `rounded-3xl bg-black/60 dark:bg-black/60 shadow-[0_0_5px_1px_rgba(255,255,255,0.2),0_0_20px_5px_rgba(0,100,255,0.6),0_0_60px_15px_rgba(0,100,255,0.3)] backdrop-blur-md`;
+export const boxglowH = `sm:rounded-b-3xl rounded-b-2xl bg-black/60 dark:bg-black/60 drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] backdrop-blur-md`;
+export const boxglowS = ``;

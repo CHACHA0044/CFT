@@ -8,6 +8,7 @@ import { SaveChangesButton } from 'Components/globalbuttons';
 import { EditDeleteButton, DashboardButton } from 'Components/globalbuttons';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
+import { boxglowRI } from 'utils/styles';
 const sentence = "Revise Info";
 const words = sentence.split(" ");
   const getLetterVariants = () => ({
@@ -354,7 +355,7 @@ useEffect(() => {
   </div>
 </CardNav>
 </div>
-        <div className="w-full max-w-2xl bg-white/10 dark:bg-black/50 backdrop-blur-md rounded-3xl shadow-lg p-6 text-green-500 dark:text-white">
+        <div className={`${boxglowRI}w-full max-w-2xl bg-white/10 dark:bg-black/50 backdrop-blur-md rounded-3xl shadow-lg p-6 text-green-500 dark:text-white`}>
          
 <motion.div
          

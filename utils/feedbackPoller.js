@@ -16,8 +16,6 @@ const IMAP_CONFIG = {
 const SUBJECT_KEYWORDS = ["feedback", "carbon", "footprint", "tracker"];
 
 async function checkFeedbackEmails() {
-  console.log("📬 Checking feedback emails...");
-
   const client = new ImapFlow({
     ...IMAP_CONFIG,
     logger: {
@@ -34,7 +32,7 @@ async function checkFeedbackEmails() {
 
     // Fetch all messages in INBOX
     const allUids = await client.search({});
-    console.log(`📨 Found ${allUids.length} messages to check.`);
+    console.log(`📨 Feedback Mail count: ${allUids.length}`);
 
     for (const uid of allUids) {
       try {
@@ -57,15 +55,13 @@ async function checkFeedbackEmails() {
               $inc: { feedbackCount: 1 },
             }
           );
-
-          console.log(`✅ Feedback updated for: ${fromAddr}`);
         }
       } catch (err) {
         console.error(`❌ Error processing UID ${uid}:`, err);
       }
     }
 
-    console.log("🎯 Feedback scan completed.");
+    console.log("Feedback scan completed.");
   } catch (err) {
     console.error("❌ IMAP check failed:", err);
   } finally {
@@ -80,3 +76,4 @@ function escapeRegExp(string) {
 }
 
 module.exports = checkFeedbackEmails;
+

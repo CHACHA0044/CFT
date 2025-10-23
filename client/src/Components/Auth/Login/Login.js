@@ -288,7 +288,7 @@ const handleSubmit = async (e) => {
       setError(err.response.data.error);
     } else {
       setError('Something went wrong. Please try again.');
-    }
+    }setTimeout(() => {setError('');}, 3500);
   } finally {
     setLoading(false);
   }
@@ -309,9 +309,7 @@ useEffect(() => {
     window.history.replaceState({}, '', '/login');
     
     // Redirect to dashboard after showing message
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 3000);
+    setTimeout(() => { navigate('/dashboard'); }, 3000);
   }
 }, [location.search,navigate]);
 
@@ -322,6 +320,7 @@ useEffect(() => {
   if (authError === 'auth_failed') {
     setError('Google authentication failed. Please try again.');
     window.history.replaceState({}, '', '/login');
+    setTimeout(() => {setError('');}, 3500);
   }
 }, [location]);
 useEffect(() => {

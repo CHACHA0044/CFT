@@ -788,14 +788,14 @@ return (
 </CardNav>
 </div>
 <motion.div className="relative w-full px-0" animate={{ filter: isMenuOpen ? 'blur(5px)' : '', pointerEvents: isMenuOpen ? 'none' : 'auto' }} transition={{ duration: 0.35, ease: 'easeInOut' }}>
-      <div className="max-w-4xl mx-auto space-y-4 px-4 pt-4">
+      <div className="max-w-4xl mx-auto sm:space-y-12 space-y-6 px-4 pt-4">
         
         {/* Total Emissions */}
         <div className="group relative">
           <div className="absolute -inset-1  rounded-3xl bg-emerald-500/20 dark:bg-gray-100/10 blur-xl pointer-events-none transition-all duration-500 group-hover:blur-2xl" />
           <AnimatedHeadline />
           <motion.div
-            className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105"
+            className="relative bg-gray-50 mt-8 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
           >

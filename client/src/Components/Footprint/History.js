@@ -2,12 +2,13 @@ import API from 'api/api';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PageWrapper from 'common/PageWrapper';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import { EditButton, DeleteButton, ClearAllButton, LogoutButton } from 'Components/globalbuttons';
 import { NewEntryButton, VisualizeButton, DashboardButton } from 'Components/globalbuttons';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
 import useAuthRedirect from 'hooks/useAuthRedirect';
+import DailyGreeting from './DailyGreeting';
   const sentence = "Emission History";
   const words = sentence.split(" ");
   //const bottomRef = useRef(null);
@@ -251,11 +252,25 @@ const History = () => {
   const [logoutError, setLogoutError] = useState('');
   const [logoutSuccess, setLogoutSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const shimmerControls = useAnimation();
   useEffect(() => {
     fetchHistory();
   }, [location.state?.updated]);
-
+useEffect(() => {
+  let isMounted = true;
+  async function loopAnimation() {
+    while (isMounted) {
+      await shimmerControls.start(i => ({
+        scale: [1, 1.3, 1],
+        opacity: [1, 0.8, 1],
+        transition: { duration: 0.4, ease: "easeInOut", delay: i * 0.15 }
+      }));
+      await new Promise(res => setTimeout(res, 800)); } }
+  loopAnimation();
+  return () => {
+    isMounted = false; // stop loop on unmount
+  };
+}, [shimmerControls]);
 useEffect(() => {
   if (error || success) {
     const timer = setTimeout(() => {
@@ -388,7 +403,7 @@ return (
            }}
            transition={{ duration: 0.35, ease: 'easeInOut' }}
          >
-          <h2 className="text-3xl font-bold mb-6 text-center"><AnimatedHeadline /></h2>
+          <h2 className="text-3xl font-bold mb-6 text-center"><AnimatedHeadline /><DailyGreeting shimmerControls={shimmerControls} /></h2>
 
           <AnimatePresence>
             {success && (
@@ -501,8 +516,8 @@ return (
 
           <p className="text-xs italic text-emerald-500 dark:text-white mt-1">
             {entry.updatedAt && entry.updatedAt !== entry.createdAt
-              ? `Updated on ${new Date(entry.updatedAt).toLocaleString()}`
-              : `Created on ${new Date(entry.createdAt).toLocaleString()}`}
+              ? `🕒 Updated on ${new Date(entry.updatedAt).toLocaleString()}`
+              : `🕒 Created on ${new Date(entry.createdAt).toLocaleString()}`}
           </p>
 
           <div className="mt-3 flex flex-col sm:flex-row gap-3">

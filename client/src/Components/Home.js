@@ -549,7 +549,7 @@ Carbon Footprint Tracker
   </motion.div>
     <span className="leading-none mt-1">your feedback is welcome</span>
     </a>.
-    <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
+    {/* <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
     By registering, you agree to our{' '}
     <a
       href="https://carbonft.app/privacypolicy.html"
@@ -568,7 +568,7 @@ Carbon Footprint Tracker
     >
       Terms
     </a>.
-    </p>
+    </p> */}
 </motion.p>
 </motion.div>
 </div>

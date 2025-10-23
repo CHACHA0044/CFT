@@ -1,5 +1,4 @@
 const { ImapFlow } = require("imapflow");
-const { simpleParser } = require("mailparser");
 const cron = require("node-cron");
 const User = require("../models/user");
 
@@ -16,6 +15,9 @@ const IMAP_CONFIG = {
 // Keywords to identify feedback emails
 const SUBJECT_KEYWORDS = ["feedback", "carbon", "footprint", "tracker"];
 
+// In-memory cache of processed UIDs (resets on server restart)
+const processedUIDs = new Set();
+
 async function scanFeedbackMessages(client) {
   try {
     await client.mailboxOpen('INBOX');
@@ -31,12 +33,19 @@ async function scanFeedbackMessages(client) {
 
     for (const uid of uids) {
       try {
+        // Skip if already processed
+        if (processedUIDs.has(uid)) {
+          skippedCount++;
+          continue;
+        }
+
         // Fetch headers first (lightweight check)
         const headers = await client.fetchOne(uid, { envelope: true });
         const subject = headers.envelope?.subject?.toLowerCase() || "";
         const fromAddr = headers.envelope?.from?.[0]?.address?.toLowerCase();
 
         if (!fromAddr) {
+          processedUIDs.add(uid);
           skippedCount++;
           continue;
         }
@@ -47,30 +56,42 @@ async function scanFeedbackMessages(client) {
         );
 
         if (!containsKeyword) {
+          processedUIDs.add(uid);
           skippedCount++;
           continue;
         }
 
         console.log(`🔍 Feedback detected | UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
 
-        // Update user feedback status
+        // Update user feedback status (only if not already marked)
         try {
           const result = await User.updateOne(
-            { email: new RegExp(`^${escapeRegExp(fromAddr)}$`, 'i') },
+            { 
+              email: new RegExp(`^${escapeRegExp(fromAddr)}$`, 'i'),
+              feedbackGiven: false
+            },
             {
-              $set: { feedbackGiven: true, welcomeEmailSent: true },
-              $inc: { feedbackCount: 1 },
+              $set: { feedbackGiven: true, welcomeEmailSent: true }
             }
           );
 
           if (result.matchedCount > 0) {
             updatedCount++;
-            console.log(`✨ Updated user record for ${fromAddr}`);
+            console.log(`✨ Marked feedback as given for ${fromAddr}`);
           } else {
-            console.log(`ℹ️ No user found for ${fromAddr} (feedback logged anyway)`);
+            const existingUser = await User.findOne({ 
+              email: new RegExp(`^${escapeRegExp(fromAddr)}$`, 'i') 
+            });
+            
+            if (existingUser) {
+              console.log(`ℹ️ User ${fromAddr} already marked as feedback given`);
+            } else {
+              console.log(`ℹ️ No user found for ${fromAddr}`);
+            }
           }
 
           processedCount++;
+          processedUIDs.add(uid);
         } catch (errDb) {
           console.error(`❌ Database update failed for ${fromAddr}:`, errDb.message);
         }
@@ -80,6 +101,7 @@ async function scanFeedbackMessages(client) {
     }
 
     console.log(`📊 Scan summary: ${processedCount} processed | ${updatedCount} updated | ${skippedCount} skipped`);
+    console.log(`💾 Total processed UIDs tracked: ${processedUIDs.size}`);
   } catch (err) {
     console.error('❌ scanFeedbackMessages error:', err);
   }
@@ -114,13 +136,13 @@ async function scanNow() {
   }
 }
 
-function startFeedbackScanner() {
-  const schedule = process.env.FEEDBACK_SCAN_CRON || '0 */6 * * *'; // Default: every 6 hours
-  console.log('⏰ Feedback scanner scheduled:', schedule);
+function startFeedbackPoller() {
+  const schedule = process.env.FEEDBACK_SCAN_CRON || '0 */6 * * *';
+  console.log('⏰ Feedback poller scheduled:', schedule);
   scanNow();
   cron.schedule(schedule, () => {
     scanNow();
   });
 }
 
-module.exports = startFeedbackScanner;
+module.exports = startFeedbackPoller;

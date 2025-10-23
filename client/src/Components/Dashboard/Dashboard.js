@@ -9,11 +9,12 @@ import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton } from 
 import { useLoading } from 'context/LoadingContext';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
+import DailyGreetingD from './DailyGreetingD';
   const sentence = "Your Climate Dashboard";
   const words = sentence.split(" ");
-  const sentence2 = "Marks of Change: The Story Our Footprints Tell";
+  const sentence2 = "Emission Insights & Suggestions";
   const words2 = sentence2.split(" ");
-  const sentence3 = "The Breath of Earth: Understanding Our Shared Air";
+  const sentence3 = "Understanding Our Planet — and Our Place Within It";
   const words3 = sentence3.split(" ");
 const getLetterVariants = () => ({
   initial: { y: 0, opacity: 1, scale: 1 },
@@ -221,7 +222,7 @@ const AnimatedHeadline2 = React.memo(() => {
   return (
     <div className="relative overflow-visible w-full flex justify-center items-center -mt-1 px-4">
       <motion.div
-        className="flex flex-wrap sm:-ml-60 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        className="flex flex-wrap sm:-ml-96 sm:mr-24 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
         initial="hidden"
         animate="visible"
         variants={{
@@ -681,7 +682,7 @@ useEffect(() => {
 >
 
     <div className=" py-6 text-center items-center justify-center space-y-4 min-h-[6rem]">
-      <AnimatedHeadline />
+      <AnimatedHeadline /><DailyGreetingD shimmerControls={shimmerControls} />
     {showLimitMsg && (
   <motion.div
     key="limit-msg"
@@ -834,16 +835,21 @@ useEffect(() => {
   layout
     className={`transition-all font-extralight duration-500 ease-in-out ${
       openSection === `suggestion-${index}`
-        ? 'max-h-[500px] opacity-100 mt-2  overflow-visible'
+        ? 'max-h-[1500px] opacity-100 mt-2  overflow-visible'
         : 'max-h-0 opacity-0  overflow-hidden'
     }`}
   >
     <div className="text-sm text-emerald-500 dark:text-gray-100 transition-colors duration-300">
-      <p dangerouslySetInnerHTML={{ __html: entry.suggestions }} ></p>
+      <p
+  dangerouslySetInnerHTML={{
+    __html: entry.suggestions.replace(/\n/g, "<br>")
+  }}
+></p>
+
     <p className="text-xs font-intertight font-medium tracking-wider text-emerald-500 dark:text-white mt-1">
     {entry.updatedAt && entry.updatedAt !== entry.createdAt
-      ? `Updated on ${new Date(entry.updatedAt).toLocaleString()}`
-      : `Created on ${new Date(entry.createdAt).toLocaleString()}`}
+      ? `🕒 Updated on ${new Date(entry.updatedAt).toLocaleString()}`
+      : `🕒 Created on ${new Date(entry.createdAt).toLocaleString()}`}
   </p>
   </div>
   </motion.div>

@@ -1,5 +1,5 @@
 function calculateEmissions(data) {
-  const MAX_FOOD_KG = 500; // monthly lim
+  const MAX_FOOD_KG = 500; // monthly limit
   const MAX_TRANSPORT_KM = 10000;
   const MAX_ELECTRICITY_KWH = 2000;
   const MAX_WASTE_KG = 1000;
@@ -98,44 +98,85 @@ function calculateEmissions(data) {
   const totalEmissionKg = parseFloat(
     (foodEmission + transportTotal + electricityTotal + wasteTotal).toFixed(2)
   );
-  // --- Suggestions ---
-let suggestions = capped
-  ? "⚠️ Some unusually high values were capped to keep results realistic for a month.\n"
-  : "";
 
-const categories = [
-  { name: "Food", value: foodEmission, emoji: "🥗" },
-  { name: "Transport", value: transportTotal, emoji: "🚗" },
-  { name: "Electricity", value: electricityTotal, emoji: "⚡" },
-  { name: "Waste", value: wasteTotal, emoji: "🗑️" }
-].sort((a, b) => b.value - a.value);
+  // --- DYNAMIC SUGGESTIONS ---
+  let suggestions = capped
+    ? "⚠️ <strong>Note:</strong> Some unusually high values were capped to ensure realistic monthly estimates.\n\n"
+    : "";
 
-if (totalEmissionKg <= 300) {
-  suggestions +=
-    "🌱 <strong>Your monthly footprint is well below average</strong> — that’s a great achievement! Keep up the conscious choices like energy-saving habits, eco-friendly travel, and minimal waste. Consider going further by supporting local green initiatives and planting trees. 🌳";
-} else if (totalEmissionKg <= 700) {
-  suggestions +=
-    "🌿 <strong>Your emissions are moderate</strong>, but there’s still room to improve. Focus on your top emission sources below to make the biggest impact:\n";
-} else {
-  suggestions +=
-    "🔥 <strong>Your footprint is on the higher side</strong>. Don’t worry — by acting on the top sources below, you can make a significant monthly reduction:\n";
-}
+  const categories = [
+    { name: "Food", value: foodEmission, emoji: "🥗", percentage: (foodEmission / totalEmissionKg * 100).toFixed(1) },
+    { name: "Transport", value: transportTotal, emoji: "🚗", percentage: (transportTotal / totalEmissionKg * 100).toFixed(1) },
+    { name: "Electricity", value: electricityTotal, emoji: "⚡", percentage: (electricityTotal / totalEmissionKg * 100).toFixed(1) },
+    { name: "Waste", value: wasteTotal, emoji: "🗑️", percentage: (wasteTotal / totalEmissionKg * 100).toFixed(1) }
+  ].sort((a, b) => b.value - a.value);
 
-// categories.slice(0, 2).forEach((c) => {
+  // Global average: ~390-400 kg/month
+  const globalAverage = 450;
+  const difference = totalEmissionKg - globalAverage;
+  const percentDiff = ((difference / globalAverage) * 100).toFixed(0);
+
+  // Opening assessment
+  if (totalEmissionKg <= 250) {
+    suggestions += `🌟 <strong>Excellent work!</strong> Your monthly footprint of <strong>${totalEmissionKg} kg CO₂</strong> is ${Math.abs(percentDiff)}% below the global average (${globalAverage} kg). You're leading by example — keep these sustainable habits strong!\n\n`;
+  } else if (totalEmissionKg <= 392) {
+    suggestions += `🌿 <strong>Well done!</strong> At <strong>${totalEmissionKg} kg CO₂</strong> per month, you're ${Math.abs(percentDiff)}% below the global average (${globalAverage} kg). Small optimizations in your top categories can push you even lower.\n\n`;
+  } else if (totalEmissionKg <= 600) {
+    suggestions += `📊 <strong>You're slightly above average.</strong> Your monthly footprint is <strong>${totalEmissionKg} kg CO₂</strong> — about ${percentDiff}% higher than the global average (${globalAverage} kg). Focus on your biggest contributors below for quick wins.\n\n`;
+  } else {
+    suggestions += `🔥 <strong>Time to take action!</strong> At <strong>${totalEmissionKg} kg CO₂</strong> per month, you're ${percentDiff}% above the global average (${globalAverage} kg). The good news? Your top emission sources offer the biggest opportunities for reduction.\n\n`;
+  }
+
+  suggestions += `<strong>📍 Your Emission Breakdown:</strong>\n`;
+  
+  // Show breakdown
   categories.forEach((c) => {
-    if (c.value / totalEmissionKg > 0.15) { 
-  if (c.name === "Food")
-    suggestions += `${c.emoji} <strong>Food:</strong> Try reducing meat & dairy intake, choose seasonal produce, and cut down on processed foods.\n`;
-  if (c.name === "Transport")
-    suggestions += `${c.emoji} <strong>Transport:</strong> Combine errands, carpool, or switch to public transport. For short trips, walking or cycling helps both health and the planet.\n`;
-  if (c.name === "Electricity")
-    suggestions += `${c.emoji} <strong>Electricity:</strong> Switch off devices when not in use, improve home insulation, and explore renewable energy like solar panels.\n`;
-  if (c.name === "Waste")
-    suggestions += `${c.emoji} <strong>Waste:</strong> Recycle plastics, compost food scraps, and reduce single-use items like plastic bags and paper towels.\n`;
-}});
+    if (c.value > 0) {
+      suggestions += `${c.emoji} <strong>${c.name}:</strong> ${c.value.toFixed(1)} kg CO₂ (${c.percentage}%)\n`;
+    }
+  });
 
-suggestions += "\n💡 <strong>Remember</strong>, small, consistent changes build lasting habits and lower your carbon footprint month by month!";
+  suggestions += `\n<strong>💡 Targeted Action Steps:</strong>\n`;
 
+  // Category-specific suggestions (only for significant contributors)
+  categories.forEach((c) => {
+    if (c.value / totalEmissionKg > 0.15) { // Only suggest if >15% of total
+      if (c.name === "Food") {
+        const reductionPotential = (c.value * 0.3).toFixed(1);
+        suggestions += `\n${c.emoji} <strong>Food (${c.percentage}% of total):</strong>\n`;
+        suggestions += `• Swap 2-3 meat meals per week with plant-based options → Save ~${reductionPotential} kg CO₂/month\n`;
+        suggestions += `• Buy local & seasonal produce to cut transport emissions\n`;
+        suggestions += `• Meal plan to reduce food waste by 20-30%\n`;
+      }
+      
+      if (c.name === "Transport") {
+        const reductionPotential = (c.value * 0.25).toFixed(1);
+        suggestions += `\n${c.emoji} <strong>Transport (${c.percentage}% of total):</strong>\n`;
+        suggestions += `• Replace 1-2 car trips per week with public transit → Save ~${reductionPotential} kg CO₂/month\n`;
+        suggestions += `• Carpool for commutes or combine errands into single trips\n`;
+        suggestions += `• Walk/bike for trips under 3 km — zero emissions + health benefits\n`;
+      }
+      
+      if (c.name === "Electricity") {
+        const reductionPotential = (c.value * 0.2).toFixed(1);
+        suggestions += `\n${c.emoji} <strong>Electricity (${c.percentage}% of total):</strong>\n`;
+        suggestions += `• Switch to LED bulbs & unplug idle electronics → Save ~${reductionPotential} kg CO₂/month\n`;
+        suggestions += `• Set AC/heating 2°C higher/lower to cut usage by 10-15%\n`;
+        suggestions += `• Explore solar panels or switch to a renewable energy provider\n`;
+      }
+      
+      if (c.name === "Waste") {
+        const reductionPotential = (c.value * 0.35).toFixed(1);
+        suggestions += `\n${c.emoji} <strong>Waste (${c.percentage}% of total):</strong>\n`;
+        suggestions += `• Compost food scraps to prevent methane emissions → Save ~${reductionPotential} kg CO₂/month\n`;
+        suggestions += `• Recycle plastic & paper correctly — improper disposal doubles impact\n`;
+        suggestions += `• Carry reusable bags, bottles, and containers to cut single-use plastics\n`;
+      }
+    }
+  });
+
+  // Closing motivation
+  suggestions += `\n<strong>🎯 Your Next Step:</strong> Start with just <strong>one action</strong> from your highest category this week. Track progress next month and watch your footprint shrink. Small, consistent changes create lasting impact! 🌍💚`;
 
   return {
     totalEmissionKg,

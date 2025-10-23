@@ -319,6 +319,7 @@ useEffect(() => {
   if (authError === 'auth_failed') {
     setError('Google registration failed. Please try again.');
     window.history.replaceState({}, '', '/register');
+    setTimeout(() => {setError('');}, 3500);
   }
 }, [location]);
   const strengthLabel = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];

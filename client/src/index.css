@@ -602,3 +602,555 @@ html {
 .text-glow-blue {
   text-shadow: 0 0 30px rgba(59,130,246,0.6);
 }
+/* Vertical flying plane animation with smoke trail */
+@keyframes plane-fly-up {
+  0% {
+    transform: translateY(0) rotate(-75deg);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-50px) rotate(-60deg);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-65px) rotate(-45deg);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-75px) rotate(-30deg);
+    opacity: 0;
+  }
+}
+
+/* Smoke trail animation - comes from back/tail of plane */
+@keyframes smoke-trail {
+  0% {
+    transform: translate(8px, 5px) scale(0.5);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(12px, 25px) scale(1.2);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(15px, 50px) scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Main plane animation class */
+.animate-plane-fly {
+  display: inline-block;
+  position: relative;
+  animation: plane-fly-up 3s ease-in-out infinite;
+}
+
+/* Smoke trail styles - positioned at plane's tail */
+.animate-plane-fly::before,
+.animate-plane-fly::after {
+  content: '💨';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  font-size: 0.5em;
+  animation: smoke-trail 1.2s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-plane-fly::after {
+  animation-delay: 0.4s;
+  font-size: 0.4em;
+}
+
+/* Faster version */
+.animate-plane-fly-fast {
+  display: inline-block;
+  position: relative;
+  animation: plane-fly-up 1.5s ease-in-out infinite;
+}
+
+.animate-plane-fly-fast::before,
+.animate-plane-fly-fast::after {
+  content: '💨';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  font-size: 0.5em;
+  animation: smoke-trail 0.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-plane-fly-fast::after {
+  animation-delay: 0.25s;
+  font-size: 0.4em;
+}
+
+/* Slower version */
+.animate-plane-fly-slow {
+  display: inline-block;
+  position: relative;
+  animation: plane-fly-up 5s ease-in-out infinite;
+}
+
+.animate-plane-fly-slow::before,
+.animate-plane-fly-slow::after {
+  content: '💨';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  font-size: 0.5em;
+  animation: smoke-trail 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-plane-fly-slow::after {
+  animation-delay: 0.6s;
+  font-size: 0.4em;
+}
+.electric-plug {
+  position: relative;
+  display: inline-block;
+  font-size: 1.5rem;
+  animation: plug-pulse 1.5s ease-in-out infinite;
+}
+
+/* Pulsing glow around plug */
+@keyframes plug-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px #00f7ff) drop-shadow(0 0 15px #00f7ff);
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 10px #00f7ff) drop-shadow(0 0 25px #00f7ff);
+    transform: scale(1.1);
+  }
+}
+
+/* Spark particles */
+.electric-plug::before,
+.electric-plug::after {
+  content: '⚡';
+  position: absolute;
+  font-size: 0.8rem;
+  color: #00f7ff;
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+/* Left spark */
+.electric-plug::before {
+  top: 35%;
+  left: -0.3em;
+  animation: spark-left 1.2s ease-out infinite;
+}
+
+/* Right spark */
+.electric-plug::after {
+  top: 35%;
+  right: -0.3em;
+  animation: spark-right 1.2s ease-out infinite;
+  animation-delay: 0.6s;
+}
+
+/* Keyframes for sparks */
+@keyframes spark-left {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-6px, -4px) scale(1.2) rotate(-20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-12px, -8px) scale(0.8) rotate(-40deg);
+  }
+}
+
+@keyframes spark-right {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(6px, -4px) scale(1.2) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(12px, -8px) scale(0.8) rotate(40deg);
+  }
+}
+.shiny-plate {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  vertical-align: middle; /* keeps it balanced inline */
+  transform: translateY(1px); 
+  animation: plate-glow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
+  overflow: hidden; /* keeps shimmer inside plate bounds */
+}
+
+/* Gentle pulse for realism */
+@keyframes plate-glow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.2));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
+  }
+}
+
+/* Shimmer reflection */
+.shiny-plate::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: plate-shimmer 2.8s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+/* Shimmer movement only across the emoji area */
+@keyframes plate-shimmer {
+  0%, 30% {
+    left: -30%;
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  50% {
+    left: 35%;
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.6;
+  }
+  70%, 100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+.clean-bin {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: bin-shake 2.8s ease-in-out infinite;
+}
+
+/* Subtle shake (lid wobble effect) */
+@keyframes bin-shake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-8deg);
+  }
+  20% {
+    transform: rotate(8deg);
+  }
+  30% {
+    transform: rotate(-4deg);
+  }
+  40% {
+    transform: rotate(2deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Puff of dust (or trash smoke 💨) */
+.clean-bin::before {
+  content: '💨';
+  position: absolute;
+  font-size: 0.6rem;
+  left: 45%;
+  bottom: 0%;
+  opacity: 0;
+  transform: scale(0.4) translateY(0);
+  animation: bin-dust 2.8s ease-out infinite;
+  animation-delay: 1.2s;
+  pointer-events: none;
+}
+
+/* Dust puff animation */
+@keyframes bin-dust {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: scale(0.4) translateY(0);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(0.8) translateY(-10px);
+  }
+  75% {
+    opacity: 0.7;
+    transform: scale(1) translateY(-15px);
+  }
+  85% {
+    opacity: 0.4;
+    transform: scale(1.1) translateY(-20px);
+  }
+  95% {
+    opacity: 0;
+    transform: scale(1.2) translateY(-25px);
+  }
+}
+.curious-mark {
+  position: relative;
+  display: inline-block;
+  font-size: 2.5rem;
+  animation: q-bounce 2.2s ease-in-out infinite;
+  color: #7dd3fc; /* cool neon tone */
+  filter: drop-shadow(0 0 4px #00eaff);
+}
+
+/* Bounce motion for question mark */
+@keyframes q-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #7dd3fc);
+  }
+  40% {
+    transform: translateY(-6px) scale(1.1);
+    filter: drop-shadow(0 0 8px #7dd3fc);
+  }
+  60% {
+    transform: translateY(2px) scale(0.95);
+  }
+}
+
+/* Floating dots/thought particles */
+.curious-mark::before,
+.curious-mark::after {
+  content: '•';
+  position: absolute;
+  font-size: 0.6em;
+  opacity: 0;
+  color: #191970;
+  filter: drop-shadow(0 0 4px #191970);
+  pointer-events: none;
+}
+
+/* Left small floating dot */
+.curious-mark::before {
+  left: 40%;
+  bottom: -0.2em;
+  animation: q-thought-left 2.8s ease-in-out infinite;
+}
+
+/* Right small floating dot */
+.curious-mark::after {
+  right: 40%;
+  bottom: -0.2em;
+  animation: q-thought-right 2.8s ease-in-out infinite;
+  animation-delay: 1.4s;
+}
+
+/* Thought particles rising animation */
+@keyframes q-thought-left {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-3px, -8px) scale(1);
+  }
+  75% {
+    opacity: 0.8;
+    transform: translate(-5px, -12px) scale(0.9);
+  }
+  85% {
+    opacity: 0.4;
+    transform: translate(-7px, -16px) scale(0.8);
+  }
+  95% {
+    opacity: 0;
+    transform: translate(-9px, -20px) scale(0.7);
+  }
+}
+
+@keyframes q-thought-right {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(3px, -8px) scale(1);
+  }
+  75% {
+    opacity: 0.8;
+    transform: translate(5px, -12px) scale(0.9);
+  }
+  85% {
+    opacity: 0.4;
+    transform: translate(7px, -16px) scale(0.8);
+  }
+  95% {
+    opacity: 0;
+    transform: translate(9px, -20px) scale(0.7);
+  }
+}
+.quantum-quote {
+  display: inline-block;
+  font-size: 2.5rem;
+  color: #7dd3fc; /* sky blue base */
+  text-shadow: 0 0 5px #38bdf8, 0 0 15px #0ea5e9, 0 0 25px #0284c7;
+  animation: quantum-pulse 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(56,189,248,0.8));
+}
+
+@keyframes quantum-pulse {
+  0% {
+    transform: translateY(0) scale(1);
+    color: #7dd3fc;
+    text-shadow: 0 0 4px #38bdf8, 0 0 12px #0ea5e9, 0 0 20px #0284c7;
+    opacity: 0.9;
+  }
+  40% {
+    transform: translateY(-1px) scale(1.15);
+    color: #a5f3fc; /* cyan shimmer */
+    text-shadow: 0 0 8px #67e8f9, 0 0 18px #22d3ee, 0 0 28px #0891b2;
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(1px) scale(0.95);
+    color: #38bdf8;
+    text-shadow: 0 0 4px #38bdf8, 0 0 10px #0284c7, 0 0 16px #0369a1;
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    color: #7dd3fc;
+    opacity: 0.9;
+  }
+}
+/* ✨ Carbon Glow Animation — vibrant aura with soft energy shimmer */
+.animate-carbon-glow {
+  position: relative;
+  display: inline-block;
+  font-weight: 600;
+  color: #22f7ae;
+  text-shadow:
+    0 0 6px #22f7ae,
+    0 0 14px #16f0a8,
+    0 0 28px #0ad48f,
+    0 0 45px rgba(10, 212, 143, 0.5);
+  animation: carbon-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
+}
+
+/* Glowing color pulse */
+@keyframes carbon-pulse {
+  0%, 100% {
+    color: #22f7ae;
+    text-shadow:
+      0 0 6px #22f7ae,
+      0 0 14px #16f0a8,
+      0 0 28px #0ad48f,
+      0 0 45px rgba(10, 212, 143, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    color: #6efacc;
+    text-shadow:
+      0 0 10px #6efacc,
+      0 0 25px #34d399,
+      0 0 40px #10b981,
+      0 0 60px rgba(16, 185, 129, 0.8);
+    transform: scale(1.05);
+  }
+}
+
+/* 🌌 Floating carbon particles */
+.animate-carbon-glow::before,
+.animate-carbon-glow::after {
+  content: '•';
+  position: absolute;
+  font-size: 0.8rem;
+  color: #10b981;
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px #10b981);
+}
+
+/* Left particle path */
+.animate-carbon-glow::before {
+  left: -0.8em;
+  top: 0;
+  animation: carbon-particles-left 3s ease-in-out infinite;
+}
+
+/* Right particle path */
+.animate-carbon-glow::after {
+  right: -0.8em;
+  top: 0;
+  animation: carbon-particles-right 3s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+/* Floating upward particle motion */
+@keyframes carbon-particles-left {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-4px, -10px) scale(1);
+  }
+  75% {
+    opacity: 0.7;
+    transform: translate(-8px, -16px) scale(0.9);
+  }
+  85% {
+    opacity: 0.4;
+    transform: translate(-10px, -22px) scale(0.8);
+  }
+  95% {
+    opacity: 0;
+    transform: translate(-12px, -28px) scale(0.7);
+  }
+}
+
+@keyframes carbon-particles-right {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(4px, -10px) scale(1);
+  }
+  75% {
+    opacity: 0.7;
+    transform: translate(8px, -16px) scale(0.9);
+  }
+  85% {
+    opacity: 0.4;
+    transform: translate(10px, -22px) scale(0.8);
+  }
+  95% {
+    opacity: 0;
+    transform: translate(12px, -28px) scale(0.7);
+  }
+}

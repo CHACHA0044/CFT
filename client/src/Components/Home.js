@@ -439,7 +439,7 @@ Carbon Footprint Tracker
     
     {/* Heading */}
     <motion.h2 variants={itemVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold text-emerald-500 dark:text-gray-100">
-    What<span className="animate-pulse">'</span>s Your Carbon Impact <span className="animate-pulse">?</span>
+    What<span class="quantum-quote">'</span>s Your Carbon Impact <span class="curious-mark -ml-1">?</span>
     </motion.h2>
 
     {/* Full version for tablets and up */}
@@ -447,8 +447,7 @@ Carbon Footprint Tracker
     Go beyond guessing — discover your true <span className="font-semibold">Carbon Footprint</span> based on your real lifestyle<AniDot />
     </motion.p>
 
-    <motion.p variants={itemVariants}  className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100">
-    <span className="animate-pulse">✈️</span> <span className="font-medium">Travel</span>, <span className="animate-pulse">🔌</span> <span className="font-medium">electricity use</span>, <span className="animate-pulse">🍽️</span> <span className="font-medium">daily meals</span> — it all adds up.
+    <motion.p variants={itemVariants}  className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"> <span className="animate-plane-fly">✈️</span> <span className="font-medium">Travel</span>, <span class="electric-plug">🔌</span> <span className="font-medium">Electricity</span>, <span className="shiny-plate">🍽️</span> <span className="font-medium">Daily meals</span>, <span class="clean-bin">🗑️</span> <span className="font-medium">Waste</span> — it all adds up.
     </motion.p>
     <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100" >
     Our tracker gives you <span className="font-semibold">clear visual insights</span> into your impact, projects your yearly footprint, and helps you <span className="font-semibold">compare your progress</span> with the community.
@@ -494,32 +493,7 @@ Carbon Footprint Tracker
     <motion.p variants={itemVariants} className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
    Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <span onClick={() => navigate('/register')} className="underline decoration-emerald-500/50 hover:decoration-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-1px] active:translate-y-[1px] active:text-emerald-300 active:scale-95 inline-block">Register</span> or <span onClick={() => navigate('/login')} className="underline decoration-emerald-500/50 hover:decoration-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-1px] active:translate-y-[1px] active:text-emerald-300 active:scale-95 inline-block">Log In</span>.
     <br />  <span className="italic text-sm leading-relaxed text-yellow-300">
-    P.S. Dark mode + laptop = best experience. 
-<motion.span
-  className="inline-block"
-  animate={{
-    scale: [1, 1.3, 0.95, 1.25, 1, 1.15, 1],
-    rotate: [0, 15, -12, 20, -8, 10, 0],
-    y: [0, -2, 0, -3, 0, -1, 0],
-    filter: [
-      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))",
-      "brightness(1.5) drop-shadow(0 0 12px rgba(255,215,0,0.8))",
-      "brightness(1.1) drop-shadow(0 0 3px rgba(255,215,0,0.3))",
-      "brightness(1.4) drop-shadow(0 0 10px rgba(255,215,0,0.7))",
-      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))",
-      "brightness(1.3) drop-shadow(0 0 8px rgba(255,215,0,0.5))",
-      "brightness(1) drop-shadow(0 0 0px rgba(255,215,0,0))"
-    ]
-  }}
-  transition={{
-    duration: 3,
-    repeat: Infinity,
-    ease: [0.45, 0.05, 0.55, 0.95],
-    times: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1]
-  }}
->
-  ✨
-</motion.span>
+    P.S. Dark mode + laptop = best experience. ✮⋆˙
     </span>
     </motion.p> 
 

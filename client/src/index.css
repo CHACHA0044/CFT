@@ -916,7 +916,7 @@ html {
 .curious-mark {
   position: relative;
   display: inline-block;
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   animation: q-bounce 2.2s ease-in-out infinite;
   color: #7dd3fc; /* cool neon tone */
   filter: drop-shadow(0 0 4px #00eaff);
@@ -1044,113 +1044,395 @@ html {
     opacity: 0.9;
   }
 }
-/* ✨ Carbon Glow Animation — vibrant aura with soft energy shimmer */
-.animate-carbon-glow {
+/* 🌍 Elegant Earth with orbiting particles + breathing atmosphere */
+.animate-earth-spin {
   position: relative;
   display: inline-block;
-  font-weight: 600;
-  color: #22f7ae;
-  text-shadow:
-    0 0 6px #22f7ae,
-    0 0 14px #16f0a8,
-    0 0 28px #0ad48f,
-    0 0 45px rgba(10, 212, 143, 0.5);
-  animation: carbon-pulse 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
+  font-size: 1.2rem; /* slightly smaller */
+  animation: earth-spin 10s linear infinite;
+  filter: drop-shadow(0 0 2px #38bdf8) drop-shadow(0 0 4px #06b6d4);
+  color: #a5f3fc;
 }
 
-/* Glowing color pulse */
-@keyframes carbon-pulse {
+/* Gentle spin */
+@keyframes earth-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 🌫️ Atmospheric ring */
+.animate-earth-spin::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.25) 0%,
+    rgba(14, 165, 233, 0.15) 30%,
+    rgba(2, 132, 199, 0.05) 60%,
+    transparent 80%
+  );
+  animation: atmosphere-breathe 4s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Subtle breathing pulse */
+@keyframes atmosphere-breathe {
   0%, 100% {
-    color: #22f7ae;
-    text-shadow:
-      0 0 6px #22f7ae,
-      0 0 14px #16f0a8,
-      0 0 28px #0ad48f,
-      0 0 45px rgba(10, 212, 143, 0.5);
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
   }
   50% {
-    color: #6efacc;
-    text-shadow:
-      0 0 10px #6efacc,
-      0 0 25px #34d399,
-      0 0 40px #10b981,
-      0 0 60px rgba(16, 185, 129, 0.8);
-    transform: scale(1.05);
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
   }
 }
 
-/* 🌌 Floating carbon particles */
-.animate-carbon-glow::before,
-.animate-carbon-glow::after {
+/* ✨ Orbiting particles */
+.animate-earth-spin span::before,
+.animate-earth-spin span::after,
+.animate-earth-spin::before {
   content: '•';
   position: absolute;
-  font-size: 0.8rem;
-  color: #10b981;
-  opacity: 0;
+  color: #7dd3fc;
+  font-size: 0.4rem;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 3px #38bdf8);
+  animation: orbit 4s linear infinite;
+}
+
+/* Individual particle paths */
+.animate-earth-spin::before { top: -0.5em; left: 50%; animation-delay: 0s; }
+.animate-earth-spin span::before { left: -0.5em; top: 25%; animation-delay: 1.2s; }
+.animate-earth-spin span::after { right: -0.6em; bottom: 20%; animation-delay: 2.4s; }
+
+/* Elliptical orbit motion */
+@keyframes orbit {
+  0%   { transform: rotate(0deg) translateX(7px) rotate(0deg); }
+  50%  { transform: rotate(180deg) translateX(7px) rotate(-180deg); }
+  100% { transform: rotate(360deg) translateX(7px) rotate(-360deg); }
+}
+/* 🔑 Login Animation (matched with 🪄 Register) */
+.animate-login {
+  position: relative;
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #93c5fd; /* soft blue tone */
+  animation: login-pulse 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px #60a5fa); /* subtle glow, like Register */
+}
+
+/* Gentle breathing pulse (no text-shadow) */
+@keyframes login-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px #60a5fa);
+  }
+  50% {
+    transform: scale(1.07);
+    filter: drop-shadow(0 0 4px #93c5fd);
+  }
+}
+
+/* Orbiting spark particles (minimal glow) */
+.animate-login::before,
+.animate-login::after {
+  content: '•';
+  position: absolute;
+  color: #bfdbfe;
+  font-size: 0.4rem;
+  opacity: 0.9;
+  animation: login-orbit 3.5s linear infinite;
+  filter: drop-shadow(0 0 2px #60a5fa);
   pointer-events: none;
-  filter: drop-shadow(0 0 4px #10b981);
 }
 
-/* Left particle path */
-.animate-carbon-glow::before {
-  left: -0.8em;
-  top: 0;
-  animation: carbon-particles-left 3s ease-in-out infinite;
+.animate-login::before {
+  top: -0.4em;
+  left: 50%;
+  animation-delay: 0s;
 }
 
-/* Right particle path */
-.animate-carbon-glow::after {
-  right: -0.8em;
-  top: 0;
-  animation: carbon-particles-right 3s ease-in-out infinite;
+.animate-login::after {
+  bottom: -0.3em;
+  right: 45%;
   animation-delay: 1.5s;
 }
 
-/* Floating upward particle motion */
-@keyframes carbon-particles-left {
-  0%, 60%, 100% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.6);
+/* Smooth orbit motion */
+@keyframes login-orbit {
+  0%   { transform: rotate(0deg) translateX(6px) rotate(0deg); }
+  50%  { transform: rotate(180deg) translateX(6px) rotate(-180deg); }
+  100% { transform: rotate(360deg) translateX(6px) rotate(-360deg); }
+}
+
+/* 🪄 Register Animation */
+.animate-register {
+  position: relative;
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #c4b5fd; /* soft lavender tone */
+  animation: register-grow 3.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px #a78bfa); /* subtle glow */
+}
+
+/* Gentle magical pulse */
+@keyframes register-grow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px #a78bfa);
   }
-  65% {
-    opacity: 1;
-    transform: translate(-4px, -10px) scale(1);
-  }
-  75% {
-    opacity: 0.7;
-    transform: translate(-8px, -16px) scale(0.9);
-  }
-  85% {
-    opacity: 0.4;
-    transform: translate(-10px, -22px) scale(0.8);
-  }
-  95% {
-    opacity: 0;
-    transform: translate(-12px, -28px) scale(0.7);
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 4px #c4b5fd);
   }
 }
 
-@keyframes carbon-particles-right {
-  0%, 60%, 100% {
+/* ✨ Floating spark particles */
+.animate-register::before,
+.animate-register::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.65rem;
+  opacity: 0;
+  animation: register-spark 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animate-register::before {
+  top: -0.5em;
+  left: -0.6em;
+  animation-delay: 0.6s;
+}
+
+.animate-register::after {
+  bottom: -0.5em;
+  right: -0.6em;
+  animation-delay: 1.8s;
+}
+
+/* Spark float motion */
+@keyframes register-spark {
+  0%, 70%, 100% {
     opacity: 0;
-    transform: translate(0, 0) scale(0.6);
-  }
-  65% {
-    opacity: 1;
-    transform: translate(4px, -10px) scale(1);
+    transform: translateY(0) scale(0.8);
   }
   75% {
-    opacity: 0.7;
-    transform: translate(8px, -16px) scale(0.9);
+    opacity: 1;
+    transform: translateY(-8px) scale(1);
   }
   85% {
-    opacity: 0.4;
-    transform: translate(10px, -22px) scale(0.8);
+    opacity: 0.5;
+    transform: translateY(-12px) scale(0.9);
   }
-  95% {
+}
+/* 🌟 Star Animation */
+.animate-star {
+  position: relative;
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #fde68a; /* warm golden tone */
+  animation: star-twinkle 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px #facc15); /* soft golden glow */
+}
+
+/* Gentle shimmer pulse */
+@keyframes star-twinkle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 2px #facc15);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+    filter: drop-shadow(0 0 4px #fde68a);
+  }
+}
+
+/* ✨ Orbiting spark dust */
+.animate-star::before,
+.animate-star::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.6rem;
+  opacity: 0;
+  animation: star-spark 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animate-star::before {
+  top: -0.5em;
+  left: -0.5em;
+  animation-delay: 1s;
+}
+
+.animate-star::after {
+  bottom: -0.5em;
+  right: -0.5em;
+  animation-delay: 2.2s;
+}
+
+/* Spark drift effect */
+@keyframes star-spark {
+  0%, 70%, 100% {
     opacity: 0;
-    transform: translate(12px, -28px) scale(0.7);
+    transform: translateY(0) scale(0.8);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translateY(-12px) scale(0.9);
+  }
+}
+/* ✨ Quotation Mark Animation */
+.animate-quote {
+  display: inline-block;
+  position: relative;
+  font-size: 1.2rem;
+  color: #fcd34d; /* warm golden tone */
+  animation: quote-bounce 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #fbbf24) drop-shadow(0 0 5px #f59e0b);
+}
+
+/* Gentle pop & shimmer */
+@keyframes quote-bounce {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 3px #fbbf24) drop-shadow(0 0 5px #f59e0b);
+  }
+  30% {
+    transform: scale(1.2) rotate(-5deg);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 6px #fde68a) drop-shadow(0 0 8px #fbbf24);
+  }
+  60% {
+    transform: scale(1.1) rotate(5deg);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 4px #fde68a) drop-shadow(0 0 6px #fbbf24);
+  }
+}
+
+/* ✨ Tiny orbiting spark accents around the quote */
+.animate-quote::before,
+.animate-quote::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: quote-spark 3s ease-in-out infinite;
+  pointer-events: none;
+  color: #fef3c7;
+}
+
+.animate-quote::before {
+  top: -0.6em;
+  left: -0.4em;
+  animation-delay: 0.5s;
+}
+
+.animate-quote::after {
+  bottom: -0.6em;
+  right: -0.4em;
+  animation-delay: 1.2s;
+}
+
+/* Spark drift effect */
+@keyframes quote-spark {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.7);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translateY(-12px) scale(0.9);
+  }
+}
+.mini-curious {
+  position: relative;
+  display: inline-block;
+  font-size: 1.7rem;
+  color: #4f46e5;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Small question marks */
+.mini-curious::before,
+.mini-curious::after,
+.mini-curious span {
+  content: "?";
+  position: absolute;
+  font-size: 0.7rem;
+  color: #a5b4fc;
+  opacity: 0;
+  animation: pop 1.2s infinite ease-in-out;
+}
+
+/* Use ::before and ::after as two of the small ? */
+.mini-curious::before {
+  top: -12px;
+  left: -8px;
+  animation-delay: 0s;
+}
+
+.mini-curious::after {
+  top: -10px;
+  left: 10px;
+  animation-delay: 0.4s;
+}
+
+/* Additional small ? using a nested span if desired */
+.mini-curious span {
+  top: -8px;
+  left: 0px;
+  animation-delay: 0.8s;
+}
+
+/* Main question mark pulsing */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); text-shadow: none; }
+  50% { transform: scale(1.2); text-shadow: 0 0 8px #4f46e5, 0 0 12px #818cf8; }
+}
+
+/* Gentle small ? popping */
+@keyframes pop {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  50% { transform: translateY(-6px) scale(1); opacity: 1; }
+  100% { transform: translateY(-12px) scale(0.5); opacity: 0; }
+}
+.exclaim {
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #facc15; /* yellow */
+  display: inline-block;
+  animation: pulseGlow 1s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24;
+  }
+  50% {
+    transform: scale(1.3) rotate(-10deg);
+    text-shadow: 0 0 15px #fbbf24, 0 0 30px #fbbf24;
+  }
+  100% {
+    transform: scale(1) rotate(10deg);
+    text-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24;
   }
 }

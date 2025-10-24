@@ -208,10 +208,6 @@ const Home = () => {
   const [showContent, setShowContent] = useState(false);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
   const navigate = useNavigate();
-  const contentVariants = {
-  hidden: { opacity: 0, y: -10, transition: { duration: 0.2, delay: 0.6 } }, // exit
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.8 } }, // entry
-};
 const [screenHeight, setScreenHeight] = useState({ collapsed: 70, expanded: 110 });
 useEffect(() => {
   const handleScroll = () => {
@@ -288,6 +284,10 @@ const handleTap = () => {
   }
 };
 const isMobile = window.innerWidth < 640;
+  const contentVariants = {
+  hidden: { opacity: 0, y: -10, transition: { duration: 0.2, delay: 0.6 } }, // exit
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.8 } }, // entry
+};
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -453,9 +453,9 @@ Carbon Footprint Tracker
     Our tracker turns your habits into <span className="font-semibold">easy-to-read</span> visuals, shows your yearly footprint, and helps you see how you’re doing <span className="font-semibold">compared</span> to others <span className="animate-earth-spin"><span>🌎</span></span>
     </motion.p>
     <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100" >
-    <span className="font-medium">Ready to see your impact<span className="mini-curious">?</span></span> Tap the <span className="animate-quote">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-quote">"</span> above to
-    <span onClick={() => navigate('/register')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Register</span>   <span className="animate-register">🪄</span> or 
-    <span onClick={() => navigate('/login')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Login</span><span className="animate-login">🔑</span> and start your journey.<br />
+    <span className="font-medium">Ready to see your impact<span className="mini-curious">?</span></span> Tap the <span>"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span>"</span> above to
+    <span onClick={() => navigate('/register')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Register</span> or 
+    <span onClick={() => navigate('/login')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Login</span> and start your journey.<br />
     <span className="italic font-medium text-base md:text-lg leading-relaxed text-yellow-300">
     P.S. Stay in dark mode for the best experience.
     </span>

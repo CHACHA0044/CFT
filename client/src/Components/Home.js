@@ -392,7 +392,7 @@ Carbon Footprint Tracker
 </motion.header>
 
     {/* Main Section yaha se */}
-    <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-10 text-center min-h-screen ">
+    <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-4 text-center min-h-screen ">
     {/* Heading */}
     <motion.div
         initial={{ opacity: 1, y: 0 }}
@@ -447,7 +447,7 @@ Carbon Footprint Tracker
     Let’s find out — not by guessing, but by discovering your real <span className="font-semibold">Carbon Footprint</span> based on how you actually live<AniDot />
     </motion.p>
 
-    <motion.p variants={itemVariants}  className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"> <span className="animate-plane-fly">✈️</span> <span className="font-medium">How you travel</span>, <span class="electric-plug">🔌</span> <span className="font-medium">the energy you use</span>, <span className="shiny-plate">🍽️</span> <span className="font-medium">what you eat</span>, <span class="clean-bin">🗑️</span> <span className="font-medium">what you waste</span> — it all adds up.
+    <motion.p variants={itemVariants}  className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"> <span className="animate-plane-fly">✈️</span> How you <span className="font-medium">Travel</span>, <span class="electric-plug">🔌</span> the <span className="font-medium">Energy</span> you use, <span className="shiny-plate">🍽️</span> what you <span className="font-medium">Eat</span>, <span class="clean-bin">🗑️</span> what you <span className="font-medium">Waste</span> — it all adds up.
     </motion.p>
     <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100" >
     Our tracker turns your habits into <span className="font-semibold">easy-to-read</span> visuals, shows your yearly footprint, and helps you see how you’re doing <span className="font-semibold">compared</span> to others <span className="animate-earth-spin"><span>🌎</span></span>
@@ -498,7 +498,7 @@ Carbon Footprint Tracker
   <MdEmail className="text-base relative top-[2.5px]" />
   </motion.div>
     </a>.
-    {/* <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
+<p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
     By registering, you agree to our{' '}
     <a
       href="https://carbonft.app/privacypolicy.html"
@@ -506,7 +506,7 @@ Carbon Footprint Tracker
       rel="noopener noreferrer"
       className="underline decoration-emerald-500/50 hover:decoration-emerald-500 text-emerald-300 hover:text-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"
     >
-      Privacy Policy
+      Privacy Policy<span className="emoji privacy">🔒</span>
     </a>{' '}
     and{' '}
     <a
@@ -515,9 +515,9 @@ Carbon Footprint Tracker
       rel="noopener noreferrer"
       className="underline decoration-emerald-500/50 hover:decoration-emerald-500 text-emerald-300 hover:text-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"
     >
-      Terms
+      Terms<span className="emoji terms">📄</span>
     </a>.
-    </p> */}
+    </p>
 </motion.p>
 </motion.div>
 </div>

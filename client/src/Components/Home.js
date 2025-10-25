@@ -232,7 +232,7 @@ useEffect(() => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // If you need cookies
+        credentials: 'omit',
       });
       
       // Check if response is JSON

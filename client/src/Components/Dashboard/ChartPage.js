@@ -20,10 +20,10 @@ import LottieLogo from 'Components/LottieLogoComponent';
 import { NewEntryButton, EditDeleteButton, DashboardButton, WeatherButton, LogoutButton, VisualizeButton } from 'Components/globalbuttons';
 
 const globalAverages = {
-  food: 141,
-  transport: 120,
-  electricity: 115,
-  waste: 30,
+  food: 140,
+  transport: 130,
+  electricity: 120,
+  waste: 60,
 };
 const sentence = "Your Emission Trends";const words = sentence.split(" ");
 

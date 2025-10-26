@@ -619,21 +619,20 @@ export const GoogleAuthButton = ({ text, className = '', disabled = false, ...pr
   })();
 
   const handleGoogleAuth = () => {
-    setShowDevMessage(true);
-    setTimeout(() => setShowDevMessage(false), 4000);
-    // const isDev = process.env.NODE_ENV === 'development';
-    // const backendUrl = isDev 
-    //   ? 'http://localhost:4950' 
-    //   : 'https://cft-cj43.onrender.com';
 
-    // const source = (() => {
-    //   if (location.pathname.endsWith('/login')) return 'login';
-    //   if (location.pathname.endsWith('/register')) return 'register';
-    //   return '';
-    // })();
+    const isDev = process.env.NODE_ENV === 'development';
+    const backendUrl = isDev 
+      ? 'http://localhost:4950' 
+      : 'https://cft-cj43.onrender.com';
 
-    // const redirectUrl = `${backendUrl}/api/auth/google${source ? `?source=${source}` : ''}`;
-    // window.location.href = redirectUrl;
+    const source = (() => {
+      if (location.pathname.endsWith('/login')) return 'login';
+      if (location.pathname.endsWith('/register')) return 'register';
+      return '';
+    })();
+
+    const redirectUrl = `${backendUrl}/api/auth/google${source ? `?source=${source}` : ''}`;
+    window.location.href = redirectUrl;
   };
 
   return (
@@ -647,7 +646,7 @@ export const GoogleAuthButton = ({ text, className = '', disabled = false, ...pr
         {...props}
       />
       
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {showDevMessage && (
           <motion.div
             initial={{ scale: 0.8, opacity: 0, y: -20 }}
@@ -659,7 +658,7 @@ export const GoogleAuthButton = ({ text, className = '', disabled = false, ...pr
             <span>🚧 Under Development <span className="animate-pulse">...</span></span>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </>
   );
 };

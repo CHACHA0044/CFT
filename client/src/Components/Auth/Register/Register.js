@@ -354,7 +354,7 @@ useEffect(() => {
     </p>
   ) : null}
 </div>
-{/* <AnimatePresence>
+ <AnimatePresence>
     {showMessage && (
       <motion.div
         initial={{ scale: 0.8, opacity: 0, y: -20 }}
@@ -368,7 +368,7 @@ useEffect(() => {
         </div>
       </motion.div>
     )}
-  </AnimatePresence> */}
+  </AnimatePresence> 
         <form onSubmit={handleSubmit} className="space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
           <input
             name="name"

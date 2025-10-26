@@ -800,7 +800,7 @@ return (
             animate={{ scale: 1 }}
           >
             <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
-            <h2 className="sm:text-3xl md:text-5xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🗓️ </span>Monthly Emissions</h2>
+            <h2 className="sm:text-3xl md:text-5xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="calendar-wrapper calendar-spark">🗓️ </span>Monthly Emissions</h2>
 
           {(() => {
             const [intPart, decimalPart] = total.toFixed(2).split('.');
@@ -1379,7 +1379,7 @@ return (
     <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
 
     <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-0 text-emerald-500 dark:text-gray-100">
-    <span className="animate-pulse">🥞</span>  Emission Breakdown CO₂( <span
+    <span className="pancake-wrapper pancake-steam">🥞</span>  Emission Breakdown CO₂( <span
   className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
   style={{ '--random': Math.random() }}
 >
@@ -1532,7 +1532,7 @@ e
     <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
     
     <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-6 text-center text-emerald-500 dark:text-gray-100">
-      <span className="animate-pulse">📈</span> Yearly Projection
+      <span className="animate-glow-up">📈</span> Yearly Projection
     </h3>
 
     {/* Current Year Summary */}
@@ -1557,21 +1557,26 @@ e
       <div className="sm:text-2xl md:text-3xl text-shadow-DEFAULT font-intertight font-bold">
         {(() => {
           const yearlyTonnes = yearly / 1000;
-          let style = { color: 'text-green-400', emoji: '🌱' };
-          
-          if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
-            style = { color: 'text-yellow-400', emoji: '⚠️' };
-          } else if (yearlyTonnes > 7 && yearlyTonnes <= 10) {
-            style = { color: 'text-orange-400', emoji: '🔥' };
-          } else if (yearlyTonnes > 10) {
-            style = { color: 'text-red-400', emoji: '💥' };
-          }
+let style = { 
+  color: 'text-green-400', 
+  emoji: '🌱', 
+  animation: 'animate-gentle-grow' 
+};
+
+if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
+  style = { color: 'text-yellow-400', emoji: '⚠️', animation: 'animate-warning-shake' };
+} else if (yearlyTonnes > 7 && yearlyTonnes <= 10) {
+  style = { color: 'text-orange-400', emoji: '🔥', animation: 'animate-flame-flicker' };
+} else if (yearlyTonnes > 10) {
+  style = { color: 'text-red-400', emoji: '💥', animation: 'animate-explode-pop' };
+}
+
           
           const [intPart, decimalPart] = yearlyTonnes.toFixed(2).split('.');
           
           return (
             <>
-              <span className="animate-pulse text-2xl mr-2">{style.emoji}</span>
+              <span className={`${style.animation} ${style.color} text-2xl mr-2`}>{style.emoji}</span>
               <span className={style.color}>
                 {intPart}
                 <span className="hidden sm:inline">.{decimalPart}</span> tonnes CO
@@ -1704,7 +1709,7 @@ e
     <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 
                     group-hover:opacity-100 animate-borderFlow 
                     border-emerald-500 dark:border-gray-100 pointer-events-none" />
-    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-4 text-center text-emerald-500 dark:text-gray-100"><span className="animate-pulse">🏆 </span>Leaderboard</h3>
+    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-4 text-center text-emerald-500 dark:text-gray-100"><span className="animate-trophy-shine">🏆 </span>Leaderboard</h3>
     <div className="space-y-3">
       
       <motion.div

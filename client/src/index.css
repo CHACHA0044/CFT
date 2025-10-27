@@ -1012,7 +1012,7 @@ html {
 }
 .quantum-quote {
   display: inline-block;
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   color: #7dd3fc; /* sky blue base */
   text-shadow: 0 0 5px #38bdf8, 0 0 15px #0ea5e9, 0 0 25px #0284c7;
   animation: quantum-pulse 2.8s ease-in-out infinite;
@@ -1680,4 +1680,94 @@ html {
 .calendar-spark::before {
   left: 55%;
   animation-delay: 0.7s;
+}
+
+.earth-space {
+  position: relative;
+  display: inline-block;
+  font-size: 1.5rem;
+  vertical-align: middle;
+  animation: earthFloat 6s ease-in-out infinite, earthRotate 20s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(0, 200, 255, 0.8));
+}
+
+/* rotating aurora-like glow */
+.earth-space::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(0, 255, 255, 0.25),
+    rgba(0, 128, 255, 0.3),
+    rgba(255, 255, 255, 0.15),
+    rgba(0, 255, 255, 0.25)
+  );
+  transform: translate(-50%, -50%);
+  animation: auroraSpin 8s linear infinite;
+  filter: blur(8px);
+  z-index: -1;
+}
+
+/* faint pulsing halo */
+.earth-space::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 200, 255, 0.15), transparent 70%);
+  transform: translate(-50%, -50%);
+  animation: haloPulse 4s ease-in-out infinite;
+  z-index: -1;
+}
+
+/* --- Twinkling stars --- */
+.earth-space span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  animation: starTwinkle 4s infinite ease-in-out;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+/* Add multiple stars with different delays and positions */
+.earth-space > span:nth-of-type(1) { top: -10px; left: -18px; animation-delay: 0.5s; }
+.earth-space > span:nth-of-type(2) { top: -6px; right: -20px; animation-delay: 1s; }
+.earth-space > span:nth-of-type(3) { bottom: -12px; left: -15px; animation-delay: 1.5s; }
+.earth-space > span:nth-of-type(4) { bottom: -5px; right: -15px; animation-delay: 2s; }
+.earth-space > span:nth-of-type(5) { top: -16px; left: 5px; animation-delay: 2.5s; }
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes earthRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes auroraSpin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes haloPulse {
+  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes earthFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }

@@ -655,7 +655,7 @@ useEffect(() => {
   transition={{ type: "spring", stiffness: 500, damping: 15 }}
   className="absolute top-4 left-0 pt-2 md:pt-0 pl-2 md:pl-3 md:text-2xl text-xs sm:text-sm font-bespoke font-medium sm:font-semibold text-emerald-600 dark:text-gray-100 flex gap-1"
 >
-  <span className="not-italic font-sans">🫡</span>
+  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
   <motion.span className="flex flex-wrap">
     {(` Welcome, ${user?.name || "User"}`).split("").map((char, i) => (
       <motion.span

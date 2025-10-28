@@ -117,7 +117,7 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' })); //HTML <form> su
 //limiter
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isProd ? 50 : 200, // reduce to 100
+  max: isProd ? 50 : 200, // reduce to 50
   standardHeaders: true, //for better visibility and exposing rate limit info in headers
   legacyHeaders: false, //to avoid deprecated headers
   message: 'Too many requests, please try again later.'
@@ -126,7 +126,7 @@ app.use('/api', generalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
-  max: isProd ? 8 : 100, //reduce to 10
+  max: isProd ? 20 : 100, //reduce to 20
   standardHeaders: true, 
   legacyHeaders: false,  
   message: 'Too many login/register attempts. Try again later.'

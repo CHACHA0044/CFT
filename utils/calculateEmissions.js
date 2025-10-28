@@ -129,49 +129,113 @@ function calculateEmissions(data) {
 
   suggestions += `<strong>📍 Your Emission Breakdown:</strong>\n`;
   
-  // Show breakdown
-  categories.forEach((c) => {
-    if (c.value > 0) {
-      suggestions += `${c.emoji} <strong>${c.name}:</strong> ${c.value.toFixed(1)} kg CO₂ (${c.percentage}%)\n`;
+  // Show breakdown with user selections
+categories.forEach((c) => {
+  if (c.value > 0) {
+    let userChoice = "";
+    if (c.name === "Food" && data.food) {
+      userChoice = `(${data.food.type} diet, ${data.food.amountKg} kg food)`;
+    } 
+    else if (c.name === "Transport" && data.transport?.length > 0) {
+      const modes = data.transport.map(t => `${t.mode} (${t.distanceKm} km)`).join(", ");
+      userChoice = `(${modes})`;
+    } 
+    else if (c.name === "Electricity" && data.electricity?.length > 0) {
+      const sources = data.electricity.map(e => `${e.source} (${e.consumptionKwh} kWh)`).join(", ");
+      userChoice = `(${sources})`;
+    } 
+    else if (c.name === "Waste" && data.waste?.length > 0) {
+      const wasteDetails = data.waste.map(w =>
+        `${w.plasticKg} kg plastic, ${w.paperKg} kg paper, ${w.foodWasteKg} kg food waste`
+      ).join("; ");
+      userChoice = `(${wasteDetails})`;
     }
-  });
+
+    suggestions += `${c.emoji} <strong>${c.name}:</strong> ${c.value.toFixed(1)} kg CO₂ (${(c.percentage)}%) ${userChoice}\n`;
+  }
+});
+
 
   suggestions += `\n<strong>💡 Targeted Action Steps:</strong>\n`;
 
   // Category-specific suggestions (only for significant contributors)
   categories.forEach((c) => {
     if (c.value / totalEmissionKg > 0.15) { // Only suggest if >15% of total
-      if (c.name === "Food") {
-        const reductionPotential = (c.value * 0.3).toFixed(1);
-        suggestions += `\n${c.emoji} <strong>Food (${c.percentage}% of total):</strong>\n`;
-        suggestions += `• Swap 2-3 meat meals per week with plant-based options → Save ~${reductionPotential} kg CO₂/month\n`;
-        suggestions += `• Buy local & seasonal produce to cut transport emissions\n`;
-        suggestions += `• Meal plan to reduce food waste by 20-30%\n`;
+    if (c.name === "Food") {
+      const reductionPotential = (c.value * 0.3).toFixed(1);
+      const diet = data.food?.type;
+
+      suggestions += `\n${c.emoji} <strong>Food (~${Math.round(c.percentage)}% of total):</strong>\n`;
+
+      if (diet === "Animal based") {
+        suggestions += `• Try reducing meat portions or add 2-3 plant-based meals per week → Save ~${reductionPotential} kg CO₂/month\n`;
+        suggestions += `• Explore sustainable protein options like lentils, tofu, or eggs\n`;
+      } 
+      else if (diet === "Both") {
+        suggestions += `• Replace half your animal-based meals with plant-based alternatives → Save ~${reductionPotential} kg CO₂/month\n`;
+        suggestions += `• Choose local and seasonal produce to reduce indirect emissions\n`;
+      } 
+      else if (diet === "Plant based") {
+        suggestions += `• You're already plant-based 🌱 — great job!\n`;
+        suggestions += `• Focus on reducing food waste and choosing local, seasonal ingredients\n`;
+      } 
+      else {
+        suggestions += `• Keep track of your food sources — plant-based options greatly reduce CO₂ impact\n`;
       }
-      
-      if (c.name === "Transport") {
-        const reductionPotential = (c.value * 0.25).toFixed(1);
-        suggestions += `\n${c.emoji} <strong>Transport (${c.percentage}% of total):</strong>\n`;
-        suggestions += `• Replace 1-2 car trips per week with public transit → Save ~${reductionPotential} kg CO₂/month\n`;
-        suggestions += `• Carpool for commutes or combine errands into single trips\n`;
-        suggestions += `• Walk/bike for trips under 3 km — zero emissions + health benefits\n`;
+    }
+
+    if (c.name === "Transport") {
+      const reductionPotential = (c.value * 0.25).toFixed(1);
+      const modes = data.transport?.map(t => t.mode) || [];
+
+      suggestions += `\n${c.emoji} <strong>Transport (~${Math.round(c.percentage)}% of total):</strong>\n`;
+
+      if (modes.includes("Flights")) {
+        suggestions += `• Consider reducing short-haul flights — trains emit up to 80% less CO₂\n`;
       }
-      
-      if (c.name === "Electricity") {
-        const reductionPotential = (c.value * 0.2).toFixed(1);
-        suggestions += `\n${c.emoji} <strong>Electricity (${c.percentage}% of total):</strong>\n`;
-        suggestions += `• Switch to LED bulbs & unplug idle electronics → Save ~${reductionPotential} kg CO₂/month\n`;
-        suggestions += `• Set AC/heating 2°C higher/lower to cut usage by 10-15%\n`;
-        suggestions += `• Explore solar panels or switch to a renewable energy provider\n`;
+      if (modes.includes("Car")) {
+        suggestions += `• Replace 1–2 car trips per week with public transit or carpooling → Save ~${reductionPotential} kg CO₂/month\n`;
       }
-      
-      if (c.name === "Waste") {
-        const reductionPotential = (c.value * 0.35).toFixed(1);
-        suggestions += `\n${c.emoji} <strong>Waste (${c.percentage}% of total):</strong>\n`;
-        suggestions += `• Compost food scraps to prevent methane emissions → Save ~${reductionPotential} kg CO₂/month\n`;
-        suggestions += `• Recycle plastic & paper correctly — improper disposal doubles impact\n`;
-        suggestions += `• Carry reusable bags, bottles, and containers to cut single-use plastics\n`;
+      if (modes.includes("Bus") || modes.includes("Metro") || modes.includes("Train")) {
+        suggestions += `• You're already using efficient transport 👍 — keep it up!\n`;
       }
+      if (modes.includes("Bike") || modes.includes("Walking")) {
+        suggestions += `• Great job choosing low-carbon transport options 🚲🚶\n`;
+      }
+    }
+
+    if (c.name === "Electricity") {
+      const reductionPotential = (c.value * 0.2).toFixed(1);
+      const sources = data.electricity?.map(e => e.source) || [];
+
+      suggestions += `\n${c.emoji} <strong>Electricity (~${Math.round(c.percentage)}% of total):</strong>\n`;
+
+      if (sources.includes("Coal") || sources.includes("Mixed")) {
+        suggestions += `• Switch part of your usage to renewable sources → Save ~${reductionPotential} kg CO₂/month\n`;
+      }
+      if (sources.includes("Solar") || sources.includes("Wind") || sources.includes("Hydro")) {
+        suggestions += `• Excellent — your clean energy usage is already lowering emissions ⚡\n`;
+      }
+
+      suggestions += `• Unplug idle devices & use LED bulbs to improve efficiency\n`;
+    }
+
+    if (c.name === "Waste") {
+      const reductionPotential = (c.value * 0.35).toFixed(1);
+      const waste = data.waste?.[0] || {};
+
+      suggestions += `\n${c.emoji} <strong>Waste (~${Math.round(c.percentage)}% of total):</strong>\n`;
+
+      if (waste.foodWasteKg > waste.paperKg && waste.foodWasteKg > waste.plasticKg) {
+        suggestions += `• Compost your food scraps → Save ~${reductionPotential} kg CO₂/month\n`;
+      }
+      if (waste.plasticKg > waste.paperKg && waste.plasticKg > waste.foodWasteKg) {
+        suggestions += `• Reduce plastic packaging & switch to reusable containers\n`;
+      }
+      if (waste.paperKg > 0) {
+        suggestions += `• Recycle paper properly & use digital alternatives when possible\n`;
+      }
+    }
     }
   });
 

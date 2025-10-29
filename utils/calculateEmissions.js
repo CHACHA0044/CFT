@@ -117,14 +117,23 @@ function calculateEmissions(data) {
   const percentDiff = ((difference / globalAverage) * 100).toFixed(0);
 
   // Opening assessment
-  if (totalEmissionKg <= 250) {
-    suggestions += `🌟 <strong>Excellent work!</strong> Your monthly footprint of <strong>${totalEmissionKg} kg CO₂</strong> is ${Math.abs(percentDiff)}% below the global average (${globalAverage} kg). You're leading by example — keep these sustainable habits strong!\n\n`;
-  } else if (totalEmissionKg <= 392) {
-    suggestions += `🌿 <strong>Well done!</strong> At <strong>${totalEmissionKg} kg CO₂</strong> per month, you're ${Math.abs(percentDiff)}% below the global average (${globalAverage} kg). Small optimizations in your top categories can push you even lower.\n\n`;
-  } else if (totalEmissionKg <= 600) {
-    suggestions += `📊 <strong>You're slightly above average.</strong> Your monthly footprint is <strong>${totalEmissionKg} kg CO₂</strong> — about ${percentDiff}% higher than the global average (${globalAverage} kg). Focus on your biggest contributors below for quick wins.\n\n`;
-  } else {
-    suggestions += `🔥 <strong>Time to take action!</strong> At <strong>${totalEmissionKg} kg CO₂</strong> per month, you're ${percentDiff}% above the global average (${globalAverage} kg). The good news? Your top emission sources offer the biggest opportunities for reduction.\n\n`;
+  if (totalEmissionKg <= 150) {
+  suggestions += `🌎 <strong>Outstanding!</strong> Your footprint of <strong>${totalEmissionKg} kg CO₂</strong> is a remarkable ${Math.abs(percentDiff)}% below the global average (${globalAverage} kg). This is well within the range of sustainable living — you're truly a climate leader!\n\n`;
+  } 
+  else if (totalEmissionKg <= 300) {
+    suggestions += `🌿 <strong>Great job!</strong> Your emissions are ${Math.abs(percentDiff)}% lower than the global average (${globalAverage} kg/month). You’re living efficiently — small steps like waste control or renewable energy could make you carbon-light!\n\n`;
+  } 
+  else if (totalEmissionKg > 300 && totalEmissionKg <= 450) {
+    suggestions += `📈 <strong>You're around the global average.</strong> With <strong>${totalEmissionKg} kg CO₂</strong>/month, you're within ±${Math.abs(percentDiff)}% of the world norm (${globalAverage} kg). Minor tweaks in your highest category can make you a below-average emitter.\n\n`;
+  } 
+  else if (totalEmissionKg > 450 && totalEmissionKg <= 700) {
+    suggestions += `⚠️ <strong>Slightly above global norms.</strong> Your monthly footprint (<strong>${totalEmissionKg} kg CO₂</strong>) is roughly ${percentDiff}% higher than the global average (${globalAverage} kg). Reducing private transport or improving home energy efficiency can close the gap.\n\n`;
+  } 
+  else if (totalEmissionKg > 700 && totalEmissionKg <= 1000) {
+    suggestions += `🔥 <strong>High emissions detected.</strong> At <strong>${totalEmissionKg} kg CO₂</strong>/month, you're ${percentDiff}% above the global average (${globalAverage} kg). Focusing on your biggest categories could quickly bring you in line with sustainable levels.\n\n`;
+  } 
+  else {
+    suggestions += `🚨 <strong>Critical zone!</strong> Your footprint of <strong>${totalEmissionKg} kg CO₂</strong>/month is ${percentDiff}% above the global average (${globalAverage} kg). You’re emitting more than most people worldwide — but your top two categories hold major reduction opportunities.\n\n`;
   }
 
   suggestions += `<strong>📍 Your Emission Breakdown:</strong>\n`;

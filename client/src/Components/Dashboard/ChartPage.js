@@ -1971,11 +1971,11 @@ if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
               >
                 <Lottie
                   animationData={
-                  u.totalEmission <= 350
+                  u.totalEmission <= 250
                     ? IceAnimation
-                    : u.totalEmission <= 700
+                    : u.totalEmission <= 450
                     ? SunAnimation
-                    : u.totalEmission <= 1000
+                    : u.totalEmission <= 800
                     ? FireAnimation
                     : DragonAnimation
                 }

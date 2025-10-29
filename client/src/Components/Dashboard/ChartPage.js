@@ -2006,9 +2006,9 @@ if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
             transition={{ duration: 1.5, ease: 'easeOut' }}
             className={`h-2 rounded-full relative overflow-hidden
               ${isMe ? 'bg-gradient-to-r from-green-300 to-green-500' :
-                u.totalEmission <= 350 ? 'bg-gradient-to-r from-blue-300 to-blue-500' :
-                u.totalEmission <= 700 ? 'bg-gradient-to-r from-yellow-300 to-yellow-500' :
-                u.totalEmission <= 1000 ? 'bg-gradient-to-r from-red-300 to-red-500' :
+                u.totalEmission <= 250 ? 'bg-gradient-to-r from-blue-300 to-blue-500' :
+                u.totalEmission <= 450 ? 'bg-gradient-to-r from-yellow-300 to-yellow-500' :
+                u.totalEmission <= 800 ? 'bg-gradient-to-r from-red-300 to-red-500' :
                 'bg-gradient-to-r from-purple-400 to-purple-600'}
             `}
           >

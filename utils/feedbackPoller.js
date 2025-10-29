@@ -61,7 +61,7 @@ async function scanFeedbackMessages(client) {
           continue;
         }
 
-        console.log(`🔍 Feedback detected | UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
+        //console.log(`🔍 Feedback detected | UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
 
         // Update user feedback status (only if not already marked)
         try {
@@ -84,9 +84,9 @@ async function scanFeedbackMessages(client) {
             });
             
             if (existingUser) {
-              console.log(`ℹ️ User ${fromAddr} already marked as feedback given`);
+             // console.log(`ℹ️ User ${fromAddr} already marked as feedback given`);
             } else {
-              console.log(`ℹ️ No user found for ${fromAddr}`);
+             // console.log(`ℹ️ No user found for ${fromAddr}`);
             }
           }
 

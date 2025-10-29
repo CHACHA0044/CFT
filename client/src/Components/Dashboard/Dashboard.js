@@ -774,12 +774,7 @@ useEffect(() => {
   <span className="absolute left-[5px] -top-[10px] animate-smoke text-[10px] opacity-30 delay-800">☁️</span>
   <span className="inline-block">🏭</span>
 </div>
- Total Emission <motion.span
-  animate={{ opacity: [1, 0.3, 1] }}
-  transition={{ duration: 0.8, repeat: Infinity }}
->
-  :
-</motion.span> <span>
+ Total Emission <span className="animate-colon-glow">:</span> <span>
   {Math.floor(entry.totalEmissionKg)}
   <span className="hidden sm:inline">
     .{String(entry.totalEmissionKg.toFixed(2)).split('.')[1]}
@@ -798,36 +793,19 @@ useEffect(() => {
   className="px-1 pb-1 transition-all duration-500"
 >
   <h2 className="text-base sm:text-xl md:text-2xl font-normal sm:font-semibold tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500">
-  {openSection === `suggestion-${index}` ? (<>💡 Suggestions <motion.span
-  animate={{ opacity: [1, 0.3, 1] }}
-  transition={{ duration: 0.8, repeat: Infinity }}
->
-  :
-</motion.span>
+  {openSection === `suggestion-${index}` ? (<><span className="animate-idea-glow">💡</span> Suggestions <span className="animate-colon-glow">:</span>
 </>) : (
     <>
-      <span className="animate-pulse">💡</span> Suggestions
-      <motion.span
-        className="inline-block text-lg font-normal sm:text-2xl sm:font-bold ml-1"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-      >
+      <span className="animate-lightbulb-pulse">💡</span> Suggestions
+      <span className="inline-block text-lg font-normal sm:text-2xl sm:font-bold ml-1 animate-dot-glow-1">
         .
-      </motion.span>
-      <motion.span
-        className="inline-block text-lg font-normal sm:text-2xl sm:font-bold"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-      >
+      </span>
+      <span className="inline-block text-lg font-normal sm:text-2xl sm:font-bold animate-dot-glow-2">
         .
-      </motion.span>
-      <motion.span
-        className="inline-block text-lg font-normal sm:text-2xl sm:font-bold"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
-      >
+      </span>
+      <span className="inline-block text-lg font-normal sm:text-2xl sm:font-bold animate-dot-glow-3">
         .
-      </motion.span>
+      </span>
     </>
   )}
   </h2>

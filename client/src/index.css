@@ -1771,3 +1771,337 @@ html {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
+/* 🥗 Food Bowl Animation - gentle toss with lettuce leaves */
+.animate-food-bowl {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: bowl-toss 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #10b981);
+}
+
+@keyframes bowl-toss {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 3px #10b981);
+  }
+  25% {
+    transform: translateY(-3px) rotate(-2deg);
+    filter: drop-shadow(0 0 6px #34d399);
+  }
+  50% {
+    transform: translateY(-5px) rotate(0deg);
+    filter: drop-shadow(0 0 8px #10b981);
+  }
+  75% {
+    transform: translateY(-3px) rotate(2deg);
+    filter: drop-shadow(0 0 6px #34d399);
+  }
+}
+
+/* Floating veggie particles */
+.animate-food-bowl::before,
+.animate-food-bowl::after {
+  content: '🌿';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: veggie-float 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animate-food-bowl::before {
+  top: -0.6em;
+  left: -0.5em;
+  animation-delay: 0.8s;
+}
+
+.animate-food-bowl::after {
+  top: -0.5em;
+  right: -0.5em;
+  animation-delay: 1.8s;
+}
+
+@keyframes veggie-float {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(0.7);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-12px) rotate(20deg) scale(1);
+  }
+  85% {
+    opacity: 0.6;
+    transform: translateY(-18px) rotate(40deg) scale(0.9);
+  }
+}
+
+/* 🚗 Car Animation - driving with exhaust trail */
+.animate-car-drive {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: car-bounce 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #60a5fa);
+}
+
+@keyframes car-bounce {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+    filter: drop-shadow(0 0 3px #60a5fa);
+  }
+  25% {
+    transform: translateX(-2px) translateY(-1px);
+    filter: drop-shadow(0 0 6px #93c5fd);
+  }
+  50% {
+    transform: translateX(2px) translateY(0);
+    filter: drop-shadow(0 0 8px #60a5fa);
+  }
+  75% {
+    transform: translateX(-1px) translateY(-1px);
+    filter: drop-shadow(0 0 6px #93c5fd);
+  }
+}
+
+/* Exhaust smoke trail */
+.animate-car-drive::before,
+.animate-car-drive::after {
+  content: '💨';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: exhaust-puff 2.8s ease-out infinite;
+  pointer-events: none;
+  left: 5.0em;
+  top: 40%;
+}
+
+.animate-car-drive::after {
+  animation-delay: 1.4s;
+  font-size: 0.4rem;
+}
+
+@keyframes exhaust-puff {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translateX(0) scale(0.5);
+  }
+  65% {
+    opacity: 0.8;
+    transform: translateX(-8px) scale(1);
+  }
+  80% {
+    opacity: 0.4;
+    transform: translateX(-16px) scale(1.2);
+  }
+}
+
+/* ⚡ Electricity Animation - crackling energy bolts */
+.animate-electricity {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  color: #fde047;
+  animation: electric-pulse 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #fde047) drop-shadow(0 0 10px #facc15);
+}
+
+@keyframes electric-pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px #fde047) drop-shadow(0 0 8px #facc15);
+  }
+  25% {
+    transform: scale(1.15) rotate(-5deg);
+    filter: drop-shadow(0 0 8px #fef08a) drop-shadow(0 0 15px #fde047);
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+    filter: drop-shadow(0 0 10px #fde047) drop-shadow(0 0 20px #facc15);
+  }
+  75% {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 0 8px #fef08a) drop-shadow(0 0 15px #fde047);
+  }
+}
+
+/* Electric spark bursts */
+.animate-electricity::before,
+.animate-electricity::after {
+  content: '⚡';
+  position: absolute;
+  font-size: 0.55rem;
+  color: #fef08a;
+  opacity: 0;
+  animation: electric-spark 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-electricity::before {
+  top: -0.5em;
+  left: -0.4em;
+  animation-delay: 0.3s;
+}
+
+.animate-electricity::after {
+  bottom: -0.4em;
+  right: -0.9em;
+  animation-delay: 0.9s;
+}
+
+@keyframes electric-spark {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-3px, -5px) scale(1.2) rotate(180deg);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translate(-5px, -8px) scale(0.9) rotate(270deg);
+  }
+}
+
+/* 🗑️ Waste Bin Animation - lid flip with trash sparkles */
+.animate-waste-bin {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: bin-lid-flip 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #94a3b8);
+}
+
+@keyframes bin-lid-flip {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #94a3b8);
+  }
+  15% {
+    transform: rotate(-12deg) scale(1.05);
+    filter: drop-shadow(0 0 6px #cbd5e1);
+  }
+  25% {
+    transform: rotate(-8deg) scale(1);
+    filter: drop-shadow(0 0 5px #94a3b8);
+  }
+  35% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #94a3b8);
+  }
+}
+
+/* Recycling sparkles */
+.animate-waste-bin::before,
+.animate-waste-bin::after {
+  content: '♻️';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: recycle-sparkle 3.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animate-waste-bin::before {
+  top: -0.7em;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 1.2s;
+}
+
+.animate-waste-bin::after {
+  bottom: 0.5em;
+  left: 0.3em;
+  animation-delay: 2.4s;
+}
+
+@keyframes recycle-sparkle {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-10px) rotate(120deg) scale(1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translateY(-15px) rotate(240deg) scale(0.8);
+  }
+}
+
+/* Alternative: Animated chart with orbiting data points */
+.animate-chart-orbit {
+  position: relative;
+  display: inline-block;
+  font-size: 1.4rem;
+  animation: chart-grow 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #3b82f6);
+}
+
+@keyframes chart-grow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px #3b82f6);
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 10px #60a5fa);
+  }
+}
+
+/* Orbiting data point 1 */
+.animate-chart-orbit::before {
+  content: '•';
+  position: absolute;
+  font-size: 0.4rem;
+  color: #34d399;
+  filter: drop-shadow(0 0 3px #10b981);
+  animation: orbit-point-1 4s linear infinite;
+  pointer-events: none;
+}
+
+/* Orbiting data point 2 */
+.animate-chart-orbit::after {
+  content: '•';
+  position: absolute;
+  font-size: 0.4rem;
+  color: #fbbf24;
+  filter: drop-shadow(0 0 3px #f59e0b);
+  animation: orbit-point-2 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes orbit-point-1 {
+  0% {
+    transform: rotate(0deg) translateX(18px) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: rotate(180deg) translateX(18px) rotate(-180deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(360deg) translateX(18px) rotate(-360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes orbit-point-2 {
+  0% {
+    transform: rotate(180deg) translateX(18px) rotate(-180deg);
+    opacity: 1;
+  }
+  50% {
+    transform: rotate(360deg) translateX(18px) rotate(-360deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(540deg) translateX(18px) rotate(-540deg);
+    opacity: 1;
+  }
+}
+

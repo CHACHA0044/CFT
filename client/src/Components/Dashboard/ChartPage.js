@@ -21,9 +21,9 @@ import { NewEntryButton, EditDeleteButton, DashboardButton, WeatherButton, Logou
 
 const globalAverages = {
   food: 140,
-  transport: 130,
-  electricity: 120,
-  waste: 60,
+  transport: 110,
+  electricity: 90,
+  waste: 50,
 };
 const sentence = "Your Emission Trends";const words = sentence.split(" ");
 
@@ -332,6 +332,7 @@ const ChartPage = () => {
   const [allEntries, setAllEntries] = useState([]);
   const [showECM, setShowECM] = useState(false);
   const [logoutSuccess, setLogoutSuccess] = useState('');
+  const [expandedCategory, setExpandedCategory] = useState(null);
   const navigate = useNavigate();
 
 const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
@@ -800,12 +801,12 @@ return (
             animate={{ scale: 1 }}
           >
             <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
-            <h2 className="sm:text-3xl md:text-5xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="calendar-wrapper calendar-spark">🗓️ </span>Monthly Emissions</h2>
+            <h2 className="sm:text-3xl md:text-4xl text-base text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="calendar-wrapper calendar-spark">🗓️ </span>Total Monthly Emission</h2>
 
           {(() => {
             const [intPart, decimalPart] = total.toFixed(2).split('.');
             return (
-              <p className="sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
+              <p className="sm:text-2xl md:text-3xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
                 {intPart}
                 <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span
             className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
@@ -816,7 +817,228 @@ return (
               </p>
             );
           })()}
+    <motion.div
+      className="mt-2 sm:mt-4 space-y-2"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3, duration: 0.5 }}
+    >
+      <h3 className="text-base sm:text-xl font-intertight font-normal tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-gray-100 mb-3 text-center">
+        <span className="animate-chart-orbit text-2xl">📊</span> Category Breakdown
+      </h3>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-2 sm:relative">
+        {/* Food */}
+        {processed.foodEmissionKg > 0 && (
+          <motion.div
+            className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3 backdrop-blur-sm cursor-pointer sm:col-span-1 transition-shadow duration-300"
+            style={{ gridColumn: expandedCategory === 'food' ? '1 / -1' : 'auto' }}
+            whileHover={{ 
+              scale: 1.03,
+              boxShadow: '0 0 25px rgba(16, 185, 129, 0.6), 0 0 50px rgba(16, 185, 129, 0.3)',
+              transition: { duration: 0.3 }
+            }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setExpandedCategory(prev => prev === 'food' ? null : 'food')}
+            layout
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="animate-food-bowl text-2xl">🥗</span>
+                <span className="text-sm sm:text-base font-medium tracking-wide text-shadow-DEFAULT font-intertight text-emerald-500 dark:text-gray-100">
+                  Food
+                </span>
+              </div>
+              <span className="text-sm sm:text-base font-medium tracking-wide text-shadow-DEFAULT font-intertight text-emerald-500 dark:text-gray-100">
+                {processed.foodEmissionKg.toFixed(1)} kg
+              </span>
+            </div>
+            <motion.div
+              initial={false}
+              animate={{
+                height: expandedCategory === 'food' ? 'auto' : 0,
+                opacity: expandedCategory === 'food' ? 1 : 0
+              }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              {entryData?.food && (
+                <div className="text-xs sm:text-sm text-emerald-500 dark:text-gray-100 space-y-1 pt-2 mt-2 border-t border-emerald-500/30">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{entryData.food.type}</span>
+                    <span>{entryData.food.amountKg} kg</span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
 
+        {/* Transport */}
+        {processed.transportEmissionKg > 0 && (
+          <motion.div
+            className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl p-3 backdrop-blur-sm cursor-pointer sm:col-span-1 transition-shadow duration-300"
+            style={{ gridColumn: expandedCategory === 'transport' ? '1 / -1' : 'auto' }}
+            whileHover={{ 
+              scale: 1.03,
+              boxShadow: '0 0 25px rgba(6, 182, 212, 0.6), 0 0 50px rgba(6, 182, 212, 0.3)',
+              transition: { duration: 0.3 }
+            }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setExpandedCategory(prev => prev === 'transport' ? null : 'transport')}
+            layout
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="animate-car-drive text-2xl">🚗</span>
+                <span className="text-sm sm:text-base font-medium tracking-wide text-shadow-DEFAULT font-intertight text-emerald-500 dark:text-gray-100">
+                  Transport
+                </span>
+              </div>
+              <span className="text-sm sm:text-base font-medium tracking-wide text-shadow-DEFAULT font-intertight text-emerald-500 dark:text-gray-100">
+                {processed.transportEmissionKg.toFixed(1)} kg
+              </span>
+            </div>
+            <motion.div
+              initial={false}
+              animate={{
+                height: expandedCategory === 'transport' ? 'auto' : 0,
+                opacity: expandedCategory === 'transport' ? 1 : 0
+              }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              {entryData?.transport && entryData.transport.length > 0 && (
+                <div className="text-xs sm:text-sm text-emerald-500 dark:text-gray-100 space-y-2 pt-2 mt-2 border-t border-blue-500/30">
+                  {entryData.transport.map((t, idx) => (
+                    <div key={idx} className="flex justify-between items-center">
+                      <span className="font-medium">{t.mode}</span>
+                      <span>{t.distanceKm} km</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Electricity */}
+        {processed.electricityEmissionKg > 0 && (
+          <motion.div
+            className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl p-3 backdrop-blur-sm cursor-pointer sm:col-span-1 transition-shadow duration-300"
+            style={{ gridColumn: expandedCategory === 'electricity' ? '1 / -1' : 'auto' }}
+            whileHover={{ 
+              scale: 1.03,
+              boxShadow: '0 0 25px rgba(249, 115, 22, 0.6), 0 0 50px rgba(249, 115, 22, 0.3)',
+              transition: { duration: 0.3 }
+            }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setExpandedCategory(prev => prev === 'electricity' ? null : 'electricity')}
+            layout
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="animate-electricity text-2xl">⚡</span>
+                <span className="text-sm sm:text-base font-medium tracking-wide text-shadow-DEFAULT font-intertight text-emerald-500 dark:text-gray-100">
+                  Electricity
+                </span>
+              </div>
+              <span className="text-sm sm:text-base font-medium tracking-wide text-shadow-DEFAULT font-intertight text-emerald-500 dark:text-gray-100">
+                {processed.electricityEmissionKg.toFixed(1)} kg
+              </span>
+            </div>
+            <motion.div
+              initial={false}
+              animate={{
+                height: expandedCategory === 'electricity' ? 'auto' : 0,
+                opacity: expandedCategory === 'electricity' ? 1 : 0
+              }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              {entryData?.electricity && entryData.electricity.length > 0 && (
+                <div className="text-xs sm:text-sm text-emerald-500 dark:text-gray-100 space-y-2 pt-2 mt-2 border-t border-yellow-500/30">
+                  {entryData.electricity.map((e, idx) => (
+                    <div key={idx} className="flex justify-between items-center">
+                      <span className="font-medium">{e.source}</span>
+                      <span>{e.consumptionKwh} kWh</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Waste */}
+        {processed.wasteEmissionKg > 0 && (
+          <motion.div
+            className="bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-xl p-3 backdrop-blur-sm cursor-pointer sm:col-span-1 transition-shadow duration-300"
+            style={{ gridColumn: expandedCategory === 'waste' ? '1 / -1' : 'auto' }}
+            whileHover={{ 
+              scale: 1.03,
+              boxShadow: '0 0 25px rgba(236, 72, 153, 0.6), 0 0 50px rgba(236, 72, 153, 0.3)',
+              transition: { duration: 0.3 }
+            }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setExpandedCategory(prev => prev === 'waste' ? null : 'waste')}
+            layout
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="animate-waste-bin text-2xl">🗑️</span>
+                <span className="text-sm sm:text-base font-medium tracking-wide text-shadow-DEFAULT font-intertight text-emerald-500 dark:text-gray-100">
+                  Waste
+                </span>
+              </div>
+              <span className="text-sm sm:text-base font-medium tracking-wide text-shadow-DEFAULT font-intertight text-emerald-500 dark:text-gray-100">
+                {processed.wasteEmissionKg.toFixed(1)} kg
+              </span>
+            </div>
+            <motion.div
+              initial={false}
+              animate={{
+                height: expandedCategory === 'waste' ? 'auto' : 0,
+                opacity: expandedCategory === 'waste' ? 1 : 0
+              }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              {entryData?.waste && entryData.waste.length > 0 && (
+                <div className="text-xs sm:text-sm text-emerald-500 dark:text-gray-100 space-y-2 pt-2 mt-2 border-t border-red-500/30">
+                  {entryData.waste.map((w, idx) => (
+                    <div key={idx} className="space-y-1">
+                      {w.plasticKg > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span>Plastic:</span>
+                          <span className="font-medium">{w.plasticKg} kg</span>
+                        </div>
+                      )}
+                      {w.paperKg > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span>Paper:</span>
+                          <span className="font-medium">{w.paperKg} kg</span>
+                        </div>
+                      )}
+                      {w.foodWasteKg > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span>Food Waste:</span>
+                          <span className="font-medium">{w.foodWasteKg} kg</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
 {weatherRequested && data && weatherTimestamp ? (
   <div className="mt-4 space-y-4">
     {/* Weather expiry countdown */}

@@ -298,7 +298,11 @@ categories.forEach((c) => {
     foodWithEmission,
     transportWithEmissions,
     electricityWithEmissions,
-    wasteWithEmissions
+    wasteWithEmissions,
+    foodEmissionKg: foodEmission,
+    transportEmissionKg: transportTotal,
+    electricityEmissionKg: electricityTotal,
+    wasteEmissionKg: wasteTotal
   };
 }
 

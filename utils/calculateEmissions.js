@@ -1,8 +1,8 @@
 function calculateEmissions(data) {
-  const MAX_FOOD_KG = 500; // monthly limit
-  const MAX_TRANSPORT_KM = 10000;
-  const MAX_ELECTRICITY_KWH = 2000;
-  const MAX_WASTE_KG = 1000;
+  const MAX_FOOD_KG = 100; // monthly limit
+  const MAX_TRANSPORT_KM = 5000;
+  const MAX_ELECTRICITY_KWH = 1200;
+  const MAX_WASTE_KG = 150;
 
   let capped = false;
 
@@ -112,7 +112,7 @@ function calculateEmissions(data) {
   ].sort((a, b) => b.value - a.value);
 
   // Global average: ~390-400 kg/month
-  const globalAverage = 450;
+  const globalAverage = 400;
   const difference = totalEmissionKg - globalAverage;
   const percentDiff = ((difference / globalAverage) * 100).toFixed(0);
 
@@ -155,87 +155,136 @@ categories.forEach((c) => {
   }
 });
 
-
   suggestions += `\n<strong>💡 Targeted Action Steps:</strong>\n`;
 
-  // Category-specific suggestions (only for significant contributors)
+   // Enhanced category-specific suggestions with new logic
   categories.forEach((c) => {
+    const percent = Math.round(c.percentage);
+    const reductionPotential = (c.value * 0.3).toFixed(1);
+    const level =
+      c.percentage < 15
+        ? "low"
+        : c.percentage < 30
+        ? "moderate"
+        : c.percentage < 50
+        ? "high"
+        : "extreme";
+
     if (c.value / totalEmissionKg > 0.15) { // Only suggest if >15% of total
-    if (c.name === "Food") {
-      const reductionPotential = (c.value * 0.3).toFixed(1);
-      const diet = data.food?.type;
+      suggestions += `\n${c.emoji} <strong>${c.name} (~${percent}% of total):</strong>\n`;
 
-      suggestions += `\n${c.emoji} <strong>Food (~${Math.round(c.percentage)}% of total):</strong>\n`;
+      // 🥗 FOOD SECTION
+      if (c.name === "Food") {
+        const diet = data.food?.type;
 
-      if (diet === "Animal based") {
-        suggestions += `• Try reducing meat portions or add 2-3 plant-based meals per week → Save ~${reductionPotential} kg CO₂/month\n`;
-        suggestions += `• Explore sustainable protein options like lentils, tofu, or eggs\n`;
-      } 
-      else if (diet === "Both") {
-        suggestions += `• Replace half your animal-based meals with plant-based alternatives → Save ~${reductionPotential} kg CO₂/month\n`;
-        suggestions += `• Choose local and seasonal produce to reduce indirect emissions\n`;
-      } 
-      else if (diet === "Plant based") {
-        suggestions += `• You're already plant-based 🌱 — great job!\n`;
-        suggestions += `• Focus on reducing food waste and choosing local, seasonal ingredients\n`;
-      } 
-      else {
-        suggestions += `• Keep track of your food sources — plant-based options greatly reduce CO₂ impact\n`;
-      }
-    }
+        if (level === "low") {
+          suggestions += `• Your food emissions are low — keep focusing on local and seasonal produce.\n`;
+        } else if (level === "moderate") {
+          suggestions += `• Moderate food footprint — great! You can reduce it further by reducing waste and limiting high-impact foods.\n`;
+        } else if (level === "high") {
+          suggestions += `• High food footprint detected. Try meal-planning and mindful protein swaps to cut CO₂ by ~${reductionPotential} kg/month.\n`;
+        } else {
+          suggestions += `• Food emissions are extremely high — big changes like switching diets or reducing meat portions could save massive CO₂.\n`;
+        }
 
-    if (c.name === "Transport") {
-      const reductionPotential = (c.value * 0.25).toFixed(1);
-      const modes = data.transport?.map(t => t.mode) || [];
-
-      suggestions += `\n${c.emoji} <strong>Transport (~${Math.round(c.percentage)}% of total):</strong>\n`;
-
-      if (modes.includes("Flights")) {
-        suggestions += `• Consider reducing short-haul flights — trains emit up to 80% less CO₂\n`;
-      }
-      if (modes.includes("Car")) {
-        suggestions += `• Replace 1–2 car trips per week with public transit or carpooling → Save ~${reductionPotential} kg CO₂/month\n`;
-      }
-      if (modes.includes("Bus") || modes.includes("Metro") || modes.includes("Train")) {
-        suggestions += `• You're already using efficient transport 👍 — keep it up!\n`;
-      }
-      if (modes.includes("Bike") || modes.includes("Walking")) {
-        suggestions += `• Great job choosing low-carbon transport options 🚲🚶\n`;
-      }
-    }
-
-    if (c.name === "Electricity") {
-      const reductionPotential = (c.value * 0.2).toFixed(1);
-      const sources = data.electricity?.map(e => e.source) || [];
-
-      suggestions += `\n${c.emoji} <strong>Electricity (~${Math.round(c.percentage)}% of total):</strong>\n`;
-
-      if (sources.includes("Coal") || sources.includes("Mixed")) {
-        suggestions += `• Switch part of your usage to renewable sources → Save ~${reductionPotential} kg CO₂/month\n`;
-      }
-      if (sources.includes("Solar") || sources.includes("Wind") || sources.includes("Hydro")) {
-        suggestions += `• Excellent — your clean energy usage is already lowering emissions ⚡\n`;
+        if (diet === "Animal based") {
+          suggestions += `• Try one or two meat-free days weekly.\n• Explore lentils, tofu, or eggs as lower-impact protein sources.\n`;
+        } else if (diet === "Both") {
+          suggestions += `• Replace half your animal-based meals with plant options — substantial savings!\n`;
+        } else if (diet === "Plant based") {
+          suggestions += `• Excellent choice 🌱 Focus on waste reduction and locally grown foods.\n`;
+        } else {
+          suggestions += `• Track your diet choices to estimate food emissions more precisely.\n`;
+        }
       }
 
-      suggestions += `• Unplug idle devices & use LED bulbs to improve efficiency\n`;
-    }
+      // 🚗 TRANSPORT SECTION
+      if (c.name === "Transport") {
+        const modes = data.transport?.map((t) => t.mode) || [];
+        const totalTransport = data.transport?.length || 0;
 
-    if (c.name === "Waste") {
-      const reductionPotential = (c.value * 0.35).toFixed(1);
-      const waste = data.waste?.[0] || {};
+        if (level === "low") {
+          suggestions += `• Efficient travel habits detected — keep choosing sustainable options.\n`;
+        } else if (level === "moderate") {
+          suggestions += `• Your transport footprint is moderate — a few simple swaps could reduce emissions significantly.\n`;
+        } else if (level === "high") {
+          suggestions += `• Transport is a major emission source — reducing private vehicle use could save ~${reductionPotential} kg/month.\n`;
+        } else {
+          suggestions += `• Extremely high transport emissions — consider offsetting and long-term lifestyle changes.\n`;
+        }
 
-      suggestions += `\n${c.emoji} <strong>Waste (~${Math.round(c.percentage)}% of total):</strong>\n`;
+        if (modes.includes("Flights")) {
+          suggestions += `• Limit short flights or combine trips; trains emit up to 80% less CO₂.\n`;
+        }
+        if (modes.includes("Car")) {
+          suggestions += `• Carpool or use EV alternatives when possible.\n• Regular maintenance can improve mileage and cut emissions.\n`;
+        }
+        if (modes.includes("Bus") || modes.includes("Metro") || modes.includes("Train")) {
+          suggestions += `• You're using efficient public transport — keep it up! 🚆\n`;
+        }
+        if (modes.includes("Bike") || modes.includes("Walking")) {
+          suggestions += `• Active transport is the best — zero emissions and good health 🚲🚶‍♂️\n`;
+        }
 
-      if (waste.foodWasteKg > waste.paperKg && waste.foodWasteKg > waste.plasticKg) {
-        suggestions += `• Compost your food scraps → Save ~${reductionPotential} kg CO₂/month\n`;
+        if (totalTransport === 0) {
+          suggestions += `• No transport data found — add your travel patterns for better analysis.\n`;
+        }
       }
-      if (waste.plasticKg > waste.paperKg && waste.plasticKg > waste.foodWasteKg) {
-        suggestions += `• Reduce plastic packaging & switch to reusable containers\n`;
+
+      // ⚡ ELECTRICITY SECTION
+      if (c.name === "Electricity") {
+        const sources = data.electricity?.map((e) => e.source) || [];
+        const totalElectric = data.electricity?.length || 0;
+
+        if (level === "low") {
+          suggestions += `• Excellent — your electricity footprint is already efficient.\n`;
+        } else if (level === "moderate") {
+          suggestions += `• Moderate energy use — unplug idle devices and use smart power strips.\n`;
+        } else if (level === "high") {
+          suggestions += `• High energy footprint. Switching 25% to renewables could save ~${reductionPotential} kg/month.\n`;
+        } else {
+          suggestions += `• Extremely high usage — consider solar panels or community energy programs.\n`;
+        }
+
+        if (sources.includes("Coal")) {
+          suggestions += `• Coal-based power increases CO₂ — explore green power subscriptions.\n`;
+        }
+        if (sources.includes("Mixed")) {
+          suggestions += `• Mixed sources: prioritizing renewables can reduce footprint.\n`;
+        }
+        if (sources.includes("Solar") || sources.includes("Wind") || sources.includes("Hydro")) {
+          suggestions += `• Great job incorporating renewables ⚡\n`;
+        }
+
+        if (totalElectric === 0) {
+          suggestions += `• No electricity data yet — add your monthly usage for accurate insights.\n`;
+        }
       }
-      if (waste.paperKg > 0) {
-        suggestions += `• Recycle paper properly & use digital alternatives when possible\n`;
+
+      // 🗑️ WASTE SECTION
+      if (c.name === "Waste") {
+        const waste = data.waste?.[0] || {};
+
+        if (level === "low") {
+          suggestions += `• Low waste footprint — maintain your eco-friendly habits ♻️\n`;
+        } else if (level === "moderate") {
+          suggestions += `• Moderate waste levels — separate recyclables consistently.\n`;
+        } else if (level === "high") {
+          suggestions += `• High waste generation — compost and recycle more to cut ~${reductionPotential} kg/month.\n`;
+        } else {
+          suggestions += `• Extremely high waste levels — rethink purchases, reuse, and compost aggressively.\n`;
+        }
+
+        if (waste.foodWasteKg > waste.paperKg && waste.foodWasteKg > waste.plasticKg) {
+          suggestions += `• Composting food waste could reduce your footprint notably.\n`;
+        }
+        if (waste.plasticKg > waste.paperKg && waste.plasticKg > waste.foodWasteKg) {
+          suggestions += `• Reduce plastic packaging, bring your own containers.\n`;
+        }
+        if (waste.paperKg > 0) {
+          suggestions += `• Recycle paper and go digital when possible.\n`;
+        }
       }
-    }
     }
   });
 

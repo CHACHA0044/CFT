@@ -492,12 +492,7 @@ return (
               <span className="inline-block">🏭</span>
             </div>{' '}
             Total Emission{' '}
-            <motion.span
-              animate={{ opacity: [1, 0.3, 1] }}
-              transition={{ duration: 0.8, repeat: Infinity }}
-            >
-              :
-            </motion.span>{' '}
+            <span className="animate-colon-glow">:</span>{' '}
             <span>
               {Math.floor(entry.totalEmissionKg)}
               <span className="hidden sm:inline">

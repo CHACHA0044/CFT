@@ -827,7 +827,7 @@ return (
         <span className="animate-chart-orbit text-2xl">📊</span> Category Breakdown
       </h3>
       
-      <div className="grid grid-cols-1 sm:grid-cols-1 gap-2 sm:relative">
+      <div className="grid grid-cols-1 gap-2 sm:relative">
         {/* Food */}
         {processed.foodEmissionKg > 0 && (
           <motion.div

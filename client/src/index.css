@@ -2389,3 +2389,750 @@ html {
     transform: scale(1) translateY(0);
   }
 }
+/* 𓌉◯𓇋 Diet Symbol Animation - gentle breathing */
+.animate-diet-symbol {
+  display: inline-block;
+  animation: diet-breathe 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+@keyframes diet-breathe {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08) rotate(2deg);
+    filter: drop-shadow(0 0 6px currentColor);
+  }
+}
+
+/* 🛸 Transport/UFO Animation - hovering with beam */
+.animate-transport-ufo {
+  position: relative;
+  display: inline-block;
+  animation: ufo-hover 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #60a5fa);
+}
+
+@keyframes ufo-hover {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+    filter: drop-shadow(0 0 4px #60a5fa);
+  }
+  25% {
+    transform: translateY(-3px) rotate(0deg);
+    filter: drop-shadow(0 0 8px #93c5fd);
+  }
+  50% {
+    transform: translateY(-5px) rotate(2deg);
+    filter: drop-shadow(0 0 10px #60a5fa);
+  }
+  75% {
+    transform: translateY(-3px) rotate(0deg);
+    filter: drop-shadow(0 0 8px #93c5fd);
+  }
+}
+
+/* Beam effect below UFO */
+.animate-transport-ufo::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid rgba(147, 197, 253, 0.4);
+  opacity: 0;
+  animation: beam-pulse 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes beam-pulse {
+  0%, 100% {
+    opacity: 0;
+    transform: translateX(-50%) scaleY(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(-50%) scaleY(1);
+  }
+}
+
+/* ❌ Remove/Cross Animation - rotating warning */
+.animate-remove-cross {
+  display: inline-block;
+  animation: cross-warn 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #ef4444);
+}
+
+@keyframes cross-warn {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px #ef4444);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.15) rotate(-10deg);
+    filter: drop-shadow(0 0 6px #f87171);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+    filter: drop-shadow(0 0 8px #ef4444);
+    opacity: 0.7;
+  }
+  75% {
+    transform: scale(1.15) rotate(10deg);
+    filter: drop-shadow(0 0 6px #f87171);
+    opacity: 0.85;
+  }
+}
+
+/* + Plus/Add Animation - expanding with sparkle */
+.animate-add-plus {
+  position: relative;
+  display: inline-block;
+  animation: plus-expand 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #10b981);
+}
+
+@keyframes plus-expand {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px #10b981);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.25) rotate(90deg);
+    filter: drop-shadow(0 0 8px #34d399);
+    opacity: 0.8;
+  }
+  80% {
+    transform: scale(1.1) rotate(180deg);
+    filter: drop-shadow(0 0 5px #10b981);
+    opacity: 0.9;
+  }
+}
+
+/* Sparkle effect around plus */
+.animate-add-plus::before {
+  content: '+';
+  position: absolute;
+  font-size: 0.5em;
+  top: -0.4em;
+  right: -0.4em;
+  opacity: 0;
+  animation: plus-sparkle 2.5s ease-out infinite;
+  pointer-events: none;
+  color: #6ee7b7;
+}
+
+@keyframes plus-sparkle {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+  90% {
+    opacity: 0.5;
+    transform: scale(0.8) rotate(270deg);
+  }
+}
+
+/* ⚡ Lightning/Electricity Animation - crackling energy */
+.animate-electric-bolt {
+  position: relative;
+  display: inline-block;
+  animation: bolt-crackle 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #fde047);
+}
+
+@keyframes bolt-crackle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px #fde047) drop-shadow(0 0 8px #facc15);
+    opacity: 1;
+  }
+  15% {
+    transform: scale(1.2) rotate(-8deg);
+    filter: drop-shadow(0 0 8px #fef08a) drop-shadow(0 0 16px #fde047);
+    opacity: 0.9;
+  }
+  30% {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 0 6px #fde047) drop-shadow(0 0 12px #facc15);
+    opacity: 1;
+  }
+  45% {
+    transform: scale(1.25) rotate(-5deg);
+    filter: drop-shadow(0 0 10px #fef08a) drop-shadow(0 0 20px #fde047);
+    opacity: 0.85;
+  }
+  60% {
+    transform: scale(1.1) rotate(0deg);
+    filter: drop-shadow(0 0 6px #fde047) drop-shadow(0 0 12px #facc15);
+    opacity: 1;
+  }
+}
+
+/* Electric sparks around bolt */
+.animate-electric-bolt::before,
+.animate-electric-bolt::after {
+  content: '•';
+  position: absolute;
+  font-size: 0.4em;
+  color: #fef08a;
+  opacity: 0;
+  animation: bolt-spark 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-electric-bolt::before {
+  top: -0.5em;
+  left: -0.5em;
+  animation-delay: 0.2s;
+}
+
+.animate-electric-bolt::after {
+  bottom: -0.5em;
+  right: -0.5em;
+  animation-delay: 0.6s;
+}
+
+@keyframes bolt-spark {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  90% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+/* 🗑️ Waste Bin Animation - lid opening with disposal */
+.animate-waste-dispose {
+  position: relative;
+  display: inline-block;
+  animation: bin-open 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #94a3b8);
+}
+
+@keyframes bin-open {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #94a3b8);
+  }
+  12% {
+    transform: rotate(-10deg) scale(1.05);
+    filter: drop-shadow(0 0 6px #cbd5e1);
+  }
+  24% {
+    transform: rotate(-5deg) scale(1.02);
+    filter: drop-shadow(0 0 5px #94a3b8);
+  }
+  36% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #94a3b8);
+  }
+}
+
+/* Waste particles dropping into bin */
+.animate-waste-dispose::before {
+  content: '♻️';
+  position: absolute;
+  font-size: 0.45em;
+  top: -0.8em;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: waste-drop 3.5s ease-in infinite;
+  pointer-events: none;
+}
+
+@keyframes waste-drop {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.7) rotate(0deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(10px) scale(1) rotate(120deg);
+  }
+  85% {
+    opacity: 0.7;
+    transform: translateX(-50%) translateY(22px) scale(0.8) rotate(240deg);
+  }
+  95% {
+    opacity: 0.2;
+    transform: translateX(-50%) translateY(28px) scale(0.5) rotate(360deg);
+  }
+}
+/* === FOOD OPTIONS === */
+
+/* 🍖 Meat Animation - sizzling on grill */
+.animate-meat-sizzle {
+  display: inline-block;
+  animation: meat-sizzle 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #ef4444);
+}
+
+@keyframes meat-sizzle {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #ef4444);
+  }
+  25% {
+    transform: translateY(-1px) scale(1.05);
+    filter: drop-shadow(0 0 5px #f87171);
+  }
+  50% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 6px #ef4444);
+  }
+  75% {
+    transform: translateY(-1px) scale(1.05);
+    filter: drop-shadow(0 0 5px #f87171);
+  }
+}
+
+/* 🪴 Plant Animation - growing with leaves */
+.animate-plant-grow {
+  position: relative;
+  display: inline-block;
+  animation: plant-grow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #10b981);
+}
+
+@keyframes plant-grow {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 3px #10b981);
+  }
+  50% {
+    transform: scale(1.12) translateY(-2px);
+    filter: drop-shadow(0 0 6px #34d399);
+  }
+}
+
+/* Floating leaf particle */
+.animate-plant-grow::after {
+  content: '🍃';
+  position: absolute;
+  font-size: 0.4em;
+  top: -0.5em;
+  right: -0.5em;
+  opacity: 0;
+  animation: leaf-float 3s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes leaf-float {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(0.6);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-8px) rotate(20deg) scale(1);
+  }
+  90% {
+    opacity: 0.5;
+    transform: translateY(-15px) rotate(40deg) scale(0.8);
+  }
+}
+
+/* 🍔 Burger Animation - stacking layers */
+.animate-burger-stack {
+  display: inline-block;
+  animation: burger-bounce 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #f59e0b);
+}
+
+@keyframes burger-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #f59e0b);
+  }
+  30% {
+    transform: translateY(-3px) scale(1.08);
+    filter: drop-shadow(0 0 6px #fbbf24);
+  }
+  60% {
+    transform: translateY(-1px) scale(1.04);
+    filter: drop-shadow(0 0 5px #f59e0b);
+  }
+}
+
+/* === TRANSPORT OPTIONS === */
+
+/* 🏎️ Race Car Animation - speeding with motion blur */
+.animate-race-car {
+  display: inline-block;
+  animation: race-speed 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #ef4444);
+}
+
+@keyframes race-speed {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    filter: drop-shadow(0 0 3px #ef4444);
+  }
+  40% {
+    transform: translateX(2px) scale(1.08);
+    filter: drop-shadow(0 0 6px #f87171);
+  }
+  80% {
+    transform: translateX(-1px) scale(1.04);
+    filter: drop-shadow(0 0 5px #ef4444);
+  }
+}
+
+/* 🏍️ Motorcycle Animation - leaning into turns */
+.animate-motorcycle {
+  display: inline-block;
+  animation: bike-lean 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #f59e0b);
+}
+
+@keyframes bike-lean {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #f59e0b);
+  }
+  25% {
+    transform: rotate(-5deg) scale(1.06);
+    filter: drop-shadow(0 0 5px #fbbf24);
+  }
+  75% {
+    transform: rotate(5deg) scale(1.06);
+    filter: drop-shadow(0 0 5px #fbbf24);
+  }
+}
+
+/* 🚐 Bus Animation - gentle road bounce */
+.animate-bus-ride {
+  display: inline-block;
+  animation: bus-bounce 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #3b82f6);
+}
+
+@keyframes bus-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #3b82f6);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.05);
+    filter: drop-shadow(0 0 5px #60a5fa);
+  }
+}
+
+/* 🚊 Metro Animation - sliding on rails */
+.animate-metro-slide {
+  display: inline-block;
+  animation: metro-glide 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #8b5cf6);
+}
+
+@keyframes metro-glide {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    filter: drop-shadow(0 0 3px #8b5cf6);
+  }
+  50% {
+    transform: translateX(3px) scale(1.05);
+    filter: drop-shadow(0 0 6px #a78bfa);
+  }
+}
+
+/* 🚂 Train Animation - chugging steam */
+.animate-train-chug {
+  position: relative;
+  display: inline-block;
+  animation: train-move 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #6366f1);
+}
+
+@keyframes train-move {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    filter: drop-shadow(0 0 3px #6366f1);
+  }
+  25% {
+    transform: translateX(-1px) scale(1.04);
+    filter: drop-shadow(0 0 5px #818cf8);
+  }
+  75% {
+    transform: translateX(1px) scale(1.04);
+    filter: drop-shadow(0 0 5px #818cf8);
+  }
+}
+
+/* Steam puff from train */
+.animate-train-chug::after {
+  content: '💨';
+  position: absolute;
+  font-size: 0.4em;
+  left: -0.5em;
+  top: -0.3em;
+  opacity: 0;
+  animation: train-steam 2.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes train-steam {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translateX(0) translateY(0) scale(0.5);
+  }
+  65% {
+    opacity: 0.8;
+    transform: translateX(-8px) translateY(-5px) scale(1);
+  }
+  85% {
+    opacity: 0.3;
+    transform: translateX(-15px) translateY(-10px) scale(1.2);
+  }
+}
+
+/* ✈️ Airplane Animation - soaring with trail */
+.animate-airplane-soar {
+  position: relative;
+  display: inline-block;
+  animation: plane-soar 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #06b6d4);
+}
+
+@keyframes plane-soar {
+  0%, 100% {
+    transform: translateY(0) rotate(-5deg) scale(1);
+    filter: drop-shadow(0 0 3px #06b6d4);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0deg) scale(1.08);
+    filter: drop-shadow(0 0 6px #22d3ee);
+  }
+}
+
+/* Contrail effect */
+.animate-airplane-soar::after {
+  content: '⋯';
+  position: absolute;
+  font-size: 0.6em;
+  left: -1em;
+  top: 50%;
+  opacity: 0;
+  color: #bae6fd;
+  animation: contrail 3.2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes contrail {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  70% {
+    opacity: 0.7;
+    transform: translateX(-5px);
+  }
+  90% {
+    opacity: 0.2;
+    transform: translateX(-12px);
+  }
+}
+
+/* === ELECTRICITY OPTIONS === */
+
+/* 🔥 Coal/Fire Animation - flickering flames */
+.animate-coal-fire {
+  display: inline-block;
+  animation: fire-flicker 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #f59e0b);
+}
+
+@keyframes fire-flicker {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 4px #f59e0b) drop-shadow(0 0 8px #ef4444);
+  }
+  25% {
+    transform: scale(1.15) translateY(-2px);
+    filter: drop-shadow(0 0 8px #fbbf24) drop-shadow(0 0 12px #f87171);
+  }
+  50% {
+    transform: scale(1.08) translateY(-1px);
+    filter: drop-shadow(0 0 6px #f59e0b) drop-shadow(0 0 10px #ef4444);
+  }
+  75% {
+    transform: scale(1.12) translateY(-2px);
+    filter: drop-shadow(0 0 7px #fbbf24) drop-shadow(0 0 11px #f87171);
+  }
+}
+
+/* ☀️ Solar Animation - radiating warmth */
+.animate-solar-radiate {
+  position: relative;
+  display: inline-block;
+  animation: sun-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #fbbf24);
+}
+
+@keyframes sun-pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 5px #fbbf24) drop-shadow(0 0 10px #f59e0b);
+  }
+  50% {
+    transform: scale(1.15) rotate(180deg);
+    filter: drop-shadow(0 0 10px #fde047) drop-shadow(0 0 20px #fbbf24);
+  }
+}
+
+/* Sun rays expanding */
+.animate-solar-radiate::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.5em;
+  top: -0.5em;
+  right: -0.5em;
+  opacity: 0;
+  animation: sun-rays 3s ease-out infinite;
+  pointer-events: none;
+  color: #fef08a;
+}
+
+@keyframes sun-rays {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  90% {
+    opacity: 0.4;
+    transform: scale(0.9) rotate(270deg);
+  }
+}
+
+/* ༄ Wind Animation - flowing breeze */
+.animate-wind-flow {
+  display: inline-block;
+  animation: wind-sway 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #06b6d4);
+}
+
+@keyframes wind-sway {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #06b6d4);
+  }
+  33% {
+    transform: translateX(3px) rotate(5deg) scale(1.05);
+    filter: drop-shadow(0 0 5px #22d3ee);
+  }
+  66% {
+    transform: translateX(-3px) rotate(-5deg) scale(1.05);
+    filter: drop-shadow(0 0 5px #22d3ee);
+  }
+}
+
+/* 🌊 Hydro/Wave Animation - water rippling */
+.animate-hydro-wave {
+  display: inline-block;
+  animation: wave-ripple 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #3b82f6);
+}
+
+@keyframes wave-ripple {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #3b82f6);
+  }
+  25% {
+    transform: translateY(-2px) scale(1.06);
+    filter: drop-shadow(0 0 5px #60a5fa);
+  }
+  50% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 4px #3b82f6);
+  }
+  75% {
+    transform: translateY(-2px) scale(1.06);
+    filter: drop-shadow(0 0 5px #60a5fa);
+  }
+}
+
+/* 𓇼 Mixed/Shell Animation - ocean shimmer */
+.animate-mixed-shimmer {
+  display: inline-block;
+  animation: shell-shimmer 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #8b5cf6);
+}
+
+@keyframes shell-shimmer {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px #8b5cf6);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 6px #a78bfa);
+    opacity: 0.85;
+  }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optional: Enhanced shake with vertical movement */
+@keyframes shakeIntense {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: translate(-8px, -2px) rotate(-1deg); }
+  20%, 40%, 60%, 80% { transform: translate(8px, 2px) rotate(1deg); }
+}
+
+.animate-shake-intense {
+  animation: shakeIntense 0.6s ease-in-out;
+}
+@layer base {
+  /* Hide number input spinners */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}

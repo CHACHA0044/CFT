@@ -474,7 +474,9 @@ Carbon Footprint Tracker
 
     {/* Feedback Email */}
     <motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
-    Tell us what you think<span className="exclaim">!</span>{' '}
+    Tell us what you think!
+    {/* <span className="exclaim">!</span> */}
+    {' '}
     <a
     href={`mailto:carbontracker.noreply@gmail.com?subject=${subject}`}
     onClick={handleEmailClick}
@@ -506,7 +508,8 @@ Carbon Footprint Tracker
       rel="noopener noreferrer"
       className="underline decoration-emerald-500/50 hover:decoration-emerald-500 text-emerald-300 hover:text-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"
     >
-      Privacy Policy<span className="emoji privacy">🔒</span>
+      Privacy Policy🔒
+      {/* <span className="emoji privacy">🔒</span> */}
     </a>{' '}
     and{' '}
     <a
@@ -515,7 +518,8 @@ Carbon Footprint Tracker
       rel="noopener noreferrer"
       className="underline decoration-emerald-500/50 hover:decoration-emerald-500 text-emerald-300 hover:text-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"
     >
-      Terms<span className="emoji terms">📄</span>
+      Terms📄
+      {/* <span className="emoji terms">📄</span> */}
     </a>.
     </p>
 </motion.p>

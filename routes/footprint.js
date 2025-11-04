@@ -68,52 +68,86 @@ router.get('/history', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
- 
-// Leaderboard - compare nth entry
+
+// Leaderboard - compare nth entry (with entry data)
 router.get('/leaderboard-nth', authenticateToken, async (req, res) => {
   try {
     const n = parseInt(req.query.n);
     if (isNaN(n) || n < 0) {
       return res.status(400).json({ error: 'Invalid entry index' });
     }
-
+    
     const currentUser = await User.findOne({ email: req.user.email });
     if (!currentUser) {
       return res.status(404).json({ error: 'User not found' });
     }
-
+    
     const allUsers = await User.find({});
     const leaderboard = [];
-
+    
     for (const user of allUsers) {
       const carbonEntry = await CarbonEntry.findOne({ email: user.email });
-      if (!carbonEntry || !carbonEntry.entries.length) continue;
-
-      // Sorting entries newest to oldest
-      const sorted = [...carbonEntry.entries].sort((a, b) =>
-        new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+      if (!carbonEntry || !carbonEntry.entries?.length) continue;
+      
+      const sortedEntries = [...carbonEntry.entries].sort(
+        (a, b) =>
+          new Date(b.updatedAt || b.createdAt) -
+          new Date(a.updatedAt || a.createdAt)
       );
-
+      
       let selectedEntry = null;
       for (let i = n; i >= 0; i--) {
-        if (sorted[i]) {
-          selectedEntry = sorted[i];
+        if (sortedEntries[i]) {
+          selectedEntry = sortedEntries[i];
           break;
         }
       }
-
-      if (selectedEntry) {
-        const processed = calculateEmissions(selectedEntry); 
-        leaderboard.push({
-          name: user.name,
-          email: user.email,
-          totalEmission: processed.totalEmissionKg,
-        });
-      }
+      
+      if (!selectedEntry) continue;
+      
+      const processed = calculateEmissions(selectedEntry);
+      
+      // ✅ Create clean entry with proper structure
+      const cleanEntry = {
+        _id: selectedEntry._id?.toString(),
+        name: selectedEntry.name || user.name,
+        email: user.email,
+        food: selectedEntry.food ? {
+          type: selectedEntry.food.type,
+          amountKg: selectedEntry.food.amountKg
+        } : null,
+        transport: selectedEntry.transport?.map(t => ({
+          mode: t.mode,
+          distanceKm: t.distanceKm
+        })) || [],
+        electricity: selectedEntry.electricity?.map(e => ({
+          source: e.source,
+          consumptionKwh: e.consumptionKwh
+        })) || [],
+        waste: selectedEntry.waste?.map(w => ({
+          plasticKg: w.plasticKg || 0,
+          paperKg: w.paperKg || 0,
+          foodWasteKg: w.foodWasteKg || 0
+        })) || [],
+        createdAt: selectedEntry.createdAt,
+        updatedAt: selectedEntry.updatedAt
+      };
+      
+      leaderboard.push({
+        name: user.name,
+        email: user.email,
+        totalEmission: processed.totalEmissionKg,
+        entry: cleanEntry,
+        entryId: selectedEntry._id?.toString(),
+      });
     }
-
-    // Sorting by total emissions ascending
+    
     leaderboard.sort((a, b) => a.totalEmission - b.totalEmission);
+
+    // ✅ Add safety check before sending
+    if (leaderboard.length === 0) {
+      return res.json([]);
+    }
 
     res.json(leaderboard);
   } catch (err) {

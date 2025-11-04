@@ -448,7 +448,7 @@ useEffect(() => {
       rel="noopener noreferrer"
       className="underline hover:text-emerald-500 transition-colors duration-200"
     >
-      Privacy Policy
+      Privacy Policy<span className="emoji privacy">🔒</span> 
     </a>{' '}
     and{' '}
     <a
@@ -457,7 +457,7 @@ useEffect(() => {
       rel="noopener noreferrer"
       className="underline hover:text-emerald-500 transition-colors duration-200"
     >
-      Terms
+      Terms<span className="emoji terms">📄</span>
     </a>.
   </p>
 </div>

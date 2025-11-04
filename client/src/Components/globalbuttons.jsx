@@ -98,6 +98,8 @@ const Icons = {
   GI: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" role="img" > <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" /> </motion.svg>),
   email: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /> <polyline points="22,6 12,13 2,6" /> <path d="M16 10l4-3" /> <path d="M8 10l-4-3" /> </motion.svg> ),
   copy: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect> <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path> </motion.svg>),
+  showMore: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } :  { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <polyline points="6 9 12 15 18 9" /> </motion.svg> ),
+  showLess: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } :  isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <polyline points="18 15 12 9 6 15" /> </motion.svg> ),
 };
 
 const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
@@ -471,6 +473,7 @@ export const buttonColorConfigs = {
     google: { id: 'googleAuth', baseColor: '#4285F4', schemes: [ 'linear-gradient(145deg, #0ea5e9, #0284c7)', 'linear-gradient(145deg, #34A853, #188038)', 'linear-gradient(145deg, #EA4335, #c5221f)', 'linear-gradient(145deg, #FBBC05, #f29900)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
     verifyEmail: { id: 'verifyEmail', baseColor: '#10b981', schemes: [ 'linear-gradient(145deg, #10b981, #059669)', 'linear-gradient(145deg, #14b8a6, #0d9488)', 'linear-gradient(145deg, #06b6d4, #0284c7)', 'linear-gradient(145deg, #3b82f6, #2563eb)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
     copy: { id: 'copy', baseColor: '#10b981', schemes: [ 'linear-gradient(145deg, #10b981, #059669)', 'linear-gradient(145deg, #3b82f6, #2563eb)', 'linear-gradient(145deg, #8b5cf6, #7c3aed)', 'linear-gradient(145deg, #f59e0b, #d97706)','linear-gradient(145deg, #ff7f50, #ff4500)' ]},
+    showMore: { id: 'showMore', baseColor: '#10b981', schemes: [ 'linear-gradient(145deg, #34d399, #059669)', 'linear-gradient(145deg, #22d3ee, #0ea5e9)', 'linear-gradient(145deg, #a78bfa, #7c3aed)', 'linear-gradient(145deg, #f472b6, #ec4899)', 'linear-gradient(145deg, #fbbf24, #f59e0b)' ] },
 };
 
 // overall exportss
@@ -692,5 +695,28 @@ export const CopyButton = ({ textToCopy, className, ...props }) => {
     />
   );
 };
-
+export const ShowMoreButton = ({ showAll, totalCount, visibleCount, onClick, className, ...props }) => {
+  const displayText = showAll 
+    ? 'Show Less' 
+    : `Show more (${totalCount - visibleCount})`;
+  
+  const iconType = showAll ? 'showLess' : 'showMore';
+  
+  return (
+    <GlobalButton
+      text={displayText}
+      iconType={iconType}
+      onClick={onClick}
+      colorConfig={buttonColorConfigs.showMore}
+      className={className}
+      styleOverride={{ 
+        width: 'auto', 
+        minWidth: '12rem',
+        height: '3rem',
+        fontSize: '0.95rem'
+      }}
+      {...props}
+    />
+  );
+};
 export { StyleInjector };

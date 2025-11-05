@@ -244,22 +244,22 @@ const handleSubmit = async (e) => {
   
 // Email validation
 if (!formData.email.trim()) {
-  errors.email = "Where can we reach you?";
+  errors.email = "Which email did you use?";
 } else if (!formData.email.includes("@")) {
-  errors.email = "Looks like you missed the @ symbol — mind adding it?";
+  errors.email = "That doesn’t look right — missing an @ symbol?";
 } else if (!/\S+@\S+/.test(formData.email)) {
-  errors.email = "Something’s missing after the @ — double-check that address.";
+  errors.email = "Something’s off after the @ — double-check your email.";
 } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
   errors.email = "Almost there! Add a domain like .com or .org.";
 } else if (formData.email.length > 254) {
-  errors.email = "That email looks a bit too long — keep it under 254 characters.";
+  errors.email = "That email looks a bit long — keep it under 254 characters.";
 }
 
 // Password validation
 if (!formData.password.trim()) {
-  errors.password = "Create your secret key.";
+  errors.password = "Enter your secret key to continue.";
 } else if (formData.password.length < 6) {
-  errors.password = "Your key’s too short — make it at least 6 characters.";
+  errors.password = "Your key seems short — at least 6 characters, please.";
 } else if (formData.password.length > 128) {
   errors.password = "That’s a mighty long key — keep it under 128 characters.";
 }

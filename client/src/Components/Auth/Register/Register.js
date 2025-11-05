@@ -249,7 +249,7 @@ const handleSubmit = async (e) => {
   
   // Email validation
   if (!formData.email.trim()) {
-    errors.email = 'Oops! Please enter your email address';
+    errors.email = 'Please enter your email address';
   } else if (!formData.email.includes('@')) {
     errors.email = 'Please include an \'@\' in the email address';
   } else if (!/\S+@\S+/.test(formData.email)) {

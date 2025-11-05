@@ -197,6 +197,7 @@ const Register = () => {
   const timers = useRef([]);
   const [passwordPlaceholder, setPasswordPlaceholder] = useState("Password (Not your gmail password)");
   const [passwordStrength, setPasswordStrength] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({  name: '', email: '', password: '' });
   const navigate = useNavigate();
   useEffect(() => {
   const timer = setTimeout(() => {
@@ -234,28 +235,61 @@ useEffect(() => {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  if (!validateEmail(formData.email)) {
-    setError('Please enter a valid email address...');
-    setTimeout(() => { setError(''); }, 3000);
+  // Custom validation with comprehensive checks
+  const errors = { name: '', email: '', password: '' };
+  
+  // Name validation
+  if (!formData.name.trim()) {
+    errors.name = 'Please enter your name';
+  } else if (formData.name.trim().length < 2) {
+    errors.name = 'Name must be at least 2 characters long';
+  } else if (formData.name.length > 50) {
+    errors.name = 'Name is too long (max 50 characters)';
+  }
+  
+  // Email validation
+  if (!formData.email.trim()) {
+    errors.email = 'Oops! Please enter your email address';
+  } else if (!formData.email.includes('@')) {
+    errors.email = 'Please include an \'@\' in the email address';
+  } else if (!/\S+@\S+/.test(formData.email)) {
+    errors.email = 'Please enter a part following \'@\'';
+  } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    errors.email = 'Please include a domain (e.g., .com, .org)';
+  } else if (formData.email.length > 254) {
+    errors.email = 'Email address is too long (max 254 characters)';
+  }
+  
+  // Password validation
+  if (!formData.password.trim()) {
+    errors.password = 'Please enter a password';
+  } else if (formData.password.length < 6) {
+    errors.password = 'Password must be at least 6 characters long';
+  } else if (formData.password.length > 128) {
+    errors.password = 'Password is too long (max 128 characters)';
+  } else if (passwordStrength !== null && passwordStrength < 2) {
+    errors.password = 'Password is too weak. Use a mix of letters, numbers, and symbols';
+  }
+  
+  if (errors.name || errors.email || errors.password) {
+    setValidationErrors(errors);
+    setTimeout(() => setValidationErrors({ name: '', email: '', password: '' }), 3000);
     return;
   }
 
-  if (passwordStrength !== null && passwordStrength < 2) {
-    setError('Password is too weak. Use a mix of letters, numbers, and symbols...');
-    setTimeout(() => { setError(''); }, 3000);
-    return;
-  }
-
+  setHidePasswordToggle(true);
   setLoading(true);
   setDelayMessage('');
-await new Promise((resolve) => setTimeout(resolve, 200));
-timers.current = [
-      setTimeout(() => setDelayMessage('Please donot reload... 🙂'), 5000),
-      setTimeout(() => setDelayMessage('Thanks for your patience... ☀️'), 10000),
-      setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 30000),
-      setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 20000),
-      setTimeout(() => setDelayMessage('Almost there...'), 40000),
-    ];
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  
+  timers.current = [
+    setTimeout(() => setDelayMessage('Please donot reload... 🙂'), 5000),
+    setTimeout(() => setDelayMessage('Thanks for your patience... ☀️'), 10000),
+    setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 30000),
+    setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 20000),
+    setTimeout(() => setDelayMessage('Almost there...'), 40000),
+  ];
+  
   try {
     await API.post('/auth/register', {
       name: formData.name,
@@ -285,6 +319,7 @@ timers.current = [
     setPasswordStrength(null);
   } finally {
     setLoading(false);
+    setHidePasswordToggle(false);
   }
 };
 useEffect(() => {
@@ -361,7 +396,7 @@ useEffect(() => {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className=" bg-emerald-500/90 dark:bg-black text-white px-3 py-2 -mt-3 mb-2 rounded-xl shadow-lg text-shadow-DEFAULT text-xs sm:text-sm font-intertight text-center z-50"
+        className=" bg-emerald-500/90 dark:bg-black text-white px-3 py-2 -mt-3 mb-2 rounded-xl shadow-lg text-shadow-DEFAULT text-xs sm:text-sm font-intertight text-center absolute top-[10rem] z-50"
       >
         <div className="flex items-center sm:ml-6 sm:gap-2">
           <span>Want to skip registration<span className="animate-pulse">?</span> Register with Google<AniDot /></span>
@@ -369,99 +404,120 @@ useEffect(() => {
       </motion.div>
     )}
   </AnimatePresence> 
-        <form onSubmit={handleSubmit} className="space-y-4 font-intertight text-shadow-DEFAULT tracking-wide">
-          <input
-            name="name"
-            placeholder="Name"
-            value={formData.name}
-            onChange={handleChange}
-            className={`${inputBase} ${inputDark}`}
-            required
-            autoComplete="name"
-            title="Used for your profile"
-          />
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className={`${inputBase} ${inputMail}`}
-            required
-            autoComplete="email"
-            title="We'll never spam you, trust me bro"
-          />
-          <div className="relative">
+<form onSubmit={handleSubmit} className="space-y-4 font-intertight text-shadow-DEFAULT tracking-wide" noValidate>
   <input
-    name="password"
-    type={showPassword ? "text" : "password"}
-    placeholder={passwordPlaceholder}
-    value={formData.password}
+    name="name"
+    placeholder="Name"
+    value={formData.name}
     onChange={handleChange}
-    className={`${inputBase} ${inputPass} pr-12`}
-    required
-    autoComplete="new-password"
-    title="Just for this app"
+    className={`${inputBase} ${inputDark} ${validationErrors.name ? '!border-red-500 animate-pulse' : ''}`}
+    autoComplete="name"
+    title="Used for your profile"
   />
-  {formData.password && !hidePasswordToggle && (
-  <button
-    type="button"
-    onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
-  >
-    {showPassword ? (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-      </svg>
-    ) : (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-      </svg>
-    )}
-  </button>
+  
+  {validationErrors.name && (
+    <div className="px-4 py-3 absolute top-[11.5rem] left-[2.7rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide">
+      <span className="animate-user-profile">🤔</span> {validationErrors.name}
+    </div>
   )}
-</div>
-            {passwordStrength !== null && (
-              <div className="text-sm text-center mb-2">
-                <p>
-                  <span className="text-emerald-500 dark:text-gray-100 font-intertight text-shadow-DEFAULT tracking-wide">Password strength:</span>
-                  {' '}
-                  <span className={`${
-                    passwordStrength < 2 ? 'text-red-500' :
-                    passwordStrength === 2 ? 'text-yellow-500' :
-                    'text-green-500'
-                  } animate-pulse font-intertight text-shadow-DEFAULT tracking-wide`}>
-                    {strengthLabel[passwordStrength]}
-                  </span>
-                </p>
-              </div>
-            )}
-             <SubmitButton text={success || 'Register'} loading={loading} success={!!success} disabled={loading || !!success} />
-             <GoogleAuthButton loading={false} />
-<div className="ml-1 text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
-  <p>
-    By registering, you agree to our{' '}
-    <a
-      href="https://carbonft.app/privacypolicy.html"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="underline hover:text-emerald-500 transition-colors duration-200"
-    >
-      Privacy Policy<span className="emoji privacy">🔒</span> 
-    </a>{' '}
-    and{' '}
-    <a
-      href="https://carbonft.app/privacypolicy.html"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="underline hover:text-emerald-500 transition-colors duration-200"
-    >
-      Terms<span className="emoji terms">📄</span>
-    </a>.
-  </p>
-</div>
-        </form>
+  
+  <input
+    name="email"
+    type="email"
+    placeholder="Email"
+    value={formData.email}
+    onChange={handleChange}
+    className={`${inputBase} ${inputMail} ${validationErrors.email ? '!border-red-500 animate-pulse' : ''}`}
+    autoComplete="email"
+    title="We'll never spam you, trust me bro"
+  />
+  
+  {validationErrors.email && (
+    <div className="px-4 py-3 absolute top-[15.5rem] left-[2.7rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide">
+      <span className="animate-mail-deliver">📧</span> {validationErrors.email}
+    </div>
+  )}
+  
+  <div className="relative">
+    <input
+      name="password"
+      type={showPassword ? "text" : "password"}
+      placeholder={passwordPlaceholder}
+      value={formData.password}
+      onChange={handleChange}
+      className={`${inputBase} ${inputPass} pr-12 ${validationErrors.password ? '!border-red-500 animate-pulse' : ''}`}
+      autoComplete="new-password"
+      title="Just for this app"
+    />
+    
+    {validationErrors.password && (
+      <div className="px-4 py-3 absolute top-[0.1rem] left-[0.2rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide">
+        <span className="animate-lock-secure">🔒</span> {validationErrors.password}
+      </div>
+    )}
+    
+    {formData.password && !hidePasswordToggle && !validationErrors.password && (
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
+      >
+        {showPassword ? (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        )}
+      </button>
+    )}
+  </div>
+  
+  {passwordStrength !== null && !validationErrors.password && (
+    <div className="text-sm text-center mb-2">
+      <p>
+        <span className="text-emerald-500 dark:text-gray-100 font-intertight text-shadow-DEFAULT tracking-wide">Password strength:</span>
+        {' '}
+        <span className={`${
+          passwordStrength < 2 ? 'text-red-500' :
+          passwordStrength === 2 ? 'text-yellow-500' :
+          'text-green-500'
+        } animate-pulse font-intertight text-shadow-DEFAULT tracking-wide`}>
+          {strengthLabel[passwordStrength]}
+        </span>
+      </p>
+    </div>
+  )}
+  
+  <SubmitButton text={success || 'Register'} loading={loading} success={!!success} disabled={loading || !!success} />
+  <GoogleAuthButton loading={false} />
+  
+  <div className="ml-1 text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
+    <p>
+      By registering, you agree to our{' '}
+      <a
+        href="https://carbonft.app/privacypolicy.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline hover:text-emerald-500 transition-colors duration-200"
+      >
+        Privacy Policy<span className="emoji privacy">🔒</span> 
+      </a>{' '}
+      and{' '}
+      <a
+        href="https://carbonft.app/privacypolicy.html"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline hover:text-emerald-500 transition-colors duration-200"
+      >
+        Terms<span className="emoji terms">📄</span>
+      </a>.
+    </p>
+  </div>
+</form>
       </div>
     </PageWrapper>
     </motion.div>

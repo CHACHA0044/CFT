@@ -242,25 +242,27 @@ const handleSubmit = async (e) => {
   // Custom validation with comprehensive checks
   const errors = { email: '', password: '' };
   
-  if (!formData.email.trim()) {
-    errors.email = 'Please enter your email address';
-  } else if (!formData.email.includes('@')) {
-    errors.email = 'Please include an \'@\' in the email address';
-  } else if (!/\S+@\S+/.test(formData.email)) {
-    errors.email = 'Please enter a part following \'@\'';
-  } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-    errors.email = 'Please include a domain (e.g., .com, .org)';
-  } else if (formData.email.length > 254) {
-    errors.email = 'Email address is too long (max 254 characters)';
-  }
-  
-  if (!formData.password.trim()) {
-    errors.password = 'Please enter your password to continue';
-  } else if (formData.password.length < 6) {
-    errors.password = 'Password must be at least 6 characters long';
-  } else if (formData.password.length > 128) {
-    errors.password = 'Password is too long (max 128 characters)';
-  }
+// Email validation
+if (!formData.email.trim()) {
+  errors.email = "Where can we reach you?";
+} else if (!formData.email.includes("@")) {
+  errors.email = "Looks like you missed the @ symbol — mind adding it?";
+} else if (!/\S+@\S+/.test(formData.email)) {
+  errors.email = "Something’s missing after the @ — double-check that address.";
+} else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+  errors.email = "Almost there! Add a domain like .com or .org.";
+} else if (formData.email.length > 254) {
+  errors.email = "That email looks a bit too long — keep it under 254 characters.";
+}
+
+// Password validation
+if (!formData.password.trim()) {
+  errors.password = "Create your secret key.";
+} else if (formData.password.length < 6) {
+  errors.password = "Your key’s too short — make it at least 6 characters.";
+} else if (formData.password.length > 128) {
+  errors.password = "That’s a mighty long key — keep it under 128 characters.";
+}
   
   if (errors.email || errors.password) {
     setValidationErrors(errors);

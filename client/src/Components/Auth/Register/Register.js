@@ -238,38 +238,38 @@ const handleSubmit = async (e) => {
   // Custom validation with comprehensive checks
   const errors = { name: '', email: '', password: '' };
   
-  // Name validation
-  if (!formData.name.trim()) {
-    errors.name = 'Please enter your name';
-  } else if (formData.name.trim().length < 2) {
-    errors.name = 'Name must be at least 2 characters long';
-  } else if (formData.name.length > 50) {
-    errors.name = 'Name is too long (max 50 characters)';
-  }
-  
-  // Email validation
-  if (!formData.email.trim()) {
-    errors.email = 'Please enter your email address';
-  } else if (!formData.email.includes('@')) {
-    errors.email = 'Please include an \'@\' in the email address';
-  } else if (!/\S+@\S+/.test(formData.email)) {
-    errors.email = 'Please enter a part following \'@\'';
-  } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-    errors.email = 'Please include a domain (e.g., .com, .org)';
-  } else if (formData.email.length > 254) {
-    errors.email = 'Email address is too long (max 254 characters)';
-  }
-  
-  // Password validation
-  if (!formData.password.trim()) {
-    errors.password = 'Please enter a password';
-  } else if (formData.password.length < 6) {
-    errors.password = 'Password must be at least 6 characters long';
-  } else if (formData.password.length > 128) {
-    errors.password = 'Password is too long (max 128 characters)';
-  } else if (passwordStrength !== null && passwordStrength < 2) {
-    errors.password = 'Password is too weak. Use a mix of letters, numbers, and symbols';
-  }
+// Name validation
+if (!formData.name.trim()) {
+  errors.name = "What should we call you?";
+} else if (formData.name.trim().length < 2) {
+  errors.name = "Your name’s a bit short — at least 2 characters, please.";
+} else if (formData.name.length > 50) {
+  errors.name = "That’s quite a name! Keep it under 50 characters.";
+}
+
+// Email validation
+if (!formData.email.trim()) {
+  errors.email = "Where can we reach you?";
+} else if (!formData.email.includes("@")) {
+  errors.email = "Looks like the @ symbol’s missing — mind adding it?";
+} else if (!/\S+@\S+/.test(formData.email)) {
+  errors.email = "Something’s missing after the @ — double-check your address.";
+} else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+  errors.email = "Almost there! Add a domain like .com or .org.";
+} else if (formData.email.length > 254) {
+  errors.email = "Whoa, that email’s a bit too long — max 254 characters.";
+}
+
+// Password validation
+if (!formData.password.trim()) {
+  errors.password = "Create your secret key.";
+} else if (formData.password.length < 6) {
+  errors.password = "Your key’s too short — make it at least 6 characters.";
+} else if (formData.password.length > 128) {
+  errors.password = "That’s a mighty long key! Keep it under 128 characters.";
+} else if (passwordStrength !== null && passwordStrength < 2) {
+  errors.password = "Your secret key feels weak — mix in letters, numbers, and symbols.";
+}
   
   if (errors.name || errors.email || errors.password) {
     setValidationErrors(errors);

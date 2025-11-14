@@ -1287,7 +1287,8 @@ router.get('/google/callback',
       const user = req.user;
       const isProd = process.env.NODE_ENV === 'production';
       const source = req.query.state;
-      // JWT token
+
+      // Generate tokens
       const token = jwt.sign(
         { userId: user._id, email: user.email },
         process.env.JWT_SECRET,
@@ -1300,12 +1301,13 @@ router.get('/google/callback',
         { expiresIn: '3d' }
       );
       
-      // STORE THE PASSWORD TOKEN IN DB
+      // Store password token
       user.passwordToken = passwordToken;
       user.passwordTokenCreatedAt = new Date();
+      
       const passwordLink = `${process.env.FRONTEND_URL}/password/${passwordToken}`;
       
-      // Cookie
+      // Set cookie
       res.cookie('token', token, {
         httpOnly: true,
         secure: isProd,
@@ -1313,42 +1315,53 @@ router.get('/google/callback',
         maxAge: 3 * 24 * 60 * 60 * 1000,
       });
 
-      // Send welcome email ONLY if not sent before
-      if (user.provider === 'google' && !user.welcomeEmailSent) {
-        try {
-          await sendEmail(
-            user.email,
-            'Welcome to Carbon Footprint Tracker! 🌍',
-            welcomeEmailHtmlG(user.name, passwordLink)
-          );
-          
-          user.welcomeEmailSent = true;
-          console.log('✅ [GOOGLE OAUTH] Welcome email sent to:', user.email);
-        } catch (emailError) {
-          console.error('[GOOGLE OAUTH] Failed to send welcome email:', emailError.message);
-        }
-      } else if (user.provider === 'google') {
-        console.log(`[GOOGLE OAUTH] Welcome email already sent to: ${user.email}`);
+      // Send welcome email ONLY if Google provider AND not sent before
+      const shouldSendWelcome = user.provider === 'google' && !user.welcomeEmailSent;
+      
+      if (shouldSendWelcome) {
+        console.log(`📧 [GOOGLE OAUTH] Scheduling welcome email for: ${user.email}`);
+        
+        // Send email asynchronously to not block the redirect
+        setImmediate(async () => {
+          try {
+            await sendEmail(
+              user.email,
+              'Welcome to Carbon Footprint Tracker! 🌍',
+              welcomeEmailHtmlG(user.name, passwordLink)
+            );
+            
+            // Update flag ONLY after successful send
+            await User.findByIdAndUpdate(user._id, { welcomeEmailSent: true });
+            console.log(`✅ [GOOGLE OAUTH] Welcome email sent to: ${user.email}`);
+          } catch (emailError) {
+            console.error(`❌ [GOOGLE OAUTH] Email failed for ${user.email}:`, emailError.message);
+            // Don't update welcomeEmailSent flag so we can retry later
+          }
+        });
+      } else {
+        console.log(`ℹ️ [GOOGLE OAUTH] Welcome email already sent or not Google provider: ${user.email}`);
       }
+
+      // Clean up verification fields if verified
       if (user.isVerified) {
-        user.resendAttempts = undefined; // remove field
-        user.lastResendAt = undefined;   // remove field
+        user.resendAttempts = undefined;
+        user.lastResendAt = undefined;
       }
-      // ALWAYS SAVE (to store passwordToken)
+
+      // Save user (for passwordToken)
       await user.save();
 
-      // Build redirect path
+      // Redirect
       let redirectPath = '/login';
       if (source === 'register') redirectPath = '/register';
       else if (source === 'login') redirectPath = '/login';
 
       const baseURL = isProd ? 'https://carbonft.app' : 'http://localhost:3000';
-
       const redirectURL = `${baseURL}${redirectPath}?googleAuth=success&userName=${encodeURIComponent(user.name)}`;
 
       res.redirect(redirectURL);
     } catch (error) {
-      console.error('Google OAuth callback error:', error);
+      console.error('❌ Google OAuth callback error:', error);
       const errorRedirect = isProd 
         ? 'https://carbonft.app/login?error=auth_failed'
         : 'http://localhost:3000/login?error=auth_failed';

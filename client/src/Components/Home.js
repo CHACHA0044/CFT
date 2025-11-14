@@ -67,7 +67,7 @@ import { boxglowD, boxglowH } from 'utils/styles';
     return (
       <div className="relative overflow-visible w-full flex sm:flex-row justify-center items-center mt-2 ml-4 sm:ml-0 mb-2 px-4">
         <motion.div
-          className="flex flex-wrap justify-center gap-2 text-5xl sm:text-6xl md:text-8xl font-black font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          className="flex flex-wrap justify-center gap-2 text-5xl sm:text-6xl md:text-8xl font-black font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
           initial="hidden"
           animate="visible"
           variants={{
@@ -337,7 +337,7 @@ const handleEmailClick = (e) => {
             className="w-full h-full"
           >
     <PageWrapper backgroundImage="/images/home-bk.webp">
-      <div className="w-full min-h-screen flex flex-col text-emerald-500 dark:text-gray-100 transition-colors duration-500 px-6 py-6">
+      <div className="w-full min-h-screen flex flex-col  text-gray-100 transition-colors duration-500 px-6 py-6">
         {/* Header */}
        <motion.header
   initial={false}
@@ -355,7 +355,7 @@ const handleEmailClick = (e) => {
     onClick={handleTap}
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-green-800 dark:text-green-300 animate-glow tracker-title select-none"
+    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-sky-400 dark:text-green-300 tracker-title select-none"
   >
 Carbon Footprint Tracker
   </motion.div>
@@ -411,12 +411,18 @@ Carbon Footprint Tracker
       className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-sm flex flex-col items-center z-20"
     ><button onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
       <div className="scroll-indicator -ml-4">
-      <Lottie
-      animationData={ScrollDownAnimation}
-      loop
-      autoplay
-      style={{ width: 40, height: 40 }}
-    /></div></button>
+      <div
+  className="
+    w-10 h-10
+    transition-all duration-500
+    filter
+    dark:[filter:brightness(0)_saturate(100%)_invert(75%)_sepia(32%)_saturate(1234%)_hue-rotate(84deg)_brightness(95%)_contrast(92%)]
+    [filter:brightness(0)_saturate(100%)_invert(61%)_sepia(92%)_saturate(2103%)_hue-rotate(174deg)_brightness(103%)_contrast(102%)]
+  "
+>
+  <Lottie animationData={ScrollDownAnimation} loop autoplay />
+</div>
+</div></button>
     </motion.div>
     <AnimatedHeadline />
     </motion.div>
@@ -438,22 +444,22 @@ Carbon Footprint Tracker
     <motion.div className="text-white text-shadow-DEFAULT font-intertight text-center max-w-4xl mx-auto px-4 py-4 sm:px-6 sm:py-8 space-y-6" variants={containerVariants} initial="hidden" animate="visible">
     
     {/* Heading */}
-    <motion.h2 variants={itemVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold text-emerald-500 dark:text-gray-100">
+    <motion.h2 variants={itemVariants} className="sm:text-4xl md:text-5xl text-3xl font-germania tracking-wider font-bold text-sky-400 dark:text-gray-100">
     What<span class="quantum-quote">'</span>s Your Carbon Impact <span class="curious-mark -ml-1">?</span>
     </motion.h2>
 
     {/* Full version for tablets and up */}
-    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"><br />
+    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed  text-gray-100"><br />
     Let’s find out — not by guessing, but by discovering your real <span className="font-semibold">Carbon Footprint</span> based on how you actually live<AniDot />
     </motion.p>
 
-    <motion.p variants={itemVariants}  className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100"> <span className="animate-plane-fly">✈️</span> How you <span className="font-medium">Travel</span>, <span class="electric-plug">🔌</span> the <span className="font-medium">Energy</span> you use, <span className="shiny-plate">🍽️</span> what you <span className="font-medium">Eat</span>, <span class="clean-bin">🗑️</span> what you <span className="font-medium">Waste</span> — it all adds up.
+    <motion.p variants={itemVariants}  className="hidden sm:block text-base md:text-lg leading-relaxed  text-gray-100"> <span className="animate-plane-fly">✈️</span> How you <span className="font-medium">Travel</span>, <span class="electric-plug">🔌</span> the <span className="font-medium">Energy</span> you use, <span className="shiny-plate">🍽️</span> what you <span className="font-medium">Eat</span>, <span class="clean-bin">🗑️</span> what you <span className="font-medium">Waste</span> — it all adds up.
     </motion.p>
-    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100" >
+    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed  text-gray-100" >
     Our tracker turns your habits into <span className="font-semibold">easy-to-read</span> visuals, shows your yearly footprint, and helps you see how you’re doing <span className="font-semibold">compared</span> to others <span className="animate-earth-spin"><span>🌎</span></span>
     </motion.p>
-    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed text-emerald-500 dark:text-gray-100" >
-    <span className="font-medium">Ready to see your impact<span className="mini-curious">?</span></span> Tap the <span>"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span>"</span> above to
+    <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed  text-gray-100" >
+    <span className="font-medium">Ready to see your impact<span className="mini-curious">?</span></span> Tap the <span>"</span><span className="font-semibold text-sky-400 dark:text-green-300">Carbon Footprint Tracker</span><span>"</span> above to
     <span onClick={() => navigate('/register')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Register</span> or 
     <span onClick={() => navigate('/login')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Login</span> and start your journey.<br />
     <span className="italic font-medium text-base md:text-lg leading-relaxed text-yellow-300">
@@ -462,18 +468,18 @@ Carbon Footprint Tracker
     </motion.p>
 
     {/* Compact version for mobile */}
-    <motion.p variants={itemVariants} className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
+    <motion.p variants={itemVariants} className="sm:hidden text-sm leading-relaxed  text-gray-100">
     Discover your real carbon footprint <span className="animate-pulse">—</span> from travel<span className="animate-pulse">✈️</span> to food<span className="animate-pulse">🍽️</span>. Track your impact and compare progress visually<AniDot />
     </motion.p>
-    <motion.p variants={itemVariants} className="sm:hidden text-sm leading-relaxed text-emerald-500 dark:text-gray-100">
-    Tap <span className="animate-pulse">"</span><span className="font-semibold text-green-800 dark:text-green-300 animate-glow">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <span onClick={() => navigate('/register')} className="underline decoration-emerald-500/50 hover:decoration-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-1px] active:translate-y-[1px] active:text-emerald-300 active:scale-95 inline-block">Register</span> or <span onClick={() => navigate('/login')} className="underline decoration-emerald-500/50 hover:decoration-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-1px] active:translate-y-[1px] active:text-emerald-300 active:scale-95 inline-block">Log In</span>.
+    <motion.p variants={itemVariants} className="sm:hidden text-sm leading-relaxed  text-gray-100">
+    Tap <span className="animate-pulse">"</span><span className="font-semibold text-sky-400 dark:text-green-300">Carbon Footprint Tracker</span><span className="animate-pulse">"</span> heading above to <span onClick={() => navigate('/register')} className="underline decoration-emerald-500/50 hover:decoration-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-1px] active:translate-y-[1px] active:text-emerald-300 active:scale-95 inline-block">Register</span> or <span onClick={() => navigate('/login')} className="underline decoration-emerald-500/50 hover:decoration-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-1px] active:translate-y-[1px] active:text-emerald-300 active:scale-95 inline-block">Log In</span>.
     <br />  <span className="italic text-sm leading-relaxed text-yellow-300">
     P.S. Dark mode + laptop = best experience. <span className="animate-star">✮⋆˙</span>
     </span>
     </motion.p> 
 
     {/* Feedback Email */}
-    <motion.p variants={feedbackVariants} className="text-sm md:text-base text-emerald-500 dark:text-gray-100">
+    <motion.p variants={feedbackVariants} className="text-sm md:text-base  text-gray-100">
     Tell us what you think!
     {/* <span className="exclaim">!</span> */}
     {' '}

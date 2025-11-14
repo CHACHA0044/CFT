@@ -23,6 +23,6 @@ export const boxglowF = `rounded-3xl bg-black/60 dark:bg-black/60 shadow-[0_0_35
 
 export const boxglowRI = `rounded-3xl bg-black/60 dark:bg-black/60 shadow-[0_0_40px_10px_rgba(0,0,0,0.6)] backdrop-blur-md`;
 
-export const boxglowD = `rounded-3xl bg-black/60 dark:bg-black/60 shadow-[0_0_5px_1px_rgba(255,255,255,0.2),0_0_20px_5px_rgba(0,100,255,0.6),0_0_60px_15px_rgba(0,100,255,0.3)] backdrop-blur-md`;
-export const boxglowH = `sm:rounded-b-3xl rounded-b-2xl bg-black/60 dark:bg-black/60 drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] backdrop-blur-md`;
+export const boxglowD = `rounded-3xl bg-black/60 dark:bg-black/60 shadow-[0_0_5px_1px_rgba(255,255,255,0.2),0_0_20px_5px_rgba(140,0,255,0.6),0_0_60px_15px_rgba(140,0,255,0.3)] dark:shadow-[0_0_5px_1px_rgba(255,255,255,0.2),0_0_20px_5px_rgba(0,100,255,0.6),0_0_60px_15px_rgba(0,100,255,0.3)] backdrop-blur-md`;
+export const boxglowH = `sm:rounded-b-3xl rounded-b-2xl bg-black/60 dark:bg-black/60 shadow-[0_0_15px_#5eead480] dark:drop-shadow-[0_0_10px_rgba(0,0,0,0.8)] backdrop-blur-md`;
 export const boxglowS = ``;

@@ -500,7 +500,7 @@ useEffect(() => {
   />
   
   {validationErrors.email && (
-    <div className="px-4 py-3 absolute top-[7.6rem] left-[2.8rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide ">
+    <div className="px-4 py-3 md:absolute top-[7.6rem] left-[2.8rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide ">
       <span className="animate-mail-deliver">📧</span>{validationErrors.email} 
     </div>
   )}
@@ -517,7 +517,7 @@ useEffect(() => {
   />
   
   {validationErrors.password && (
-    <div className="px-4 py-3 absolute top-[11.7rem] left-[2.8rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide -mt-2">
+    <div className="px-4 py-3 md:absolute top-[11.7rem] left-[2.8rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide -mt-2">
      <span className="animate-lock-secure">🔒</span> {validationErrors.password}
     </div>
   )}

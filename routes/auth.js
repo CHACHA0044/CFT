@@ -510,7 +510,7 @@ router.post('/logout', authenticateToken, async (req, res) => {
   }
 });
 
-// dont need it now 
+//FEEDBACK SUBMISSION RECORD OF EVERY USER
 router.post('/feedback/submit', authenticateToken, async (req, res) => {
   console.log('\n📝 [/feedback/submit] Feedback submission started');
   
@@ -542,10 +542,15 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
 
     console.log(`📝 [FEEDBACK] Received from ${user.email}: ${feedback.substring(0, 50)}...`);
 
-    // Increment feedback counter
-    await incrementRateLimit(feedbackRateKey, 3600); // 1 hour
+    // ✅ Increment rate limit counter FIRST
+    await incrementRateLimit(feedbackRateKey, 3600);
+
+    // ✅ Then update database
     user.feedbackGiven = true;
     await user.save();
+    console.log(`✅ [DATABASE] feedbackGiven set to true for: ${user.email}`);
+
+    // Send thank you email (non-blocking)
     try {
       await sendEmail(
         user.email,
@@ -556,10 +561,13 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
       
       return res.json({ 
         message: "Feedback submitted successfully! Thank-you email sent.",
-        feedbackReceived: true 
+        feedbackReceived: true,
+        emailSent: true
       });
     } catch (emailError) {
       console.error(`❌ [EMAIL ERROR] Failed to send to ${user.email}:`, emailError.message);
+      
+      // Even if email fails, feedback was recorded
       return res.json({ 
         message: "Feedback submitted successfully, but thank-you email failed to send.",
         feedbackReceived: true,

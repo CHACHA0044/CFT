@@ -24,7 +24,7 @@ async function handleNewMessages(client) {
 
     // Only fetch messages that are unanswered and not already skipped
     const uids = await client.search({ answered: false });
-    console.log(`📨 Found ${uids.length} unanswered messages`);
+    console.log(`📨 Mail count: ${uids.length}`);
     if (!uids || uids.length === 0) return;
     let skippedCount = 0;
     for (const uid of uids) {
@@ -98,7 +98,7 @@ async function handleNewMessages(client) {
         } catch {}
       }
     }
-    console.log(`📭 Total emails skipped this run: ${skippedCount}`);
+    console.log(`📭 Mail skipped: ${skippedCount}`);
   } catch (err) {
     console.error('❌ handleNewMessages error:', err);
   }

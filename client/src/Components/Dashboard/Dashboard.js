@@ -475,6 +475,7 @@ const AnimatedHeadline3 = React.memo(() => {
   const bottomRef = useRef(null);
   const topRef = useRef(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = window.innerWidth < 640; 
   const [user, setUser] = useState(() => {
   const cachedName = sessionStorage.getItem('userName');
   return cachedName ? { name: cachedName } : null;
@@ -682,7 +683,8 @@ useEffect(() => {
 >
 
     <div className=" py-6 text-center items-center justify-center space-y-4 min-h-[6rem]">
-      <AnimatedHeadline /><DailyGreetingD shimmerControls={shimmerControls} />
+    <AnimatedHeadline />
+    {!isMobile && (<DailyGreetingD shimmerControls={shimmerControls} />)}
     {showLimitMsg && (
   <motion.div
     key="limit-msg"

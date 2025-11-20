@@ -253,6 +253,7 @@ const History = () => {
   const [logoutSuccess, setLogoutSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const shimmerControls = useAnimation();
+  const isMobile = window.innerWidth < 640; 
   useEffect(() => {
     fetchHistory();
   }, [location.state?.updated]);
@@ -403,7 +404,7 @@ return (
            }}
            transition={{ duration: 0.35, ease: 'easeInOut' }}
          >
-          <h2 className="text-3xl font-bold mb-6 text-center"><AnimatedHeadline /><DailyGreeting shimmerControls={shimmerControls} /></h2>
+          <h2 className="text-3xl font-bold mb-6 text-center"><AnimatedHeadline />{!isMobile && <DailyGreeting shimmerControls={shimmerControls} />}</h2>
 
           <AnimatePresence>
             {success && (

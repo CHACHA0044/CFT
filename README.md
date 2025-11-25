@@ -2,7 +2,7 @@
 
 > **Carbon Footprint Tracker** is a MERN-stack application designed to help users monitor and reduce their environmental impact. It allows users to log monthly lifestyle data (**food, transport, electricity, waste**), calculates their CO₂-equivalent emissions, delivers tailored reduction suggestions, and fosters engagement through community leaderboards.  
 
-🔗 **Live App**:  [cft-self.vercel.app](https://www.carbonft.app/)  
+🔗 **Live App**:  [Carbon Footprint Tracker](https://www.carbonft.app/)  
 📦 **Repo**:  [CHACHA0044/CFT](https://github.com/CHACHA0044/CFT)  
 👤 **LinkedIn**:  [Pranav Dembla](https://www.linkedin.com/in/pranav-dembla-3a1431291?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)  
 

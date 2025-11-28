@@ -5,11 +5,12 @@ import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence } from 'framer-motion';
 import useAuthRedirect from 'hooks/useAuthRedirect';
 import API from 'api/api';
-import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton } from 'Components/globalbuttons';
+import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton, FeedbackButton } from 'Components/globalbuttons';
 import { useLoading } from 'context/LoadingContext';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
 import DailyGreetingD from './DailyGreetingD';
+import FirstTimeWelcome from './FirstTimeWelcome';
   const sentence = "Your Climate Dashboard";
   const words = sentence.split(" ");
   const sentence2 = "Emission Insights & Suggestions";
@@ -684,6 +685,7 @@ useEffect(() => {
 
     <div className=" py-6 text-center items-center justify-center space-y-4 min-h-[6rem]">
     <AnimatedHeadline />
+    <FirstTimeWelcome />
     {!isMobile && (<DailyGreetingD shimmerControls={shimmerControls} />)}
     {showLimitMsg && (
   <motion.div
@@ -1060,6 +1062,7 @@ useEffect(() => {
   <EditDeleteButton className="w-40" />
   <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
 </div> */}
+<FeedbackButton userEmail={user.email} />
 <div ref={bottomRef}></div>
 </motion.div>    
     </PageWrapper>

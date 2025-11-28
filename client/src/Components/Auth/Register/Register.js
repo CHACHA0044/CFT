@@ -219,7 +219,6 @@ useEffect(() => {
   // Cleanup timer on unmount
   return () => clearTimeout(timer);
 }, []);
-
   const handleChange = (e) => {
     const sanitizedValue = DOMPurify.sanitize(e.target.value);
     setFormData({ ...formData, [e.target.name]: sanitizedValue });
@@ -306,6 +305,7 @@ if (!formData.password.trim()) {
     sessionStorage.setItem("pendingVerificationEmail", formData.email);
     sessionStorage.setItem("justRegistered", "true");
     sessionStorage.setItem("showEmailDelayInfo", "true");
+    sessionStorage.setItem("isFirstTimeUser", "true");
     setTimeout(() => navigate('/login'), 2750);
   } catch (error) {
     console.error('❌ Registration error:', error);
@@ -345,8 +345,7 @@ useEffect(() => {
     }, 3000);
   }
 }, [location.search, navigate]);
-
-// Also add error handling for failed OAuth on register page
+// error handling for failed OAuth on register page
 useEffect(() => {
   const params = new URLSearchParams(location.search);
   const authError = params.get('error');

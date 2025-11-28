@@ -329,21 +329,23 @@ useEffect(() => {
   const params = new URLSearchParams(location.search);
   const googleAuth = params.get('googleAuth');
   const userName = params.get('userName');
+  const firstTime = params.get('firstTime');
   
   if (googleAuth === 'success') {
-    // Store user name in session storage
     if (userName) {
       sessionStorage.setItem('userName', decodeURIComponent(userName));
     }
-      setSuccess('Login Successful! 😎');
     
-    // Clear URL parameters
+    // Set first-time flag for Google users
+    if (firstTime === 'true') {
+      sessionStorage.setItem('isFirstTimeUser', 'true');
+    }
+    
+    setSuccess('Login Successful! 😎');
     window.history.replaceState({}, '', '/login');
-    
-    // Redirect to dashboard after showing message
     setTimeout(() => { navigate('/dashboard'); }, 3000);
   }
-}, [location.search,navigate]);
+}, [location.search, navigate]);
 
 useEffect(() => {
   const params = new URLSearchParams(location.search);

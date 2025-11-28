@@ -100,9 +100,13 @@ const Icons = {
   copy: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect> <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path> </motion.svg>),
   showMore: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } :  { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <polyline points="6 9 12 15 18 9" /> </motion.svg> ),
   showLess: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } :  isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <polyline points="18 15 12 9 6 15" /> </motion.svg> ),
+  rocket: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -4, -2, 0], rotate: [0, -5, 5, 0] } : { scale: 1, y: 0, rotate: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.6, ease: "easeOut" } } width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/> <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/> <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/> <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/> </motion.svg>),
+  feedback: ({ isFlipping, isHovered }) => ( <motion.svg animate={isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /> <line x1="9" y1="10" x2="15" y2="10" /> <line x1="12" y1="14" x2="12" y2="14" /> </motion.svg>),
+  send: ({ isFlipping, isHovered }) => ( <motion.svg  animate={isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <line x1="22" y1="2" x2="11" y2="13" /> <polygon points="22 2 15 22 11 13 2 9 22 2" /> </motion.svg>),
+  close: ({ isFlipping, isHovered }) => ( <motion.svg animate={isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <line x1="18" y1="6" x2="6" y2="18" /> <line x1="6" y1="6" x2="18" y2="18" />  </motion.svg>),
 };
 
-const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail }) => {
+const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail, tooltipText }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isFlipping, setIsFlipping] = useState(false);
     const hoverTimeoutRef = useRef(null);
@@ -214,6 +218,20 @@ const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, 
           onHoverStart={handleHoverStart}
           onHoverEnd={handleHoverEnd}
         >
+           {tooltipText && isHovered && (
+  <motion.div
+    initial={{ opacity: 0, y: 10, scale: 0.9 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: 10, scale: 0.9 }}
+    transition={{ duration: 0.2 }}
+    className="absolute -top-12  z-50 pointer-events-none"
+  >
+    <div className="bg-gray-900/95 dark:bg-gray-800/95 backdrop-blur-sm text-white px-4 py-2 rounded-lg shadow-xl border border-white/10 whitespace-nowrap">
+      <p className="text-xs sm:text-sm font-intertight text-shadow-DEFAULT tracking-wide">{tooltipText}</p>
+      <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-gray-900/95 dark:bg-gray-800/95 rotate-45 border-r border-b border-white/10"></div>
+    </div>
+  </motion.div>
+)}
           <motion.button
             type={type || "button"}
             whileTap={tapAnimation}
@@ -474,6 +492,10 @@ export const buttonColorConfigs = {
     verifyEmail: { id: 'verifyEmail', baseColor: '#10b981', schemes: [ 'linear-gradient(145deg, #10b981, #059669)', 'linear-gradient(145deg, #14b8a6, #0d9488)', 'linear-gradient(145deg, #06b6d4, #0284c7)', 'linear-gradient(145deg, #3b82f6, #2563eb)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
     copy: { id: 'copy', baseColor: '#10b981', schemes: [ 'linear-gradient(145deg, #10b981, #059669)', 'linear-gradient(145deg, #3b82f6, #2563eb)', 'linear-gradient(145deg, #8b5cf6, #7c3aed)', 'linear-gradient(145deg, #f59e0b, #d97706)','linear-gradient(145deg, #ff7f50, #ff4500)' ]},
     showMore: { id: 'showMore', baseColor: '#10b981', schemes: [ 'linear-gradient(145deg, #34d399, #059669)', 'linear-gradient(145deg, #22d3ee, #0ea5e9)', 'linear-gradient(145deg, #a78bfa, #7c3aed)', 'linear-gradient(145deg, #f472b6, #ec4899)', 'linear-gradient(145deg, #fbbf24, #f59e0b)' ] },
+    getStarted: { id: 'getStarted', baseColor: '#f59e0b', schemes: [ 'linear-gradient(145deg, #f59e0b, #d97706)', 'linear-gradient(145deg, #fbbf24, #f59e0b)', 'linear-gradient(145deg, #fb923c, #ea580c)', 'linear-gradient(145deg, #fcd34d, #f97316)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
+    about: { id: 'about', baseColor: '#6366f1', schemes: ['linear-gradient(145deg, #6366f1, #4338ca)', 'linear-gradient(145deg, #8b5cf6, #7c3aed)', 'linear-gradient(145deg, #a78bfa, #6d28d9)', 'linear-gradient(145deg, #c084fc, #9333ea)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
+    feedback: { id: 'feedback', baseColor: '#10b981', schemes: ['linear-gradient(145deg, #10b981, #059669)', 'linear-gradient(145deg, #14b8a6, #0d9488)', 'linear-gradient(145deg, #06b6d4, #0891b2)',  'linear-gradient(145deg, #3b82f6, #2563eb)',  'linear-gradient(145deg, #ff7f50, #ff4500)' ] },
+    send: { id: 'send', baseColor: '#8b5cf6', schemes: ['linear-gradient(145deg, #8b5cf6, #6d28d9)', 'linear-gradient(145deg, #a855f7, #7e22ce)', 'linear-gradient(145deg, #d946ef, #a21caf)', 'linear-gradient(145deg, #c084fc, #9333ea)', 'linear-gradient(145deg, #ff7f50, #ff4500)' ]},
 };
 
 // overall exportss
@@ -717,6 +739,295 @@ export const ShowMoreButton = ({ showAll, totalCount, visibleCount, onClick, cla
       }}
       {...props}
     />
+  );
+};
+export const GetStartedButton = ({ onDismiss, compact = false, className, ...props }) => {
+  const navigate = useNavigate();
+
+  const handleClick = (e) => {
+    if (onDismiss) {
+      onDismiss();
+    }
+
+    try {
+      if (window.entriesCount >= 5) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (typeof window.showLimitMessage === 'function') {
+          window.showLimitMessage(true);
+        }
+        throw new Error('LIMIT_REACHED');
+      }
+
+      setTimeout(() => {
+        navigate('/footprint');
+      }, 400);
+
+    } catch (err) {
+      if (err.message !== 'LIMIT_REACHED') {
+        throw err;
+      }
+    }
+  };
+
+  return (
+    <GlobalButton
+      text={compact ? "Let's Start " : "Got it! Let's Start "}
+      iconType="rocket"
+      colorConfig={buttonColorConfigs.getStarted}
+      onClick={handleClick}
+      tooltipText="Create your first entry"
+      styleOverride={compact ? { 
+        width: '10rem',
+        height: '3rem',
+        fontSize: '0.85rem'
+      } : { 
+        width: '20%'
+      }}
+      className={className}
+      {...props}
+    />
+  );
+};
+export const AboutButton = ({ className, ...props }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    setTimeout(() => {
+      navigate('/about');
+    }, 400);
+  };
+
+  return (
+    <GlobalButton
+      text="About"
+      iconType="info"
+      colorConfig={buttonColorConfigs.about}
+      onClick={handleClick}
+      tooltipText="Know more about CFT" 
+      styleOverride={{ 
+        width: '7rem',
+        height: '3rem',
+        fontSize: '0.85rem'
+      }}
+      className={className}
+      {...props}
+    />
+  );
+};
+export const FeedbackButton = ({ className, compact = false, userEmail, ...props }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
+  const [errorMessage, setErrorMessage] = useState('');
+  const modalRef = useRef(null);
+
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  const handleSubmit = async () => {
+    if (!feedback.trim()) {
+      setErrorMessage('Please enter your feedback');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage('');
+    setSubmitStatus(null);
+
+    try {
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+      const isDev = process.env.NODE_ENV === 'development';
+      const backendUrl = isDev 
+        ? 'http://localhost:4950' 
+        : 'https://cft-cj43.onrender.com';
+
+      const response = await fetch(`${backendUrl}/api/auth/feedback/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ feedback })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        setFeedback('');
+        setTimeout(() => {
+          setIsOpen(false);
+          setSubmitStatus(null);
+        }, 2000);
+      } else {
+        setSubmitStatus('error');
+        setErrorMessage(data.error || 'Failed to submit feedback');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage('Network error. Please try again.');
+      console.error('Feedback submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setFeedback('');
+    setSubmitStatus(null);
+    setErrorMessage('');
+  };
+
+  return (
+    <>
+      <GlobalButton
+        text={compact ? "Feedback" : "Send Feedback"}
+        iconType="feedback"
+        colorConfig={buttonColorConfigs.feedback}
+        onClick={() => setIsOpen(true)}
+        styleOverride={compact ? { 
+          width: '8rem',
+          height: '3rem',
+          fontSize: '0.85rem'
+        } : {
+          width: '10rem',
+          height: '3.5rem'
+        }}
+        className={className}
+        userEmail={userEmail}
+        {...props}
+      />
+
+      {/* Feedback Modal */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              ref={modalRef}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="bg-gray-900/95 backdrop-blur-md rounded-3xl border border-white/10 shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 p-4 border-b border-white/10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <Icons.feedback isFlipping={false} isHovered={false} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white font-sriracha tracking-wide text-shadow-DEFAULT">Send Feedback</h3>
+                      <p className="text-xs text-gray-400 text-shadow-DEFAULT">We'd love to hear from you!</p>
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={handleClose}
+                    className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/30 transition-colors"
+                  >
+                    <Icons.close isFlipping={false} isHovered={false} />
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="p-6">
+                {submitStatus === 'success' ? (
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-center py-8 tracking-wide text-shadow-DEFAULT"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+                      className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center"
+                    >
+                      <Icons.verify isFlipping={false} isHovered={false} />
+                    </motion.div>
+                    <h4 className="text-xl font-bold text-white mb-2 font-sriracha">Thanks for your feedback!</h4>
+                    <p className="text-gray-400 text-sm">We'll review it carefully.</p>
+                  </motion.div>
+                ) : (
+                  <>
+                    <textarea
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      placeholder="Share your thoughts, suggestions, or report issues..."
+                      className="w-full h-32 bg-black/40 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none font-intertight"
+                      disabled={isSubmitting}
+                    />
+                    
+                    {errorMessage && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-red-400 text-sm mt-2"
+                      >
+                        {errorMessage}
+                      </motion.p>
+                    )}
+
+                    <div className="flex gap-3 mt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleClose}
+                        className="flex-1 px-4 py-3 rounded-xl bg-gray-800/50 border border-white/10 text-gray-300 font-semibold font-sriracha hover:bg-gray-800 transition-colors"
+                        disabled={isSubmitting}
+                      >
+                        Cancel
+                      </motion.button>
+                      
+                      <GlobalButton
+                        text={isSubmitting ? 'Sending...' : 'Send'}
+                        iconType="send"
+                        colorConfig={buttonColorConfigs.send}
+                        onClick={handleSubmit}
+                        disabled={isSubmitting || !feedback.trim()}
+                        styleOverride={{ 
+                          flex: 1,
+                          height: '3rem',
+                          width: '12rem'
+                        }}
+                      />
+                    </div>
+
+                    <p className="text-xs text-gray-500 mt-4 text-center">
+                      Limited to 3 submissions per hour
+                    </p>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 export { StyleInjector };

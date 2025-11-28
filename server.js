@@ -33,7 +33,7 @@ const startFeedbackScanner = require('./utils/feedbackPoller');
 
 // express app
 const app = express();
-// procy for prod
+// procy for prod, needed when different domains for frontend and backend
 if (isProd) {
   app.set('trust proxy', 1); // for Vercel proxie
 }

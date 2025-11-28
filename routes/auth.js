@@ -1293,6 +1293,7 @@ router.get('/google/callback',
   async (req, res) => {
     try {
       const user = req.user;
+      const isNewUser = !user.welcomeEmailSent; 
       const isProd = process.env.NODE_ENV === 'production';
       const source = req.query.state;
 
@@ -1365,7 +1366,7 @@ router.get('/google/callback',
       else if (source === 'login') redirectPath = '/login';
 
       const baseURL = isProd ? 'https://carbonft.app' : 'http://localhost:3000';
-      const redirectURL = `${baseURL}${redirectPath}?googleAuth=success&userName=${encodeURIComponent(user.name)}`;
+      const redirectURL = `${baseURL}${redirectPath}?googleAuth=success&userName=${encodeURIComponent(user.name)}${isNewUser ? '&firstTime=true' : ''}`;
 
       res.redirect(redirectURL);
     } catch (error) {

@@ -852,7 +852,7 @@ export const FeedbackButton = ({ className, compact = false, userEmail, ...props
       const isDev = process.env.NODE_ENV === 'development';
       const backendUrl = isDev 
         ? 'http://localhost:4950' 
-        : 'https://cft-cj43.onrender.com';
+        : 'https://api.carbonft.app/';
 
       const response = await fetch(`${backendUrl}/api/auth/feedback/submit`, {
         method: 'POST',

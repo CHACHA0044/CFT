@@ -522,14 +522,14 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: "Feedback message is required." });
     }
 
-    // Rate limit: 3 submissions per hour
+    // Rate limit: 1 submission per day (24 hours)
     const feedbackRateKey = `feedback:submissions:${req.user.userId}`;
     const rateLimit = await getRateLimitData(feedbackRateKey);
     
-    if (rateLimit.count >= 3) {
+    if (rateLimit.count >= 1) {
       console.log(`🚫 [RATE LIMIT] Feedback blocked for userId: ${req.user.userId} | Submissions: ${rateLimit.count}`);
       return res.status(429).json({ 
-        error: 'You can only submit 3 feedbacks per hour.',
+        error: 'You can only submit 1 feedback per day.',
         retryAfter: rateLimit.ttl
       });
     }
@@ -542,38 +542,79 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
 
     console.log(`📝 [FEEDBACK] Received from ${user.email}: ${feedback.substring(0, 50)}...`);
 
-    // ✅ Increment rate limit counter FIRST
-    await incrementRateLimit(feedbackRateKey, 3600);
+    // ✅ Increment rate limit counter FIRST (24 hours = 86400 seconds)
+    await incrementRateLimit(feedbackRateKey, 86400);
 
     // ✅ Then update database
     user.feedbackGiven = true;
     await user.save();
     console.log(`✅ [DATABASE] feedbackGiven set to true for: ${user.email}`);
 
-    // Send thank you email (non-blocking)
-    try {
-      await sendEmail(
+    // Prepare feedback notification email for admin
+    const currentTime = formatTime(new Date(), "Asia/Kolkata");
+    const currentDate = formatDate(new Date(), "Asia/Kolkata");
+    
+    const feedbackNotificationHtml = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
+        <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
+          <h1 style="margin: 0; font-size: 20px;">📝 New Feedback Received</h1>
+        </div>
+        <div style="padding: 20px 16px 12px;">
+          <div style="background: rgba(255, 255, 255, 0.08); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); max-width: 600px; margin: auto; padding: 24px 20px; box-shadow: 0 0 22px rgba(255, 255, 255, 0.18);">
+            <h2 style="font-size: 18px; margin: 0 0 20px; color: #e0e0e0;">Feedback Details</h2>
+            
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+              <p style="margin: 0 0 10px; color: #a0a0a0; font-size: 14px;"><strong>From:</strong> ${user.name}</p>
+              <p style="margin: 0 0 10px; color: #a0a0a0; font-size: 14px;"><strong>Email:</strong> ${user.email}</p>
+              <p style="margin: 0 0 10px; color: #a0a0a0; font-size: 14px;"><strong>User ID:</strong> ${user._id}</p>
+              <p style="margin: 0; color: #a0a0a0; font-size: 14px;"><strong>Time:</strong> ${currentTime} on ${currentDate}</p>
+            </div>
+            
+            <div style="background: rgba(47, 128, 237, 0.1); border-left: 4px solid #2f80ed; padding: 15px; border-radius: 8px;">
+              <p style="margin: 0 0 8px; color: #56ccf2; font-size: 14px; font-weight: bold;">Feedback Message:</p>
+              <p style="margin: 0; color: #e0e0e0; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${feedback}</p>
+            </div>
+          </div>
+        </div>
+        <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Feedback System</div>
+      </div>
+    `;
+
+    // Send emails asynchronously
+    const emailPromises = [
+      // Thank you email to user
+      sendEmail(
         user.email,
         "Thanks for your feedback ✨",
         feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
-      );
-      console.log(`✅ [EMAIL] Thank-you email sent to: ${user.email}`);
+      ).catch(err => {
+        console.error(`❌ [EMAIL ERROR] Thank-you email failed for ${user.email}:`, err.message);
+        return { success: false, type: 'user' };
+      }),
       
-      return res.json({ 
-        message: "Feedback submitted successfully! Thank-you email sent.",
-        feedbackReceived: true,
-        emailSent: true
-      });
-    } catch (emailError) {
-      console.error(`❌ [EMAIL ERROR] Failed to send to ${user.email}:`, emailError.message);
-      
-      // Even if email fails, feedback was recorded
-      return res.json({ 
-        message: "Feedback submitted successfully, but thank-you email failed to send.",
-        feedbackReceived: true,
-        emailSent: false 
-      });
-    }
+      // Feedback notification to admin
+      sendEmail(
+        "pdembla@student.iul.ac.in",
+        `New Feedback from ${user.name}`,
+        feedbackNotificationHtml
+      ).catch(err => {
+        console.error(`❌ [EMAIL ERROR] Admin notification failed:`, err.message);
+        return { success: false, type: 'admin' };
+      })
+    ];
+
+    const emailResults = await Promise.all(emailPromises);
+    
+    const userEmailSuccess = emailResults[0] !== undefined && emailResults[0].success !== false;
+    const adminEmailSuccess = emailResults[1] !== undefined && emailResults[1].success !== false;
+
+    console.log(`✅ [EMAIL] User thank-you: ${userEmailSuccess}, Admin notification: ${adminEmailSuccess}`);
+
+    return res.json({ 
+      message: "Feedback submitted successfully!",
+      feedbackReceived: true,
+      emailSent: userEmailSuccess
+    });
 
   } catch (err) {
     console.error("❌ [SERVER ERROR] Feedback submission error:", err);

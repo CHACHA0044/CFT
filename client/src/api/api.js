@@ -2,12 +2,12 @@ import axios from 'axios';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-// In dev: direct to backend, in prod: use proxy
+// In dev: direct to backend, in prod: use proxy, no longer proxy is needed in prod
 const BASE = isDev 
   ? 'http://localhost:3001/api' 
   : 'https://api.carbonft.app/api';  
 
-console.log('API Base URL:', BASE);
+//console.log('API Base URL:', BASE);
 
 const API = axios.create({
   baseURL: BASE,

@@ -3595,3 +3595,281 @@ html {
     transform: scale(0.8) rotate(0deg);
   }
 }
+
+.animate-crystal-ball {
+  position: relative;
+  display: inline-block;
+  font-size: 1.4rem;
+  animation: crystal-pulse 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px #a855f7);
+}
+
+@keyframes crystal-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px #a855f7);
+  }
+  40% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 12px #c084fc);
+  }
+}
+
+.animate-crystal-ball::before {
+  content: '✨';
+  position: absolute;
+  top: -0.6em;
+  right: -0.4em;
+  opacity: 0;
+  font-size: 0.55rem;
+  animation: crystal-sparkle 3.2s infinite ease-out;
+}
+
+@keyframes crystal-sparkle {
+  0%, 70%, 100% { opacity: 0; transform: scale(0.6) rotate(0deg); }
+  75% { opacity: 1; transform: scale(1.3) rotate(15deg); }
+  85% { opacity: 0.6; transform: scale(0.9) rotate(30deg); }
+}
+.animate-cool-face {
+  display: inline-block;
+  font-size: 1.4rem;
+  animation: cool-nod 3.5s ease-in-out infinite;
+}
+
+@keyframes cool-nod {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  40% { transform: rotate(-6deg) scale(1.05); }
+  50% { transform: rotate(6deg) scale(1.05); }
+}
+
+.animate-cool-face::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.5rem;
+  top: -0.4em;
+  left: 0.8em;
+  opacity: 0;
+  animation: glasses-shine 3.5s infinite ease-out;
+}
+
+@keyframes glasses-shine {
+  0%, 60%, 100% { opacity: 0; transform: translateX(-4px); }
+  65% { opacity: 1; transform: translateX(2px); }
+  75% { opacity: 0; transform: translateX(6px); }
+}
+.animate-mosque {
+  display: inline-block;
+  font-size: 1.5rem;
+  animation: mosque-float 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #60a5fa);
+}
+
+@keyframes mosque-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-mosque::before {
+  content: '✨';
+  position: absolute;
+  font-size: 0.55rem;
+  bottom: -0.5em;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: mosque-glitter 4s ease-out infinite;
+}
+
+@keyframes mosque-glitter {
+  0%, 70%, 100% { opacity: 0; }
+  75% { opacity: 1; transform: translateY(-4px); }
+  90% { opacity: 0.4; }
+}
+.animate-lock {
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: lock-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #facc15);
+}
+
+@keyframes lock-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+.animate-walk {
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: walk-cycle 1.2s infinite ease-in-out;
+}
+
+@keyframes walk-cycle {
+  0% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(2px) rotate(-4deg); }
+  50% { transform: translateX(4px) rotate(0deg); }
+  75% { transform: translateX(2px) rotate(4deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+.animate-seedling {
+  display: inline-block;
+  font-size: 1.2rem;
+  animation: seed-grow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #4ade80);
+}
+
+@keyframes seed-grow {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.15); }
+}
+
+.animate-seedling::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.45rem;
+  top: -0.6em;
+  right: -0.3em;
+  opacity: 0;
+  animation: seed-sparkle 3s ease-out infinite;
+}
+
+@keyframes seed-sparkle {
+  0%, 70%, 100% { opacity: 0; }
+  75% { opacity: 1; }
+  90% { opacity: 0.4; }
+}
+/* 🌎 Earth Animation — rotate + glow + stars */
+.animate-earth {
+  position: relative;
+  display: inline-block;
+  font-size: 1.6rem;
+  animation: earth-rotate 6s linear infinite;
+  filter: drop-shadow(0 0 6px #38bdf8); /* sky blue glow */
+}
+
+/* Slow, premium rotation */
+@keyframes earth-rotate {
+  0% {
+    transform: rotate(0deg);
+    filter: drop-shadow(0 0 6px #38bdf8);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px #7dd3fc); /* stronger glow */
+  }
+  100% {
+    transform: rotate(360deg);
+    filter: drop-shadow(0 0 6px #38bdf8);
+  }
+}
+
+/* Small sparkle star above Earth */
+.animate-earth::before {
+  content: '✨';
+  position: absolute;
+  top: -0.7em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.55rem;
+  opacity: 0;
+  animation: earth-star 4s ease-out infinite;
+}
+
+/* Star floats upward then fades */
+@keyframes earth-star {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.7);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -5px) scale(1.1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translate(-50%, -12px) scale(0.9);
+  }
+}
+
+/* Second star drifting */
+.animate-earth::after {
+  content: '✨';
+  position: absolute;
+  bottom: -0.6em;
+  right: -0.4em;
+  font-size: 0.45rem;
+  opacity: 0;
+  animation: earth-star-2 4.5s ease-out infinite;
+}
+
+/* Slower sparkle drift */
+@keyframes earth-star-2 {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.7);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(2px, -4px) scale(1);
+  }
+  90% {
+    opacity: 0.4;
+    transform: translate(4px, -10px) scale(0.8);
+  }
+}
+.animate-trophy {
+  position: relative;
+  display: inline-block;
+  font-size: 1.2rem;
+  animation: trophy-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #facc15); /* gold glow */
+}
+
+@keyframes trophy-pulse {
+  0%, 100% { transform: scale(1); }
+  40%      { transform: scale(1.15); }
+}
+
+/* Sparkle on the side */
+.animate-trophy::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.45rem;
+  top: -0.6em;
+  left: -0.2em;
+  opacity: 0;
+  animation: trophy-sparkle 3s ease-out infinite;
+}
+
+@keyframes trophy-sparkle {
+  0%, 70%, 100% { opacity: 0; transform: scale(0.7); }
+  75%          { opacity: 1; transform: scale(1.1); }
+  90%          { opacity: 0.4; transform: scale(0.9); }
+}
+
+.animate-electric {
+  position: relative;
+  display: inline-block;
+  font-size: 1.2rem;
+  animation: electric-burst 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px #fbbf24); /* yellow lightning glow */
+}
+
+@keyframes electric-burst {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  40%      { transform: scale(1.2) rotate(8deg); }
+}
+
+/* Spark particle */
+.animate-electric::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.45rem;
+  top: -0.5em;
+  right: -0.4em;
+  opacity: 0;
+  animation: electric-sparkle 2.2s ease-out infinite;
+}
+
+@keyframes electric-sparkle {
+  0%, 65%, 100% { opacity: 0; transform: scale(0.6); }
+  70%           { opacity: 1; transform: scale(1.2); }
+  85%           { opacity: 0.3; transform: scale(0.9); }
+}

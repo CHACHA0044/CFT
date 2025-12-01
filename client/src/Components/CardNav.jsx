@@ -213,16 +213,25 @@ const CardNav = ({
   logoAlt = "Menu",
   items,
   width = "200px", 
-  height = "155px",// width of expanding panel
+  height = "155px",
   menuColor = "#111",
   textColor = "#fff",
   logoSize = "w-25 h-25",
   logoClass = "text-emerald-600 dark:text-gray-100 text-shadow-DEFAULT ",
   children,
+  isMenuOpen,
+  onToggleMenu,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const isOpen = isMenuOpen ?? false;
+  const setIsOpen = onToggleMenu ?? (() => {});
   const shimmerControls = useAnimation();
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleMenu = () => {
+  if (onToggleMenu) {
+    onToggleMenu(!isOpen);
+  } else {
+    setIsOpen(!isOpen);
+  }
+};
   const location = useLocation();
   const topClass = location.pathname === "/dashboard" ? "top-7" : "top-0";
   const normalizePathname = (pathname) => { if (pathname.startsWith("/edit")) return "/edit"; return pathname;};
@@ -230,7 +239,36 @@ const CardNav = ({
   const currentPage = pageNames[normalizedPath] || "";
   const fullTitle = `Menu ${currentPage}`;
   const description = pageDescriptions[normalizedPath] || "";
+// Close menu on outside click
+useEffect(() => {
+  if (!isOpen) return;
 
+  const handleClickOutside = (e) => {
+    // Check if click is outside the panel and logo
+    const panel = e.target.closest('aside');
+    const logoButton = e.target.closest('[role="button"]');
+    
+    if (!panel && !logoButton) {
+  if (onToggleMenu) {
+    onToggleMenu(false);
+  } else {
+    setIsOpen(false);
+  }
+}
+  };
+
+  // Small delay to prevent immediate closing on menu open
+  const timer = setTimeout(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+  }, 100);
+
+  return () => {
+    clearTimeout(timer);
+    document.removeEventListener('mousedown', handleClickOutside);
+    document.removeEventListener('touchstart', handleClickOutside);
+  };
+}, [isOpen]);
 useEffect(() => {
   let isMounted = true;
   async function loopAnimation() {
@@ -251,12 +289,13 @@ useEffect(() => {
     <div className={`absolute left-0 pl-1 ${topClass} z-50`}>
       {/* Lottie / Logo Button */}
       <div
-        className={`cursor-pointer ${logoSize} ${logoClass}`}
-        onClick={toggleMenu}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && toggleMenu()}
-      >
+  className={`cursor-pointer ${logoSize} ${logoClass}`}
+  onClick={toggleMenu}
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => e.key === "Enter" && toggleMenu()}
+  data-menu-trigger="true"
+>
         {logo || (
           <img
             src=""
@@ -325,7 +364,7 @@ useEffect(() => {
                     href={item.link}
                     className="block"
                     style={{ color: textColor }}
-                    onClick={() => setIsOpen(false)} // close on click
+                    onClick={() => onToggleMenu ? onToggleMenu(false) : setIsOpen(false)} // close on click
                 >
                     {item.label}
                 </a>

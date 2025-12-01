@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLoading } from 'context/LoadingContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import appVersion from '../version.json';
 const emojiSets = {
   dark: ['⁺₊⋆', '⁺₊⋆ ☾ ', '⁺₊⋆ ☾ ⋆⁺₊', ' ☾ ⋆⁺₊', '⋆⁺₊'],
@@ -75,7 +75,7 @@ const PageWrapper = ({ children, backgroundImage }) => {
  const timeoutRef = useRef(null);
   const fallbackRef = useRef(null);
   const hasMounted = useRef(false);
-  
+  const [showInfo, setShowInfo] = useState(false);
 useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
     localStorage.setItem('theme', darkMode ? 'dark' : 'light');
@@ -122,7 +122,16 @@ useEffect(() => {
      clearTimeout(fallbackRef.current);
    };
  }, [backgroundImage]);
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (showInfo && !event.target.closest('footer')) {
+      setShowInfo(false);
+    }
+  };
 
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => document.removeEventListener('mousedown', handleClickOutside);
+}, [showInfo]);
 
  const toggleTheme = () => {
   setDarkMode(prev => !prev);
@@ -155,9 +164,28 @@ useEffect(() => {
       </div>
 
       {/* Footer */}
-      <footer className="w-full text-center tracking-wide text-base italic py-4 text-emerald-700 dark:text-white">
-      Carbon Down<span className="animate-pulse">.</span> Future Up<span className="animate-pulse">.</span> v {appVersion.version}
-      </footer>
+     <footer className="w-full text-center tracking-wide text-base font-intertight text-shadow-DEFAULT py-4 text-emerald-700 dark:text-white relative">
+  <AnimatePresence>
+    {showInfo && (
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0, y: 10 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: 10 }}
+        transition={{ duration: 0.3 }}
+        className="absolute bottom-full -ml-44 left-1/2 transform -translate-x-1/2 -mb-3 bg-emerald-500/90 dark:bg-black/90 text-white px-4 py-2 rounded-xl shadow-lg text-sm font-medium text-center z-50 whitespace-nowrap"
+      >
+        Version {appVersion.version} • Update includes new chart sections
+      </motion.div>
+    )}
+  </AnimatePresence>
+  
+  <button 
+    onClick={() => setShowInfo(!showInfo)}
+    className="hover:text-emerald-600 dark:hover:text-emerald-300 italic text-shadow-DEFAULT transition-colors duration-200"
+  >
+    Carbon Down<span className="animate-pulse">.</span> Future Up<span className="animate-pulse">.</span> v {appVersion.version}
+  </button>
+</footer>
     </div>
   );
 };

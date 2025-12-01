@@ -336,8 +336,13 @@ const ChartPage = () => {
   const [expandedLeaderboardUser, setExpandedLeaderboardUser] = useState(null);
   const [expandedLeaderboardCategory, setExpandedLeaderboardCategory] = useState(null);
   const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
+  const leaderboardRef = useRef(null);const [showBreakdown, setShowBreakdown] = useState(false);
+  const [simTransport, setSimTransport] = useState(100);
+  const [simDiet, setSimDiet] = useState(100);
+  const [simElectricity, setSimElectricity] = useState(100);
+  const [simWaste, setSimWaste] = useState(100); 
   const navigate = useNavigate();
-
+const hoverTimeoutRef = useRef(null);
 const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
   setLoadingWeather(true);
   let lat, lon;
@@ -491,38 +496,18 @@ useEffect(() => {
       console.error('Failed to fetch entries:', err);
     }
   };
-
   fetchAllEntries();
 }, []);
 const [projectionData, setProjectionData] = useState([]);
-const [dotMonth, setDotMonth] = useState(1);
-const [ setDotData] = useState(null);
 const svgRef = useRef(null);
-const [dragging, setDragging] = useState(false);
-const [hoverMonth, setHoverMonth] = useState(null);
-const [dotY, setDotY] = useState(null);
-const dotData = projectionData.find(d => d.month === dotMonth);
 const chartRef = useRef(null);
-const comparison = Object.keys(values).map(cat => ({
-    category: cat.charAt(0).toUpperCase() + cat.slice(1),
-    user: values[cat],
-    global: globalAverages[cat]
-  }));
-const pieData = Object.entries(values).map(([k, v]) => ({
-  x: k.charAt(0).toUpperCase() + k.slice(1),
-  y: v,
-  label: v != null ? `${k}: ${v.toFixed(1)} kg` : `${k}: No data`
-}));
-  const yearly = total * 12;
-  const yearlyChartData = useMemo(() => {
-  if (!total) return [];
-  
-  const currentMonth = new Date().getMonth(); // 0-11
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                         'July', 'August', 'September', 'October', 'November', 'December'];
-  
+const comparison = Object.keys(values).map(cat => ({ category: cat.charAt(0).toUpperCase() + cat.slice(1), user: values[cat], global: globalAverages[cat]  }));
+const pieData = Object.entries(values).map(([k, v]) => ({ x: k.charAt(0).toUpperCase() + k.slice(1), y: v, label: v != null ? `${k}: ${v.toFixed(1)} kg` : `${k}: No data`}));
+const yearly = total * 12;
+const yearlyChartData = useMemo(() => { if (!total) return [];
+const currentMonth = new Date(entryData?.createdAt || entryData?.updatedAt).getMonth(); // 0-11
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   return Array.from({ length: 12 }, (_, i) => {
     const monthIndex = (currentMonth + i) % 12;
     const cumulativeValue = total * (i + 1);
@@ -536,16 +521,9 @@ const pieData = Object.entries(values).map(([k, v]) => ({
     };
   });
 }, [total]);
-  const topCat = Object.keys(values).reduce((a, b) => values[a] > values[b] ? a : b);
-  const tips = {
-    food: 'Try more plant‑based meals to cut food emissions.',
-    transport: 'Choose public transport, cycling, or walking.',
-    electricity: 'Switch to renewable energy and conserve power.',
-    waste: 'Reduce and compost waste to minimize emissions.',
-  };
-const abortControllerRef = useRef(new AbortController());
+const entryId = typeof entryData?._id === "string" ? entryData._id : entryData?._id?.$oid || entryData?._id?.toString();
 useEffect(() => {
-  if (!entryData || !entryData._id) return;
+  if (!entryId) return;
 
   const controller = new AbortController();
   let isMounted = true;
@@ -554,84 +532,42 @@ useEffect(() => {
     try {
       setError(null);
 
-      const entryId =
-        typeof entryData._id === 'string'
-          ? entryData._id
-          : entryData._id?.$oid || entryData._id?.toString();
-
-      if (!entryId) {
-        throw new Error('Invalid or missing entry ID.');
-      }
-      //console.log("📦 Attempting to fetch entry with ID:", entryId);
-
       const [entryRes, historyRes] = await Promise.all([
         API.get(`/footprint/${entryId}`, {
           withCredentials: true,
           signal: controller.signal
-        }).catch(err => {
-          if (err.name === 'CanceledError' || err.name === 'AbortError') return;
-          //console.error('❌ Entry fetch error:', err.response?.data || err.message);
-          throw new Error(err.response?.data?.error || 'Failed to load footprint data');
         }),
-
-        API.get('/footprint/history', {
+        API.get("/footprint/history", {
           withCredentials: true,
           signal: controller.signal
-        }).catch(err => {
-        if (err.name === 'CanceledError' || err.name === 'AbortError') return;
-       // console.error('❌ History fetch error:', err.response?.data || err.message);
-        throw new Error(err.response?.data?.error || 'Failed to load history data');
-      })
+        })
       ]);
 
-      if (!isMounted || !entryRes?.data || !historyRes?.data) return;
+      if (!isMounted) return;
 
       setEntryData(entryRes.data);
 
       const sorted = [...historyRes.data].sort(
         (a, b) =>
-          new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+          new Date(b.updatedAt || b.createdAt) -
+          new Date(a.updatedAt || a.createdAt)
       );
 
       const index = sorted.findIndex(e => e._id === entryRes.data._id);
-     // console.log("📊 Found index in sorted history:", index);
 
-      // if (index !== -1) {
-      //   const lbRes = await API.get(`/footprint/leaderboard-nth?n=${index}`, {
-      //     withCredentials: true,
-      //     signal: controller.signal
-      //   }).catch(err => {
-      //     if (err.name !== 'AbortError') {
-      //     //  console.error('❌ Leaderboard fetch error:', err.response?.data || err.message);
-      //       throw new Error(err.response?.data?.error || 'Failed to load leaderboard');
-      //     }
-      //   });
-
-      //   if (lbRes && isMounted) {
-      //     setLeaderboard(lbRes.data || []);
-      //   }
-      // }
       if (index !== -1) {
-  const lbRes = await API.get(`/footprint/leaderboard-nth?n=${index}`, {
-    withCredentials: true,
-    signal: controller.signal
-  }).catch(err => {
-    if (err.name !== 'AbortError') {
-      throw new Error(err.response?.data?.error || 'Failed to load leaderboard');
-    }
-  });
+        const lbRes = await API.get(`/footprint/leaderboard-nth?n=${index}`, {
+          withCredentials: true,
+          signal: controller.signal
+        });
 
-  if (lbRes && isMounted) {
-    // Fetch full entry data for each leaderboard user
-    // ✅ CORRECT - Entry data already in response!
-setLeaderboard(lbRes.data || []);
-
-  }
-}
+        if (isMounted) {
+          setLeaderboard(lbRes.data || []);
+        }
+      }
     } catch (err) {
-      if (isMounted && err.name !== 'AbortError') {
-        //console.error('❌ Fetch error:', err);
-        setError(err.message || 'Failed to load data. Please try again.');
+      if (isMounted && err.name !== "AbortError") {
+        setError(err.message || "Failed to load data");
       }
     }
   };
@@ -642,7 +578,7 @@ setLeaderboard(lbRes.data || []);
     isMounted = false;
     controller.abort();
   };
-}, [entryData?._id]);
+}, [entryId]);
 useEffect(() => {
   const handleClickOutside = () => {
     setSelectedIndex(null);
@@ -702,27 +638,8 @@ useEffect(() => {
   svg.call(zoomBehavior);
   return () => svg.on('.zoom', null);
 }, [projectionData]);
-const handlePointerMove = (e) => {
-  if (!chartRef.current || !projectionData.length) return;
-  const rect = chartRef.current.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const scale = scaleLinear().domain([0, rect.width]).range([1, 12]);
-  const month = Math.round(scale(x));
-  if (month >= 1 && month <= 12) {
-    setHoverMonth(month);
-  } else {
-    setHoverMonth(null);
-  }
-};
-const handlePointerDown = (e) => {
-  if (!hoverMonth) return;
-  setDotMonth(hoverMonth);
-  const y = projectionData.find(d => d.month === hoverMonth)?.value;
-  setDotY(y);
-};
 let topIndexes = new Set();
 let bottomIndexes = new Set();
-let dragonIndex = leaderboard.length > 0 ? leaderboard.length - 1 : null;
 if (leaderboard.length <= 3) {
   topIndexes.add(0); // lowest emission
   if (leaderboard.length > 1) {
@@ -744,27 +661,37 @@ if (leaderboard.length <= 3) {
     }
   }
 };
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
-};
 const [activePoint, setActivePoint] = useState(null);
-const yearlyData = [
-  { x: "2025", y: 1200 },
-  { x: "2026", y: 1100 },
-  { x: "2027", y: 950 },
-  { x: "2028", y: 800 },
-];
 useEffect(() => {
   if (activePoint) {
     const timer = setTimeout(() => setActivePoint(null), 3000);
     return () => clearTimeout(timer);
   }
 }, [activePoint]);
+useEffect(() => {
+  if (expandedLeaderboardUser !== null && leaderboardRef.current) {
+    const timer = setTimeout(() => {
+      const items = leaderboardRef.current.querySelectorAll('[data-lb-item]');
+      const expandedItem = items[expandedLeaderboardUser];
+      
+      if (expandedItem) {
+        const rect = expandedItem.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        
+        if (rect.bottom > viewportHeight * 0.7) {
+          expandedItem.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center'
+          });
+        }
+      }
+    }, 200);
+    
+    return () => clearTimeout(timer);
+  }
+}, [expandedLeaderboardUser]);
 const displayedUsers = showAllLeaderboard ? leaderboard : leaderboard.slice(0, 10);
 const hasMore = leaderboard.length > 10;
-
   if (!processed) {
     return (
       <PageWrapper>
@@ -821,7 +748,7 @@ return (
 </CardNav>
 </div>
 <motion.div className="relative w-full px-0" animate={{ filter: isMenuOpen ? 'blur(5px)' : '', pointerEvents: isMenuOpen ? 'none' : 'auto' }} transition={{ duration: 0.35, ease: 'easeInOut' }}>
-      <div className="max-w-4xl mx-auto sm:space-y-12 space-y-6 px-4 pt-4">
+      <div className="max-w-4xl mx-auto sm:space-y-12 space-y-6 px-4 pt-4 pb-4">
         
         {/* Total Emissions */}
         <div className="group relative">
@@ -832,7 +759,7 @@ return (
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
           >
-            <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+            <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
             <h2 className="sm:text-3xl md:text-4xl text-base text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider  mb-2 text-emerald-500 dark:text-gray-100"><span className="calendar-wrapper calendar-spark">🗓️ </span>Total Monthly Emission</h2>
 
           {(() => {
@@ -849,17 +776,36 @@ return (
               </p>
             );
           })()}
-    <motion.div
-      className="mt-2 sm:mt-4 space-y-2"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.3, duration: 0.5 }}
-    >
-      <h3 className="text-base sm:text-xl font-intertight font-normal tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-gray-100 mb-3 text-center">
-        <span className="animate-chart-orbit text-2xl">📊</span> Category Breakdown
-      </h3>
-      
-      <div className="grid grid-cols-1 gap-2 sm:relative">
+    {/* Emission Breakdown (Expandable Section) */}
+<div className="mt-4">
+  <motion.div
+    className="cursor-pointer flex items-center justify-center gap-2 mb-3"
+    onClick={() => setShowBreakdown(prev => !prev)}
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.97 }}
+  >
+    <h3 className="text-base sm:text-xl font-intertight font-normal tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-gray-100 text-center">
+      <span className="animate-chart-orbit text-2xl">📊</span> Emission Breakdown
+    </h3>
+    <span className="text-emerald-500 dark:text-gray-100 text-xl">
+      {showBreakdown ? "▷" : "▽"}
+    </span>
+  </motion.div>
+
+  {/* Expand Container */}
+  <motion.div
+    className="overflow-visible"
+    initial={false}
+    animate={{
+      height: showBreakdown ? "auto" : 0,
+      opacity: showBreakdown ? 1 : 0,
+      marginTop: showBreakdown ? 12 : 0
+    }}
+    transition={{ duration: 0.45, ease: "easeInOut" }}
+  >
+    {/* Category Grid */}
+    <div className="grid grid-cols-1 gap-2 sm:relative">
+       <div className="grid grid-cols-1 gap-2 sm:relative">
         {/* Food */}
         {processed.foodEmissionKg > 0 && (
           <motion.div
@@ -1070,7 +1016,9 @@ return (
           </motion.div>
         )}
       </div>
-    </motion.div>
+    </div>
+  </motion.div>
+</div>
 {weatherRequested && data && weatherTimestamp ? (
   <div className="mt-4 space-y-4">
     {/* Weather expiry countdown */}
@@ -1469,7 +1417,7 @@ return (
 {/* Comparison */}
 <div className="group relative">
   {/* Static glow */}
-  <div className="absolute -inset-1 rounded-2xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
+  <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
 
   <motion.div
     className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg 
@@ -1480,7 +1428,7 @@ return (
     whileTap={{ scale: 0.97 }}
   >
     {/* Hover animated border */}
-    <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 
+    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 
                     group-hover:opacity-100 animate-borderFlow 
                     border-emerald-500 dark:border-gray-100 pointer-events-none" />
 
@@ -1624,13 +1572,13 @@ return (
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
 
   <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl px-4 pt-6 pb-2 rounded-2xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105 overflow-visible"
+    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl px-4 pt-6 pb-2 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105 overflow-visible"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.7 }}
     onClick={(e) => e.stopPropagation()}
   >
-    <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
 
     <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-0 text-emerald-500 dark:text-gray-100">
     <span className="pancake-wrapper pancake-steam">🥞</span>  Emission Breakdown CO₂( <span
@@ -1772,199 +1720,19 @@ e
   </motion.div>
 </div>
 
-{/* Yearly Projection  */}
-{total && (
-<div className="group relative">
-  <div className="absolute -inset-1 rounded-2xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
-  
-  <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
-    initial={{ y: 20, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ duration: 0.7, delay: 0.2 }}
-  >
-    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
-    
-    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-6 text-center text-emerald-500 dark:text-gray-100">
-      <span className="animate-glow-up">📈</span> Yearly Projection
-    </h3>
-
-    {/* Current Year Summary */}
-    <motion.div 
-      className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center"
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.3 }}
-    >
-      <div className="sm:text-lg md:text-xl text-shadow-DEFAULT font-intertight font-medium text-white mb-2">
-        {(() => {
-          const currentMonth = new Date().getMonth(); // 0-11
-          const currentYear = new Date().getFullYear();
-          
-          if (currentMonth === 0) { // January
-            return `${currentYear}`;
-          } else { // February to December
-            return `${currentYear}-${(currentYear + 1).toString().slice(-2)}`;
-          }
-        })()} Projected Total
-      </div>
-      <div className="sm:text-2xl md:text-3xl text-shadow-DEFAULT font-intertight font-bold">
-        {(() => {
-          const yearlyTonnes = yearly / 1000;
-let style = { 
-  color: 'text-green-400', 
-  emoji: '🌱', 
-  animation: 'animate-gentle-grow' 
-};
-
-if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
-  style = { color: 'text-yellow-400', emoji: '⚠️', animation: 'animate-warning-shake' };
-} else if (yearlyTonnes > 7 && yearlyTonnes <= 10) {
-  style = { color: 'text-orange-400', emoji: '🔥', animation: 'animate-flame-flicker' };
-} else if (yearlyTonnes > 10) {
-  style = { color: 'text-red-400', emoji: '💥', animation: 'animate-explode-pop' };
-}
-
-          
-          const [intPart, decimalPart] = yearlyTonnes.toFixed(2).split('.');
-          
-          return (
-            <>
-              <span className={`${style.animation} ${style.color} text-2xl mr-2`}>{style.emoji}</span>
-              <span className={style.color}>
-                {intPart}
-                <span className="hidden sm:inline">.{decimalPart}</span> tonnes CO
-                <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
-                  2
-                </span>
-              </span>
-            </>
-          );
-        })()}
-      </div>
-    </motion.div>
-
-    {/* Interactive Chart */}
-    <div 
-      className="relative h-80 w-full bg-gray-800/30 rounded-xl p-4 overflow-hidden"
-      style={{ 
-        outline: 'none', 
-        border: 'none',
-        WebkitTapHighlightColor: 'transparent',
-        userSelect: 'none'
-      }}
-      onFocus={(e) => e.target.blur()}
-    >
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart 
-  margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
-  data={yearlyChartData} // Use memoized data instead of inline calculation
->
-          <CartesianGrid 
-            strokeDasharray="4,4" 
-            stroke="#6b7280" 
-            opacity={0.5}
-          />
-          <XAxis 
-            dataKey="monthName"
-            stroke="#f3f4f6"
-            fontSize={14}
-            fontWeight="bold"
-            style={{
-              fill: '#f3f4f6'
-            }}
-          />
-          <YAxis 
-            stroke="#f3f4f6"
-            fontSize={14}
-            fontWeight="bold"
-            style={{
-              fill: '#f3f4f6'
-            }}
-            tickFormatter={(value) => `${value.toFixed(1)}t`}
-          />
-          <ResponsiveTooltip 
-            contentStyle={{ 
-              backgroundColor: '#111827', 
-              border: '1px solid #34d399',
-              borderRadius: '8px',
-              color: '#f3f4f6'
-            }}
-            formatter={(value, name) => [
-              `${value.toFixed(2)} t CO₂`,
-              'Cumulative Emissions'
-            ]}
-            labelFormatter={(label, payload) => {
-              const currentMonth = new Date().getMonth();
-              const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                   'July', 'August', 'September', 'October', 'November', 'December'];
-                                   
-              if (payload && payload[0]) {
-                const data = payload[0].payload;
-                //return `${data.fullMonthName} - Total: ${data.cumulativeKg.toFixed(0)} kg`;
-                return `${fullMonthNames[currentMonth]} - ${data.fullMonthName} : ${data.cumulativeKg.toFixed(0)} kg`;
-
-              }
-              return label;
-            }}
-          />
-          
-          {/* Main projection line */}
-          <Line 
-            type="monotone"
-            dataKey="value"
-            stroke="#34d399"
-            strokeWidth={3}
-            dot={{ 
-              r: 4, 
-              fill: '#34d399',
-              stroke: '#ffffff',
-              strokeWidth: 1
-            }}
-            activeDot={{ 
-              r: 8, 
-              fill: '#34d399',
-              stroke: '#ffffff',
-              strokeWidth: 2
-            }}
-            //isAnimationActive={false} 
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-
-    {/* Chart Info */}
-    <motion.div 
-      className="mt-4 text-center text-sm text-gray-400"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.4 }}
-    >
-      <p>Starting from {(() => {
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                               'July', 'August', 'September', 'October', 'November', 'December'];
-        return `${fullMonthNames[currentMonth]} ${currentYear}`;
-      })()} • Probable yearly emission if you keep similar emissions monthly</p>
-    </motion.div>
-  </motion.div>
-</div>
-)}
-
 {/* Leaderboard */}
 <div className="group relative">
-  <div className="absolute -inset-1 rounded-2xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none" />
+  <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none" />
   <motion.div
     className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
   >
-    <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 
+    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 
                     group-hover:opacity-100 animate-borderFlow 
                     border-emerald-500 dark:border-gray-100 pointer-events-none" />
     <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-4 text-center text-emerald-500 dark:text-gray-100"><span className="animate-trophy-shine">🏆 </span>Leaderboard</h3>
-    <div className="space-y-3">
+    <div ref={leaderboardRef} className="space-y-3">
       
       <motion.div
   variants={containerVariants}
@@ -1983,6 +1751,7 @@ if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
     <motion.div
       key={u.email}
       className="relative"
+      data-lb-item
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1997,8 +1766,14 @@ if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
         className={`relative p-3 rounded-lg mb-3 cursor-pointer sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal tracking-normal ${
           isMe ? 'bg-emerald-700/30' : 'bg-gray-800/40'
         }`}
-        onMouseEnter={() => setHoveredIndex(i)}
-        onMouseLeave={() => setHoveredIndex(null)}
+        onMouseEnter={() => {
+  clearTimeout(hoverTimeoutRef.current);
+  hoverTimeoutRef.current = setTimeout(() => setHoveredIndex(i), 50);
+}}
+onMouseLeave={() => {
+  clearTimeout(hoverTimeoutRef.current);
+  setHoveredIndex(null);
+}}
         onClick={(e) => {
           if (e.target.closest('.category-item')) return;
           e.stopPropagation();
@@ -2092,7 +1867,7 @@ if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
                   opacity: { duration: 0.2 }
                 }
               }}
-              className="overflow-visible"
+              className="overflow-visible hidden sm:block"
             >
               <div className="mt-4 space-y-2">
                 {/* Food */}
@@ -2420,6 +2195,675 @@ if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
   </motion.div>
 </div>
 
+{/* Yearly Projection  */}
+{total && (
+<div className="group relative">
+  <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
+  
+  <motion.div
+    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ duration: 0.7, delay: 0.2 }}
+  >
+    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+    
+    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-6 text-center text-emerald-500 dark:text-gray-100">
+      <span className="animate-glow-up">📈</span> Yearly Projection
+    </h3>
+
+    {/* Current Year Summary */}
+    <motion.div 
+      className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6 text-center"
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.3 }}
+    >
+      <div className="sm:text-lg md:text-xl text-shadow-DEFAULT font-intertight font-medium text-white mb-2">
+        {(() => {
+          const entryDate = new Date(entryData.createdAt || entryData.updatedAt);
+const currentMonth = entryDate.getMonth(); // 0-11
+const currentYear = entryDate.getFullYear();
+          
+          if (currentMonth === 0) { // January
+            return `${currentYear}`;
+          } else { // February to December
+            return `${currentYear}-${(currentYear + 1).toString().slice(-2)}`;
+          }
+        })()} Projected Total
+      </div>
+      <div className="sm:text-2xl md:text-3xl text-shadow-DEFAULT font-intertight font-bold">
+        {(() => {
+          const yearlyTonnes = yearly / 1000;
+let style = { 
+  color: 'text-green-400', 
+  emoji: '🌱', 
+  animation: 'animate-gentle-grow' 
+};
+
+if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
+  style = { color: 'text-yellow-400', emoji: '⚠️', animation: 'animate-warning-shake' };
+} else if (yearlyTonnes > 7 && yearlyTonnes <= 10) {
+  style = { color: 'text-orange-400', emoji: '🔥', animation: 'animate-flame-flicker' };
+} else if (yearlyTonnes > 10) {
+  style = { color: 'text-red-400', emoji: '💥', animation: 'animate-explode-pop' };
+}
+
+          
+          const [intPart, decimalPart] = yearlyTonnes.toFixed(2).split('.');
+          
+          return (
+            <>
+              <span className={`${style.animation} ${style.color} text-2xl mr-2`}>{style.emoji}</span>
+              <span className={style.color}>
+                {intPart}
+                <span className="hidden sm:inline">.{decimalPart}</span> tonnes CO
+                <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
+                  2
+                </span>
+              </span>
+            </>
+          );
+        })()}
+      </div>
+    </motion.div>
+
+    {/* Interactive Chart */}
+    <div 
+      className="relative h-80 w-full bg-gray-800/30 rounded-xl p-4 overflow-hidden"
+      style={{ 
+        outline: 'none', 
+        border: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        userSelect: 'none'
+      }}
+      onFocus={(e) => e.target.blur()}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart 
+  margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
+  data={yearlyChartData} // Use memoized data instead of inline calculation
+>
+          <CartesianGrid 
+            strokeDasharray="4,4" 
+            stroke="#6b7280" 
+            opacity={0.5}
+          />
+          <XAxis 
+            dataKey="monthName"
+            stroke="#f3f4f6"
+            fontSize={14}
+            fontWeight="bold"
+            style={{
+              fill: '#f3f4f6'
+            }}
+          />
+          <YAxis 
+            stroke="#f3f4f6"
+            fontSize={14}
+            fontWeight="bold"
+            style={{
+              fill: '#f3f4f6'
+            }}
+            tickFormatter={(value) => `${value.toFixed(1)}t`}
+          />
+          <ResponsiveTooltip 
+            contentStyle={{ 
+              backgroundColor: '#111827', 
+              border: '1px solid #34d399',
+              borderRadius: '8px',
+              color: '#f3f4f6'
+            }}
+            formatter={(value, name) => [
+              `${value.toFixed(2)} t CO₂`,
+              'Cumulative Emissions'
+            ]}
+            labelFormatter={(label, payload) => {
+              const currentMonth = new Date().getMonth();
+              const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                                   'July', 'August', 'September', 'October', 'November', 'December'];
+                                   
+              if (payload && payload[0]) {
+                const data = payload[0].payload;
+                //return `${data.fullMonthName} - Total: ${data.cumulativeKg.toFixed(0)} kg`;
+                return `${fullMonthNames[currentMonth]} - ${data.fullMonthName} : ${data.cumulativeKg.toFixed(0)} kg`;
+
+              }
+              return label;
+            }}
+          />
+          
+          {/* Main projection line */}
+          <Line 
+            type="monotone"
+            dataKey="value"
+            stroke="#34d399"
+            strokeWidth={3}
+            dot={{ 
+              r: 4, 
+              fill: '#34d399',
+              stroke: '#ffffff',
+              strokeWidth: 1
+            }}
+            activeDot={{ 
+              r: 8, 
+              fill: '#34d399',
+              stroke: '#ffffff',
+              strokeWidth: 2
+            }}
+            //isAnimationActive={false} 
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+
+    {/* Chart Info */}
+    <motion.div 
+      className="mt-4 text-center text-sm text-gray-400"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.4 }}
+    >
+      <p>Starting from {(() => {
+        const entryDate = new Date(entryData.createdAt || entryData.updatedAt);
+const currentMonth = entryDate.getMonth();
+const currentYear = entryDate.getFullYear();
+        const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+        return `${fullMonthNames[currentMonth]} ${currentYear}`;
+      })()} • Probable yearly emission if you keep similar emissions monthly</p>
+    </motion.div>
+  </motion.div>
+</div>
+)}
+
+{/* Milestones & Achievements */}
+<div className="group relative">
+  <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
+  
+  <motion.div
+    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ duration: 0.7 }}
+  >
+    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+    
+    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-6 text-center text-emerald-500 dark:text-gray-100">
+      <span className="animate-trophy-shine">🏆</span> Achievements
+    </h3>
+
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-shadow-DEFAULT tracking-wide font-intertight">
+      {(() => {
+        const badges = [];
+        const yearlyTonnes = yearly / 1000;
+        const isTopPerformer = leaderboard.findIndex(u => u.email === user?.email) < leaderboard.length * 0.1;
+        
+        // Top 10% Badge
+        if (isTopPerformer) {
+          badges.push({
+            emoji: '🏆',
+            emojiClass: 'animate-trophy',
+            title: 'Top 10%',
+            desc: 'Elite Performer',
+            color: 'from-yellow-500/20 to-amber-500/20'
+          });
+        }
+
+        // Low Emissions Badge
+        if (yearlyTonnes <= 4) {
+          badges.push({
+            emoji: '🌱',
+            emojiClass: 'animate-seedling',
+            title: 'Eco Champion',
+            desc: 'Sustainably Low',
+            color: 'from-green-500/20 to-emerald-500/20'
+          });
+        }
+
+        // Travel Efficiency Badge
+        if (processed.transportEmissionKg < 80) {
+          badges.push({
+            emoji: '🚶',
+            emojiClass: 'animate-walk',
+            title: 'Green Traveler',
+            desc: 'Low Transport',
+            color: 'from-blue-500/20 to-cyan-500/20'
+          });
+        }
+
+        // Energy Saver Badge
+        if (processed.electricityEmissionKg < 70) {
+          badges.push({
+            emoji: '⚡',
+            emojiClass: 'animate-electric',
+            title: 'Energy Saver',
+            desc: 'Low Power Use',
+            color: 'from-yellow-500/20 to-orange-500/20'
+          });
+        }
+
+        // Locked Badge
+        while (badges.length < 4) {
+          badges.push({
+            emoji: '🔒',
+            emojiClass: 'animate-lock', // or animate-lock-shield
+            title: 'Locked',
+            desc: 'Keep improving',
+            color: 'from-gray-500/20 to-gray-600/20',
+            locked: true
+          });
+        }
+        
+        return badges.map((badge, i) => (
+          <motion.div
+            key={i}
+            className={`bg-gradient-to-r ${badge.color} rounded-xl p-4 text-center backdrop-blur-sm ${!badge.locked ? 'cursor-pointer' : 'opacity-50'}`}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4, delay: i * 0.1 }}
+            whileHover={!badge.locked ? { scale: 1.05 } : {}}
+            whileTap={!badge.locked ? { scale: 0.95 } : {}}
+          >
+            <div className={`text-4xl mb-2 ${badge.emojiClass || ''}`}>
+              {badge.emoji}
+            </div>
+            <div className="text-sm sm:text-base font-medium text-white mb-1">{badge.title}</div>
+            <div className="text-xs text-gray-300">{badge.desc}</div>
+          </motion.div>
+        ));
+      })()}
+    </div>
+  </motion.div>
+</div>
+
+{/* Emission Forecast Simulator */}
+<div className="group relative">
+  <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
+  
+  <motion.div
+    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ duration: 0.7 }}
+  >
+    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+    
+    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-6 text-center text-emerald-500 dark:text-gray-100">
+      <span className="text-2xl animate-crystal-ball">🔮</span> What If
+    </h3>
+
+    {(() => {
+      
+      const scale = (value) => {
+  if (value === 100) return 1; 
+  return Math.pow(value / 100, 1.4);
+};
+
+const simulatedTotal = (
+  processed.transportEmissionKg * scale(simTransport) +
+  processed.foodEmissionKg * scale(simDiet) +
+  processed.electricityEmissionKg * scale(simElectricity) +
+  processed.wasteEmissionKg * scale(simWaste)
+);
+
+const foodSim = processed.foodEmissionKg * scale(simDiet);
+const transportSim = processed.transportEmissionKg * scale(simTransport);
+const electricitySim = processed.electricityEmissionKg * scale(simElectricity);
+const wasteSim = processed.wasteEmissionKg * scale(simWaste);
+
+      const difference = simulatedTotal - total;
+      const percentChange = ((difference / total) * 100);
+      const getPercentColor = (value) => {
+  if (value === 100) return "rgb(255,255,255)"; // pure white
+
+  if (value > 100) {
+    // White → Red transition
+    let intensity = Math.min((value - 100) / 100, 1);
+    return `rgb(255, ${Math.floor(255 * (1 - intensity))}, ${Math.floor(255 * (1 - intensity))})`;
+  } else {
+    // White → Blue transition
+    let intensity = Math.min((100 - value) / 100, 1);
+    return `rgb(${Math.floor(255 * (1 - intensity))}, ${Math.floor(255 * (1 - intensity))}, 255)`;
+  }
+};
+const getSliderStyle = (value) => ({
+  accentColor: getPercentColor(value),        // thumb color
+  background: `linear-gradient(
+      90deg,
+      ${getPercentColor(value)} ${value / 2}%, 
+      #444 ${value / 2}%
+    )`,
+  transition: "all 0.3s ease",
+});
+      return (
+        <>
+          <div className="space-y-6 mb-6 text-shadow-DEFAULT tracking-wide font-intertight">
+            
+            {/* Food Slider */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm sm:text-base text-white flex items-center gap-2">
+                  <span className="animate-food-bowl">🥗</span> Food {foodSim.toFixed(1)} kg
+                </span>
+                <span
+  className="text-sm sm:text-base font-semibold transition-colors duration-300"
+  style={{ color: getPercentColor(simDiet) }}
+>
+  {simDiet}%
+</span>
+              </div>
+              <input
+  type="range"
+  min="0"
+  max="200"
+  value={simDiet}
+  onChange={(e) => setSimDiet(Number(e.target.value))}
+  style={getSliderStyle(simDiet)}
+  className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+/>
+
+            </div>
+            
+            {/* Transport Slider */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm sm:text-base text-white flex items-center gap-2">
+                  <span className="animate-car-drive">🚗</span> Transport {transportSim.toFixed(1)} kg
+                </span>
+                <span
+  className="text-sm sm:text-base font-semibold transition-colors duration-300"
+  style={{ color: getPercentColor(simTransport) }}
+>
+  {simTransport}%
+</span>
+              </div>
+             <input
+  type="range"
+  min="0"
+  max="200"
+  value={simTransport}
+  onChange={(e) => setSimTransport(Number(e.target.value))}
+  style={getSliderStyle(simTransport)}
+  className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+/>
+            </div>
+
+            {/* Electricity Slider */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm sm:text-base text-white flex items-center gap-2">
+                  <span className="animate-electricity">⚡</span> Electricity {electricitySim.toFixed(1)} kg
+                </span>
+                
+                <span
+  className="text-sm sm:text-base font-semibold transition-colors duration-300"
+  style={{ color: getPercentColor(simElectricity) }}
+>
+  {simElectricity}%
+</span>
+
+              </div>
+              <input
+  type="range"
+  min="0"
+  max="200"
+  value={simElectricity}
+  onChange={(e) => setSimElectricity(Number(e.target.value))}
+  style={getSliderStyle(simElectricity)}
+  className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+/>
+
+            </div>
+
+            {/* Waste Slider */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm sm:text-base text-white flex items-center gap-2">
+                  <span className="animate-waste-bin">🗑️</span> Waste {wasteSim.toFixed(1)} kg
+                </span>
+                <span
+  className="text-sm sm:text-base font-semibold transition-colors duration-300"
+  style={{ color: getPercentColor(simWaste) }}
+>
+  {simWaste}%
+</span>
+
+              </div>
+              <input
+  type="range"
+  min="0"
+  max="200"
+  value={simWaste}
+  onChange={(e) => setSimWaste(Number(e.target.value))}
+  style={getSliderStyle(simWaste)}
+  className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+/>
+
+            </div>
+          </div>
+
+          {/* Results */}
+          <motion.div
+            className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl text-shadow-DEFAULT tracking-wide font-intertight p-4 text-center"
+            key={simulatedTotal}
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="text-sm text-gray-300 mb-2">Simulated Monthly Total</div>
+            <div className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              {simulatedTotal.toFixed(2)} kg CO<span className="text-lg align-sub">2</span>
+            </div>
+            <div className={`text-sm sm:text-base ${difference < 0 ? 'text-green-400' : difference > 0 ? 'text-red-400' : 'text-gray-400'}`}>
+              {difference < 0 ? '📉' : difference > 0 ? '📈' : '➡️'} 
+              {' '}{Math.abs(difference).toFixed(2)} kg ({percentChange > 0 ? '+' : ''}{percentChange.toFixed(1)}%)
+              {difference < 0 ? ' saved!' : difference > 0 ? ' increase' : ' no change'}
+            </div>
+          </motion.div>
+        </>
+      );
+    })()}
+  </motion.div>
+</div>
+
+{/* Global Comparison */}
+<div className="group relative">
+  <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
+  
+  <motion.div
+    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ duration: 0.7 }}
+  >
+    <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
+    
+    <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-6 text-center text-emerald-500 dark:text-gray-100">
+      <span className="text-2xl animate-earth">🌍</span> Global Context
+    </h3>
+
+    {(() => {
+      const worldAvgMonthly = 400; // ~4 tonnes/year
+      const indiaAvgMonthly = 200; // ~2 tonnes/year
+      
+      // Calculate user's percentage relative to each average
+      const userToWorldRatio = (total / worldAvgMonthly) * 50; // 50% = average
+      const userToIndiaRatio = (total / indiaAvgMonthly) * 50; // 50% = average
+      
+      const worldDiff = ((total - worldAvgMonthly) / worldAvgMonthly) * 100;
+      const indiaDiff = ((total - indiaAvgMonthly) / indiaAvgMonthly) * 100;
+      
+      return (
+        <div className="space-y-6">
+          {/* World Average Section */}
+          <motion.div
+            className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-3xl text-shadow-DEFAULT tracking-wide font-intertight p-4"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* World Average Bar */}
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl animate-earth">🌎</span>
+                  <span className="text-sm sm:text-base text-white font-medium">World Average</span>
+                </div>
+                <span className="text-sm sm:text-base text-white text-shadow-DEFAULT mt-2 sm:mt-0 font-intertight sm:tracking-wide">
+                  {(() => {
+                    const [intPart, decimalPart] = worldAvgMonthly.toFixed(2).split('.');
+                    return (
+                      <>
+                        {intPart}
+                        <span className="hidden sm:inline">.{decimalPart}</span> kg CO
+                        <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
+                          2
+                        </span>
+                      </>
+                    );
+                  })()}
+                </span>
+              </div>
+              
+              <div className="relative h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: '50%' }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
+                  className="h-full rounded-full relative overflow-hidden bg-gradient-to-r from-blue-300 to-blue-500"
+                >
+                  <div className="absolute inset-0 animate-flowing-bar" />
+                </motion.div>
+              </div>
+            </div>
+
+            {/* User vs World Bar */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl animate-cool-face">😎</span>
+                  <span className="text-sm sm:text-base text-white font-medium">{user?.name.split(' ')[0]}</span>
+                </div>
+                <span className="text-sm sm:text-base text-white text-shadow-DEFAULT mt-2 sm:mt-0 font-intertight sm:tracking-wide">
+                  {(() => {
+                    const [intPart, decimalPart] = (total ?? 0).toFixed(2).split('.');
+                    return (
+                      <>
+                        {intPart}
+                        <span className="hidden sm:inline">.{decimalPart}</span> kg CO
+                        <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
+                          2
+                        </span>
+                      </>
+                    );
+                  })()}
+                </span>
+              </div>
+              
+              <div className="relative h-2 bg-gray-700/50 rounded-full overflow-hidden mb-2">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(userToWorldRatio, 100)}%` }}
+                  transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+                  className="h-full rounded-full relative overflow-hidden bg-gradient-to-r from-green-300 to-green-500"
+                >
+                  <div className="absolute inset-0 animate-flowing-bar" />
+                </motion.div>
+              </div>
+              
+              <div className={`text-sm text-center ${worldDiff < 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {Math.abs(worldDiff).toFixed(0)}% {worldDiff < 0 ? 'less ✨' : 'more 😢'} than world average
+              </div>
+            </div>
+          </motion.div>
+
+          {/* India Average Section */}
+          <motion.div
+            className="bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-3xl text-shadow-DEFAULT tracking-wide font-intertight p-4"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            {/* India Average Bar */}
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl animate-mosque">🕌</span>
+                  <span className="text-sm sm:text-base text-white font-medium">India Average</span>
+                </div>
+                <span className="text-sm sm:text-base text-white text-shadow-DEFAULT mt-2 sm:mt-0 font-intertight sm:tracking-wide">
+                  {(() => {
+                    const [intPart, decimalPart] = indiaAvgMonthly.toFixed(2).split('.');
+                    return (
+                      <>
+                        {intPart}
+                        <span className="hidden sm:inline">.{decimalPart}</span> kg CO
+                        <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
+                          2
+                        </span>
+                      </>
+                    );
+                  })()}
+                </span>
+              </div>
+              
+              <div className="relative h-2 bg-gray-700/50 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: '50%' }}
+                  transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
+                  className="h-full rounded-full relative overflow-hidden bg-gradient-to-r from-yellow-300 to-orange-500"
+                >
+                  <div className="absolute inset-0 animate-flowing-bar" />
+                </motion.div>
+              </div>
+            </div>
+
+            {/* User vs India Bar */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl animate-cool-face">😎</span>
+                  <span className="text-sm sm:text-base text-white font-medium">{user?.name.split(' ')[0]}</span>
+                </div>
+                <span className="text-sm sm:text-base text-white text-shadow-DEFAULT mt-2 sm:mt-0 font-intertight sm:tracking-wide">
+                  {(() => {
+                    const [intPart, decimalPart] = (total ?? 0).toFixed(2).split('.');
+                    return (
+                      <>
+                        {intPart}
+                        <span className="hidden sm:inline">.{decimalPart}</span> kg CO
+                        <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
+                          2
+                        </span>
+                      </>
+                    );
+                  })()}
+                </span>
+              </div>
+              
+              <div className="relative h-2 bg-gray-700/50 rounded-full overflow-hidden mb-2">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(userToIndiaRatio, 100)}%` }}
+                  transition={{ duration: 1, ease: 'easeOut', delay: 0.5 }}
+                  className="h-full rounded-full relative overflow-hidden bg-gradient-to-r from-green-300 to-green-500"
+                >
+                  <div className="absolute inset-0 animate-flowing-bar" />
+                </motion.div>
+              </div>
+              
+              <div className={`text-sm text-center ${indiaDiff < 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {Math.abs(indiaDiff).toFixed(0)}% {indiaDiff < 0 ? 'less 🌟' : 'more 😢'} than India average
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      );
+    })()}
+  </motion.div>
+</div>
     </div></motion.div>
     </PageWrapper>
   </motion.div>

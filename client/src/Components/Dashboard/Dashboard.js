@@ -772,11 +772,13 @@ useEffect(() => {
                 opacity-0 group-hover:opacity-100 animate-borderFlow 
                 border-emerald-500 dark:border-gray-100 pointer-events-none" />
 
-                <div className="text-lg sm:text-2xl md:text-3xl font-normal tracking-normal sm:font-semibold sm:tracking-wider font-intertight text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"><div className="relative inline-block">
+                <div className="text-lg sm:text-2xl md:text-3xl font-normal tracking-normal sm:font-semibold sm:tracking-wider font-intertight text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500">
+  <div className="relative inline-block">
+    <div className="hidden sm:block">
   <span className="absolute left-[7px] -top-[6px] animate-smoke text-sm opacity-50 delay-0">☁️</span>
   <span className="absolute left-[10px] -top-[8px] animate-smoke text-xs opacity-40 delay-400">☁️</span>
   <span className="absolute left-[5px] -top-[10px] animate-smoke text-[10px] opacity-30 delay-800">☁️</span>
-  <span className="inline-block">🏭</span>
+  </div><span className="inline-block">🏭</span>
 </div>
  Total Emission <span className="animate-colon-glow">:</span> <span>
   {Math.floor(entry.totalEmissionKg)}
@@ -1027,15 +1029,19 @@ useEffect(() => {
         >
           {/* 🔥 Animated Emoji with burst-on-tap */}
           <motion.span
-          id={`emoji-${section.id}`}
+  id={`emoji-${section.id}`}
   className="relative inline-block"
   variants={emojiVariants}
- 
-  animate="idle"
-  whileHover="hover"
+
+  // ❌ disable animation on mobile
+  animate={isMobile ? undefined : "idle"}
+  whileHover={isMobile ? undefined : "hover"}
+
   role="img"
   aria-label="Section emoji"
->{emoji}</motion.span>
+>
+  {emoji}
+</motion.span>
 
           {text}
         </motion.h2>

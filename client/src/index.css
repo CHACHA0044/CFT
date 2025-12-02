@@ -3873,3 +3873,34 @@ html {
   70%           { opacity: 1; transform: scale(1.2); }
   85%           { opacity: 0.3; transform: scale(0.9); }
 }
+/* Disable ALL emoji animations on mobile only */
+@media (max-width: 639px) {
+
+  /* ========== IDEA GLOW ========== */
+  .animate-idea-glow {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .animate-idea-glow::before,
+  .animate-idea-glow::after {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: none !important;
+  }
+
+  /* ========== LIGHTBULB PULSE ========== */
+  .animate-lightbulb-pulse {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .animate-lightbulb-pulse::before,
+  .animate-lightbulb-pulse::after {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: none !important;
+  }
+}

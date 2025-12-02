@@ -172,7 +172,7 @@ useEffect(() => {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 10 }}
         transition={{ duration: 0.3 }}
-        className="absolute bottom-full -ml-44 left-1/2 transform -translate-x-1/2 -mb-3 bg-emerald-500/90 dark:bg-black/90 text-white px-4 py-2 rounded-xl shadow-lg text-sm font-medium text-center z-50 whitespace-nowrap"
+        className="absolute bottom-full hidden sm:block -ml-44 left-1/2 transform -translate-x-1/2 -mb-3 bg-emerald-500/90 dark:bg-black/90 text-white px-4 py-2 rounded-xl shadow-lg text-sm font-medium text-center z-50 whitespace-nowrap"
       >
         Version {appVersion.version} • Update includes new chart sections
       </motion.div>

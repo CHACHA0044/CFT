@@ -1018,7 +1018,7 @@ export const FeedbackButton = ({ className, compact = false, userEmail, ...props
                     </div>
 
                     <p className="text-xs text-gray-500 mt-4 text-center">
-                      Limited to 3 submissions per hour
+                      Limited to 1 submissions per day.
                     </p>
                   </>
                 )}

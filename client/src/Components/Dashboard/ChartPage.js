@@ -710,19 +710,15 @@ return (
           {error}
         </div>
       )}
-<div className=" w-auto px-0">
-<CardNav
-  logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
-  logoAlt="Animated Menu"
-  baseColor="#fff"
-  menuColor="bg-white/20 dark:bg-gray-800/70"
-  buttonBgColor="#111"
-  buttonTextColor="#fff"
-  logoSize="w-25 h-25"
-  ease="power3.out"
-  isMenuOpen={isMenuOpen}
-  onToggleMenu={setIsMenuOpen}
->
+<div className="w-auto px-0">
+  <CardNav
+    logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
+    logoAlt="Animated Menu"
+    menuColor="bg-white/20 dark:bg-gray-800/70"
+    logoSize="w-25 h-25"
+    isMenuOpen={isMenuOpen}
+    onToggleMenu={setIsMenuOpen}
+  >
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
     <AnimatePresence>
       {showECM && (
@@ -747,7 +743,6 @@ return (
   </div>
 </CardNav>
 </div>
-<motion.div className="relative w-full px-0" animate={{ filter: isMenuOpen ? 'blur(5px)' : '', pointerEvents: isMenuOpen ? 'none' : 'auto' }} transition={{ duration: 0.35, ease: 'easeInOut' }}>
       <div className="max-w-4xl mx-auto sm:space-y-12 space-y-6 px-4 pt-4 pb-4">
         
         {/* Total Emissions */}
@@ -2864,7 +2859,7 @@ const getSliderStyle = (value) => ({
     })()}
   </motion.div>
 </div>
-    </div></motion.div>
+    </div>
     </PageWrapper>
   </motion.div>
 );

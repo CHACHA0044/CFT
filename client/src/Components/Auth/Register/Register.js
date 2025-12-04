@@ -334,6 +334,9 @@ useEffect(() => {
       sessionStorage.setItem('userName', decodeURIComponent(userName));
     }
 
+    // Mark as first-time user for Google OAuth registration
+    sessionStorage.setItem('isFirstTimeUser', 'true');
+
     setSuccess('🎉 Registration successful! Email sent containing your password. Redirecting to dashboard...');
     
     // Clear URL parameters

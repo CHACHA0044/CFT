@@ -543,18 +543,14 @@ const handleSubmit = async (e) => {
       <PageWrapper backgroundImage="/images/edit-bk.webp">
         <div className="flex flex-col justify-center items-center px-4 py-10">
           <div className="w-auto px-0">
-            <CardNav
-              logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
-              logoAlt="Animated Menu"
-              baseColor="#fff"
-              menuColor="bg-white/20 dark:bg-gray-800/70"
-              buttonBgColor="#111"
-              buttonTextColor="#fff"
-              logoSize="w-25 h-25"
-              ease="power3.out"
-              isMenuOpen={isMenuOpen}
-              onToggleMenu={setIsMenuOpen}
-            >
+              <CardNav
+                logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
+                logoAlt="Animated Menu"
+                menuColor="bg-white/20 dark:bg-gray-800/70"
+                logoSize="w-25 h-25"
+                isMenuOpen={isMenuOpen}
+                onToggleMenu={setIsMenuOpen}
+              >
               <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
                 <EditDeleteButton className="w-40" />
                 <DashboardButton className="w-40" />
@@ -565,13 +561,7 @@ const handleSubmit = async (e) => {
           <div ref={formRef} className={`${boxglowRI} w-full max-w-2xl bg-white/10 dark:bg-black/50 backdrop-blur-md rounded-3xl shadow-lg p-6 text-green-500 dark:text-white
             ${shakeField === 'form' ? 'animate-shake' : ''}
           `}>
-            <motion.div
-              animate={{ 
-                filter: isMenuOpen ? 'blur(5px)' : '',
-                pointerEvents: isMenuOpen ? 'none' : 'auto'
-              }}
-              transition={{ duration: 0.35, ease: 'easeInOut' }}
-            >
+            
               <h2 className="text-2xl font-semibold mb-6 text-center">
                 <AnimatedHeadline />
               </h2>
@@ -800,7 +790,7 @@ const handleSubmit = async (e) => {
                   styleOverride={{ width: '100%', height: '3.5rem' }}
                 />
               </form>
-            </motion.div>
+            
           </div>
         </div>
       </PageWrapper>

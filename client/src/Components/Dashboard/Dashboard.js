@@ -11,6 +11,7 @@ import CardNav from 'Components/CardNav';
 import LottieLogo from 'Components/LottieLogoComponent';
 import DailyGreetingD from './DailyGreetingD';
 import FirstTimeWelcome from './FirstTimeWelcome';
+import WelcomeBackGreeting from './WelcomeBackGreeting';
   const sentence = "Your Climate Dashboard";
   const words = sentence.split(" ");
   const sentence2 = "Emission Insights & Suggestions";
@@ -620,19 +621,15 @@ useEffect(() => {
           >
     <PageWrapper backgroundImage="/images/dashboard-bk.webp">
     <div ref={topRef}></div>
-    <div className=" w-auto px-0">
-<CardNav
-  logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
-  logoAlt="Animated Menu"
-  baseColor="#fff"
-  menuColor="bg-white/20 dark:bg-gray-800/70"
-  buttonBgColor="#111"
-  buttonTextColor="#fff"
-  logoSize="w-25 h-25"
-  ease="power3.out"
-  isMenuOpen={isMenuOpen}
-  onToggleMenu={setIsMenuOpen}
->
+<div className="w-auto px-0">
+  <CardNav
+    logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
+    logoAlt="Animated Menu"
+    menuColor="bg-white/20 dark:bg-gray-800/70"
+    logoSize="w-25 h-25"
+    isMenuOpen={isMenuOpen}
+    onToggleMenu={setIsMenuOpen}
+  >
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
   <NewEntryButton className="w-40" />
   {data.length > 0 && (
@@ -642,14 +639,6 @@ useEffect(() => {
   </div>
 </CardNav>
 </div>
-     <motion.div
-  className="relative w-full px-0"
-  animate={{ 
-    filter: isMenuOpen ? 'blur(5px)' : '',
-    pointerEvents: isMenuOpen ? 'none' : 'auto'
-  }}
-  transition={{ duration: 0.35, ease: 'easeInOut' }}
->
 
 <motion.div
   initial={{ y: -30, opacity: 0 }}
@@ -672,20 +661,15 @@ useEffect(() => {
   </motion.span>
 </motion.div>
 
-    </motion.div>
-    {/* <div className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"> */}
       <motion.div
   className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"
-  animate={{ 
-    filter: isMenuOpen ? 'blur(5px)' : '',
-    pointerEvents: isMenuOpen ? 'none' : 'auto' // Prevents clicks on blurred content
-  }}
   transition={{ duration: 0.35, ease: 'easeInOut' }}
 >
 
     <div className=" py-6 text-center items-center justify-center space-y-4 min-h-[6rem]">
     <AnimatedHeadline />
     <FirstTimeWelcome />
+    {!isMobile && (<WelcomeBackGreeting userName={user?.name} />)}
     {!isMobile && (<DailyGreetingD shimmerControls={shimmerControls} />)}
     {showLimitMsg && (
   <motion.div

@@ -375,19 +375,15 @@ return (
   >
     <PageWrapper backgroundImage="/images/history-bk.webp">
   <div className="w-full max-w-7xl flex flex-col px-6 py-6 overflow-y-auto overflow-x-hidden overflow-visible text-emerald-500 dark:text-white transition-colors duration-500">
-    <div className=" w-auto px-0">
-<CardNav
-  logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
-  logoAlt="Animated Menu"
-  baseColor="#fff"
-  menuColor="bg-white/20 dark:bg-gray-800/70"
-  buttonBgColor="#111"
-  buttonTextColor="#fff"
-  logoSize="w-25 h-25"
-  ease="power3.out"
-  isMenuOpen={isMenuOpen}
-  onToggleMenu={setIsMenuOpen}
->
+<div className="w-auto px-0">
+  <CardNav
+    logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
+    logoAlt="Animated Menu"
+    menuColor="bg-white/20 dark:bg-gray-800/70"
+    logoSize="w-25 h-25"
+    isMenuOpen={isMenuOpen}
+    onToggleMenu={setIsMenuOpen}
+  >
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
     <NewEntryButton className="w-40" />
     <DashboardButton className="w-40" />
@@ -396,14 +392,6 @@ return (
   </div>
 </CardNav>
 </div>
-<motion.div
-           
-           animate={{ 
-             filter: isMenuOpen ? 'blur(5px)' : '',
-             pointerEvents: isMenuOpen ? 'none' : 'auto'
-           }}
-           transition={{ duration: 0.35, ease: 'easeInOut' }}
-         >
           <h2 className="text-3xl font-bold mb-6 text-center"><AnimatedHeadline />{!isMobile && <DailyGreeting shimmerControls={shimmerControls} />}</h2>
 
           <AnimatePresence>
@@ -555,12 +543,10 @@ return (
               styleOverride={{ width: '12rem', margin: '1rem auto' }}
             />
           )}
-          </motion.div>
         </div>  
     </PageWrapper>
   </motion.div>
 );
-
 };
 
 export default History;

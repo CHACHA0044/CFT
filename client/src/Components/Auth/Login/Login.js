@@ -295,7 +295,7 @@ if (!formData.password.trim()) {
     sessionStorage.setItem('userName', userResponse.data.name);
     setSuccess('Login Successful! 😎');
     setError('');
-
+    sessionStorage.setItem('justLoggedIn', 'true');
     // Verify cookie was set
     try {
       await API.get('/auth/token-info/me');
@@ -349,14 +349,28 @@ useEffect(() => {
 
 useEffect(() => {
   const params = new URLSearchParams(location.search);
-  const authError = params.get('error');
+  const googleAuth = params.get('googleAuth');
+  const userName = params.get('userName');
+  const firstTime = params.get('firstTime');
   
-  if (authError === 'auth_failed') {
-    setError('Google authentication failed. Please try again.');
+  if (googleAuth === 'success') {
+    if (userName) {
+      sessionStorage.setItem('userName', decodeURIComponent(userName));
+    }
+    
+    // Set first-time flag for Google users who are registering
+    if (firstTime === 'true') {
+      sessionStorage.setItem('isFirstTimeUser', 'true');
+    } else {
+      // This is a returning user logging in with Google
+      sessionStorage.setItem('justLoggedIn', 'true');
+    }
+    
+    setSuccess('Login Successful! 😎');
     window.history.replaceState({}, '', '/login');
-    setTimeout(() => {setError('');}, 3500);
+    setTimeout(() => { navigate('/dashboard'); }, 3000);
   }
-}, [location]);
+}, [location.search, navigate]);
 useEffect(() => {
   return () => timers.current.forEach((t) => clearTimeout(t));
 }, []);

@@ -619,12 +619,8 @@ const handleSubmit = async (e) => {
           <CardNav
             logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
             logoAlt="Animated Menu"
-            baseColor="#fff"
             menuColor="bg-white/20 dark:bg-gray-800/70"
-            buttonBgColor="#111"
-            buttonTextColor="#fff"
             logoSize="w-25 h-25"
-            ease="power3.out"
             isMenuOpen={isMenuOpen}
             onToggleMenu={setIsMenuOpen}
           >
@@ -634,14 +630,6 @@ const handleSubmit = async (e) => {
             </div>
           </CardNav>
         </div>
-
-        <motion.div
-          animate={{ 
-            filter: isMenuOpen ? 'blur(5px)' : '',
-            pointerEvents: isMenuOpen ? 'none' : 'auto'
-          }}
-          transition={{ duration: 0.35, ease: 'easeInOut' }}
-        >
           <div className="flex flex-col items-center justify-center w-full px-6 py-6">
             <form
               ref={formRef}
@@ -932,7 +920,6 @@ const handleSubmit = async (e) => {
               />
             </form>
           </div>
-        </motion.div>
       </PageWrapper>
     </motion.div>
   );

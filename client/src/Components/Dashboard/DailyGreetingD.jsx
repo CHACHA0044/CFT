@@ -180,7 +180,7 @@ const dailyMessages = {
 
         {/* Message with advanced character animations */}
         <motion.div className="relative flex-1 min-w-0">
-          <span className={`inline-flex flex-wrap text-sm sm:text-base md:text-lg font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}>
+          <span className={`inline-flex font-intertight tracking-wide text-shadow-DEFAULT flex-wrap text-sm sm:text-base md:text-lg font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}>
             {message.split("").map((char, i) => (
               <motion.span
                 key={i}

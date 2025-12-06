@@ -5,7 +5,7 @@ import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence } from 'framer-motion';
 import useAuthRedirect from 'hooks/useAuthRedirect';
 import API from 'api/api';
-import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton, FeedbackButton } from 'Components/globalbuttons';
+import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton, ProfileButton } from 'Components/globalbuttons';
 import { useLoading } from 'context/LoadingContext';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
@@ -96,7 +96,7 @@ const AnimatedHeadline = React.memo(() => {
   };
 
   return (
-    <div className="relative overflow-visible w-full flex justify-center items-center mt-4 px-4">
+    <div className="relative -mt-3 overflow-visible w-full flex justify-center items-center px-4">
       <motion.div
         className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
         initial="hidden"
@@ -139,39 +139,41 @@ const AnimatedHeadline = React.memo(() => {
               const randomDelay = Math.random() * 0.5 + i * 0.05;
 
               return (
-                <AnimatePresence key={`${char}-${i}`}>
-                  <motion.span
-                    className="inline-block relative"
-                    initial={{
-                      x: 0,
-                      y: 0,
-                      rotate: 0,
-                      opacity: 1,
-                      scale: 1,
-                    }}
-                    animate={
-                      isBursting
-                        ? {
-                            x: Math.random() * 80 - 40,
-                            y: Math.random() * 60 - 30,
-                            rotate: Math.random() * 180 - 90,
-                            opacity: [1, 0],
-                            scale: [1, 1.2, 0.4],
-                            transition: {
-                              duration: 0.8,
-                              delay: randomDelay,
-                              ease: "easeOut",
-                            },
-                          }
-                        : fallingLetters.includes(charIndex)
-                        ? "reenter"
-                        : "initial"
-                    }
-                    variants={getLetterVariants()}
-                  >
-                    {char}
-                    {/* Confetti burst */}
-                    {isBursting && (
+              <AnimatePresence key={`${char}-${i}`}>
+                <motion.span
+                  className="inline-block relative"
+                  initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                  animate={
+                    isBursting
+                      ? {
+                          x: Math.random() * 80 - 40,
+                          y: Math.random() * 60 - 30,
+                          rotate: Math.random() * 180 - 90,
+                          opacity: [1, 0],
+                          scale: [1, 1.2, 0.4],
+                          transition: { duration: 0.8, delay: randomDelay, ease: "easeOut" },
+                        }
+                      : fallingLetters.includes(charIndex)
+                      ? "reenter"
+                      : "initial"
+                  }
+                  variants={getLetterVariants()}
+                >
+                  
+                  {char === "o" && wordIndex === 2 ? (
+              <>
+                {/* Mobile: show 'o' */}
+                <span className="block sm:hidden">{char}</span>
+
+                {/* sm+ screens: animated earth */}
+                <span className="hidden sm:inline-block">
+                  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
+                </span>
+              </>
+            ) : (
+              char
+            )}
+                      {isBursting && (
                       <span className="absolute top-1/2 left-1/2 z-[-1]">
                         {[...Array(5)].map((_, j) => {
                           const confX = Math.random() * 30 - 15;
@@ -632,35 +634,13 @@ useEffect(() => {
   >
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
   <NewEntryButton className="w-40" />
-  {data.length > 0 && (
-  <VisualizeButton entries={data}  onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" /> )}
+  <ProfileButton />
+  {data.length > 0 && ( <VisualizeButton entries={data}  onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" /> )}
   <EditDeleteButton className="w-40" />
   <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
   </div>
 </CardNav>
 </div>
-
-<motion.div
-  initial={{ y: -30, opacity: 0 }}
-  animate={{ y: 0, opacity: 1 }}
-  transition={{ type: "spring", stiffness: 500, damping: 15 }}
-  className="absolute top-4 left-0 pt-2 md:pt-0 pl-2 md:pl-3 md:text-2xl text-xs sm:text-sm font-bespoke font-medium sm:font-semibold text-emerald-600 dark:text-gray-100 flex gap-1"
->
-  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
-  <motion.span className="flex flex-wrap">
-    {(` Welcome, ${user?.name || "User"}`).split("").map((char, i) => (
-      <motion.span
-        key={i}
-        custom={i}
-        animate={shimmerControls}
-        className="inline-block"
-      >
-        {char === " " ? "\u00A0" : char}
-      </motion.span>
-    ))}
-  </motion.span>
-</motion.div>
-
       <motion.div
   className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"
   transition={{ duration: 0.35, ease: 'easeInOut' }}
@@ -770,11 +750,14 @@ useEffect(() => {
     .{String(entry.totalEmissionKg.toFixed(2)).split('.')[1]}
 </span><span className="hidden sm:inline">{" "}  </span>
 </span>
- Kg CO<span
+ Kg CO<span className="hidden sm:inline-block"><span
   className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
   style={{ '--random': Math.random() }}
 >
 2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
 </span>
 </div>
     <section
@@ -857,8 +840,6 @@ useEffect(() => {
   .
 </motion.span></p>
 </div>
-
-
           )}
 
           {/* Expandable Sections */}
@@ -1043,16 +1024,6 @@ useEffect(() => {
 }
 </div>
         </main>
-
-{/* <div className="relative w-full flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
-  <NewEntryButton className="w-40" />
-   {data.length > 0 && (
-    <VisualizeButton entries={data}  onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" />
-  )}
-  <EditDeleteButton className="w-40" />
-  <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
-</div> */}
-<FeedbackButton userEmail={user.email} />
 <div ref={bottomRef}></div>
 </motion.div>    
     </PageWrapper>

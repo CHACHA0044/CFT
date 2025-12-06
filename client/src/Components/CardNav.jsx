@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 
-// Memoized animated dots component
 const AniDot = memo(() => (
   <span aria-hidden="true" className="inline-flex items-center">
     <motion.span
@@ -29,14 +28,13 @@ const AniDot = memo(() => (
   </span>
 ));
 
-// Simplified headline without heavy animations
 const SimpleHeadline = memo(({ sentence = "" }) => {
   const words = sentence.split(" ");
   
   return (
     <div className="relative overflow-visible w-full justify-center items-center">
       <motion.div
-        className="whitespace-nowrap -ml-1 md:text-3xl text-xl font-germania font-medium sm:font-semibold tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        className="whitespace-nowrap -ml-1 md:text-3xl text-2xl font-germania font-medium sm:font-semibold tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -57,6 +55,7 @@ const pageDescriptions = {
   "/footprint": "Add a new carbon entry 📝 and track your impact 🌱",
   "/chart": "Analyze carbon 🌍, track weather 🌦️, compare leaderboard 🏆, view charts 📈",
   "/edit": "Update an old entry ✏️ and adjust your carbon data 🔄",
+  "/profile": "Edit details ✨, check badges 🏅, personalize your experience ⚙️",
 };
 
 const pageNames = {
@@ -65,6 +64,7 @@ const pageNames = {
   "/footprint": "- Foot",
   "/chart": "- Chart",
   "/edit": "- Edit",
+  "/profile": "- Me",
 };
 
 const CardNav = memo(({
@@ -89,7 +89,7 @@ const CardNav = memo(({
       return pathname;
     };
     
-    const topClass = location.pathname === "/dashboard" ? "top-7" : "top-0";
+    const topClass = location.pathname === "/dashboard" ? "top-0" : "top-0";
     const normalizedPath = normalizePathname(location.pathname);
     const currentPage = pageNames[normalizedPath] || "";
     const fullTitle = `Menu ${currentPage}`;

@@ -136,6 +136,7 @@ router.get('/leaderboard-nth', authenticateToken, async (req, res) => {
       leaderboard.push({
         name: user.name,
         email: user.email,
+        profilePicture: user.profilePicture || null,
         totalEmission: processed.totalEmissionKg,
         entry: cleanEntry,
         entryId: selectedEntry._id?.toString(),

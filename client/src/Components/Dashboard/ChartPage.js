@@ -213,7 +213,38 @@ const sentence = "Your Emission Trends";const words = sentence.split(" ");
     />
   );
 };
-
+const LeaderboardAvatar = ({ user, size = 'md' }) => {
+  const sizes = {
+    sm: 'w-6 h-6 text-xs',
+    md: 'w-8 h-8 text-sm',
+    lg: 'w-10 h-10 text-base'
+  };
+  
+  const sizeClass = sizes[size] || sizes.md;
+  
+  if (user.profilePicture) {
+    return (
+      <motion.img
+        src={user.profilePicture}
+        alt={user.name}
+        className={`${sizeClass} rounded-full object-cover border-2 border-emerald-500 dark:border-gray-300 flex-shrink-0`}
+        whileHover={{ scale: 1.1 }}
+        transition={{ duration: 0.2 }}
+      />
+    );
+  }
+  
+  // Fallback to initial if no profile picture
+  return (
+    <motion.div
+      className={`${sizeClass} rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold border-2 border-emerald-500 dark:border-gray-300 flex-shrink-0`}
+      whileHover={{ scale: 1.1 }}
+      transition={{ duration: 0.2 }}
+    >
+      {user.name?.charAt(0).toUpperCase() || '?'}
+    </motion.div>
+  );
+};
 const WeatherCountdown = React.memo(({ weatherTimestamp, onExpire }) => {
   const [timeLeft, setTimeLeft] = useState(0);
 
@@ -762,17 +793,20 @@ return (
             return (
               <p className="sm:text-2xl md:text-3xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
                 {intPart}
-                <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span
-            className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-            style={{ '--random': Math.random() }}
-          >
-          2
-          </span><br />
+                <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span className="hidden sm:inline-block"><span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
+</span><br />
               </p>
             );
           })()}
     {/* Emission Breakdown (Expandable Section) */}
-<div className="mt-4">
+<div className="mt-4 hidden sm:block">
   <motion.div
     className="cursor-pointer flex items-center justify-center gap-2 mb-3"
     onClick={() => setShowBreakdown(prev => !prev)}
@@ -1758,7 +1792,7 @@ e
     >
       <motion.div
         layout="position"
-        className={`relative p-3 rounded-lg mb-3 cursor-pointer sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal tracking-normal ${
+        className={`relative p-3 rounded-3xl mb-3 cursor-pointer sm:text-2xl md:text-4xl text-shadow-DEFAULT font-intertight font-normal tracking-normal ${
           isMe ? 'bg-emerald-700/30' : 'bg-gray-800/40'
         }`}
         onMouseEnter={() => {
@@ -1780,8 +1814,17 @@ onMouseLeave={() => {
         transition={{ duration: 0.2, ease: "easeOut" }}
       >
         <div className="flex items-center justify-between text-xs sm:text-base md:text-xl text-shadow-DEFAULT font-intertight font-normal tracking-normal mb-2">
-          <span className="flex items-center gap-2">
-            {i + 1}. {u.name.split(' ')[0]}{isMe && ' (You)'}
+            <span className="flex items-center gap-2">
+            {/* Rank number */}
+            <span className="text-gray-400 min-w-[2ch]">{i + 1}.</span>
+            
+            {/* ✅ Profile Picture */}
+            <LeaderboardAvatar user={u} size="md" />
+            
+            {/* Name */}
+            <span className="truncate">
+              {u.name.split(' ')[0]}{isMe && ''}
+            </span>
             <motion.div
               animate={{ 
                 scale: hoveredIndex === i ? 1.3 : 1,
@@ -1812,12 +1855,15 @@ onMouseLeave={() => {
             return (
               <p className="sm:text-lg md:text-2xl text-shadow-DEFAULT font-intertight font-normal sm:tracking-wider text-emerald-500 dark:text-gray-100">
                 {intPart}
-                <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span
-                  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-                  style={{ '--random': Math.random() }}
-                >
-                  2
-                </span>
+                <span className="hidden sm:inline">.{decimalPart}</span> kg CO<span className="hidden sm:inline-block"><span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
+</span>
               </p>
             );
           })()}</span>
@@ -2253,9 +2299,15 @@ if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
               <span className={style.color}>
                 {intPart}
                 <span className="hidden sm:inline">.{decimalPart}</span> tonnes CO
-                <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
-                  2
-                </span>
+                <span className="hidden sm:inline-block"><span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
+</span>
               </span>
             </>
           );
@@ -2373,7 +2425,7 @@ const currentYear = entryDate.getFullYear();
 )}
 
 {/* Milestones & Achievements */}
-<div className="group relative">
+<div className="group relative hidden sm:block">
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
   
   <motion.div
@@ -2473,7 +2525,7 @@ const currentYear = entryDate.getFullYear();
 </div>
 
 {/* Emission Forecast Simulator */}
-<div className="group relative">
+<div className="group relative hidden sm:block">
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
   
   <motion.div
@@ -2648,7 +2700,15 @@ const getSliderStyle = (value) => ({
           >
             <div className="text-sm text-gray-300 mb-2">Simulated Monthly Total</div>
             <div className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              {simulatedTotal.toFixed(2)} kg CO<span className="text-lg align-sub">2</span>
+              {simulatedTotal.toFixed(2)} kg CO<span className="hidden sm:inline-block"><span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
+</span>
             </div>
             <div className={`text-sm sm:text-base ${difference < 0 ? 'text-green-400' : difference > 0 ? 'text-red-400' : 'text-gray-400'}`}>
               {difference < 0 ? '📉' : difference > 0 ? '📈' : '➡️'} 
@@ -2712,9 +2772,15 @@ const getSliderStyle = (value) => ({
                       <>
                         {intPart}
                         <span className="hidden sm:inline">.{decimalPart}</span> kg CO
-                        <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
-                          2
-                        </span>
+                        <span className="hidden sm:inline-block"><span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
+</span>
                       </>
                     );
                   })()}
@@ -2747,9 +2813,15 @@ const getSliderStyle = (value) => ({
                       <>
                         {intPart}
                         <span className="hidden sm:inline">.{decimalPart}</span> kg CO
-                        <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
-                          2
-                        </span>
+                        <span className="hidden sm:inline-block"><span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
+</span>
                       </>
                     );
                   })()}
@@ -2794,9 +2866,15 @@ const getSliderStyle = (value) => ({
                       <>
                         {intPart}
                         <span className="hidden sm:inline">.{decimalPart}</span> kg CO
-                        <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
-                          2
-                        </span>
+                        <span className="hidden sm:inline-block"><span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
+</span>
                       </>
                     );
                   })()}
@@ -2829,9 +2907,15 @@ const getSliderStyle = (value) => ({
                       <>
                         {intPart}
                         <span className="hidden sm:inline">.{decimalPart}</span> kg CO
-                        <span className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[0.8em] align-sub" style={{ '--random': Math.random() }}>
-                          2
-                        </span>
+                       <span className="hidden sm:inline-block"><span
+  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+  style={{ '--random': Math.random() }}
+>
+2
+</span></span>
+<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+  2
+</span>
                       </>
                     );
                   })()}

@@ -1688,7 +1688,7 @@ html {
 .earth-space {
   position: relative;
   display: inline-block;
-  font-size: 1.5rem;
+  font-size: 3.5rem;
   vertical-align: middle;
   animation: earthFloat 6s ease-in-out infinite, earthRotate 20s linear infinite;
   filter: drop-shadow(0 0 8px rgba(0, 200, 255, 0.8));

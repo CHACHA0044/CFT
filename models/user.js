@@ -9,15 +9,34 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   resendAttempts: { type: Number, default: 0 },
   lastResendAt: { type: Number, default: 0 },
-  isVerified: { type: Boolean, default: false },   // verification flag
-  verificationToken: { type: String },             // verification JWT
-  passwordToken: {type: String },  // Add this field
+  isVerified: { type: Boolean, default: false },
+  verificationToken: { type: String },
+  passwordToken: {type: String },
   passwordTokenCreatedAt: { type: Date },
   tempPassword: { type: String },
   tempPasswordCreatedAt: { type: Date },
+  
+  // NEW PROFILE FIELDS
+  profilePicture: { 
+    type: String, 
+    default: null 
+  },
+  bio: { 
+    type: String, 
+    maxlength: 500,
+    default: '' 
+  },
+  profileLastUpdated: { 
+    type: Date, 
+    default: Date.now 
+  }
 }, { timestamps: true });
 
-// delete if not verified ~10 min(for local users)
-userSchema.index({ lastResendAt: 1 }, { expireAfterSeconds: 600, partialFilterExpression: { isVerified: false } });
+// Indexes
+userSchema.index({ lastResendAt: 1 }, { 
+  expireAfterSeconds: 600, 
+  partialFilterExpression: { isVerified: false } 
+});
 userSchema.index({ email: 1 }, { unique: true });
+
 module.exports = mongoose.model('User', userSchema);

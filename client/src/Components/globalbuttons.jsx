@@ -30,20 +30,6 @@ const saveButtonState = (userEmail, newState) => {
 };
 
 const StyleInjector = () => {
-  // useEffect(() => {
-  //   // Restart shimmer animations on mount
-  //   const restartAnimations = () => {
-  //     document.querySelectorAll(".animate-shimmer").forEach(el => {
-  //       el.style.animation = "none";
-  //       // Trigger reflow to reset animation
-  //       void el.offsetWidth;
-  //       el.style.animation = "";
-  //     });
-  //   };
-
-  //   restartAnimations();
-  // }, []);
-
   const styles = `
     @keyframes shimmer-effect-metallic {
       0% {
@@ -53,7 +39,12 @@ const StyleInjector = () => {
         transform: translateX(250%) skewX(-30deg);
       }
     }
-
+    @media (max-width: 639px) {
+      .animate-shimmer {
+        display: none !important;
+        animation: none !important;
+      }
+    }
     .animate-shimmer {
       position: absolute;
       top: 0;

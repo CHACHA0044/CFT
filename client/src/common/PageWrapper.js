@@ -51,7 +51,7 @@ function AnimatedDarkModeButton({ darkMode, toggleTheme }) {
         scale: 0.7,
         rotate: 0 
       }}
-      className="px-3 py-4 bg-transparent sm:text-emerald-700 sm:dark:text-white transition-all duration-300"
+      className="px-3 py-4 bg-transparent sm:text-emerald-500 sm:dark:text-white transition-all duration-300"
       style={{
         transformOrigin: 'center center', 
         willChange: 'transform', 
@@ -153,7 +153,7 @@ useEffect(() => {
 
       {/* Dark mode */}
  <div className=" w-full px-0">
-  <div className="absolute top-1 sm:top-1 right-2 text-emerald-700 dark:text-white md:right-3 z-50">
+  <div className="absolute top-1 sm:top-1 right-2 text-white md:right-3 z-50">
     <AnimatedDarkModeButton darkMode={darkMode} toggleTheme={toggleTheme} />
   </div>
 </div>
@@ -164,7 +164,7 @@ useEffect(() => {
       </div>
 
       {/* Footer */}
-     <footer className="w-full text-center tracking-wide text-base font-intertight text-shadow-DEFAULT py-4 text-emerald-700 dark:text-white relative">
+     <footer className="w-full text-center tracking-wide text-base font-intertight text-shadow-DEFAULT py-4 text-white relative">
   <AnimatePresence>
     {showInfo && (
       <motion.div

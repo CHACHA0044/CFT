@@ -1,1 +1,0 @@
-// <!-- admin js is in notepad  -->

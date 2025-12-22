@@ -41,8 +41,6 @@ if (isProd) {
 // routes
 const authRoutes = require('./routes/auth');
 const footprintRoutes = require('./routes/footprint');
-const profileRoutes = require('./routes/profile');
-// const adminRoutes = require('./routes/admin');
 // CORS(Cross-Origin Resource Sharing)
 const allowedOrigins = [
   'http://localhost:3000',             // local dev
@@ -147,8 +145,6 @@ if (isProd) {
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/footprint', footprintRoutes);
-app.use('/api/profile', profileRoutes);
-// app.use('/api/admin', adminRoutes);
 // test route
 app.get('/api', (req, res) => {
   res.send('CFT API is live!');

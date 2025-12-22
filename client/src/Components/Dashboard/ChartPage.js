@@ -48,27 +48,10 @@ const sentence = "Your Emission Trends";const words = sentence.split(" ");
     },
   });
   
-  const AnimatedHeadline = () => {
+ const AnimatedHeadline = React.memo(() => {
     const [activeBurstIndex, setActiveBurstIndex] = useState(null);
     const [bursting, setBursting] = useState(false);
     const [fallingLetters, setFallingLetters] = useState([]);
-  
-    // useEffect(() => {
-    //   const allChars = sentence.replace(/\s/g, "").length;
-  
-    //   const interval = setInterval(() => {
-    //     const indices = Array.from({ length: allChars }, (_, i) => i);
-    //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
-  
-    //     setFallingLetters((prev) => [...prev, ...shuffled]);
-  
-    //     setTimeout(() => {
-    //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
-    //     }, 3000);
-    //   }, 4000); // pause for 4s
-  
-    //   return () => clearInterval(interval);
-    // }, []);
   
     const triggerBurst = (index) => {
       setActiveBurstIndex(index);
@@ -82,7 +65,7 @@ const sentence = "Your Emission Trends";const words = sentence.split(" ");
     return (
       <div className="relative overflow-visible w-full flex justify-center items-center mt-2 sm:mb-4 mb-2 px-4">
         <motion.div
-          className="flex sm:flex-nowrap flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+          className="flex sm:flex-nowrap flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-white transition-colors duration-500"
           initial="hidden"
           animate="visible"
           variants={{
@@ -190,7 +173,7 @@ const sentence = "Your Emission Trends";const words = sentence.split(" ");
         </motion.div>
       </div>
     );
-  };
+  });
 
   const ResponsiveTooltip = (props) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -211,38 +194,6 @@ const sentence = "Your Emission Trends";const words = sentence.split(" ");
         whiteSpace: "normal",
       }}
     />
-  );
-};
-const LeaderboardAvatar = ({ user, size = 'md' }) => {
-  const sizes = {
-    sm: 'w-6 h-6 text-xs',
-    md: 'w-8 h-8 text-sm',
-    lg: 'w-10 h-10 text-base'
-  };
-  
-  const sizeClass = sizes[size] || sizes.md;
-  
-  if (user.profilePicture) {
-    return (
-      <motion.img
-        src={user.profilePicture}
-        alt={user.name}
-        className={`${sizeClass} rounded-full object-cover border-2 border-emerald-500 dark:border-gray-300 flex-shrink-0`}
-        whileHover={{ scale: 1.1 }}
-        transition={{ duration: 0.2 }}
-      />
-    );
-  }
-  
-  // Fallback to initial if no profile picture
-  return (
-    <motion.div
-      className={`${sizeClass} rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold border-2 border-emerald-500 dark:border-gray-300 flex-shrink-0`}
-      whileHover={{ scale: 1.1 }}
-      transition={{ duration: 0.2 }}
-    >
-      {user.name?.charAt(0).toUpperCase() || '?'}
-    </motion.div>
   );
 };
 const WeatherCountdown = React.memo(({ weatherTimestamp, onExpire }) => {
@@ -781,7 +732,7 @@ return (
           <div className="absolute -inset-1  rounded-3xl bg-emerald-500/20 dark:bg-gray-100/10 blur-xl pointer-events-none transition-all duration-500 group-hover:blur-2xl" />
           <AnimatedHeadline />
           <motion.div
-            className="relative bg-gray-50 mt-8 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105"
+            className="relative  mt-8  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}
           >
@@ -816,7 +767,7 @@ return (
     <h3 className="text-base sm:text-xl font-intertight font-normal tracking-wide text-shadow-DEFAULT text-emerald-500 dark:text-gray-100 text-center">
       <span className="animate-chart-orbit text-2xl">📊</span> Emission Breakdown
     </h3>
-    <span className="text-emerald-500 dark:text-gray-100 text-xl">
+    <span className="text-gray-100 text-xl">
       {showBreakdown ? "▷" : "▽"}
     </span>
   </motion.div>
@@ -1047,7 +998,7 @@ return (
       </div>
     </div>
   </motion.div>
-</div>
+
 {weatherRequested && data && weatherTimestamp ? (
   <div className="mt-4 space-y-4">
     {/* Weather expiry countdown */}
@@ -1440,6 +1391,7 @@ return (
     </div>
   </div>
 )}
+</div>
           </motion.div>
         </div>
         
@@ -1449,7 +1401,7 @@ return (
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
 
   <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg 
+    className="relative  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg 
                transition-transform duration-500 group-hover:scale-105"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
@@ -1536,7 +1488,7 @@ return (
     }
   `}</style>
 </div>
- {user?.name.split(' ')[0]} <span className="animate-pulse"> vs</span> Global Averages
+ {user?.name.split(' ')[0]} <span className="animate-pulse text-white"> vs</span> Global Averages
     </h3>
 
     <VictoryChart
@@ -1601,7 +1553,7 @@ return (
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
 
   <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl px-4 pt-6 pb-2 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105 overflow-visible"
+    className="relative  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl px-4 pt-6 pb-2 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105 overflow-visible"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.7 }}
@@ -1610,12 +1562,15 @@ return (
     <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
 
     <h3 className="sm:text-3xl md:text-4xl text-shadow-DEFAULT font-intertight font-medium sm:tracking-wider mb-0 text-emerald-500 dark:text-gray-100">
-    <span className="pancake-wrapper pancake-steam">🥞</span>  Emission Breakdown CO₂( <span
-  className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-  style={{ '--random': Math.random() }}
->
-e
-</span> )
+    <span className="pancake-wrapper pancake-steam">🥞</span>  Emission Breakdown CO₂( <span className="hidden sm:inline-block text-white"><span
+            className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+            style={{ '--random': Math.random() }}
+          >
+          e
+          </span></span>
+          <span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+            e
+          </span> )
     </h3>
 
     {/* Centered Responsive SVG Container */}
@@ -1700,7 +1655,7 @@ e
         className={`cursor-pointer text-sm md:text-base font-medium flex flex-col items-center
           ${selectedIndex === index
             ? 'text-emerald-400 dark:text-emerald-300 animate-pulse'
-            : 'text-gray-800 dark:text-gray-200 hover:text-emerald-400 dark:hover:text-emerald-300'}`}
+            : 'text-emerald-500 dark:text-gray-200 hover:text-emerald-400 dark:hover:text-emerald-300'}`}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -1753,7 +1708,7 @@ e
 <div className="group relative">
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none" />
   <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg"
+    className="relative  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
   >
@@ -1817,9 +1772,6 @@ onMouseLeave={() => {
             <span className="flex items-center gap-2">
             {/* Rank number */}
             <span className="text-gray-400 min-w-[2ch]">{i + 1}.</span>
-            
-            {/* ✅ Profile Picture */}
-            <LeaderboardAvatar user={u} size="md" />
             
             {/* Name */}
             <span className="truncate">
@@ -2242,7 +2194,7 @@ onMouseLeave={() => {
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
   
   <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    className="relative  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.7, delay: 0.2 }}
@@ -2260,7 +2212,7 @@ onMouseLeave={() => {
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.3 }}
     >
-      <div className="sm:text-lg md:text-xl text-shadow-DEFAULT font-intertight font-medium text-white mb-2">
+      <div className="sm:text-lg md:text-xl text-shadow-DEFAULT font-intertight font-medium text-emerald-500 dark:text-white mb-2">
         {(() => {
           const entryDate = new Date(entryData.createdAt || entryData.updatedAt);
 const currentMonth = entryDate.getMonth(); // 0-11
@@ -2429,7 +2381,7 @@ const currentYear = entryDate.getFullYear();
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
   
   <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    className="relative  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.7 }}
@@ -2515,7 +2467,7 @@ const currentYear = entryDate.getFullYear();
             <div className={`text-4xl mb-2 ${badge.emojiClass || ''}`}>
               {badge.emoji}
             </div>
-            <div className="text-sm sm:text-base font-medium text-white mb-1">{badge.title}</div>
+            <div className="text-sm sm:text-base font-medium text-emerald-500 dark:text-white mb-1">{badge.title}</div>
             <div className="text-xs text-gray-300">{badge.desc}</div>
           </motion.div>
         ));
@@ -2529,7 +2481,7 @@ const currentYear = entryDate.getFullYear();
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
   
   <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    className="relative  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.7 }}
@@ -2699,7 +2651,7 @@ const getSliderStyle = (value) => ({
             transition={{ duration: 0.2 }}
           >
             <div className="text-sm text-gray-300 mb-2">Simulated Monthly Total</div>
-            <div className="text-2xl sm:text-3xl font-bold text-white mb-2">
+            <div className="text-2xl sm:text-3xl font-bold text-emerald-500 dark:text-white mb-2">
               {simulatedTotal.toFixed(2)} kg CO<span className="hidden sm:inline-block"><span
   className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
   style={{ '--random': Math.random() }}
@@ -2727,7 +2679,7 @@ const getSliderStyle = (value) => ({
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
   
   <motion.div
-    className="relative bg-gray-50 dark:bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
+    className="relative  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg transition-transform duration-500 group-hover:scale-105"
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.7 }}

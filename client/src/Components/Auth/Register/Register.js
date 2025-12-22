@@ -374,7 +374,7 @@ useEffect(() => {
     <PageWrapper backgroundImage="/images/register-bk.webp">
       <div className={`${boxglowR} mt-10`}>
       <AnimatedHeadline />    
-        <p className="text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-emerald-500 dark:text-gray-100 mt-2 mb-0">Build your carbon footprint journal with us.</p>
+        <p className="text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-100 mt-2 mb-0">Build your carbon footprint journal with us.</p>
 
 <div className="flex flex-col items-center space-y-1 mt-2 mb-2 font-intertight text-shadow-DEFAULT tracking-wide">
   {success ? (
@@ -398,7 +398,7 @@ useEffect(() => {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className=" bg-emerald-500/90 dark:bg-black text-white px-3 py-2 -mt-3 mb-2 rounded-xl shadow-lg text-shadow-DEFAULT text-xs sm:text-sm font-intertight text-center absolute top-[10rem] z-50"
+        className=" bg-black text-white px-3 py-2 -mt-3 mb-2 rounded-xl shadow-lg text-shadow-DEFAULT text-xs sm:text-sm font-intertight text-center absolute top-[10rem] z-50"
       >
         <div className="flex items-center sm:ml-6 sm:gap-2">
           <span>Want to skip registration<span className="animate-pulse">?</span> Register with Google<AniDot /></span>
@@ -497,7 +497,7 @@ useEffect(() => {
   <SubmitButton text={success || 'Register'} loading={loading} success={!!success} disabled={loading || !!success} />
   <GoogleAuthButton loading={false} />
   
-  <div className="ml-1 text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
+  <div className="ml-1 text-xs sm:text-sm animate-glow text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-100">
     <p>
       By registering, you agree to our{' '}
       <a

@@ -43,7 +43,7 @@ function shuffleArray(arr) {
   return a;
 }
 
-const AnimatedHeadline = () => {
+const AnimatedHeadline = React.memo(() => {
   const [activeBurstIndex, setActiveBurstIndex] = useState(null);
   const [bursting, setBursting] = useState(false);
   const [fallingLetters, setFallingLetters] = useState([]);
@@ -60,7 +60,7 @@ const AnimatedHeadline = () => {
   return (
     <div className="relative overflow-visible w-full flex justify-center items-center mt-4 px-4">
       <motion.div
-        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania sm:tracking-widest tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania sm:tracking-widest tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
         initial="hidden"
         animate="visible"
         variants={{
@@ -166,7 +166,7 @@ const AnimatedHeadline = () => {
       </motion.div>
     </div>
   );
-};
+});
 
 const CustomSelect = ({ label, value, onChange, options, name, icon, showFactor = true }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -255,7 +255,7 @@ const CustomSelect = ({ label, value, onChange, options, name, icon, showFactor 
             ? `0 0 15px ${getOptionGlowColor(selectedIndex)}`
             : 'none'
         }}
-        className="w-full bg-white/10 font-intertight dark:bg-black/30 text-emerald-500 dark:text-gray-100 border-b border-emerald-500 focus:outline-none py-2 px-3 rounded-md backdrop-blur-sm transition-all duration-300 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-left flex justify-between items-center"
+        className="w-full font-intertight bg-black/30 text-gray-100 border-b border-emerald-500 focus:outline-none py-2 px-3 rounded-md backdrop-blur-sm transition-all duration-300 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-left flex justify-between items-center"
       >
         <span className="flex items-center gap-2">
           {selectedOption ? (
@@ -294,7 +294,7 @@ const CustomSelect = ({ label, value, onChange, options, name, icon, showFactor 
               duration: 0.35,
               ease: [0.34, 1.56, 0.64, 1]
             }}
-            className="absolute z-50 w-full mt-1 bg-white/20 dark:bg-black/60 backdrop-blur-lg border border-emerald-500/30 rounded-md shadow-xl max-h-60 overflow-y-auto origin-top"
+            className="absolute z-50 w-full mt-1 bg-black/60 backdrop-blur-lg border border-emerald-500/30 rounded-md shadow-xl max-h-60 overflow-y-auto origin-top"
           >
             {options.map((option, index) => {
               const factorLabel = getFactorLabel(option.value);
@@ -558,7 +558,7 @@ const handleSubmit = async (e) => {
             </CardNav>
           </div>
 
-          <div ref={formRef} className={`${boxglowRI} w-full max-w-2xl bg-white/10 dark:bg-black/50 backdrop-blur-md rounded-3xl shadow-lg p-6 text-green-500 dark:text-white
+          <div ref={formRef} className={`${boxglowRI} w-full max-w-2xl bg-black/50 backdrop-blur-md rounded-3xl shadow-lg p-6 text-green-500 dark:text-white
             ${shakeField === 'form' ? 'animate-shake' : ''}
           `}>
             
@@ -617,10 +617,10 @@ const handleSubmit = async (e) => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* FOOD SECTION */}
                 <div>
-                  <h3 className="font-intertight tracking-wider text-shadow-DEFAULT mb-1">
+                  <h3 className="font-intertight tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-gray-100 mb-1">
                     Diet <span className="animate-diet-symbol">𓌉◯𓇋</span>
                   </h3>
-                  <label className="block mb-1 text-sm font-intertight tracking-wider text-shadow-DEFAULT">Type:</label>
+                  <label className="block mb-1 text-sm font-intertight text-emerald-500 dark:text-gray-100 tracking-wider text-shadow-DEFAULT">Type:</label>
                   <CustomSelect
                     name="type"
                     value={form.food?.type || ''}
@@ -632,7 +632,7 @@ const handleSubmit = async (e) => {
                     ]}
                   />
 
-                  <label className="block mt-2 mb-1 text-sm font-intertight tracking-wider text-shadow-DEFAULT">Amount (kg):</label>
+                  <label className="block mt-2 mb-1 text-sm font-intertight tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Amount (kg):</label>
                   <div className="relative">
                     <input
                       type="number"
@@ -669,6 +669,7 @@ const handleSubmit = async (e) => {
                           { value: 'Flights', label: 'Flights', emoji: '✈️', animation: 'animate-airplane-soar' }
                         ]}
                       />
+                      <label className="block mt-2 mb-1 text-sm font-intertight tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Distance (km):</label>
                       <div className="relative">
                         <input
                           type="number"
@@ -706,6 +707,7 @@ const handleSubmit = async (e) => {
                           { value: 'Mixed', label: 'Mixed', emoji: '𓇼', animation: 'animate-mixed-shimmer' }
                         ]}
                       />
+                      <label className="block mt-2 mb-1 text-sm font-intertight tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Consumption (kWh):</label>
                       <div className="relative">
                         <input
                           type="number"
@@ -726,12 +728,12 @@ const handleSubmit = async (e) => {
 
                 {/* WASTE */}
                 <div>
-                  <h3 className="font-semibold mb-2">
+                  <h3 className="font-semibold mb-2 text-emerald-500 dark:text-gray-100">
                     Waste <span className="animate-waste-dispose">🗑️</span>
                   </h3>
                   {form.waste.map((w, i) => (
                     <div key={i} className="mb-2 space-y-2">
-                      <label className="block text-sm font-intertight tracking-wider text-shadow-DEFAULT">Plastic (kg):</label>
+                      <label className="block text-sm font-intertight tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Plastic (kg):</label>
                       <div className="relative">
                         <input
                           type="number"
@@ -747,7 +749,7 @@ const handleSubmit = async (e) => {
                         )}
                       </div>
 
-                      <label className="block text-sm font-intertight tracking-wider text-shadow-DEFAULT">Paper (kg):</label>
+                      <label className="block text-sm font-intertight tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Paper (kg):</label>
                       <div className="relative">
                         <input
                           type="number"
@@ -763,7 +765,7 @@ const handleSubmit = async (e) => {
                         )}
                       </div>
 
-                      <label className="block text-sm font-intertight tracking-wider text-shadow-DEFAULT">Food (kg):</label>
+                      <label className="block text-sm font-intertight tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">Food (kg):</label>
                       <div className="relative">
                         <input
                           type="number"

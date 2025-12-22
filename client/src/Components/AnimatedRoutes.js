@@ -13,7 +13,6 @@ import EditFootprintForm from './Footprint/EditFootprintForm';
 import VerifyEmail from './Auth/VerifyEmail';
 import PasswordDisplay from './Auth/PasswordDisplay';
 import ChartPage from './Dashboard/ChartPage';
-import ProfilePage from './Dashboard/ProfilePage';
 import AboutPage from './about';
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -34,7 +33,6 @@ const AnimatedRoutes = () => {
     <Route path="/edit/:id" element={<EditFootprintForm />} />
     <Route path="/verify-email/:token" element={<VerifyEmail />} />
     <Route path="password/:token" element={<PasswordDisplay />} />
-    <Route path="/profile" element={<ProfilePage />} />
     <Route path="/about" element={<AboutPage />} />
     <Route path="/" element={<Home />} />
     </Routes>

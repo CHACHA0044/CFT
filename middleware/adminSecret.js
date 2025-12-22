@@ -1,1 +1,0 @@
-// <!-- admin secrect is in notepad  -->

@@ -118,22 +118,22 @@ function calculateEmissions(data) {
 
   // Opening assessment
   if (totalEmissionKg <= 150) {
-  suggestions += `🌎 <strong>Outstanding!</strong> Your footprint of <strong>${totalEmissionKg} kg CO₂</strong> is a remarkable ${Math.abs(percentDiff)}% below the global average (${globalAverage} kg). This is well within the range of sustainable living — you're truly a climate leader!\n\n`;
+  suggestions += `🌎 <strong>Outstanding!</strong> Your footprint of <strong>${totalEmissionKg} kg CO₂</strong> is a remarkable <strong>${Math.abs(percentDiff)}%</strong> below the global average (${globalAverage} kg). This is well within the range of sustainable living — you're truly a climate leader!\n\n`;
   } 
   else if (totalEmissionKg <= 300) {
-    suggestions += `🌿 <strong>Great job!</strong> Your emissions are ${Math.abs(percentDiff)}% lower than the global average (${globalAverage} kg/month). You’re living efficiently — small steps like waste control or renewable energy could make you carbon-light!\n\n`;
+    suggestions += `🌿 <strong>Great job!</strong> Your emissions are <strong>${Math.abs(percentDiff)}%</strong> lower than the global average <strong>(${globalAverage} kg/month)</strong>. You’re living efficiently — small steps like waste control or renewable energy could make you carbon-light!\n\n`;
   } 
   else if (totalEmissionKg > 300 && totalEmissionKg <= 450) {
-    suggestions += `📈 <strong>You're around the global average.</strong> With <strong>${totalEmissionKg} kg CO₂</strong>/month, you're within ±${Math.abs(percentDiff)}% of the world norm (${globalAverage} kg). Minor tweaks in your highest category can make you a below-average emitter.\n\n`;
+    suggestions += `📈 <strong>You're around the global average.</strong> With <strong>${totalEmissionKg} kg CO₂</strong>/month, you're within <strong>±${Math.abs(percentDiff)}%</strong> of the world norm <strong>(${globalAverage} kg)</strong>. Minor tweaks in your highest category can make you a below-average emitter.\n\n`;
   } 
   else if (totalEmissionKg > 450 && totalEmissionKg <= 700) {
-    suggestions += `⚠️ <strong>Slightly above global norms.</strong> Your monthly footprint (<strong>${totalEmissionKg} kg CO₂</strong>) is roughly ${percentDiff}% higher than the global average (${globalAverage} kg). Reducing private transport or improving home energy efficiency can close the gap.\n\n`;
+    suggestions += `⚠️ <strong>Slightly above global norms.</strong> Your monthly footprint (<strong>${totalEmissionKg} kg CO₂</strong>) is roughly <strong>${percentDiff}%</strong> higher than the global average <strong>(${globalAverage} kg)</strong>. Reducing private transport or improving home energy efficiency can close the gap.\n\n`;
   } 
   else if (totalEmissionKg > 700 && totalEmissionKg <= 1000) {
-    suggestions += `🔥 <strong>High emissions detected.</strong> At <strong>${totalEmissionKg} kg CO₂</strong>/month, you're ${percentDiff}% above the global average (${globalAverage} kg). Focusing on your biggest categories could quickly bring you in line with sustainable levels.\n\n`;
+    suggestions += `🔥 <strong>High emissions detected.</strong> At <strong>${totalEmissionKg} kg CO₂</strong>/month, you're <strong>${percentDiff}%</strong> above the global average <strong>(${globalAverage} kg)</strong>. Focusing on your biggest categories could quickly bring you in line with sustainable levels.\n\n`;
   } 
   else {
-    suggestions += `🚨 <strong>Critical zone!</strong> Your footprint of <strong>${totalEmissionKg} kg CO₂</strong>/month is ${percentDiff}% above the global average (${globalAverage} kg). You’re emitting more than most people worldwide — but your top two categories hold major reduction opportunities.\n\n`;
+    suggestions += `🚨 <strong>Critical zone!</strong> Your footprint of <strong>${totalEmissionKg} kg CO₂</strong>/month is <strong>${percentDiff}%</strong> above the global average <strong>(${globalAverage} kg)</strong>. You’re emitting more than most people worldwide — but your top two categories hold major reduction opportunities.\n\n`;
   }
 
   suggestions += `<strong>📍 Your Emission Breakdown:</strong>\n`;

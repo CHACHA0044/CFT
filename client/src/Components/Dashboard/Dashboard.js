@@ -5,7 +5,7 @@ import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence } from 'framer-motion';
 import useAuthRedirect from 'hooks/useAuthRedirect';
 import API from 'api/api';
-import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton, ProfileButton } from 'Components/globalbuttons';
+import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton} from 'Components/globalbuttons';
 import { useLoading } from 'context/LoadingContext';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
@@ -69,23 +69,6 @@ const AnimatedHeadline = React.memo(() => {
   const [bursting, setBursting] = useState(false);
   const [fallingLetters, setFallingLetters] = useState([]);
 
-  // useEffect(() => {
-  //   const allChars = sentence.replace(/\s/g, "").length;
-
-  //   const interval = setInterval(() => {
-  //     const indices = Array.from({ length: allChars }, (_, i) => i);
-  //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
-
-  //     setFallingLetters((prev) => [...prev, ...shuffled]);
-
-  //     setTimeout(() => {
-  //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
-  //     }, 3000);
-  //   }, 4000); // pause for 4s
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
   const triggerBurst = (index) => {
     setActiveBurstIndex(index);
     setBursting(true);
@@ -98,7 +81,7 @@ const AnimatedHeadline = React.memo(() => {
   return (
     <div className="relative -mt-3 overflow-visible w-full flex justify-center items-center px-4">
       <motion.div
-        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-white transition-colors duration-500"
         initial="hidden"
         animate="visible"
         variants={{
@@ -226,7 +209,7 @@ const AnimatedHeadline2 = React.memo(() => {
   return (
     <div className="relative overflow-visible w-full flex justify-center items-center -mt-1 px-4">
       <motion.div
-        className="flex flex-wrap sm:-ml-96 sm:mr-24 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        className="flex flex-wrap sm:-ml-96 sm:mr-24 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
         initial="hidden"
         animate="visible"
         variants={{
@@ -352,7 +335,7 @@ const AnimatedHeadline3 = React.memo(() => {
   return (
     <div className="relative overflow-visible w-full flex justify-center items-center -mt-1 px-4">
       <motion.div
-        className="flex flex-wrap sm:-ml-44 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        className="flex flex-wrap sm:-ml-44 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
         initial="hidden"
         animate="visible"
         variants={{
@@ -634,7 +617,6 @@ useEffect(() => {
   >
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
   <NewEntryButton className="w-40" />
-  <ProfileButton />
   {data.length > 0 && ( <VisualizeButton entries={data}  onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" /> )}
   <EditDeleteButton className="w-40" />
   <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
@@ -698,7 +680,7 @@ useEffect(() => {
   initial={{ opacity: 0 }}
   animate={{ opacity: [0.3, 1, 0.3] }}
   transition={{ repeat: Infinity, duration: 1.5 }}
-  className="text-lg text-emerald-600 dark:text-white items-center text-center justify-center"
+  className="text-lg text-white items-center text-center justify-center"
 >
   Loading your carbon data...
 </motion.p>
@@ -726,7 +708,7 @@ useEffect(() => {
                 whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.2)" }}
                 style={{ willChange: "transform, opacity", transform: "translateZ(0)", fontFamily: 'InterTight', fontWeight: 700 }}
                 whileTap={{ scale: 0.97, transition: { duration: 0.05 } }}
-                className={` relative group bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md p-4 shadow-md text-xs sm:text-sm origin-center transition-colors duration-300 cursor-pointer md:ml-28 md:w-4/5`}
+                className={` relative group bg-gray-800/70 rounded-3xl backdrop-blur-md p-4 shadow-md text-xs sm:text-sm origin-center transition-colors duration-300 cursor-pointer md:ml-28 md:w-4/5`}
        onClick={() => {
   setOpenSection(prev => prev === `suggestion-${index}` ? null : `suggestion-${index}`);
 }}
@@ -744,19 +726,19 @@ useEffect(() => {
   <span className="absolute left-[5px] -top-[10px] animate-smoke text-[10px] opacity-30 delay-800">☁️</span>
   </div><span className="inline-block">🏭</span>
 </div>
- Total Emission <span className="animate-colon-glow">:</span> <span>
+ Total Emission <span className="animate-colon-glow text-white">:</span> <span>
   {Math.floor(entry.totalEmissionKg)}
   <span className="hidden sm:inline">
     .{String(entry.totalEmissionKg.toFixed(2)).split('.')[1]}
 </span><span className="hidden sm:inline">{" "}  </span>
 </span>
- Kg CO<span className="hidden sm:inline-block"><span
+ Kg CO<span className="hidden sm:inline-block text-white"><span
   className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
   style={{ '--random': Math.random() }}
 >
 2
 </span></span>
-<span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+<span className="inline text-white sm:hidden ml-[1px] text-[1em] align-sub">
   2
 </span>
 </div>
@@ -766,17 +748,17 @@ useEffect(() => {
   className="px-1 pb-1 transition-all duration-500"
 >
   <h2 className="text-base sm:text-xl md:text-2xl font-normal sm:font-semibold tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500">
-  {openSection === `suggestion-${index}` ? (<><span className="animate-idea-glow">💡</span> Suggestions <span className="animate-colon-glow">:</span>
+  {openSection === `suggestion-${index}` ? (<><span className="animate-idea-glow">💡</span> Suggestions <span className="animate-colon-glow text-white">:</span>
 </>) : (
     <>
       <span className="animate-lightbulb-pulse">💡</span> Suggestions
-      <span className="inline-block text-lg font-normal sm:text-2xl sm:font-bold ml-1 animate-dot-glow-1">
+      <span className="inline-block text-white text-lg font-normal sm:text-2xl sm:font-bold ml-1 animate-dot-glow-1">
         .
       </span>
-      <span className="inline-block text-lg font-normal sm:text-2xl sm:font-bold animate-dot-glow-2">
+      <span className="inline-block text-white text-lg font-normal sm:text-2xl sm:font-bold animate-dot-glow-2">
         .
       </span>
-      <span className="inline-block text-lg font-normal sm:text-2xl sm:font-bold animate-dot-glow-3">
+      <span className="inline-block text-white text-lg font-normal sm:text-2xl sm:font-bold animate-dot-glow-3">
         .
       </span>
     </>
@@ -790,18 +772,33 @@ useEffect(() => {
         : 'max-h-0 opacity-0  overflow-hidden'
     }`}
   >
-    <div className="text-sm text-emerald-500 dark:text-gray-100 transition-colors duration-300">
-      <p
-  dangerouslySetInnerHTML={{
-    __html: entry.suggestions.replace(/\n/g, "<br>")
-  }}
-></p>
+    <div className="text-sm text-emerald-500 dark:text-gray-100 transition-colors duration-300 suggestions-content">
+  <p
+    dangerouslySetInnerHTML={{
+      __html: entry.suggestions.replace(/\n/g, "<br>")
+    }}
+  ></p>
 
-    <p className="text-xs font-intertight font-medium tracking-wider text-emerald-500 dark:text-white mt-1">
-    {entry.updatedAt && entry.updatedAt !== entry.createdAt
-      ? `🕒 Updated on ${new Date(entry.updatedAt).toLocaleString()}`
-      : `🕒 Created on ${new Date(entry.createdAt).toLocaleString()}`}
-  </p>
+    <p className="text-xs italic text-white mt-1">
+  🕒{" "}
+  {entry.updatedAt && entry.updatedAt !== entry.createdAt
+    ? "Updated on "
+    : "Created on "}
+  {new Date(
+    entry.updatedAt && entry.updatedAt !== entry.createdAt
+      ? entry.updatedAt
+      : entry.createdAt
+  )
+    .toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    })
+    .replace(",", " ,")}
+</p>
+
   </div>
   </motion.div>
 </section>
@@ -845,19 +842,19 @@ useEffect(() => {
           {/* Expandable Sections */}
           <div className="mb-2 sm:mb-6 pb-2 sm:pb-4 flex flex-col gap-4 sm:gap-6 pr-2 will-change-transform">
             <AnimatedHeadline3 />
-          {[
+{[
   {
     id: 'understanding',
     title: '🌍 Understanding the Air We Share',
     content: (
       <>
         <p className="text-xs sm:text-sm text-emerald-500 dark:text-gray-100 transition-colors duration-500">
-          🌫️ Carbon Dioxide (CO₂) is like Earth's invisible blanket. It keeps us warm — but too much of it, from burning fuels 🚗🔥,causes overheating and extreme weather patterns! 😓
+          🌫️ <strong>Carbon Dioxide (CO₂)</strong> is like Earth's invisible blanket. It keeps us warm — but too much of it, from burning fuels 🚗🔥, causes overheating and extreme weather patterns! 😓
         </p>
         <ul className="list-disc list-inside text-sm text-emerald-500 dark:text-gray-100 mt-2 transition-colors duration-500">
-          <li>🌀 Methane (CH₄): Produced by livestock, rice farming, and landfill. </li>
-          <li>🌾 Nitrous Oxide (N₂O): Released from fertilizers and agricultural activities.</li>
-          <li>❄️ Fluorinated Gases: Man-made gases from industrial processes and cooling system. </li>
+          <li>🌀 <strong>Methane (CH₄):</strong> Produced by livestock, rice farming, and landfill.</li>
+          <li>🌾 <strong>Nitrous Oxide (N₂O):</strong> Released from fertilizers and agricultural activities.</li>
+          <li>❄️ <strong>Fluorinated Gases:</strong> Man-made gases from industrial processes and cooling system.</li>
         </ul>
         <p className="text-sm text-emerald-500 dark:text-gray-100 mt-2 transition-colors duration-500">
           These gases trap heat and make Earth too hot to handle. 🔥
@@ -877,36 +874,37 @@ useEffect(() => {
         <br />🌍 <strong>Sub-Saharan Africa:</strong> ~75 kg/month (lowest yet most affected by climate change)
         <br />
         <br />
-        Each ton matters. Cutting down even by 10% — through energy conservation, green transport, and mindful habits — 
+        Each ton matters. Cutting down even by <strong>10%</strong> — through energy conservation, green transport, and mindful habits — 
         helps slow climate change for future generations. 🌱
       </p>
     ),
   },
-   {
+  {
     id: 'impact',
     title: '🔥 Carbon and Greenhouse Gases',
     content: (
       <p className="text-xs sm:text-sm text-emerald-500 dark:text-gray-100 transition-colors duration-500">
-        CO₂ is the largest contributor to global warming, trapping heat like a thermal blanket. 
-        Other gases such as CH₄, N₂O, and F-gases multiply the effect. Together, they’re driving 
+        <strong>CO₂</strong> is the largest contributor to global warming, trapping heat like a thermal blanket. 
+        Other gases such as <strong>CH₄</strong>, <strong>N₂O</strong>, and <strong>F-gases</strong> multiply the effect. Together, they're driving 
         extreme weather — hotter summers, stronger storms, and rising sea levels. 🌪️🔥🌊  
         <br />
-        Every action to reduce emissions — from using renewable energy to planting trees — 
-        slows the rise of Earth’s temperature and protects ecosystems worldwide. 🌳
+        <br />
+        Every action to reduce emissions — from using <strong>renewable energy</strong> to <strong>planting trees</strong> — 
+        slows the rise of Earth's temperature and protects ecosystems worldwide. 🌳
       </p>
     ),
   },
-   {
+  {
     id: 'solutions',
     title: '🔍 Why Calculate Your Carbon Footprint?',
     content: (
       <p className="text-xs sm:text-sm text-emerald-500 dark:text-gray-100 transition-colors duration-500">
-        📏 Knowing your footprint shows how your choices affect the planet. You’ll identify 
-        areas to cut emissions — whether it’s switching to renewable energy, reducing car travel, 
-        or improving home efficiency.  
+        📏 Knowing your footprint shows how your choices affect the planet. You'll identify 
+        areas to cut emissions — whether it's switching to <strong>renewable energy</strong>, reducing <strong>car travel</strong>, 
+        or improving <strong>home efficiency</strong>.  
         <br />
         <br />
-        Tracking your impact helps you build sustainable habits, save money, and join a 
+        Tracking your impact helps you build <strong>sustainable habits</strong>, save money, and join a 
         growing community of people making positive environmental changes. 🌿
       </p>
     ),
@@ -916,13 +914,13 @@ useEffect(() => {
     title: '📱 How Our Carbon Calculator Works',
     content: (
       <p className="text-xs sm:text-sm text-emerald-500 dark:text-gray-100 transition-colors duration-500">
-        Our tool estimates your emissions based on <em>energy use</em> ⚡, <em>travel habits</em> 🚙✈️, 
-        <em>diet</em> 🥗, and <em>waste management</em> ♻️.  
+        Our tool estimates your emissions based on <strong>energy use</strong> ⚡, <strong>travel habits</strong> 🚙✈️, 
+        <strong>diet</strong> 🥗, and <strong>waste management</strong> ♻️.  
         <br />
         <br />
-        After entering your details, you’ll get a breakdown of your monthly CO₂ footprint 
+        After entering your details, you'll get a breakdown of your <strong>monthly CO₂ footprint</strong> 
         and practical suggestions for reducing it. Think of it as your personal guide to 
-        sustainable living — simple, clear, and actionable! ✨
+        sustainable living — <strong>simple, clear, and actionable!</strong> ✨
       </p>
     ),
   },
@@ -936,7 +934,7 @@ useEffect(() => {
         <li>♻️ <strong>Waste:</strong> Reuse, recycle, and compost to reduce landfill methane.</li>
         <li>🥦 <strong>Diet:</strong> Incorporate more plant-based meals and reduce food waste.</li>
         <li>📣 <strong>Voice:</strong> Support eco-friendly policies and encourage others to act sustainably.</li>
-        <li>🌍 <strong>Mindset:</strong> Small changes, multiplied by millions, can reshape our planet’s future.</li>
+        <li>🌍 <strong>Mindset:</strong> Small changes, multiplied by millions, can reshape our planet's future.</li>
       </ul>
     ),
   },
@@ -976,7 +974,7 @@ useEffect(() => {
         whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.2)" }}
         style={{ willChange: "transform, opacity", transform: "translateZ(0)", fontFamily: 'InterTight', fontWeight: 700 }}
         whileTap={{ scale: 0.97, transition: { duration: 0.05 } }}
-        className={`p-4 relative group bg-white/20 dark:bg-gray-800/70 rounded-3xl backdrop-blur-md shadow-lg cursor-pointer origin-center transition-colors duration-300 md:ml-28 md:w-4/5`}
+        className={`p-4 relative group bg-gray-800/70 rounded-3xl backdrop-blur-md shadow-lg cursor-pointer origin-center transition-colors duration-300 md:ml-28 md:w-4/5`}
         onClick={() =>{ setOpenSection(prev => prev === section.id ? null : section.id); setTimeout(() => {
     const emojiEl = document.getElementById(`emoji-${section.id}`);
     if (emojiEl) triggerConfetti(emojiEl);
@@ -1012,12 +1010,12 @@ useEffect(() => {
         </motion.h2>
 
         <div
-          className={`transition-all font-extralight duration-500 ease-in-out overflow-hidden ${
-            openSection === section.id ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'
-          }`}
-        >
-          {section.content}
-        </div>
+  className={`transition-all font-extralight duration-500 ease-in-out overflow-hidden suggestions-content ${
+    openSection === section.id ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'
+  }`}
+>
+  {section.content}
+</div>
       </motion.section>
     );
   })

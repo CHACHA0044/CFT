@@ -8,7 +8,6 @@ import { NewEntryButton, VisualizeButton, DashboardButton } from 'Components/glo
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
 import useAuthRedirect from 'hooks/useAuthRedirect';
-import DailyGreeting from './DailyGreeting';
   const sentence = "Emission History";
   const words = sentence.split(" ");
   //const bottomRef = useRef(null);
@@ -42,175 +41,135 @@ import DailyGreeting from './DailyGreeting';
     }
     return a;
   }
-  
-  // const triggerConfetti = (element) => {
-  //   if (!element) return;
-  
-  //   for (let i = 0; i < 8; i++) {
-  //     const conf = document.createElement('span');
-  //     const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#F43F5E', '#22D3EE'];
-  //     const randomColor = colors[Math.floor(Math.random() * colors.length)];
-  
-  //     conf.className = 'absolute w-1.5 h-1.5 rounded-full pointer-events-none';
-  //     conf.style.backgroundColor = randomColor;
-  //     conf.style.left = '50%';
-  //     conf.style.top = '50%';
-  //     conf.style.position = 'absolute';
-  
-  //     const x = `${Math.random() * 60 - 30}px`;
-  //     const y = `${Math.random() * 60 - 30}px`;
-  //     conf.style.setProperty('--x', x);
-  //     conf.style.setProperty('--y', y);
-  //     conf.style.animation = `confetti-burst 600ms ease-out forwards`;
-  
-  //     element.appendChild(conf);
-  //     setTimeout(() => conf.remove(), 700);
-  //   }
-  // };
-  
-  const AnimatedHeadline = () => {
-    const [activeBurstIndex, setActiveBurstIndex] = useState(null);
-    const [bursting, setBursting] = useState(false);
-    const [fallingLetters, setFallingLetters] = useState([]);
-  
-    // useEffect(() => {
-    //   const allChars = sentence.replace(/\s/g, "").length;
-  
-    //   const interval = setInterval(() => {
-    //     const indices = Array.from({ length: allChars }, (_, i) => i);
-    //     const shuffled = shuffleArray(indices).slice(0, Math.floor(Math.random() * 5) + 3); // 3–7 letters
-  
-    //     setFallingLetters((prev) => [...prev, ...shuffled]);
-  
-    //     setTimeout(() => {
-    //       setFallingLetters((prev) => prev.filter((i) => !shuffled.includes(i)));
-    //     }, 3000);
-    //   }, 4000); // pause for 4s
-  
-    //   return () => clearInterval(interval);
-    // }, []);
-  
-    const triggerBurst = (index) => {
-      setActiveBurstIndex(index);
-      setBursting(true);
-      setTimeout(() => {
-        setBursting(false);
-        setActiveBurstIndex(null);
-      }, 1800);
-    };
-  
-    return (
-      <div className="relative overflow-visible w-full flex justify-center items-center mt-4 px-4">
-        <motion.div
-          className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania sm:tracking-widest tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0, y: 20 },
-            visible: {
-              opacity: 1,
-              y: 0,
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.3,
-              },
+   
+const AnimatedHeadline = React.memo(() => {
+  const [activeBurstIndex, setActiveBurstIndex] = useState(null);
+  const [bursting, setBursting] = useState(false);
+  const [fallingLetters, setFallingLetters] = useState([]);
+
+  const triggerBurst = (index) => {
+    setActiveBurstIndex(index);
+    setBursting(true);
+    setTimeout(() => {
+      setBursting(false);
+      setActiveBurstIndex(null);
+    }, 1800);
+  };
+
+  return (
+    <div className="relative overflow-visible w-full flex justify-center items-center px-4">
+      <motion.div
+        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0, y: 20 },
+          visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+              staggerChildren: 0.1,
+              delayChildren: 0.3,
             },
-          }}
-        >
-          {words.map((word, wordIndex) => (
-            <motion.span
-              key={wordIndex}
-              onMouseEnter={() => {
-                if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-              }}
-              onClick={() => {
-                if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-              }}
-              className="relative inline-block cursor-pointer"
-              variants={{
-                hidden: { opacity: 0, y: 10 },
-                visible: { opacity: 1, y: 0 },
-              }}
-            >
-              {word.split("").map((char, i) => {
-                const allChars = sentence.replace(/\s/g, "").split("");
-                const charIndex = allChars.findIndex(
-                  (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
-                );
-  
-                const isBursting = activeBurstIndex === wordIndex;
-  
-                const randomDelay = Math.random() * 0.5 + i * 0.05;
-  
-                return (
-                  <AnimatePresence key={`${char}-${i}`}>
-                    <motion.span
-                      className="inline-block relative"
-                      initial={{
-                        x: 0,
-                        y: 0,
-                        rotate: 0,
-                        opacity: 1,
-                        scale: 1,
-                      }}
-                      animate={
-                        isBursting
-                          ? {
-                              x: Math.random() * 80 - 40,
-                              y: Math.random() * 60 - 30,
-                              rotate: Math.random() * 180 - 90,
-                              opacity: [1, 0],
-                              scale: [1, 1.2, 0.4],
-                              transition: {
-                                duration: 0.8,
+          },
+        }}
+      >
+        {words.map((word, wordIndex) => (
+          <motion.span
+            key={wordIndex}
+            onMouseEnter={() => {
+              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+            }}
+            onClick={() => {
+              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+            }}
+            className="relative inline-block cursor-pointer"
+            variants={{
+              hidden: { opacity: 0, y: 10 },
+              visible: { opacity: 1, y: 0 },
+            }}
+          >
+            {word.split("").map((char, i) => {
+              const allChars = sentence.replace(/\s/g, "").split("");
+              const charIndex = allChars.findIndex(
+                (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
+              );
+
+              const isBursting = activeBurstIndex === wordIndex;
+
+              const randomDelay = Math.random() * 0.5 + i * 0.05;
+
+              return (
+              <AnimatePresence key={`${char}-${i}`}>
+                <motion.span
+                  className="inline-block relative"
+                  initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                  animate={
+                    isBursting
+                      ? {
+                          x: Math.random() * 80 - 40,
+                          y: Math.random() * 60 - 30,
+                          rotate: Math.random() * 180 - 90,
+                          opacity: [1, 0],
+                          scale: [1, 1.2, 0.4],
+                          transition: { duration: 0.8, delay: randomDelay, ease: "easeOut" },
+                        }
+                      : fallingLetters.includes(charIndex)
+                      ? "reenter"
+                      : "initial"
+                  }
+                  variants={getLetterVariants()}
+                >
+                  
+                  {char === "o" && wordIndex === 2 ? (
+              <>
+                {/* Mobile: show 'o' */}
+                <span className="block sm:hidden">{char}</span>
+
+                {/* sm+ screens: animated earth */}
+                <span className="hidden sm:inline-block">
+                  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
+                </span>
+              </>
+            ) : (
+              char
+            )}
+                      {isBursting && (
+                      <span className="absolute top-1/2 left-1/2 z-[-1]">
+                        {[...Array(5)].map((_, j) => {
+                          const confX = Math.random() * 30 - 15;
+                          const confY = Math.random() * 30 - 15;
+                          return (
+                            <motion.span
+                              key={j}
+                              className="absolute w-1 h-1 bg-emerald-400 rounded-full"
+                              initial={{ opacity: 1, scale: 1 }}
+                              animate={{
+                                x: confX,
+                                y: confY,
+                                opacity: [1, 0],
+                                scale: [1, 0.4],
+                              }}
+                              transition={{
+                                duration: 0.6,
                                 delay: randomDelay,
                                 ease: "easeOut",
-                              },
-                            }
-                          : fallingLetters.includes(charIndex)
-                          ? "reenter"
-                          : "initial"
-                      }
-                      variants={getLetterVariants()}
-                    >
-                      {char}
-                      {/* Confetti burst */}
-                      {isBursting && (
-                        <span className="absolute top-1/2 left-1/2 z-[-1]">
-                          {[...Array(5)].map((_, j) => {
-                            const confX = Math.random() * 30 - 15;
-                            const confY = Math.random() * 30 - 15;
-                            return (
-                              <motion.span
-                                key={j}
-                                className="absolute w-1 h-1 bg-emerald-400 rounded-full"
-                                initial={{ opacity: 1, scale: 1 }}
-                                animate={{
-                                  x: confX,
-                                  y: confY,
-                                  opacity: [1, 0],
-                                  scale: [1, 0.4],
-                                }}
-                                transition={{
-                                  duration: 0.6,
-                                  delay: randomDelay,
-                                  ease: "easeOut",
-                                }}
-                              />
-                            );
-                          })}
-                        </span>
-                      )}
-                    </motion.span>
-                  </AnimatePresence>
-                );
-              })}
-            </motion.span>
-          ))}
-        </motion.div>
-      </div>
-    );
-  };
+                              }}
+                            />
+                          );
+                        })}
+                      </span>
+                    )}
+                  </motion.span>
+                </AnimatePresence>
+              );
+            })}
+          </motion.span>
+        ))}
+      </motion.div>
+    </div>
+  );
+});
   const AniDot = () => (
     <span aria-hidden="true" className="inline-flex items-center">
       <motion.span
@@ -392,7 +351,7 @@ return (
   </div>
 </CardNav>
 </div>
-          <h2 className="text-3xl font-bold mb-6 text-center"><AnimatedHeadline />{!isMobile && <DailyGreeting shimmerControls={shimmerControls} />}</h2>
+          <h2 className="text-3xl font-bold mb-6 text-center"><AnimatedHeadline /></h2>
 
           <AnimatePresence>
             {success && (
@@ -468,20 +427,21 @@ return (
             scale: 0.97,
             transition: { duration: 0.05 },
           }}
-          className="relative group bg-white/20 dark:bg-gray-800/70 backdrop-blur-md shadow-md rounded-3xl font-intertight font-normal sm:font-semibold sm:tracking-wider text-shadow-DEFAULT p-4 mb-4 md:ml-64 md:w-7/12 origin-center transition-colors duration-300"
+          className="relative group bg-gray-800/70 backdrop-blur-md shadow-md rounded-3xl font-intertight font-normal sm:font-semibold sm:tracking-wider text-shadow-DEFAULT p-4 mb-4 md:ml-64 md:w-7/12 origin-center transition-colors duration-300"
         >
           <div className="absolute inset-0 rounded-3xl border-2 border-transparent 
                       opacity-0 group-hover:opacity-100 animate-borderFlow 
                       border-emerald-500 dark:border-gray-100 pointer-events-none" />
           <div className="text-lg sm:text-2xl md:text-3xl text-emerald-500 dark:text-white transition-colors duration-500">
-            <div className="relative inline-block">
-              <span className="absolute left-[4px] -top-[6px] animate-smoke text-sm opacity-50 delay-0">☁️</span>
-              <span className="absolute left-[8px] -top-[8px] animate-smoke text-xs opacity-40 delay-400">☁️</span>
-              <span className="absolute left-[2px] -top-[10px] animate-smoke text-[10px] opacity-30 delay-800">☁️</span>
-              <span className="inline-block">🏭</span>
+              <div className="relative inline-block">
+                <div className="hidden sm:block">
+              <span className="absolute left-[7px] -top-[6px] animate-smoke text-sm opacity-50 delay-0">☁️</span>
+              <span className="absolute left-[10px] -top-[8px] animate-smoke text-xs opacity-40 delay-400">☁️</span>
+              <span className="absolute left-[5px] -top-[10px] animate-smoke text-[10px] opacity-30 delay-800">☁️</span>
+              </div><span className="inline-block">🏭</span>
             </div>{' '}
             Total Emission{' '}
-            <span className="animate-colon-glow">:</span>{' '}
+            <span className="animate-colon-glow text-white">:</span>{' '}
             <span>
               {Math.floor(entry.totalEmissionKg)}
               <span className="hidden sm:inline">
@@ -490,21 +450,38 @@ return (
               <span className="hidden sm:inline"> </span>
             </span>{' '}
             kg CO
-            <span
-              className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
-              style={{ '--random': Math.random() }}
-            >
-              2
-            </span>
+            <span className="hidden sm:inline-block text-white"><span
+            className="animated-co2 ml-[-1px] sm:ml-[1px] inline-block text-[1em] align-sub"
+            style={{ '--random': Math.random() }}
+          >
+          2
+          </span></span>
+          <span className="inline sm:hidden ml-[1px] text-[1em] align-sub">
+            2
+          </span>
           </div>
 
-          <p className="text-xs italic text-emerald-500 dark:text-white mt-1">
-            {entry.updatedAt && entry.updatedAt !== entry.createdAt
-              ? `🕒 Updated on ${new Date(entry.updatedAt).toLocaleString()}`
-              : `🕒 Created on ${new Date(entry.createdAt).toLocaleString()}`}
-          </p>
+          <p className="text-xs italic text-white mt-1">
+  🕒{" "}
+  {entry.updatedAt && entry.updatedAt !== entry.createdAt
+    ? "Updated on "
+    : "Created on "}
+  {new Date(
+    entry.updatedAt && entry.updatedAt !== entry.createdAt
+      ? entry.updatedAt
+      : entry.createdAt
+  )
+    .toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true
+    })
+    .replace(",", " ,")}
+</p>
 
-          <div className="mt-3 flex flex-col sm:flex-row gap-3">
+          <div className="mt-3 flex flex-row gap-2 -ml-2 sm:ml-0 sm:gap-3">
             <EditButton
               onClick={(e) => {
                 e.stopPropagation();
@@ -540,7 +517,7 @@ return (
               text={
                 clearingAll ? 'Processing...' : cleared ? 'Cleared' : 'Clear All'
               }
-              styleOverride={{ width: '12rem', margin: '1rem auto' }}
+              styleOverride={{ width: '10rem', margin: '1rem auto' }}
             />
           )}
         </div>  

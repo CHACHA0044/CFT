@@ -43,7 +43,7 @@ function shuffleArray(arr) {
   return a;
 }
 
-const AnimatedHeadline = () => {
+const AnimatedHeadline = React.memo(() => {
   const [activeBurstIndex, setActiveBurstIndex] = useState(null);
   const [bursting, setBursting] = useState(false);
   const [fallingLetters, setFallingLetters] = useState([]);
@@ -60,7 +60,7 @@ const AnimatedHeadline = () => {
   return (
     <div className="relative overflow-visible w-full flex justify-center items-center mt-4 px-4">
       <motion.div
-        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania sm:tracking-widest tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania sm:tracking-widest tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
         initial="hidden"
         animate="visible"
         variants={{
@@ -166,7 +166,7 @@ const AnimatedHeadline = () => {
       </motion.div>
     </div>
   );
-};
+});
 
 const CustomSelect = ({ label, value, onChange, options, name, icon, showFactor = true }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -255,7 +255,7 @@ const CustomSelect = ({ label, value, onChange, options, name, icon, showFactor 
             ? `0 0 15px ${getOptionGlowColor(selectedIndex)}`
             : 'none'
         }}
-        className="w-full bg-white/10 font-intertight dark:bg-black/30 text-emerald-500 dark:text-gray-100 border-b border-emerald-500 focus:outline-none py-2 px-3 rounded-md backdrop-blur-sm transition-all duration-300 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-left flex justify-between items-center"
+        className="w-full font-intertight bg-black/30 text-gray-100 border-b border-emerald-500 focus:outline-none py-2 px-3 rounded-md backdrop-blur-sm transition-all duration-300 focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-left flex justify-between items-center"
       >
         <span className="flex items-center gap-2">
           {selectedOption ? (
@@ -294,7 +294,7 @@ const CustomSelect = ({ label, value, onChange, options, name, icon, showFactor 
               duration: 0.35,
               ease: [0.34, 1.56, 0.64, 1]
             }}
-            className="absolute z-50 w-full mt-1 bg-white/20 dark:bg-black/60 backdrop-blur-lg border border-emerald-500/30 rounded-md shadow-xl max-h-60 overflow-y-auto origin-top"
+            className="absolute z-50 w-full mt-1 bg-black/60 backdrop-blur-lg border border-emerald-500/30 rounded-md shadow-xl max-h-60 overflow-y-auto origin-top"
           >
             {options.map((option, index) => {
               const factorLabel = getFactorLabel(option.value);
@@ -634,11 +634,11 @@ const handleSubmit = async (e) => {
             <form
               ref={formRef}
               onSubmit={handleSubmit}
-              className={`${boxglowF} w-full max-w-xl mt-6 p-6 bg-white/10 dark:bg-black/50 backdrop-blur-lg rounded-3xl text-white space-y-6 shadow-xl transition-all duration-500
+              className={`${boxglowF} w-full max-w-xl mt-6 p-6 bg-black/50 backdrop-blur-lg rounded-3xl text-white space-y-6 shadow-xl transition-all duration-500
                 ${shakeField === 'form' ? 'animate-shake' : ''}
               `}
             >
-              <h2 className="text-3xl font-bold text-center text-emerald-500 dark:text-gray-100">
+              <h2 className="text-3xl font-bold text-center text-gray-100">
                 <AnimatedHeadline />
               </h2>
               

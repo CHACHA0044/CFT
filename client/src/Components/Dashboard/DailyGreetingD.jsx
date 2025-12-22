@@ -15,14 +15,14 @@ const dailyMessages = {
   },
   1: { 
     emoji: "💪",
-    message: "Mindful Monday : Begin your week with purpose   —   each eco-choice you make today becomes a ripple that nurtures our planet’s tomorrow.",
+    message: "Mindful Monday : Begin your week with purpose  —  each eco-choice you make today becomes a ripple that nurtures our planet’s tomorrow.",
     color: "from-blue-400 via-indigo-400 to-purple-400",
     shadow: "shadow-blue-500/50",
     particles: "⚡"
   },
   2: { 
     emoji: "🌱",
-    message: "Green Tuesday : Let your actions grow like leaves in sunlight   —   every sustainable habit adds life to the forests, oceans, and skies we share.",
+    message: "Green Tuesday : Let your actions grow like leaves in sunlight  —  every sustainable habit adds life to the forests, oceans, and skies we share.",
     color: "from-green-400 via-emerald-400 to-teal-400",
     shadow: "shadow-green-500/50",
     particles: "🍃"
@@ -58,7 +58,7 @@ const dailyMessages = {
 };
 
 
-  const testDay = null; // Set to null to use real day, or 0-6 to test specific day
+  const testDay = 4; // Set to null to use real day, or 0-6 to test specific day
   const today = testDay !== null ? testDay : new Date().getDay();
   const { emoji, message, color, shadow, particles } = dailyMessages[today];
 
@@ -75,7 +75,7 @@ const dailyMessages = {
   }, [glowControls]);
 
   return (
-    <div className="relative rounded-3xl w-full max-w-5xl mx-auto py-6 px-4 overflow-hidden mt-4 mb-8">
+    <div className="relative rounded-3xl w-full max-w-5xl mx-auto py-6 px-4 overflow-hidden mt-4 mb-8 font-intertight tracking-wide text-shadow-DEFAULT">
       {/* Animated wave background */}
       <motion.div
         className="absolute inset-0 opacity-5"
@@ -180,7 +180,7 @@ const dailyMessages = {
 
         {/* Message with advanced character animations */}
         <motion.div className="relative flex-1 min-w-0">
-          <span className={`inline-flex font-intertight tracking-wide text-shadow-DEFAULT flex-wrap text-sm sm:text-base md:text-lg font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`}>
+          <span className={`inline-flex tracking-wide text-shadow-DEFAULT flex-wrap text-sm sm:text-base md:text-lg font-intertight font-semibold text-emerald-500 dark:text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] transition-colors`}>
             {message.split("").map((char, i) => (
               <motion.span
                 key={i}

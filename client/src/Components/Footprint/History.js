@@ -481,7 +481,7 @@ return (
     .replace(",", " ,")}
 </p>
 
-          <div className="mt-3 flex flex-row gap-2 -ml-2 sm:ml-0 sm:gap-3">
+          <div className="mt-3 flex flex-row gap-3">
             <EditButton
               onClick={(e) => {
                 e.stopPropagation();

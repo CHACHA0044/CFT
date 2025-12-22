@@ -927,21 +927,23 @@ useEffect(() => {
 
       {/* Feedback Modal Overlay */}
       <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 top-96 flex items-center justify-center z-50 p-4"
-          >
-            <motion.div
-              ref={modalRef}
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="bg-gray-900/80 rounded-3xl border border-white/10 w-full max-w-md overflow-hidden"
-            >
+  {isOpen && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 backdrop-blur-md bg-black/30 flex items-center justify-center z-50 p-4"
+      onClick={handleClose}
+    >
+      <motion.div
+        ref={modalRef}
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-gray-800/90 rounded-3xl border border-white/10 w-full max-w-md overflow-hidden"
+      >
               {/* Header */}
               <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 p-3 sm:p-4 border-b border-white/10">
                 <div className="flex items-center justify-between gap-2">

@@ -5,7 +5,7 @@ import PageWrapper from 'common/PageWrapper';
 import { AnimatePresence } from 'framer-motion';
 import useAuthRedirect from 'hooks/useAuthRedirect';
 import API from 'api/api';
-import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton} from 'Components/globalbuttons';
+import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton, FeedbackButton} from 'Components/globalbuttons';
 import { useLoading } from 'context/LoadingContext';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
@@ -1023,6 +1023,17 @@ useEffect(() => {
 </div>
         </main>
 <div ref={bottomRef}></div>
+{/* Feedback Button */}
+<div className="w-full flex justify-center items-center mt-3 -mb-4 sm:-mb-0">
+  <div className="flex flex-col items-center gap-3">
+    <p className="text-sm sm:text-base hidden sm:block text-white/70 text-center text-shadow-DEFAULT tracking-wide font-intertight">
+      Have suggestions? Found a bug? We'd love to hear from you!
+    </p>
+    <FeedbackButton 
+      userEmail={user?.email}
+    />
+  </div>
+</div>
 </motion.div>    
     </PageWrapper>
     </motion.div>

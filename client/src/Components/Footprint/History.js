@@ -346,7 +346,16 @@ return (
   <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
     <NewEntryButton className="w-40" />
     <DashboardButton className="w-40" />
-    {history.length > 0 && (<VisualizeButton entries={history} onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" /> )}
+    {/* Mobile-only Visualize button */}
+    {history.length > 0 && (
+      <div className="block md:hidden">
+        <VisualizeButton 
+          entries={history} 
+          onClick={(entry) => navigate('/chart', { state: { entry } })} 
+          className="w-40" 
+        />
+      </div>
+    )}
     <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
   </div>
 </CardNav>
@@ -481,7 +490,15 @@ return (
     .replace(",", " ,")}
 </p>
 
-          <div className="mt-3 flex flex-row gap-3">
+<div className="mt-3 flex flex-row gap-3">
+  {/* Desktop-only Visualize button - passes single entry array */}
+            <div className="hidden md:block">
+              <VisualizeButton
+                entries={[entry]}
+                onClick={(selectedEntry) => navigate('/chart', { state: { entry: selectedEntry } })}
+                styleOverride={{ width: '8rem', height: '3.5rem' }}
+              />
+            </div>
             <EditButton
               onClick={(e) => {
                 e.stopPropagation();

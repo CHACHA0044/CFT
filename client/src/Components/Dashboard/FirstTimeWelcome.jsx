@@ -28,7 +28,7 @@ const FirstTimeWelcome = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="w-full max-w-5xl mx-auto mb-6 relative"
+          className="w-full rounded-3xl max-w-5xl mx-auto mb-6 relative"
         >
           <div className="dark:bg-gray-800/70 backdrop-blur-md rounded-3xl p-6 shadow-lg border border-emerald-300/30 dark:border-emerald-500/30">
             {/* Close button */}
@@ -160,7 +160,6 @@ const FirstTimeWelcome = () => {
               transition={{ delay: 2.2 }}
               className="mt-6 flex flex-row items-center justify-center gap-4"
             >
-                <AboutButton styleOverride={{ width: '10rem', height: '3rem', fontSize: '0.85rem' }} />
               <GetStartedButton onDismiss={handleDismiss} compact={true} />
             </motion.div>
           </div>

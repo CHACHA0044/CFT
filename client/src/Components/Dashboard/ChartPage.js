@@ -280,6 +280,31 @@ const RefreshCountdown = React.memo(({ weatherTimestamp, onRefreshAvailable }) =
     </div>
   );
 });
+const getAqiGradient = (pm25) => {
+  if (pm25 <= 12) {
+    // Excellent
+    return "bg-gradient-to-r from-emerald-400/20 via-teal-400/15 to-cyan-400/20";
+  }
+
+  if (pm25 <= 35) {
+    // Good
+    return "bg-gradient-to-r from-sky-400/20 via-cyan-400/15 to-teal-400/20";
+  }
+
+  if (pm25 <= 55) {
+    // Moderate
+    return "bg-gradient-to-r from-slate-300/20 via-sky-300/15 to-cyan-400/20";
+  }
+
+  if (pm25 <= 150) {
+    // Poor
+    return "bg-gradient-to-r from-amber-400/20 via-orange-400/15 to-rose-400/20";
+  }
+
+  // Hazardous
+  return "bg-gradient-to-r from-rose-500/25 via-orange-500/20 to-amber-500/20";
+};
+
 const ChartPage = () => {
   useAuthRedirect();
   const location = useLocation();
@@ -318,6 +343,8 @@ const ChartPage = () => {
   const [expandedLeaderboardUser, setExpandedLeaderboardUser] = useState(null);
   const [expandedLeaderboardCategory, setExpandedLeaderboardCategory] = useState(null);
   const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
+  const pm25 = data?.air_quality?.pm2_5 ?? 0;
+  const aqiGradient = getAqiGradient(pm25);
   const leaderboardRef = useRef(null);const [showBreakdown, setShowBreakdown] = useState(false);
   const [simTransport, setSimTransport] = useState(100);
   const [simDiet, setSimDiet] = useState(100);
@@ -2104,7 +2131,7 @@ const currentYear = entryDate.getFullYear();
 {weatherRequested && data && weatherTimestamp ? (
   <div className="mt-4 space-y-4">
     {/* Weather Section */}
-    <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-3xl p-4 mb-6">
+    <div className="bg-gradient-to-r from-indigo-400/20 via-blue-500/15 to-slate-500/20 rounded-3xl p-4 mb-6">
       <motion.div
         className="cursor-pointer"
         onClick={() => setExpandedWeatherSection(prev => prev === 'weather' ? null : 'weather')}
@@ -2147,7 +2174,7 @@ const currentYear = entryDate.getFullYear();
                 if (code <= 86) return 'Snow showers';
                 if (code <= 99) return 'Thunderstorm';
                 return 'Weather';
-              })()}
+              })()}               , {data.weather?.temperature_2m || 'N/A'}°C 
             </div>
           </div>
         )}
@@ -2297,7 +2324,13 @@ const currentYear = entryDate.getFullYear();
     </div>
 
     {/* Air Quality Section */}
-    <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-3xl p-4 mb-6">
+    <motion.div
+  key={aqiGradient}
+  initial={{ opacity: 0.6, scale: 0.98 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.6, ease: "easeOut" }}
+  className={`${aqiGradient} rounded-3xl p-4 mb-6 backdrop-blur-md`}
+>
       <motion.div
         className="cursor-pointer"
         onClick={() => setExpandedWeatherSection(prev => prev === 'airquality' ? null : 'airquality')}
@@ -2433,7 +2466,7 @@ const currentYear = entryDate.getFullYear();
           </div>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
 
     {/* Data Source Info */}
     <div className="text-center text-xs text-gray-400 mb-2">

@@ -248,7 +248,7 @@ const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, 
             }}
             onClick={handleClick}
             disabled={disabled}
-            className="relative flex items-center justify-center gap-3 h-14 rounded-xl font-semibold font-sriracha tracking-wider shadow-lg overflow-hidden text-white"
+            className="relative flex items-center justify-center gap-3 h-14 rounded-xl font-semibold font-germania tracking-wider shadow-lg overflow-hidden text-white"
             style={{
               transformStyle: 'preserve-3d',
               perspective: '1000px',
@@ -347,7 +347,7 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType, className = ""  }
   h-6 px-2 text-sm
   sm:h-10 sm:px-5 sm:text-base
   md:h-12 md:px-6 md:text-lg
-  sm:rounded-xl rounded-lg font-semibold font-sriracha sm:tracking-wide shadow-lg overflow-hidden text-gray-100 ${className}`}
+  sm:rounded-xl rounded-lg font-semibold font-germania tracking-wider shadow-lg overflow-hidden text-gray-100 ${className}`}
 
       style={{
   background: 'transparent',
@@ -420,7 +420,7 @@ export const WeatherButton = ({ textMobile, textDesktop, iconType, onClick, load
         }}
         className={` relative flex flex-row items-center justify-center gap-2
            -top-1 h-12 px-2 text-sm sm:px-5 sm:text-base md:px-6 md:text-lg
-          sm:rounded-xl rounded-lg font-semibold font-sriracha tracking-widest shadow-lg overflow-hidden w-[230px] sm:w-[380px]
+          sm:rounded-xl rounded-lg font-semibold font-germania tracking-wider shadow-lg overflow-hidden w-[230px] sm:w-[380px]
           ${loading ? 'opacity-75' : ''}`}
         style={{
           background: expired ? 'linear-gradient(145deg, #f59e0b, #d97706)' : 'transparent',
@@ -952,7 +952,7 @@ useEffect(() => {
                       <Icons.feedback isFlipping={false} isHovered={false} />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-base sm:text-lg font-bold text-white font-sriracha tracking-wide text-shadow-DEFAULT truncate">Send Feedback</h3>
+                      <h3 className="text-base sm:text-lg font-bold text-white font-germania tracking-wider text-shadow-DEFAULT truncate">Send Feedback</h3>
                       <p className="text-xs text-gray-400 text-shadow-DEFAULT hidden sm:block">We'd love to hear from you!</p>
                     </div>
                   </div>
@@ -983,7 +983,7 @@ useEffect(() => {
                     >
                       <Icons.verify isFlipping={false} isHovered={false} />
                     </motion.div>
-                    <h4 className="text-lg sm:text-xl font-bold text-white mb-2 font-sriracha">Thanks for your feedback!</h4>
+                    <h4 className="text-lg sm:text-xl font-bold text-white mb-2 font-germania tracking-wider">Thanks for your feedback!</h4>
                     <p className="text-gray-400 text-sm">We'll review it carefully.</p>
                   </motion.div>
                 ) : (
@@ -1011,7 +1011,7 @@ useEffect(() => {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleClose}
-                        className="w-full sm:flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-gray-800/50 border border-white/10 text-gray-300 font-semibold font-sriracha hover:bg-gray-800 transition-colors text-sm sm:text-base"
+                        className="w-full sm:flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-gray-800/50 border border-white/10 text-gray-300 font-semibold font-germania tracking-wider hover:bg-gray-800 transition-colors text-sm sm:text-base"
                         disabled={isSubmitting}
                       >
                         Cancel

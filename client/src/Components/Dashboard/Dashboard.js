@@ -9,15 +9,9 @@ import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton, Feedba
 import { useLoading } from 'context/LoadingContext';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
-import DailyGreetingD from './DailyGreetingD';
 import FirstTimeWelcome from './FirstTimeWelcome';
-import WelcomeBackGreeting from './WelcomeBackGreeting';
   const sentence = "Your Climate Dashboard";
   const words = sentence.split(" ");
-  const sentence2 = "Emission Insights & Suggestions";
-  const words2 = sentence2.split(" ");
-  const sentence3 = "Understanding Our Planet — and Our Place Within It";
-  const words3 = sentence3.split(" ");
 const getLetterVariants = () => ({
   initial: { y: 0, opacity: 1, scale: 1 },
   fall: {
@@ -38,7 +32,6 @@ const getLetterVariants = () => ({
     },
   },
 });
-
 const triggerConfetti = (element) => {
   if (!element) return;
 
@@ -63,7 +56,6 @@ const triggerConfetti = (element) => {
     setTimeout(() => conf.remove(), 700);
   }
 };
-
 const AnimatedHeadline = React.memo(() => {
   const [activeBurstIndex, setActiveBurstIndex] = useState(null);
   const [bursting, setBursting] = useState(false);
@@ -146,12 +138,12 @@ const AnimatedHeadline = React.memo(() => {
                   {char === "o" && wordIndex === 2 ? (
               <>
                 {/* Mobile: show 'o' */}
-                <span className="block sm:hidden">{char}</span>
+                <span className="block">{char}</span>
 
-                {/* sm+ screens: animated earth */}
+                {/* sm+ screens: animated earth 
                 <span className="hidden sm:inline-block">
                   <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
-                </span>
+                </span>*/}
               </>
             ) : (
               char
@@ -192,258 +184,55 @@ const AnimatedHeadline = React.memo(() => {
     </div>
   );
 });
-const AnimatedHeadline2 = React.memo(() => {
-  const [activeBurstIndex, setActiveBurstIndex] = useState(null);
-  const [bursting, setBursting] = useState(false);
-  const [fallingLetters, setFallingLetters] = useState([]);
-
-  const triggerBurst = (index) => {
-    setActiveBurstIndex(index);
-    setBursting(true);
-    setTimeout(() => {
-      setBursting(false);
-      setActiveBurstIndex(null);
-    }, 1800);
-  };
+const FootprintPulseCard = ({ level = "medium" }) => {
+  const config = {
+    low:    { glow: "emerald", duration: 8 },
+    medium: { glow: "amber", duration: 6 },
+    high:   { glow: "red", duration: 4.5 }
+  }[level];
 
   return (
-    <div className="relative overflow-visible w-full flex justify-center items-center -mt-1 px-4">
-      <motion.div
-        className="flex flex-wrap sm:-ml-96 sm:mr-24 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, y: 20 },
-          visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.3,
-            },
-          },
-        }}
-      >
-        {words2.map((word, wordIndex) => (
-          <motion.span
-            key={wordIndex}
-            onMouseEnter={() => {
-              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-            }}
-            onClick={() => {
-              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-            }}
-            className="relative inline-block cursor-pointer"
-            variants={{
-              hidden: { opacity: 0, y: 10 },
-              visible: { opacity: 1, y: 0 },
-            }}
-          >
-            {word.split("").map((char, i) => {
-              const allChars = sentence.replace(/\s/g, "").split("");
-              const charIndex = allChars.findIndex(
-                (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
-              );
+    <div className="w-full flex justify-center mt-4">
+      <div className="relative bg-gray-800/70 backdrop-blur-xl 
+                      rounded-3xl px-8 py-10 
+                      shadow-lg max-w-5xl w-full text-center">
 
-              const isBursting = activeBurstIndex === wordIndex;
+        {/* Planet */}
+        <span className="mx-auto w-32 h-32 
+                     rounded-full flex items-center justify-center
+                     text-5xl sm:text-6xl bg-black/20">
+                  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
+                </span>
+        
 
-              const randomDelay = Math.random() * 0.5 + i * 0.05;
+        {/* Desktop pulse wave */}
+        <div className="hidden sm:flex justify-center mt-6 opacity-50">
+          <motion.div
+            animate={{ x: [-20, 20, -20] }}
+            transition={{
+              duration: config.duration,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="h-[2px] w-80 bg-gradient-to-r 
+                       from-transparent via-white/60 to-transparent"
+          />
+        </div>
 
-              return (
-                <AnimatePresence key={`${char}-${i}`}>
-                  <motion.span
-                    className="inline-block relative"
-                    initial={{
-                      x: 0,
-                      y: 0,
-                      rotate: 0,
-                      opacity: 1,
-                      scale: 1,
-                    }}
-                    animate={
-                      isBursting
-                        ? {
-                            x: Math.random() * 80 - 40,
-                            y: Math.random() * 60 - 30,
-                            rotate: Math.random() * 180 - 90,
-                            opacity: [1, 0],
-                            scale: [1, 1.2, 0.4],
-                            transition: {
-                              duration: 0.8,
-                              delay: randomDelay,
-                              ease: "easeOut",
-                            },
-                          }
-                        : fallingLetters.includes(charIndex)
-                        ? "reenter"
-                        : "initial"
-                    }
-                    variants={getLetterVariants()}
-                  >
-                    {char}
-                    {/* Confetti burst */}
-                    {isBursting && (
-                      <span className="absolute top-1/2 left-1/2 z-[-1]">
-                        {[...Array(5)].map((_, j) => {
-                          const confX = Math.random() * 30 - 15;
-                          const confY = Math.random() * 30 - 15;
-                          return (
-                            <motion.span
-                              key={j}
-                              className="absolute w-1 h-1 bg-emerald-400 rounded-full"
-                              initial={{ opacity: 1, scale: 1 }}
-                              animate={{
-                                x: confX,
-                                y: confY,
-                                opacity: [1, 0],
-                                scale: [1, 0.4],
-                              }}
-                              transition={{
-                                duration: 0.6,
-                                delay: randomDelay,
-                                ease: "easeOut",
-                              }}
-                            />
-                          );
-                        })}
-                      </span>
-                    )}
-                  </motion.span>
-                </AnimatePresence>
-              );
-            })}
-          </motion.span>
-        ))}
-      </motion.div>
+        {/* Tagline */}
+        <p className="mt-6 text-base sm:text-lg 
+                      text-white font-intertight tracking-wide text-shadow-DEFAULT">
+          Your footprint has a pulse.
+        </p>
+        <p className=" text-sm
+                      text-white/80 font-intertight tracking-wide text-shadow-DEFAULT">
+         Everyday actions add up — even when we don’t see them.
+We help you measure your carbon footprint and explore simple ways to reduce it.
+        </p>
+      </div>
     </div>
   );
-});
-const AnimatedHeadline3 = React.memo(() => {
-  const [activeBurstIndex, setActiveBurstIndex] = useState(null);
-  const [bursting, setBursting] = useState(false);
-  const [fallingLetters, setFallingLetters] = useState([]);
-
-  const triggerBurst = (index) => {
-    setActiveBurstIndex(index);
-    setBursting(true);
-    setTimeout(() => {
-      setBursting(false);
-      setActiveBurstIndex(null);
-    }, 1800);
-  };
-
-  return (
-    <div className="relative overflow-visible w-full flex justify-center items-center -mt-1 px-4">
-      <motion.div
-        className="flex flex-wrap sm:-ml-44 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, y: 20 },
-          visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.3,
-            },
-          },
-        }}
-      >
-        {words3.map((word, wordIndex) => (
-          <motion.span
-            key={wordIndex}
-            onMouseEnter={() => {
-              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-            }}
-            onClick={() => {
-              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-            }}
-            className="relative inline-block cursor-pointer"
-            variants={{
-              hidden: { opacity: 0, y: 10 },
-              visible: { opacity: 1, y: 0 },
-            }}
-          >
-            {word.split("").map((char, i) => {
-              const allChars = sentence.replace(/\s/g, "").split("");
-              const charIndex = allChars.findIndex(
-                (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
-              );
-
-              const isBursting = activeBurstIndex === wordIndex;
-
-              const randomDelay = Math.random() * 0.5 + i * 0.05;
-
-              return (
-                <AnimatePresence key={`${char}-${i}`}>
-                  <motion.span
-                    className="inline-block relative"
-                    initial={{
-                      x: 0,
-                      y: 0,
-                      rotate: 0,
-                      opacity: 1,
-                      scale: 1,
-                    }}
-                    animate={
-                      isBursting
-                        ? {
-                            x: Math.random() * 80 - 40,
-                            y: Math.random() * 60 - 30,
-                            rotate: Math.random() * 180 - 90,
-                            opacity: [1, 0],
-                            scale: [1, 1.2, 0.4],
-                            transition: {
-                              duration: 0.8,
-                              delay: randomDelay,
-                              ease: "easeOut",
-                            },
-                          }
-                        : fallingLetters.includes(charIndex)
-                        ? "reenter"
-                        : "initial"
-                    }
-                    variants={getLetterVariants()}
-                  >
-                    {char}
-                    {/* Confetti burst */}
-                    {isBursting && (
-                      <span className="absolute top-1/2 left-1/2 z-[-1]">
-                        {[...Array(5)].map((_, j) => {
-                          const confX = Math.random() * 30 - 15;
-                          const confY = Math.random() * 30 - 15;
-                          return (
-                            <motion.span
-                              key={j}
-                              className="absolute w-1 h-1 bg-emerald-400 rounded-full"
-                              initial={{ opacity: 1, scale: 1 }}
-                              animate={{
-                                x: confX,
-                                y: confY,
-                                opacity: [1, 0],
-                                scale: [1, 0.4],
-                              }}
-                              transition={{
-                                duration: 0.6,
-                                delay: randomDelay,
-                                ease: "easeOut",
-                              }}
-                            />
-                          );
-                        })}
-                      </span>
-                    )}
-                  </motion.span>
-                </AnimatePresence>
-              );
-            })}
-          </motion.span>
-        ))}
-      </motion.div>
-    </div>
-  );
-});
+};
   const Dashboard = () => {
   useAuthRedirect(); 
   const [data, setData] = useState([]);
@@ -631,8 +420,7 @@ useEffect(() => {
     <div className=" py-6 text-center items-center justify-center space-y-4 min-h-[6rem]">
     <AnimatedHeadline />
     <FirstTimeWelcome />
-    {!isMobile && (<WelcomeBackGreeting userName={user?.name} />)}
-    {!isMobile && (<DailyGreetingD shimmerControls={shimmerControls} />)}
+    <FootprintPulseCard />
     {showLimitMsg && (
   <motion.div
     key="limit-msg"
@@ -671,8 +459,18 @@ useEffect(() => {
       </motion.span>
   </motion.div>
 )}
-
-
+<div className="flex justify-center mt-4 opacity-50">
+          <motion.div
+            animate={{ x: [-20, 20, -20] }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="h-[2px] w-80 bg-gradient-to-r 
+                       from-transparent via-white/60 to-transparent"
+          />
+        </div>
     </div>
         <main className="flex flex-col space-y-4 sm:space-y-6 ">
           {loading ? (
@@ -687,7 +485,10 @@ useEffect(() => {
 
           ) : data.length > 0 ? (
             <AnimatePresence>
-              <AnimatedHeadline2 />
+              <h2 className="flex flex-wrap sm:-ml-96 sm:mr-24 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500">Emission
+Insights
+&
+Suggestions</h2>
             <motion.div
             className="flex flex-col gap-4 sm:gap-6"
               variants={{
@@ -808,13 +609,14 @@ useEffect(() => {
               </motion.div>
 </AnimatePresence>
           ) : (
-            <div className="text-base sm:text-xl md:text-3xl mt-[-1rem] font-intertight text-shadow-DEFAULT font-normal text-emerald-600 dark:text-white text-center">
+            <div className="text-base mt-[-1rem] font-intertight tracking-wide text-shadow-DEFAULT font-normal text-emerald-600 dark:text-white text-center">
               <p
   onClick={() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }}
 >
-  Add data. See results. Make change
+  Your dashboard starts with one entry.
+Open the top-left menu and add your first data point
   <motion.span
   className="inline-block text-base sm:text-3xl font-medium"
   animate={{ opacity: [0, 1, 0] }}
@@ -838,10 +640,29 @@ useEffect(() => {
 </motion.span></p>
 </div>
           )}
-
+<div className="flex justify-center mt-4 opacity-50">
+          <motion.div
+            animate={{ x: [-20, 20, -20] }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="h-[2px] w-80 bg-gradient-to-r 
+                       from-transparent via-white/60 to-transparent"
+          />
+        </div>
           {/* Expandable Sections */}
           <div className="mb-2 sm:mb-6 pb-2 sm:pb-4 flex flex-col gap-4 sm:gap-6 pr-2 will-change-transform">
-            <AnimatedHeadline3 />
+            <h2 className="flex flex-wrap sm:-ml-44 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500">Understanding
+Our
+Planet
+—
+and
+Our
+Place
+Within
+It</h2>
 {[
   {
     id: 'understanding',
@@ -958,8 +779,6 @@ useEffect(() => {
     transition: { duration: 0.3 },
   },
 };
-
-
     const { emoji, text } = extractEmojiAndText(section.title);
 
     return (

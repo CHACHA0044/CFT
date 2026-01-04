@@ -3933,3 +3933,42 @@ html {
     animation: glow-pulse 2s ease-in-out infinite;
     margin-left: 0.2em;
   }
+.animate-weather-drift {
+  display: inline-block;
+  transform-origin: center;
+  animation: weatherDriftGlow 5.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.25));
+  will-change: transform, filter;
+}
+
+@keyframes weatherDriftGlow {
+  0% {
+    transform: translate(0, 0) scale(1);
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.25));
+    opacity: 0.9;
+  }
+
+  25% {
+    transform: translate(2px, -1px) scale(1.02);
+    filter: drop-shadow(0 0 6px rgba(200, 220, 255, 0.45));
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(0, -2px) scale(1.04);
+    filter: drop-shadow(0 0 8px rgba(200, 220, 255, 0.6));
+    opacity: 1;
+  }
+
+  75% {
+    transform: translate(-2px, -1px) scale(1.02);
+    filter: drop-shadow(0 0 6px rgba(200, 220, 255, 0.45));
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.25));
+    opacity: 0.9;
+  }
+}

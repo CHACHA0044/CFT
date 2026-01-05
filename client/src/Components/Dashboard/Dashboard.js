@@ -616,7 +616,7 @@ Suggestions</h2>
   }}
 >
   Your dashboard starts with one entry.
-Open the top-left menu and add your first data point
+Open the top-left menu and add your first data point and visualize it
   <motion.span
   className="inline-block text-base sm:text-3xl font-medium"
   animate={{ opacity: [0, 1, 0] }}

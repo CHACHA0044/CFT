@@ -413,10 +413,15 @@ router.post('/login', async (req, res) => {
 
     // Generate token
     const token = jwt.sign(
-      { userId: user._id, email: user.email }, 
-      process.env.JWT_SECRET, 
+      {
+        userId: user._id,
+        email: user.email,
+        jti: crypto.randomBytes(16).toString('hex')
+      },
+      process.env.JWT_SECRET,
       { expiresIn: '3d' }
     );
+
     const isProd = process.env.NODE_ENV === 'production';
 
     res.cookie('token', token, {

@@ -618,21 +618,21 @@ Suggestions</h2>
   Your dashboard starts with one entry.
 Open the top-left menu and add your first data point and visualize it
   <motion.span
-  className="inline-block text-base sm:text-3xl font-medium"
+  className="inline-block text-base sm:text-xl font-medium"
   animate={{ opacity: [0, 1, 0] }}
   transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0 }}
 >
   .
 </motion.span>
 <motion.span
-  className="inline-block text-base sm:text-3xl font-medium"
+  className="inline-block text-base sm:text-xl font-medium"
   animate={{ opacity: [0, 1, 0] }}
   transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0.4 }}
 >
   .
 </motion.span>
 <motion.span
-  className="inline-block text-base sm:text-3xl font-medium"
+  className="inline-block text-base sm:text-xl font-medium"
   animate={{ opacity: [0, 1, 0] }}
   transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0.8 }}
 >

@@ -744,10 +744,10 @@ return (
         </motion.div>
       )}
     </AnimatePresence>
-    <NewEntryButton className="w-40" />
-    <EditDeleteButton className="w-40" />
-    {allEntries.length > 1 && ( <VisualizeButton entries={allEntries} onClick={(entry) => { setEntryData(entry); setShowECM(true); setTimeout(() => { setShowECM(false); }, 5000); }} className="w-40" /> )}
     <DashboardButton className="w-40" />
+    <NewEntryButton className="w-40" />
+    {allEntries.length > 1 && ( <VisualizeButton entries={allEntries} onClick={(entry) => { setEntryData(entry); setShowECM(true); setTimeout(() => { setShowECM(false); }, 5000); }} className="w-40" /> )}
+    <EditDeleteButton className="w-40" />
     <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
   </div>
 </CardNav>

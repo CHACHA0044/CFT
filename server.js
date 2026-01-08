@@ -42,35 +42,26 @@ if (isProd) {
 const authRoutes = require('./routes/auth');
 const footprintRoutes = require('./routes/footprint');
 // CORS(Cross-Origin Resource Sharing)
-const allowedOrigins = [
-  'http://localhost:3000',             // local dev
-  'http://localhost:4950',
-  'https://cft-self.vercel.app',       // vercel frontend
-  'https://cft-21jftdfuy-chacha0044s-projects.vercel.app',
-  'https://carbonft.app',   // name.com domain
-  'https://www.carbonft.app',
-  'https://api.carbonft.app',
-  'https://accounts.google.com',       // google accounts
-   /https:\/\/cft-.*\.vercel\.app$/,   // any subdomain matching cft-*.vercel.app
-];
-
-const corsOptions = {
-  origin: (origin, callback) => { // called for every request to check if the request's Origin header is allowed
-    // requests with no origin (mobile apps, Postman, curl, etc.) server-to-server or testing 
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow server-to-server, cron, curl, postman
     if (!origin) return callback(null, true);
-    
-    // Vercel
-    if (origin.includes('.vercel.app')) {
+
+    // DEV
+    if (!isProd && origin === 'http://localhost:3000') {
       return callback(null, true);
     }
-    
-    // whitelist
-    if (allowedOrigins.includes(origin)) {
+
+    // PROD
+    if (
+      isProd &&
+      (origin === 'https://carbonft.app' || origin === 'https://www.carbonft.app')
+    ) {
       return callback(null, true);
     }
-    
-    console.log('❌ CORS blocked origin:', origin);
-    return callback(new Error(`Not allowed by CORS: ${origin}`));
+
+    console.log('❌ CORS blocked:', origin);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -79,10 +70,8 @@ const corsOptions = {
   maxAge: 86400, // 24 hours
   preflightContinue: false,
   optionsSuccessStatus: 204
-};
+}));
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 app.use(cookieParser()); //Reading the token cookie after login
 if (isProd) {
   app.use(helmet({ //Prevents clickjacking, downgrade attacks, and data leaks
@@ -147,7 +136,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/footprint', footprintRoutes);
 // test route
 app.get('/api', (req, res) => {
-  res.send('CFT API is live!');
+  res.send('CFT API is live son!');
 });
 
 app.get('/api/redis-test', async (req, res) => {
@@ -155,7 +144,7 @@ app.get('/api/redis-test', async (req, res) => {
     let visits = await redisClient.get("visits");
     visits = visits ? parseInt(visits) + 1 : 1;
     await redisClient.set("visits", visits);
-    res.json({ message: "Redis is working!", visits });
+    res.json({ message: "Redis is working!!!!!", visits });
   } catch (err) {
     console.error("❌ Redis route error:", err);
     res.status(500).json({ error: "Redis error" });

@@ -2,9 +2,9 @@ import axios from 'axios';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-// In dev: direct to backend, in prod: use proxy, no longer proxy is needed in prod
+// In prod: direct to backend, in dev: use proxy, no longer proxy is needed in prod
 const BASE = isDev 
-  ? 'http://localhost:3001/api' 
+  ? 'http://localhost:4950/api' 
   : 'https://api.carbonft.app/api';  
 
 //console.log('API Base URL:', BASE);
@@ -12,6 +12,7 @@ const BASE = isDev
 const API = axios.create({
   baseURL: BASE,
   withCredentials: true,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   }
@@ -19,7 +20,9 @@ const API = axios.create({
 
 API.interceptors.request.use(
   (config) => {
+    if (isDev) {
     console.log('Making request to:', config.baseURL + config.url);
+    }
     return config;
   },
   (error) => {

@@ -256,7 +256,7 @@ const deleteKey = async (key) => {
 };
 
 //GETME
-router.get('/token-info/me', async (req, res) => {
+router.get('/token-info/me', authenticateToken, async (req, res) => {
   const startTime = Date.now();
   console.log('\n🔐 [/token-info/me] Request received');
 
@@ -427,7 +427,8 @@ router.post('/login', async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: isProd,           // true in prod
-      sameSite: isProd ? 'None' : 'Lax',  // None for cross-origin in prod
+      sameSite: 'Lax',   // None for cross-origin in dev, and now because one domain we use- lax for prod
+      domain: isProd ? '.carbonft.app' : undefined,
       path: '/',
       maxAge: 3 * 24 * 60 * 60 * 1000,
     });
@@ -484,7 +485,7 @@ router.post('/logout', authenticateToken, async (req, res) => {
       const ttl = decoded.exp - Math.floor(Date.now() / 1000);
       
       if (ttl > 0) {
-        const blacklistKey = `blacklist:token:${token}`;
+        const blacklistKey = `blacklist:jti:${decoded.jti}`;
         // blacklisting token when user logs out,storing it in Redis with a TTL equal to its remaining lifetime...prevents reuse of that JWT even before its natural expiry
         await setCachedData(blacklistKey, { invalidated: true }, ttl);
         console.log(`🔒 [TOKEN BLACKLIST] Token invalidated | TTL: ${ttl}s`);
@@ -502,12 +503,11 @@ router.post('/logout', authenticateToken, async (req, res) => {
      res.clearCookie('token', {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? 'None' : 'Lax',
-      path: '/',
+      sameSite: 'Lax',
+      domain: isProd ? '.carbonft.app' : undefined,
     });
 
-    console.log(`✅ [LOGOUT SUCCESS]`);
-    res.json({ message: 'Logged out successfully' });
+return res.json({ message: 'Logged out successfully' });
 
   } catch (err) {
     console.error('❌ [SERVER ERROR] Logout error:', err);
@@ -1345,7 +1345,7 @@ router.get('/google/callback',
 
       // Generate tokens
       const token = jwt.sign(
-        { userId: user._id, email: user.email },
+        { userId: user._id, email: user.email, jti: crypto.randomBytes(16).toString('hex') },
         process.env.JWT_SECRET,
         { expiresIn: '3d' }
       );
@@ -1366,7 +1366,9 @@ router.get('/google/callback',
       res.cookie('token', token, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? 'None' : 'Lax',
+        sameSite: 'Lax',   
+        domain: isProd ? '.carbonft.app' : undefined,
+        path: '/',
         maxAge: 3 * 24 * 60 * 60 * 1000,
       });
 

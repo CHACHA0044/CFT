@@ -184,55 +184,6 @@ const AnimatedHeadline = React.memo(() => {
     </div>
   );
 });
-const FootprintPulseCard = ({ level = "medium" }) => {
-  const config = {
-    low:    { glow: "emerald", duration: 8 },
-    medium: { glow: "amber", duration: 6 },
-    high:   { glow: "red", duration: 4.5 }
-  }[level];
-
-  return (
-    <div className="w-full flex justify-center mt-4">
-      <div className="relative bg-gray-800/70 backdrop-blur-xl 
-                      rounded-3xl px-8 py-10 
-                      shadow-lg max-w-5xl w-full text-center">
-
-        {/* Planet */}
-        <span className="mx-auto w-32 h-32 
-                     rounded-full flex items-center justify-center
-                     text-5xl sm:text-6xl bg-black/20">
-                  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
-                </span>
-        
-
-        {/* Desktop pulse wave */}
-        <div className="hidden sm:flex justify-center mt-6 opacity-50">
-          <motion.div
-            animate={{ x: [-20, 20, -20] }}
-            transition={{
-              duration: config.duration,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="h-[2px] w-80 bg-gradient-to-r 
-                       from-transparent via-white/60 to-transparent"
-          />
-        </div>
-
-        {/* Tagline */}
-        <p className="mt-6 text-base sm:text-lg 
-                      text-white font-intertight tracking-wide text-shadow-DEFAULT">
-          Your footprint has a pulse.
-        </p>
-        <p className=" text-sm
-                      text-white/80 font-intertight tracking-wide text-shadow-DEFAULT">
-         Everyday actions add up — even when we don’t see them.
-We help you measure your carbon footprint and explore simple ways to reduce it.
-        </p>
-      </div>
-    </div>
-  );
-};
   const Dashboard = () => {
   useAuthRedirect(); 
   const [data, setData] = useState([]);
@@ -420,7 +371,65 @@ useEffect(() => {
     <div className=" py-6 text-center items-center justify-center space-y-4 min-h-[6rem]">
     <AnimatedHeadline />
     <FirstTimeWelcome />
-    <FootprintPulseCard />
+        <div className="w-full flex justify-center mt-4">
+      <div className="relative bg-gray-800/70 backdrop-blur-xl 
+                      rounded-3xl px-8 py-10 
+                      shadow-lg max-w-5xl w-full text-center">
+
+        {/* Planet */}
+        <span className="mx-auto w-32 h-32 
+                     rounded-full flex items-center justify-center
+                     text-5xl sm:text-6xl bg-black/20">
+                  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
+                </span>
+        
+
+        {/* Desktop pulse wave */}
+        <div className="hidden sm:flex justify-center mt-6 opacity-50">
+          <motion.div
+            animate={{ x: [-20, 20, -20] }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="h-[2px] w-80 bg-gradient-to-r 
+                       from-transparent via-white/60 to-transparent"
+          />
+        </div>
+
+        {/* Tagline */}
+        <p className="mt-6 text-base sm:text-lg 
+                      text-white font-intertight tracking-wide text-shadow-DEFAULT">
+          {user?.name.split(' ')[0]}, Your footprint has a pulse<motion.span
+  className="inline-block text-base sm:text-xl font-medium"
+  animate={{ opacity: [0, 1, 0] }}
+  transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0 }}
+>
+  .
+</motion.span>
+<motion.span
+  className="inline-block text-base sm:text-xl font-medium"
+  animate={{ opacity: [0, 1, 0] }}
+  transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0.4 }}
+>
+  .
+</motion.span>
+<motion.span
+  className="inline-block text-base sm:text-xl font-medium"
+  animate={{ opacity: [0, 1, 0] }}
+  transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0.8 }}
+>
+  .
+</motion.span>
+        </p>
+        <p className=" text-sm
+                      text-white/80 font-intertight tracking-wide text-shadow-DEFAULT">
+         Everyday actions add up — even when we don’t see them.
+We help you measure your carbon footprint and explore simple ways to reduce it.
+        </p>
+      </div>
+    </div>
     {showLimitMsg && (
   <motion.div
     key="limit-msg"

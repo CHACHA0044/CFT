@@ -674,10 +674,28 @@ router.post('/register', async (req, res) => {
     });
     await newUser.save();
 
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
-    await sendEmail(email, 'Verify your Carbon Footprint Tracker account', emailHtml(name, verificationLink));
+    const verificationLink =
+      `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
-    res.status(201).json({ message: 'User registered. Please check your email to verify your account.' });
+    try {
+      await sendEmail(
+        email,
+        'Verify your Carbon Footprint Tracker account',
+        emailHtml(name, verificationLink)
+      );
+    } catch (emailErr) {
+      console.error('❌ Email send failed:', emailErr.message);
+
+      // IMPORTANT: user exists but email didn't go → frontend
+      return res.status(400).json({
+        error: 'We could not deliver email. Please check your email address and try again.'
+      });
+    }
+
+    res.status(201).json({
+      message: 'Registration successful! Please check your email to verify your account.'
+    });
+
   } catch (err) {
     console.error('❌ Registration error:', err);
     res.status(500).json({ error: 'Server error during registration.' });
@@ -809,7 +827,23 @@ router.get('/verify-email/:token/preview', async (req, res) => {
 router.post('/resend-verification', async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+
+if (!user) {
+  // try finding by previous pending email
+  user = await User.findOne({
+    isVerified: false,
+    provider: "local"
+  });
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found." });
+  }
+
+  // Update email
+  user.email = email;
+}
+
     if (!user) return res.status(404).json({ error: 'User not found.' });
     if (user.isVerified) return res.status(400).json({ error: 'Account already verified.' });
 

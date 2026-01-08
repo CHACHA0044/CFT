@@ -189,7 +189,7 @@ const Register = () => {
     email: '',
     password: ''
   });
-  const location = useLocation;
+  const location = useLocation();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -227,13 +227,18 @@ useEffect(() => {
       setPasswordStrength(strength.score); // 0-4
     }
   };
- const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
 const handleSubmit = async (e) => {
   e.preventDefault();
-
+const typoDomains = {
+  'gmal.com': 'gmail.com',
+  'gnail.com': 'gmail.com',
+  'hotmial.com': 'hotmail.com',
+};
+const domain = formData.email.split('@')[1]?.toLowerCase();
+if (typoDomains[domain]) {
+  setError(`Did you mean ${formData.email.replace(domain, typoDomains[domain])}?`);
+  return;
+}
   // Custom validation with comprehensive checks
   const errors = { name: '', email: '', password: '' };
   
@@ -284,8 +289,8 @@ if (!formData.password.trim()) {
   timers.current = [
     setTimeout(() => setDelayMessage('Please donot reload... 🙂'), 5000),
     setTimeout(() => setDelayMessage('Thanks for your patience... ☀️'), 10000),
-    setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 30000),
-    setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 20000),
+    setTimeout(() => setDelayMessage('Just a bit longer! ⏳'), 20000),
+    setTimeout(() => setDelayMessage('The server is waking up and can take upto a minute...🙂'), 30000),
     setTimeout(() => setDelayMessage('Almost there...'), 40000),
   ];
   
@@ -315,7 +320,7 @@ if (!formData.password.trim()) {
     setError(msg);
     setTimeout(() => { setError(''); }, 3000);
     setSuccess('');
-    setFormData({ name: '', email: '', password: '' });
+    // setFormData({ name: '', email: '', password: '' });
     setPasswordStrength(null);
   } finally {
     setLoading(false);

@@ -73,6 +73,7 @@ const letterVariants = {
 useEffect(() => {
   shimmerControls.start('animate');
 }, [shimmerControls, userName]);
+const firstName = (userName || "User").trim().split(" ")[0];
 
   return (
   <motion.div
@@ -92,8 +93,8 @@ useEffect(() => {
   className="sm:text-5xl text-4xl font-extrabold font-germania tracking-wider text-center text-emerald-700 dark:text-gray-100 mb-0"
 >
   Hello,{" "}
-  <motion.span key={userName || "User"}>
-    {(userName || "User").split("").map((char, i) => (
+  <motion.span key={firstName}>
+    {firstName.split("").map((char, i) => (
       <motion.span
         key={`${char}-${i}`}
         custom={i}                 

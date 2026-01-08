@@ -166,6 +166,9 @@ const Login = () => {
   const [resendCount, setResendCount] = useState( Number(sessionStorage.getItem("resendCount")) || 0);
   const [hidePasswordToggle, setHidePasswordToggle] = useState(false);
   const [validationErrors, setValidationErrors] = useState({ email: '', password: '' });
+  const [verificationEmail, setVerificationEmail] = useState(
+  sessionStorage.getItem("pendingVerificationEmail") || ""
+);
   const [success, setSuccess] = useState(
   sessionStorage.getItem('justVerified') ? 'Your email has been verified! Please login.' : ''
 );
@@ -314,9 +317,12 @@ if (!formData.password.trim()) {
     setDelayMessage('');
     
     if (err.response?.status === 403) {
-      setError('Please verify your email.');
-      if (cooldown === 0) setShowResend(true);
-    } else if (err.response?.data?.error) {
+  setError('Please verify your email.');
+  setVerificationEmail(formData.email);
+  sessionStorage.setItem("pendingVerificationEmail", formData.email);
+  if (cooldown === 0) setShowResend(true);
+}
+ else if (err.response?.data?.error) {
       setError(err.response.data.error);
     } else {
       setError('Something went wrong. Please try again.');
@@ -374,6 +380,37 @@ useEffect(() => {
 useEffect(() => {
   return () => timers.current.forEach((t) => clearTimeout(t));
 }, []);
+const handleResendVerification = async () => {
+  if (!verificationEmail) {
+    setError("Please enter a valid email.");
+    return;
+  }
+
+  if (resendCount >= 3) {
+    setError("Maximum resend attempts reached.");
+    return;
+  }
+
+  try {
+    await API.post("/auth/resend-verification", {
+      email: verificationEmail
+    });
+
+    const newCount = resendCount + 1;
+    setResendCount(newCount);
+    sessionStorage.setItem("resendCount", newCount);
+
+    setSuccess("Verification email resent!");
+    setError("");
+    setShowResend(false);
+    setCooldown(62);
+
+    setTimeout(() => setSuccess(""), 4000);
+  } catch (err) {
+    setError(err.response?.data?.error || "Failed to resend email.");
+    setTimeout(() => setError(""), 4000);
+  }
+};
 
   return (
   <motion.div
@@ -412,59 +449,35 @@ useEffect(() => {
   <div className="flex flex-col items-center space-y-2">
     <h6 className="text-emerald-500 dark:text-gray-100 text-sm tracking-normal sm:tracking-wider font-intertight text-shadow-DEFAULT flex flex-col">
       <span>
-    Didn<span className="animate-pulse">’</span>t receive the mail{" "}
-              <span className="animate-pulse">?</span>
+    Didn<span className="animate-pulse">’</span>t receive the mail{" "}?          
   </span>
   <span>
     [Attempts remaining: <span className="animate-pulse">{3 - resendCount}</span>]
   </span>
     </h6>
-    <motion.button
-      type="button"
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.90 }}
-      transition={{
-        type: "spring",
-        stiffness: 600,
-        damping: 20,
-        duration: 0.25,
-      }}
-      onClick={async () => {
-        const emailToUse =
-          formData.email || sessionStorage.getItem("pendingVerificationEmail");
-        if (!emailToUse) {
-          setError("No email found. Please enter your email.");
-          return;
-        }
-        if (resendCount >= 3) {
-        setError("Maximum resends reached...");
-        setShowResend(false);
-        return;
-      }
-        try {
-        await API.post("/auth/resend-verification", { email: emailToUse });
-        const newCount = resendCount + 1;
-        setResendCount(newCount);
-        sessionStorage.setItem("resendCount", newCount);
-        setShowResend(false); 
-        setCooldown(184);
-        setError("");
-        setSuccess("Verification email resent!");
-        setTimeout(() => setSuccess(""), 4500);
-        } catch (err) {
-         if (err.response?.data?.error === 'User already verified') {
-        setSuccess('✅ Your account is already verified.');
-        setShowResend(false); 
-        } else {
-        setError(err.response?.data?.error || '❌ Failed to resend email.');
-        }
-          setTimeout(() => setError(""), 4500);
-        }
-      }}
-      className="text-blue-400 text-sm underline hover:text-blue-700 transition font-sriracha tracking-wider text-shadow-DEFAULT"
-    >
-      Resend verification email
-    </motion.button>
+   <div className="flex flex-col items-center space-y-2">
+  <span className="text-emerald-500 text-sm font-intertight text-shadow-DEFAULT">
+    Verification email was sent to:
+  </span>
+
+  <input
+    type="email"
+    value={verificationEmail}
+    onChange={(e) => setVerificationEmail(e.target.value)}
+    className={`${inputBase} ${inputMail} text-center`}
+    placeholder="Enter correct email"
+  />
+
+  <motion.button
+    type="button"
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.95 }}
+    onClick={handleResendVerification}
+    className="text-blue-400 text-sm underline hover:text-blue-700 transition font-intertight tracking-wider"
+  >
+    Resend verification email
+  </motion.button>
+</div>
   </div>
 ) : null}
 

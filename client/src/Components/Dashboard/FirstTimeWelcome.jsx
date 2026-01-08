@@ -100,7 +100,7 @@ const FirstTimeWelcome = () => {
                 >
                   <span className="text-xl mt-0.5">📝</span>
                   <div>
-                    <strong>Enter Your Data:</strong> Click "New Entry" to log your monthly food, transport, electricity, and waste habits.
+                    <strong>Enter Your Data:</strong> Click "New Entry" by entering menu from top left to log your monthly habits.
                   </div>
                 </motion.div>
 

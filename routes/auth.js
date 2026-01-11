@@ -112,7 +112,7 @@ const welcomeEmailHtml = (name) => {
   </div>`;
 };
 
-const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
+const feedbackReplyHtml = (name = {}) => {
 
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
@@ -132,9 +132,7 @@ const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
   </div>`;
 };
 
-const welcomeEmailHtmlG = (name, passwordLink, { timeZone = "Asia/Kolkata" } = {} ) => {
-  const currentTime = formatTime(new Date(), timeZone);
-  const currentDate = formatDate(new Date(), timeZone);
+const welcomeEmailHtmlG = (name = {} ) => {
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
@@ -158,13 +156,8 @@ const welcomeEmailHtmlG = (name, passwordLink, { timeZone = "Asia/Kolkata" } = {
       Let’s take a step toward a greener future — one entry at a time 🌱
     </p>
     <p style="font-size: 16px; color: #e0e0e0;">
-    You can login using your email(or google as u just did) along with the following password:<br />
-    <a href="${passwordLink}" style="display: inline-block; background: linear-gradient(90deg, #2f80ed, #56ccf2); margin-top: 20px; color: #ffffff; padding: 14px 20px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 18px rgba(47,128,237,0.35);">Password</a>
-    <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong> on <strong>${currentDate}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>3 Days</strong>!</span></p>
-   </p>
-    <p style="font-size: 16px; color: #e0e0e0;">
       <strong>Start exploring:</strong> 
-      <a href="https://cft-self.vercel.app" style="color: #1d4ed8; text-decoration: none;">CFT</a>
+      <a href="https://www.carbonft.app/" style="color: #1d4ed8; text-decoration: none;">CFT</a>
     </p>
     <p style="font-size: 16px; color: #e0e0e0;">
       We’d love to hear about your experience! Feel free to reach out at:
@@ -1384,17 +1377,17 @@ router.get('/google/callback',
         { expiresIn: '3d' }
       );
       
-      const passwordToken = jwt.sign(
-        { email: user.email, jti: crypto.randomBytes(16).toString('hex') },
-        process.env.JWT_SECRET,
-        { expiresIn: '3d' }
-      );
+      // const passwordToken = jwt.sign(
+      //   { email: user.email, jti: crypto.randomBytes(16).toString('hex') },
+      //   process.env.JWT_SECRET,
+      //   { expiresIn: '3d' }
+      // );
       
       // Store password token
-      user.passwordToken = passwordToken;
-      user.passwordTokenCreatedAt = new Date();
+      // user.passwordToken = passwordToken;
+      // user.passwordTokenCreatedAt = new Date();
       
-      const passwordLink = `${process.env.FRONTEND_URL}/password/${passwordToken}`;
+      // const passwordLink = `${process.env.FRONTEND_URL}/password/${passwordToken}`;
       
       // Set cookie
       res.cookie('token', token, {
@@ -1418,7 +1411,7 @@ router.get('/google/callback',
             await sendEmail(
               user.email,
               'Welcome to Carbon Footprint Tracker! 🌍',
-              welcomeEmailHtmlG(user.name, passwordLink)
+              welcomeEmailHtmlG(user.name)
             );
             
             // Update flag ONLY after successful send

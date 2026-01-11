@@ -6,21 +6,11 @@ const userSchema = new mongoose.Schema({
   provider: { type: String, enum: ['local', 'google'], default: 'local' },
   welcomeEmailSent: { type: Boolean, default: false },
   feedbackGiven: { type: Boolean, default: false },
-
-  passwordHash: { type: String, required: true },
-
+  passwordHash: { type: String },
   resendAttempts: { type: Number, default: 0 },
   lastResendAt: { type: Number, default: 0 },
-
   isVerified: { type: Boolean, default: false },
-  verificationToken: { type: String },
-
-  passwordToken: { type: String },
-  passwordTokenCreatedAt: { type: Date },
-
-  tempPassword: { type: String },
-  tempPasswordCreatedAt: { type: Date }
-
+  verificationToken: { type: String }
 }, { timestamps: true });
 
 userSchema.index(
@@ -29,5 +19,4 @@ userSchema.index(
 );
 
 userSchema.index({ email: 1 }, { unique: true });
-
 module.exports = mongoose.model('User', userSchema);

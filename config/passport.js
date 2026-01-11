@@ -33,9 +33,9 @@ passport.use(new GoogleStrategy({
         name: profile.displayName,
         email,
         isVerified: true, // Google emails are verified
-        passwordHash, // hashed dummy password
-        tempPasswordCreatedAt: new Date(),
-        tempPassword: mixPass,
+        // passwordHash, // hashed dummy password
+        //tempPasswordCreatedAt: new Date(),
+        //tempPassword: mixPass,
         provider: 'google'
       });
       await user.save();

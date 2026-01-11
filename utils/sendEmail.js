@@ -1,96 +1,162 @@
 // backend/utils/sendEmail.js
-const SibApiV3Sdk = require('@getbrevo/brevo');
 const axios = require('axios');
 
 const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'carbontracker.noreply@gmail.com';
 const SENDER_NAME = process.env.BREVO_SENDER_NAME || 'Carbon Footprint Tracker';
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-function getApiKey() {
-  return process.env.BREVO_API_KEY || null;
-}
-
-// Configure brevo SDK client
-function createBrevoClient() {
-  const apiKey = getApiKey();
-  if (!apiKey) throw new Error('Brevo API key not configured (BREVO_API_KEY).');
-
-  const defaultClient = SibApiV3Sdk.ApiClient.instance;
-  const apiKeyAuth = defaultClient.authentications['api-key'];
-  apiKeyAuth.apiKey = apiKey;
-
-  return {
-    transactionalApi: new SibApiV3Sdk.TransactionalEmailsApi(),
-    SendSmtpEmail: SibApiV3Sdk.SendSmtpEmail,
-  };
-}
-
+/**
+ * Send transactional email via Brevo API
+ * @param {string} to - Recipient email
+ * @param {string} subject - Email subject
+ * @param {string} htmlContent - HTML email body
+ * @param {Object} options - Additional options (replyTo, cc, bcc, attachments)
+ * @returns {Promise<Object>} Brevo API response
+ */
 async function sendEmail(to, subject, htmlContent, options = {}) {
-  const apiKey = getApiKey();
+  const apiKey = process.env.BREVO_API_KEY;
+  
   if (!apiKey) {
-    throw new Error('Brevo API key not set (env BREVO_API_KEY).');
+    throw new Error('BREVO_API_KEY environment variable is not set');
   }
 
-  console.log('📧 Preparing Brevo email -> to:', to, 'subject:', subject, 'brevo_key_set:', !!apiKey);
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(to)) {
+    throw new Error(`Invalid recipient email: ${to}`);
+  }
 
-  // Use SDK
+  console.log(`📧 [EMAIL] Preparing Brevo email`);
+  console.log(`   → To: ${to}`);
+  console.log(`   → Subject: ${subject}`);
+  console.log(`   → API Key Set: ${!!apiKey}`);
+
+  const payload = {
+    sender: { 
+      email: SENDER_EMAIL, 
+      name: SENDER_NAME 
+    },
+    to: [{ email: to }],
+    subject,
+    htmlContent,
+  };
+
+  // Optional fields
+  if (options.replyTo) {
+    payload.replyTo = { email: options.replyTo };
+  }
+  if (options.cc && Array.isArray(options.cc)) {
+    payload.cc = options.cc.map(email => ({ email }));
+  }
+  if (options.bcc && Array.isArray(options.bcc)) {
+    payload.bcc = options.bcc.map(email => ({ email }));
+  }
+  if (options.attachments) {
+    payload.attachment = options.attachments;
+  }
+
   try {
-    const { transactionalApi, SendSmtpEmail } = createBrevoClient();
-
-    const payload = new SendSmtpEmail({
-      sender: { email: SENDER_EMAIL, name: SENDER_NAME },
-      to: [{ email: to }],
-      subject,
-      htmlContent,
-    });
-
-    if (options.replyTo) payload.replyTo = { email: options.replyTo };
-    if (options.cc) payload.cc = options.cc;
-    if (options.bcc) payload.bcc = options.bcc;
-
-    const resp = await transactionalApi.sendTransacEmail(payload);
-    console.log('✅ Brevo SDK send success:', resp);
-    return resp;
-  } catch (sdkErr) {
-    // If SDK fails due to authentication, bubble up useful info and try axios fallback
-    console.error('⚠️ Brevo SDK send failed:', sdkErr.response?.data || sdkErr.message || sdkErr);
-
-    // If error clearly unauthorized, fail fast
-    if (sdkErr.response?.status === 401 || (sdkErr.response?.data && sdkErr.response.data.code === 'unauthorized')) {
-      throw new Error('Brevo API unauthorized: check BREVO_API_KEY (make sure it starts with xkeysib-) and that it is active.');
-    }
-
-    // Fallback to axios POST
-    try {
-      const axiosResp = await axios.post(
-        'https://api.brevo.com/v3/smtp/email',
-        {
-          sender: { email: SENDER_EMAIL, name: SENDER_NAME },
-          to: [{ email: to }],
-          subject,
-          htmlContent,
-          replyTo: options.replyTo ? { email: options.replyTo } : undefined,
+    const response = await axios.post(
+      BREVO_API_URL,
+      payload,
+      {
+        headers: {
+          'accept': 'application/json',
+          'content-type': 'application/json',
+          'api-key': apiKey
         },
-        {
-          headers: {
-            'api-key': apiKey,
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          timeout: 15000,
-        }
-      );
-
-      console.log('✅ Brevo axios send success:', axiosResp.data);
-      return axiosResp.data;
-    } catch (axErr) {
-      console.error('❌ Brevo axios send failed:', axErr.response?.data || axErr.message);
-      // If unauthorized from axios, provide explicit guidance
-      if (axErr.response?.status === 401 || (axErr.response?.data && axErr.response.data.code === 'unauthorized')) {
-        throw new Error('Brevo API unauthorized (axios): check BREVO_API_KEY environment variable and the key value.');
+        timeout: 15000, // 15 second timeout
       }
-      throw axErr;
+    );
+
+    console.log('✅ [EMAIL] Brevo send success');
+    console.log(`   → Message ID: ${response.data.messageId}`);
+    
+    return {
+      success: true,
+      messageId: response.data.messageId,
+      data: response.data
+    };
+
+  } catch (error) {
+    // Detailed error logging
+    console.error('❌ [EMAIL] Brevo send failed');
+    
+    if (error.response) {
+      // Brevo API returned an error
+      const status = error.response.status;
+      const data = error.response.data;
+      
+      console.error(`   → Status: ${status}`);
+      console.error(`   → Error:`, data);
+
+      // Handle specific error cases
+      if (status === 401) {
+        throw new Error('Brevo API authentication failed. Check your BREVO_API_KEY.');
+      }
+      if (status === 400) {
+        throw new Error(`Brevo API validation error: ${data.message || JSON.stringify(data)}`);
+      }
+      if (status === 402) {
+        throw new Error('Brevo account issue: insufficient credits or plan limitation.');
+      }
+      
+      throw new Error(`Brevo API error (${status}): ${data.message || JSON.stringify(data)}`);
+      
+    } else if (error.request) {
+      // Request made but no response
+      console.error('   → No response from Brevo API');
+      throw new Error('No response from Brevo API. Check your internet connection.');
+      
+    } else {
+      // Error setting up the request
+      console.error(`   → Request setup error: ${error.message}`);
+      throw new Error(`Email sending failed: ${error.message}`);
     }
   }
+}
+
+/**
+ * Send email with retry logic
+ * @param {string} to - Recipient email
+ * @param {string} subject - Email subject
+ * @param {string} htmlContent - HTML email body
+ * @param {Object} options - Additional options
+ * @param {number} retries - Number of retry attempts (default: 2)
+ * @returns {Promise<Object>} Brevo API response
+ */
+async function sendEmailWithRetry(to, subject, htmlContent, options = {}, retries = 2) {
+  let lastError;
+  
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      if (attempt > 0) {
+        console.log(`🔄 [EMAIL] Retry attempt ${attempt}/${retries}`);
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
+      }
+      
+      return await sendEmail(to, subject, htmlContent, options);
+      
+    } catch (error) {
+      lastError = error;
+      
+      // Don't retry on authentication errors (401)
+      if (error.message.includes('authentication failed')) {
+        throw error;
+      }
+      
+      // Don't retry on validation errors (400)
+      if (error.message.includes('validation error')) {
+        throw error;
+      }
+      
+      console.warn(`⚠️ [EMAIL] Attempt ${attempt + 1} failed: ${error.message}`);
+    }
+  }
+  
+  throw lastError;
 }
 
 module.exports = sendEmail;
+module.exports.sendEmailWithRetry = sendEmailWithRetry;

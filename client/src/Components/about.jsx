@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect,useNavigate } from "react";
+import { useState, useRef, useEffect } from "react";
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
+import BatmanAnimation from 'animations/Batman.json';
 import ScrollDownAnimation from 'animations/ScrollDown.json';
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
 import {
   Leaf,
   Shield,
@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import PageWrapper from 'common/PageWrapper';
 import { HomeHeaderButton } from './globalbuttons';
-import { boxglowD, boxglowH } from 'utils/styles';
+import { boxglowH } from 'utils/styles';
 
 const features = [
   {
@@ -42,7 +42,7 @@ const features = [
     icon: TrendingDown,
     title: "Carbon Tracking",
     description:
-      "Log monthly lifestyle data across 4 categories: food, transport, electricity, and waste",
+      "Log monthly lifestyle data across 4 categories: food, transport, electricity, and waste and compare with others",
     details: [
       "Real-time CO₂ emission calculations using scientific emission factors",
       "Smart input validation with realistic caps to prevent data anomalies",
@@ -55,7 +55,7 @@ const features = [
     icon: BarChart3,
     title: "Interactive Dashboard",
     description:
-      "Beautiful visualizations powered by Recharts with dark mode support",
+      "Beautiful visualizations powered by Recharts with dark mode support and expansive information about our environment",
     details: [
       "Pie charts showing emission breakdown by category",
       "Bar charts for community comparison",
@@ -90,6 +90,19 @@ const features = [
       "Vercel Edge Network deployment for global speed",
     ],
   },
+  {
+  icon: Cloud,
+  title: "Real-Time Weather & AQI",
+  description:
+    "Location-based weather and air quality insights with smart caching",
+  details: [
+    "Live AQI & pollutant breakdown (PM2.5, CO, NO₂, SO₂, O₃)",
+    "Browser GPS + IP fallback location detection",
+    "Redis caching with refresh cooldowns",
+    "Multi-API fallback (Tomorrow.io, Weatherbit, Open-Meteo)",
+    "Health recommendations based on AQI level",
+  ],
+},
 ];
 
 const techStack = [
@@ -97,44 +110,62 @@ const techStack = [
     category: "Frontend",
     icon: Code,
     technologies: [
-      { name: "React 18", purpose: "UI framework with hooks and context" },
-      { name: "Tailwind CSS", purpose: "Utility-first styling with dark mode" },
-      { name: "Framer Motion", purpose: "Smooth animations and transitions" },
+      { name: "HTML5", purpose: "Semantic markup & accessibility" },
+      { name: "CSS3", purpose: "Custom styling & animations" },
+      { name: "JavaScript (ES6+)", purpose: "Core frontend logic" },
+      { name: "React 18", purpose: "Component-based UI framework" },
+      { name: "Tailwind CSS", purpose: "Utility-first styling & dark mode" },
+      { name: "Framer Motion", purpose: "Advanced UI animations" },
       { name: "Recharts", purpose: "Interactive data visualizations" },
       { name: "React Router v6", purpose: "Client-side routing" },
+      { name: "Lottie", purpose: "Micro-animations & UX polish" },
+      { name: "Axios", purpose: "API communication" },
     ],
   },
+
   {
     category: "Backend",
     icon: Layers,
     technologies: [
       { name: "Node.js", purpose: "JavaScript runtime" },
-      { name: "Express", purpose: "Web framework with middleware support" },
-      { name: "Mongoose", purpose: "MongoDB ODM with schema validation" },
-      { name: "JWT", purpose: "Stateless authentication tokens" },
-      { name: "Bcrypt", purpose: "Password hashing (12 rounds)" },
-      { name: "Redis", purpose: "Caching and rate limiting" },
+      { name: "Express.js", purpose: "REST API framework" },
+      { name: "MongoDB", purpose: "NoSQL database" },
+      { name: "Mongoose", purpose: "ODM with schema validation" },
+      { name: "Redis", purpose: "Caching & rate-limit store" },
+      { name: "JWT", purpose: "Stateless authentication" },
+      { name: "Bcrypt", purpose: "Password hashing" },
+      { name: "Nodemailer", purpose: "Email verification system" },
+      { name: "Node-Cron", purpose: "Scheduled background jobs" },
     ],
   },
+
   {
-    category: "Security",
+    category: "Authentication & Security",
     icon: Lock,
     technologies: [
-      { name: "Helmet", purpose: "Security headers middleware" },
-      { name: "CORS", purpose: "Cross-origin resource sharing" },
-      { name: "Rate Limit", purpose: "DDoS protection" },
+      { name: "Google OAuth 2.0", purpose: "Social login" },
+      { name: "HTTP-only Cookies", purpose: "Secure session handling" },
+      { name: "Helmet", purpose: "Security headers" },
+      { name: "CORS", purpose: "Cross-origin control" },
+      { name: "Express Rate Limit", purpose: "Brute-force protection" },
       { name: "Mongo Sanitize", purpose: "NoSQL injection prevention" },
-      { name: "XSS Clean", purpose: "XSS attack prevention" },
+      { name: "XSS Clean", purpose: "XSS attack mitigation" },
+      { name: "HPP", purpose: "HTTP parameter pollution protection" },
     ],
   },
+
   {
-    category: "Infrastructure",
+    category: "Infrastructure & DevOps",
     icon: Cloud,
     technologies: [
-      { name: "Vercel", purpose: "Frontend hosting with CDN" },
-      { name: "Render", purpose: "Backend hosting with auto-scaling" },
-      { name: "MongoDB Atlas", purpose: "Cloud database with encryption" },
-      { name: "Redis Cloud", purpose: "Managed Redis instance" },
+      { name: "Vercel", purpose: "Frontend hosting (CDN)" },
+      { name: "Render", purpose: "Backend deployment" },
+      { name: "MongoDB Atlas", purpose: "Cloud database" },
+      { name: "Redis Cloud", purpose: "Managed Redis" },
+      { name: "Name.com", purpose: "Custom domain DNS" },
+      { name: "GitHub", purpose: "Version control" },
+      { name: "GitHub Actions", purpose: "CI/CD pipelines" },
+      { name: "HTTPS + HSTS", purpose: "Secure transport layer" },
     ],
   },
 ];
@@ -143,35 +174,124 @@ const apiEndpoints = [
   {
     category: "Authentication",
     endpoints: [
-      { method: "POST", path: "/api/auth/register", desc: "Register new user with email verification" },
-      { method: "POST", path: "/api/auth/login", desc: "Login with rate limiting" },
-      { method: "GET", path: "/api/auth/verify-email/:token", desc: "Verify email with JWT token" },
+      { 
+        method: "POST", 
+        path: "/api/auth/register", 
+        desc: "Create account & send email verification link" 
+      },
+      { 
+        method: "GET", 
+        path: "/api/auth/verify-email/:token", 
+        desc: "Verify user email using JWT token" 
+      },
+      { 
+        method: "POST", 
+        path: "/api/auth/login", 
+        desc: "Login with rate limiting & secure cookies" 
+      },
+      { 
+        method: "POST", 
+        path: "/api/auth/logout", 
+        desc: "Logout user & blacklist JWT token" 
+      },
+      { 
+        method: "POST", 
+        path: "/api/auth/resend-verification", 
+        desc: "Resend email verification with cooldown" 
+      },
     ],
   },
+
+  {
+    category: "Google OAuth",
+    endpoints: [
+      { 
+        method: "GET", 
+        path: "/api/auth/google", 
+        desc: "Start Google OAuth login flow" 
+      },
+      { 
+        method: "GET", 
+        path: "/api/auth/google/callback", 
+        desc: "Handle OAuth callback & issue JWT" 
+      },
+    ],
+  },
+
   {
     category: "Carbon Footprint",
     endpoints: [
-      { method: "POST", path: "/api/footprint", desc: "Create new carbon entry" },
-      { method: "GET", path: "/api/footprint/history", desc: "Get all user entries" },
-      { method: "PUT", path: "/api/footprint/:id", desc: "Update specific entry" },
-      { method: "DELETE", path: "/api/footprint/:id", desc: "Delete specific entry" },
+      { 
+        method: "POST", 
+        path: "/api/footprint", 
+        desc: "Create new monthly carbon entry" 
+      },
+      { 
+        method: "GET", 
+        path: "/api/footprint/history", 
+        desc: "Fetch all user footprint records" 
+      },
+      { 
+        method: "PUT", 
+        path: "/api/footprint/:id", 
+        desc: "Update existing footprint entry" 
+      },
+      { 
+        method: "DELETE", 
+        path: "/api/footprint/:id", 
+        desc: "Delete a footprint record" 
+      },
+    ],
+  },
+
+  {
+    category: "Weather & AQI",
+    endpoints: [
+      { 
+        method: "GET", 
+        path: "/api/auth/weather-aqi", 
+        desc: "Fetch real-time weather & AQI (Redis cached)" 
+      },
+    ],
+  },
+
+  {
+    category: "Feedback",
+    endpoints: [
+      { 
+        method: "POST", 
+        path: "/api/auth/feedback/submit", 
+        desc: "Submit feedback (1 per day limit)" 
+      },
+      { 
+        method: "POST", 
+        path: "/api/auth/feedback/thankyou", 
+        desc: "Thank-you email" 
+      },
     ],
   },
 ];
 
 const securityFeatures = [
-  "HTTP-only cookies with SameSite=None for cross-domain",
+  "HTTP-only secure cookies for JWT storage",
+  "Strict domain-based CORS allowlist",
+  "Helmet security headers (CSP, HSTS, frameguard)",
+  "Forced HTTPS redirection in production",
+
+  "Brute-force protection with rate limiting",
   "Redis token blacklisting on logout",
-  "Rate limiting: 5 login attempts/15min, 3 feedback/hour",
-  "User profile caching with automatic invalidation",
-  "CORS configured for specific domains only",
-  "Helmet middleware for security headers",
-  "MongoDB injection prevention with express-mongo-sanitize",
-  "XSS protection with xss-clean and DOMPurify",
-  "Password strength validation with zxcvbn",
-  "Input validation caps to prevent unrealistic data",
-  "JWT secret rotation support",
-  "Environment variable protection",
+  "XSS filtering using xss-clean middleware",
+  "NoSQL injection protection (mongo-sanitize)",
+
+  "Parameter pollution protection (HPP)",
+  "Request size limits (10kb body cap)",
+  "Input sanitization & validation layers",
+  "Secure password hashing (bcrypt)",
+
+  "Environment variable validation on boot",
+  "Proxy trust handling for production",
+  "JWT expiration & token rotation support",
+  "Redis-backed abuse & cooldown tracking"
 ];
 
 const SectionWrapper = ({ children, delay = 0 }) => (
@@ -188,26 +308,69 @@ const SectionWrapper = ({ children, delay = 0 }) => (
 
 const FeatureCard = ({ feature, index }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const cardRef = useRef(null);
   const Icon = feature.icon;
+
+  // close on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (cardRef.current && !cardRef.current.contains(e.target)) {
+        setIsExpanded(false);
+      }
+    };
+
+    if (isExpanded) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isExpanded]);
 
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
-      className="group bg-card/80 backdrop-blur-sm rounded-2xl p-6 border border-border hover:border-primary/40 transition-all duration-300 hover:shadow-lg"
+
+      animate={{
+        scale: isExpanded ? 1.15 : 1,
+      }}
+
+      className={`group bg-card/80 backdrop-blur-sm rounded-2xl p-6
+        border border-border hover:border-primary/40
+        transition-all duration-300 hover:shadow-lg
+        ${isExpanded 
+          ? "absolute z-50 w-[75%] h-[7%] backdrop-blur-md" 
+          : "relative"}
+      `}
     >
+      <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 
+                      group-hover:opacity-100 animate-borderFlow 
+                      border-emerald-500 dark:border-gray-100 pointer-events-none" />
+
       <Icon className="w-10 h-10 text-primary mb-4" />
-      <h3 className="text-lg font-bold mb-2 text-foreground">{feature.title}</h3>
-      <p className="text-muted-foreground text-sm mb-4">{feature.description}</p>
+
+      <h3 className="text-lg font-bold mb-2 text-foreground">
+        {feature.title}
+      </h3>
+
+      <p className="text-muted-foreground text-sm mb-4">
+        {feature.description}
+      </p>
 
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 text-primary text-sm hover:text-primary/80 transition-colors"
+        onClick={() => setIsExpanded(prev => !prev)}
+        className="flex items-center gap-2 text-primary text-sm 
+                   hover:text-primary/80 transition-colors"
       >
         {isExpanded ? "Show less" : "Show details"}
-        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        {isExpanded 
+          ? <ChevronUp className="w-4 h-4" /> 
+          : <ChevronDown className="w-4 h-4" />}
       </button>
 
       <AnimatePresence>
@@ -220,7 +383,10 @@ const FeatureCard = ({ feature, index }) => {
             className="mt-4 space-y-2 overflow-hidden"
           >
             {feature.details.map((detail, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+              <li
+                key={i}
+                className="flex items-start gap-2 text-sm text-muted-foreground"
+              >
                 <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 <span>{detail}</span>
               </li>
@@ -289,7 +455,7 @@ const handleEmailClick = (e) => {
             className="w-full h-full"
           >
     <PageWrapper backgroundImage="/images/up.webp">
-      {/* Hero Section */}
+      {/* black Header */}
                <motion.header
                  initial={false}
                  animate={{ height: isHeaderExpanded ? screenHeight.expanded : screenHeight.collapsed }}
@@ -343,19 +509,59 @@ const handleEmailClick = (e) => {
                     </AnimatePresence>
                   </div>
                 </motion.header>
-                {/* main heading */}
+      {/* batman lottie */}
+      <section className="relative py-72 px-10 overflow-hidden font-intertight text-shadow-DEFAULT tracking-wide text-white">
+<motion.div 
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: [10, 0, 10] }}
+  transition={{
+    duration: 2,
+    repeat: Infinity,
+    ease: "easeInOut"
+  }}
+  className="mt-80 mx-auto flex flex-col items-center z-20"
+>
+  <div 
+    className="
+      scroll-indicator 
+      -ml-4 
+      w-20 h-20 sm:w-24 sm:h-24   /* Bigger size */
+      rounded-full
+      flex items-center justify-center
+      transition-all duration-500
+      bg-yellow-400/20          /* Batman yellow glow */
+      shadow-[0_0_25px_#facc15]
+      hover:scale-110
+
+      dark:bg-yellow-400/30
+      dark:shadow-[0_0_35px_#facc15]
+    "
+  >
+    <Lottie
+      animationData={BatmanAnimation}
+      loop
+      autoplay
+      style={{ width: 80, height: 80 }}   // Bigger lottie
+    />
+  </div>
+</motion.div>
+
+      </section>
+
+      {/* main heading */}
       <section className="relative py-72 px-4 overflow-hidden font-intertight text-shadow-DEFAULT tracking-wide text-white">
-
         <div className="max-w-5xl mx-auto relative z-10">
-
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
           >
+            <SectionWrapper>
+            <div className="bg-card/60 group relative backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-border">
+            <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
             <div className="flex items-center justify-center gap-3 mb-6">
-              <Leaf className="w-10 h-10 text-primary text-sky-400 dark:text-black/40" />
+              <Leaf className="w-10 h-10 text-primary text-sky-400 dark:text-white" />
               <h1 className="text-4xl md:text-6xl font-bold font-germania tracking-wider text-shadow-DEFAULT text-foreground text-sky-400 dark:text-white">
                 CFT
               </h1>
@@ -364,7 +570,27 @@ const handleEmailClick = (e) => {
               Carbon Footprint Tracker
             </p>
             <p className="text-lg max-w-2xl mx-auto">
-              A full-stack MERN application empowering users to measure, track, and reduce their environmental impact
+              A full-stack MERN application empowering users to measure, track, and reduce their environmental impact<motion.span
+                className="inline-block text-base sm:text-xl font-medium"
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0 }}
+              >
+                .
+              </motion.span>
+              <motion.span
+                className="inline-block text-base sm:text-xl font-medium"
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0.4 }}
+              >
+                .
+              </motion.span>
+              <motion.span
+                className="inline-block text-base sm:text-xl font-medium"
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity, repeatType: "loop", ease: "easeInOut", delay: 0.8 }}
+              >
+                .
+              </motion.span>
             </p>
              <motion.div
                   whileHover={{ scale: 1.1 }}
@@ -388,7 +614,7 @@ const handleEmailClick = (e) => {
                   <span className="cookie-crumb cookie-crumb-3">🍪</span>
                   <span className="cookie-crumb cookie-crumb-4">🍪</span>
                 </span>
-              </a>
+              </a></div></SectionWrapper>
           </motion.div>
         </div>
         <motion.div
@@ -418,8 +644,9 @@ const handleEmailClick = (e) => {
       <section className="py-16 px-4 font-intertight text-shadow-DEFAULT tracking-wide dark:text-white text-emerald-500">
         <div className="max-w-5xl mx-auto">
           <SectionWrapper>
-            <div className="bg-card/60 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-border">
+            <div className="bg-card/60 group relative backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-border">
               <div className="flex items-center gap-3 mb-6">
+              <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
                 <Leaf className="w-8 h-8 text-primary" />
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground text-sky-400 dark:text-white">
                   Project Philosophy
@@ -450,7 +677,10 @@ const handleEmailClick = (e) => {
               Core Features
             </h2>
           </SectionWrapper>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div 
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start"
+              style={{ gridAutoRows: "min-content" }}
+            >
             {features.map((feature, idx) => (
               <FeatureCard key={idx} feature={feature} index={idx} />
             ))}
@@ -476,8 +706,9 @@ const handleEmailClick = (e) => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1, duration: 0.5 }}
-                  className="bg-card/80 backdrop-blur-sm rounded-2xl p-6 border border-border"
+                  className="bg-card/80 backdrop-blur-sm group relative rounded-2xl p-6 border border-border"
                 >
+                  <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
                   <div className="flex items-center gap-3 mb-4">
                     <Icon className="w-6 h-6 text-primary" />
                     <h3 className="text-xl font-bold text-foreground">{stack.category}</h3>
@@ -513,8 +744,9 @@ const handleEmailClick = (e) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="bg-card/80 backdrop-blur-sm rounded-2xl p-6 border border-border"
+                className="bg-card/80 backdrop-blur-sm group relative rounded-2xl p-6 border border-border"
               >
+                            <div className="absolute inset-0 rounded-2xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
                 <h3 className="text-xl font-bold mb-4 text-foreground">{group.category}</h3>
                 <div className="space-y-3">
                   {group.endpoints.map((endpoint, i) => (
@@ -564,8 +796,9 @@ const handleEmailClick = (e) => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.03, duration: 0.3 }}
-                className="flex items-start gap-3 bg-card/60 p-4 backdrop-blur-sm rounded-lg border border-border"
+                className="flex items-start gap-3 bg-card/60 p-4 backdrop-blur-sm group relative rounded-lg border border-border"
               >
+              <div className="absolute inset-0 rounded-lg border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
                 <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <span className="text-sm text-muted-foreground">{feature}</span>
               </motion.div>
@@ -578,7 +811,8 @@ const handleEmailClick = (e) => {
       <section className="py-16 px-4 bg-muted/30 font-intertight text-shadow-DEFAULT tracking-wide dark:text-white text-emerald-500">
         <div className="max-w-4xl mx-auto">
           <SectionWrapper>
-            <div className="bg-card/60 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-border text-center">
+            <div className="bg-card/60 backdrop-blur-sm group relative rounded-3xl p-8 md:p-12 border border-border text-center">
+            <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground text-sky-400 dark:text-white">Conclusion</h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>

@@ -911,6 +911,50 @@ router.get("/weather-aqi", async (req, res) => {
     "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
     "Content-Type": "application/json",
   });
+  
+// US AQI breakpoints
+const US_AQI_BREAKPOINTS = {
+  pm25: [
+    [0,12,0,50],
+    [12.1,35.4,51,100],
+    [35.5,55.4,101,150],
+    [55.5,150.4,151,200],
+    [150.5,250.4,201,300],
+    [250.5,500.4,301,500]
+  ],
+  pm10: [
+    [0,54,0,50],
+    [55,154,51,100],
+    [155,254,101,150],
+    [255,354,151,200],
+    [355,424,201,300],
+    [425,604,301,500]
+  ]
+};
+function calculateUSAQI(concentration, pollutant) {
+  const breakpoints = US_AQI_BREAKPOINTS[pollutant];
+
+  for (let [cl, ch, il, ih] of breakpoints) {
+    if (concentration >= cl && concentration <= ch) {
+      const aqi =
+        ((ih - il) / (ch - cl)) *
+        (concentration - cl) +
+        il;
+
+      return Math.round(aqi);
+    }
+  }
+
+  return null;
+}
+function getAqiStatus(aqi) {
+  if (aqi <= 50) return "Good";
+  if (aqi <= 100) return "Moderate";
+  if (aqi <= 150) return "Poor";
+  if (aqi <= 200) return "Unhealthy";
+  if (aqi <= 300) return "Severe";
+  return "Hazardous";
+}
 
   let { lat, lon, refresh, forceApi } = req.query;
   //console.log("📥 Query Params:", { lat, lon, refresh, forceApi });
@@ -1102,8 +1146,8 @@ router.get("/weather-aqi", async (req, res) => {
       // Fetch all data in parallel
       const [tomorrowRes, airRes, moonPhase, sunTimes] = await Promise.all([
         axios.get(
-          `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,visibility&apikey=${process.env.TOMORROW_API_KEY}`
-        ),
+  `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,visibility&apikey=${process.env.TOMORROW_API_KEY}`
+),
         axios.get(
           `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
         ),
@@ -1111,11 +1155,20 @@ router.get("/weather-aqi", async (req, res) => {
         getSunTimes()
       ]);
 
-      //console.log(" Tomorrow.io FULL raw response:", JSON.stringify(tomorrowRes.data, null, 2));
-      //console.log("AQI raw response:", JSON.stringify(airRes.data, null, 2));
-      
       const values = tomorrowRes.data.data.values;
-      
+      const aqiPM25 = calculateUSAQI(
+        airRes.data.current.pm2_5,
+        "pm25"
+      );
+
+      const aqiPM10 = calculateUSAQI(
+        airRes.data.current.pm10,
+        "pm10"
+      );
+    const finalAQI = Math.max(aqiPM25, aqiPM10);
+    console.log(" Tomorrow.io FULL raw response:", JSON.stringify(tomorrowRes.data, null, 2));
+    console.log("AQI raw response:", JSON.stringify(airRes.data, null, 2));
+
       const processedResult = {
         weather: {
           temperature_2m: values.temperature,
@@ -1136,7 +1189,11 @@ router.get("/weather-aqi", async (req, res) => {
           temp: values.temperature,
           windspeed: values.windSpeed * 3.6,
         },
-        air_quality: airRes.data.current,
+        air_quality: {
+          ...airRes.data.current,
+          aqi: finalAQI,
+          status: getAqiStatus(finalAQI)
+        },
         source: "Tomorrow.io + Open-Meteo AQI",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,
@@ -1170,20 +1227,28 @@ router.get("/weather-aqi", async (req, res) => {
       // Fetch weather from Weatherbit
       const [wbWeather, airRes, moonPhase, sunTimes] = await Promise.all([
         axios.get(
-          `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHERBIT_API_KEY}&units=M`
-        ),
+  `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHERBIT_API_KEY}&units=M`
+),
         axios.get(
-          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,hourly=pm10,pm2_5,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
         ),
         Promise.resolve(calculateMoonPhase()),
         getSunTimes()
       ]);
 
-      //console.log("Weatherbit FULL raw response:", JSON.stringify(wbWeather.data, null, 2));
-      
       const weatherData = wbWeather.data.data[0];
       //console.log(" Weatherbit weather data extracted:", JSON.stringify(weatherData, null, 2));
+      const aqiPM25 = calculateUSAQI(
+        airRes.data.current.pm2_5,
+        "pm25"
+      );
 
+      const aqiPM10 = calculateUSAQI(
+        airRes.data.current.pm10,
+        "pm10"
+      );
+      const finalAQI = Math.max(aqiPM25, aqiPM10);
+      console.log("Weatherbit FULL raw response:", JSON.stringify(wbWeather.data, null, 2));  
       const processedResult = {
         weather: {
           temperature_2m: weatherData.temp,
@@ -1201,7 +1266,11 @@ router.get("/weather-aqi", async (req, res) => {
           temp: weatherData.temp,
           windspeed: weatherData.wind_spd * 3.6,
         },
-        air_quality: airRes.data.current,
+        air_quality: {
+          ...airRes.data.current,
+          aqi: finalAQI,
+          status: getAqiStatus(finalAQI)
+        },
         source: "Weatherbit + Open-Meteo AQI",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,
@@ -1233,17 +1302,27 @@ router.get("/weather-aqi", async (req, res) => {
       
       const [omWeather, omAir, moonPhase, sunTimes] = await Promise.all([
         axios.get(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
-        ),
+  `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
+),
         axios.get(
-          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
-        ),
+  `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+),
         Promise.resolve(calculateMoonPhase()),
         getSunTimes()
       ]);
       
      // console.log(" Open-Meteo weather raw:", JSON.stringify(omWeather.data, null, 2));
       //console.log(" Open-Meteo air raw:", JSON.stringify(omAir.data, null, 2));
+      const aqiPM25 = calculateUSAQI(
+        omAir.data.current.pm2_5,
+        "pm25"
+      );
+
+      const aqiPM10 = calculateUSAQI(
+        omAir.data.current.pm10,
+        "pm10"
+      );
+      const finalAQI = Math.max(aqiPM25, aqiPM10);
 
       return {
         weather: {
@@ -1254,7 +1333,11 @@ router.get("/weather-aqi", async (req, res) => {
           moon_phase: moonPhase.phase,
           moon_phase_name: moonPhase.name,
         },
-        air_quality: omAir.data.current,
+        air_quality: {
+          ...omAir.data.current,
+          aqi: finalAQI,
+          status: getAqiStatus(finalAQI)
+        },
         source: "Open-Meteo",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,

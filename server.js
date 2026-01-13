@@ -185,38 +185,7 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
       console.error('❌ Ping failed:', err.message);
     }
   });
-  cron.schedule("*/30 * * * *", async () => { // Runs every day at midnight
-  try {
-    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-    const result = await user.updateMany(
-      {
-        provider: 'google',
-        $or: [
-          { tempPasswordCreatedAt: { $lte: threeDaysAgo } },
-          { passwordTokenCreatedAt: { $lte: threeDaysAgo } },
-        ],
-      },
-      {
-        $unset: {
-          tempPassword: "",
-          tempPasswordCreatedAt: "",
-          passwordToken: "",
-          passwordTokenCreatedAt: "",
-        },
-      }
-    );
-
-    if (result.modifiedCount > 0) {
-      console.log(`🧹 Cleaned ${result.modifiedCount} expired temp/password fields for Google users`);
-    } else {
-      //console.log('🧹 No expired temp/password fields found for Google users');
-    }
-  } catch (err) {
-    console.error('❌ Cron cleanup error:', err);
-  }
-});
-
-    });
+  });
   })
   .catch(err => console.error('❌ MongoDB error:', err));
 

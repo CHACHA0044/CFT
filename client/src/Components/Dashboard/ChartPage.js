@@ -2110,7 +2110,7 @@ const currentYear = entryDate.getFullYear();
   </motion.div>
 </div>
 
-    {/* Weather and AQI */}
+{/* Weather and AQI */}
 <div className="group relative">
   {/* Static glow */}
   <div className="absolute -inset-1 rounded-3xl bg-emerald-500/10 dark:bg-gray-100/5 blur-lg pointer-events-none transition-all duration-500 group-hover:blur-xl" />
@@ -2351,21 +2351,30 @@ const currentYear = entryDate.getFullYear();
           <div className="text-center mt-3">
             <div className="text-sm font-intertight font-extralight text-shadow-DEFAULT sm:text-2xl mb-2">
               {(() => {
-                const pm25 = data.air_quality?.pm2_5 || 0;
-                if (pm25 <= 12) return '🌟';
-                if (pm25 <= 35) return '😊';
-                if (pm25 <= 55) return '😐';
-                if (pm25 <= 150) return '😷';
-                return '☠️';
-              })()}
-              Overall: {(() => {
-                const pm25 = data.air_quality?.pm2_5 || 0;
-                if (pm25 <= 12) return 'Excellent';
-                if (pm25 <= 35) return 'Good';
-                if (pm25 <= 55) return 'Moderate';
-                if (pm25 <= 150) return 'Poor';
-                return 'Hazardous';
-              })()}
+  const aqi = Number(data?.air_quality?.aqi) || 0;
+
+  if (aqi <= 50) return '🌟';       // Good
+  if (aqi <= 100) return '😊';     // Moderate
+  if (aqi <= 150) return '😐';     // Poor
+  if (aqi <= 200) return '😷';     // Unhealthy
+  if (aqi <= 300) return '🔥';     // Severe
+  return '☠️';                     // Hazardous
+})()}
+
+{(() => {
+  const aqi = Number(data?.air_quality?.aqi) || 0;
+
+  if (aqi <= 50) return 'Good';
+  if (aqi <= 100) return 'Moderate';
+  if (aqi <= 150) return 'Poor';
+  if (aqi <= 200) return 'Unhealthy';
+  if (aqi <= 300) return 'Severe';
+  return 'Hazardous';
+})()} air quality  
+, AQI: {data?.air_quality?.aqi ?? 'N/A'}
+<span className="text-xs opacity-70">
+  (US EPA Standard)
+</span>
             </div>
           </div>
         )}
@@ -2379,26 +2388,35 @@ const currentYear = entryDate.getFullYear();
       >
         <div className="space-y-4">
           {/* Health Recommendation */}
-          <div className="bg-white/10 rounded-xl p-4 text-center text-shadow-DEFAULT font-intertight font-light tracking-wide">
+          <div className="bg-white/10 rounded-xl p-4 text-center text-shadow-DEFAULT font-intertight tracking-wide">
             <div className="text-sm text-white">
-              {(() => {
-                const pm25 = data.air_quality?.pm2_5 || 0;
-                if (pm25 <= 12) return (
-                  "🌟 Air quality is excellent! Perfect for outdoor activities, jogging, and spending time outside."
-                );
-                if (pm25 <= 35) return (
-                  "😊 Good air quality. Safe for everyone including sensitive individuals."
-                );
-                if (pm25 <= 55) return (
-                  "😐 Moderate air quality. Most people can enjoy outdoor activities, but very sensitive individuals might experience minor issues."
-                );
-                if (pm25 <= 150) return (
-                  "😷 Poor air quality. People with respiratory conditions should limit outdoor exposure. Everyone else should reduce prolonged outdoor activities."
-                );
-                return (
-                  "☠️ Hazardous air quality! Avoid outdoor activities. Stay indoors and use air purifiers if available."
-                );
-              })()}
+            {(() => {
+              const aqi = Number(data?.air_quality?.aqi) || 0;
+
+              if (aqi <= 50) return (
+                "🌿 Good air quality. Perfect for outdoor activities and exercise."
+              );
+
+              if (aqi <= 100) return (
+                "🙂 Moderate air quality. Sensitive individuals may feel slight discomfort."
+              );
+
+              if (aqi <= 150) return (
+                "😐 Poor air quality. Children, elderly, and people with breathing issues should limit outdoor exposure."
+              );
+
+              if (aqi <= 200) return (
+                "😷 Unhealthy air. Avoid prolonged outdoor activities. Wear a mask if needed."
+              );
+
+              if (aqi <= 300) return (
+                "🔥 Severe air pollution. Stay indoors as much as possible."
+              );
+
+              return (
+                "☠️ Hazardous air quality! Avoid going outside. Use air purifiers if available."
+              );
+            })()}
             </div>
           </div>
 

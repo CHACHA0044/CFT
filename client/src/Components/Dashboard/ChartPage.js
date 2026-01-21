@@ -398,7 +398,7 @@ const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
     const queryString = params.toString();
     console.log("🌐 Fetching weather with params:", queryString);
 
-    const res = await API.get(`/auth/weather-aqi?${queryString}`);
+    const res = await API.get(`/auth/weather-aqi?${queryString}`, { headers: { "x-api-key": process.env.INTERNAL_API_KEY }});
 
     console.log("✅ Weather response received:", res.data);
     

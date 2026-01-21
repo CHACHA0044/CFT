@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -11,6 +10,8 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const redisClient = require('../RedisClient');
 const passport = require('../config/passport');
+const rateLimit = require("express-rate-limit");
+const ALLOWED_ORIGINS = [ "https://carbonft.app", "https://www.carbonft.app", "http://localhost:3000", ];
 
 // HELPER FUNCTIONS
 const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
@@ -249,7 +250,34 @@ const deleteKey = async (key) => {
   }
 };
 
-//GETME
+const weatherLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30, // 30 requests / 15 min / IP
+  message: "Too many requests, slow down"
+});
+
+async function redisLimiter(req, res, next) {
+  try {
+    const ip = req.ip;
+    const key = `weather_rl:${ip}`;
+
+    const count = await redisClient.incr(key);
+    if (count === 1) {
+      await redisClient.expire(key, 900);
+    }
+
+    if (count > 30) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+
+    next();
+  } catch (err) {
+    console.error("Redis limiter error:", err.message);
+    next(); // fail open so users aren't blocked
+  }
+}
+
+// GET ME
 router.get('/token-info/me', authenticateToken, async (req, res) => {
   const startTime = Date.now();
   console.log('\n🔐 [/token-info/me] Request received');
@@ -334,7 +362,7 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
   }
 });
 
-//LOGIN
+// LOGIN
 router.post('/login', async (req, res) => {
   console.log(' [/login] Login attempt started');
   
@@ -467,7 +495,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-//LOGOUTT
+// LOGOUTT
 router.post('/logout', authenticateToken, async (req, res) => {
   console.log('\n🚪 [/logout] Logout request received');
   
@@ -509,7 +537,7 @@ return res.json({ message: 'Logged out successfully' });
   }
 });
 
-//FEEDBACK SUBMISSION RECORD OF EVERY USER
+// FEEDBACK SUBMISSION RECORD OF EVERY USER
 router.post('/feedback/submit', authenticateToken, async (req, res) => {
   console.log('\n📝 [/feedback/submit] Feedback submission started');
   
@@ -621,7 +649,7 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
   }
 });
 
-//THANKS MY G
+// THANKS MY G
 router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => {
   console.log('\n📧 [/feedback/resend-thankyou] Resend request received');
   
@@ -645,7 +673,7 @@ router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => 
   }
 });
 
-//REGISTER
+// REGISTER
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -696,7 +724,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-//VERIFYROUTE
+// VERIFYROUTE
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -783,7 +811,7 @@ router.get('/verify-email/:token', async (req, res) => {
   }
 });
 
-//USERNAME FROM EMAIL
+// USERNAME FROM EMAIL
 router.get('/verify-email/:token/preview', async (req, res) => {
   try {
     const { token } = req.params;
@@ -817,7 +845,7 @@ router.get('/verify-email/:token/preview', async (req, res) => {
   }
 });
 
-//RESEND VERIFICATION EMAIL
+// RESEND VERIFICATION EMAIL
 router.post('/resend-verification', async (req, res) => {
   try {
     const { email } = req.body;
@@ -869,46 +897,7 @@ if (!user) {
 });
 
 // WAKEUP SON
-// if (process.env.NODE_ENV === "production") {
-//   router.get('/ping', async (req, res) => {
-//   //setting headers for cors issues so tht fe can call this endpoint across domains
-//   res.set({
-//     'Access-Control-Allow-Origin': req.headers.origin || '*',
-//     'Access-Control-Allow-Credentials': 'true',
-//     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-//     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
-//     'Content-Type': 'application/json'
-//   });
-
-//   try {
-//     // Lightweight CPU work (dummy hash calc)
-//     const sum = Array.from({ length: 1000 }, (_, i) => Math.sqrt(i * Math.random())).reduce((a, b) => a + b, 0);
-
-//     // Lightweight Redis operation, incr is a redis command that automatically creates pinghit adn increments it, then return incremented value
-//     const hits = await redisClient.incr('ping_hits');
-
-//     // MDB checking 
-//     const mongooseStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-//     const readableTime = formatTime(new Date(), "Asia/Kolkata");
-//     res.status(200).json({
-//       message: `Server is awake and did 14,000,605 calculations...${readableTime}`,
-//       cpuSample: sum.toFixed(2),
-//       redisHits: hits,
-//       mongo: mongooseStatus,
-//       timestamp: readableTime,
-//       status: 'healthy'
-//     });
-//   } catch (err) {
-//     console.error('❌ Ping error:', err);
-//     res.status(500).json({ error: 'Ping failed', details: err.message });
-//   }
-// }); }
-// new ping route 
 if (process.env.NODE_ENV === "production") {
-  // rate limiting map to track IPs calling this endpoint, stores {ip: lastCallTime}
-  const pingRateLimit = new Map();
-  const PING_COOLDOWN = 150000; // 2.5 min cooldown, i call it every 3 min so this blocks spam
-
   router.get('/ping', async (req, res) => {
     //not setting headers now because single domain(for cors issues so tht FE can call this endpoint across domains)
     // res.set({
@@ -918,31 +907,6 @@ if (process.env.NODE_ENV === "production") {
     //   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
     //   'Content-Type': 'application/json'
     // });
-
-    // rate limit check based on IP to prevent spam attacks
-    const clientIP = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.headers['x-real-ip'] || req.socket.remoteAddress;
-    
-    const now = Date.now();
-    const lastCall = pingRateLimit.get(clientIP);
-    
-    if (lastCall && (now - lastCall) < PING_COOLDOWN) {
-      const waitTime = Math.ceil((PING_COOLDOWN - (now - lastCall)) / 1000);
-      return res.status(429).json({ 
-        error: 'Too many ping requests', 
-        retryAfter: waitTime,
-        message: `Chill out, wait ${waitTime}s before next ping`
-      });
-    }
-    
-    pingRateLimit.set(clientIP, now);
-    
-    // cleanup old entries from rate limit map every 50 requests to prevent memory bloat
-    if (pingRateLimit.size > 1000) {
-      const cutoff = now - PING_COOLDOWN;
-      for (const [ip, time] of pingRateLimit.entries()) {
-        if (time < cutoff) pingRateLimit.delete(ip);
-      }
-    }
 
     try {
       // randomized cpu work so each ping does different amount of calculations, makes it harder to predict server load
@@ -984,18 +948,18 @@ if (process.env.NODE_ENV === "production") {
       console.error('❌ Ping error:', err);
       res.status(500).json({ error: 'Ping failed', details: err.message });
     }
-  });
-}
+  });}
 
 // WEATHER & AQI
-router.get("/weather-aqi", async (req, res) => {
-  res.set({
-    "Access-Control-Allow-Origin": req.headers.origin || "*",
-    "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
-    "Content-Type": "application/json",
-  });
+router.get("/weather-aqi", weatherLimiter, redisLimiter,  async (req, res) => {
+  const origin = req.headers.origin;
+if (ALLOWED_ORIGINS.includes(origin)) {
+  res.setHeader("Access-Control-Allow-Origin", origin);
+}
+if (req.method === "OPTIONS") {
+  return res.sendStatus(200);
+}
+
   
 // US AQI breakpoints
 const US_AQI_BREAKPOINTS = {
@@ -1478,7 +1442,8 @@ function getAqiStatus(aqi) {
   } catch (error) {
     console.error("❌ Weather route error:", error.message);
     console.error("❌ Full error:", error);
-    res.status(500).json({ error: error.message });
+    // dev log= res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

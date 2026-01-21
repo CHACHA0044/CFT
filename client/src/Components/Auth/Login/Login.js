@@ -205,7 +205,8 @@ useEffect(() => {
   const [delayMessage, setDelayMessage] = useState('');
   const timers = useRef([]);
   const [cooldown, setCooldown] = useState(0);
-    const mV = Boolean(success || error || delayMessage || showResend || cooldown > 0 || smtpMessage);
+  const [shakeForm, setShakeForm] = useState(false);
+  const mV = Boolean(success || error || delayMessage || showResend || cooldown > 0 || smtpMessage);
 useEffect(() => {
   if (cooldown <= 0) return; 
 
@@ -315,18 +316,21 @@ if (!formData.password.trim()) {
     console.error('Login error:', err);
     timers.current.forEach((t) => clearTimeout(t));
     setDelayMessage('');
+    // trigger shake animation
+    setShakeForm(true);
+    setTimeout(() => setShakeForm(false), 600);
     
     if (err.response?.status === 403) {
-  setError('Please verify your email.');
-  setVerificationEmail(formData.email);
-  sessionStorage.setItem("pendingVerificationEmail", formData.email);
-  if (cooldown === 0) setShowResend(true);
-}
- else if (err.response?.data?.error) {
+      setError('Please verify your email.');
+      setVerificationEmail(formData.email);
+      sessionStorage.setItem("pendingVerificationEmail", formData.email);
+      if (cooldown === 0) setShowResend(true);
+    } else if (err.response?.data?.error) {
       setError(err.response.data.error);
     } else {
       setError('Something went wrong. Please try again.');
-    }setTimeout(() => {setError('');}, 3500);
+    }
+    setTimeout(() => {setError('');}, 3500);
   } finally {
     setLoading(false);
   }
@@ -516,7 +520,9 @@ const handleResendVerification = async () => {
     </p>
   ) : null}
 </div>
-<form onSubmit={handleSubmit} className="mt-5 space-y-4 font-intertight text-shadow-DEFAULT tracking-wide" noValidate>
+<form onSubmit={handleSubmit} className={`mt-5 space-y-4 font-intertight text-shadow-DEFAULT tracking-wide ${
+  (validationErrors.email || validationErrors.password || shakeForm) ? 'animate-shake' : ''
+}`} noValidate>
   <input
     name="email"
     type="email"

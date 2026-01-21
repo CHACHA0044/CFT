@@ -197,6 +197,7 @@ const Register = () => {
   const timers = useRef([]);
   const [passwordPlaceholder, setPasswordPlaceholder] = useState("Password (Not your gmail password)");
   const [passwordStrength, setPasswordStrength] = useState(null);
+  const [shakeForm, setShakeForm] = useState(false);
   const [validationErrors, setValidationErrors] = useState({  name: '', email: '', password: '' });
   const navigate = useNavigate();
   useEffect(() => {
@@ -315,7 +316,10 @@ if (!formData.password.trim()) {
   } catch (error) {
     console.error('❌ Registration error:', error);
     timers.current.forEach((t) => clearTimeout(t));
-    setDelayMessage('');
+    setDelayMessage(''); 
+    // trigger shake animation
+    setShakeForm(true);
+    setTimeout(() => setShakeForm(false), 600);
     const msg = error.response?.data?.error || '❌ Registration failed. Try again.';
     setError(msg);
     setTimeout(() => { setError(''); }, 3000);
@@ -411,7 +415,9 @@ useEffect(() => {
       </motion.div>
     )}
   </AnimatePresence> 
-<form onSubmit={handleSubmit} className="space-y-4 font-intertight text-shadow-DEFAULT tracking-wide" noValidate>
+<form onSubmit={handleSubmit} className={`space-y-4 font-intertight text-shadow-DEFAULT tracking-wide ${
+  (validationErrors.name || validationErrors.email || validationErrors.password || shakeForm) ? 'animate-shake' : ''
+}`} noValidate>
   <input
     name="name"
     placeholder="Name"

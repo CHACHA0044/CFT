@@ -225,30 +225,43 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+  // Skiping ping in DEV (localhost)
+  if (
+    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ) {
+    console.log("🛑 Ping skipped in dev");
+    return;
+  }
+
   const pingServer = async () => {
     try {
-      const response = await fetch(`https://api.carbonft.app/api/auth/ping?ts=${Date.now()}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'omit',
-      });
-      
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.error('❌ Server returned non-JSON response:', await response.text());
+      const response = await fetch(
+        `https://api.carbonft.app/api/auth/ping?ts=${Date.now()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "omit",
+        }
+      );
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error(
+          "❌ Server returned non-JSON response:",
+          await response.text()
+        );
         return;
       }
-      
+
       const data = await response.json();
-      console.log('✅ Ping success:', data.message);
+      console.log("✅ Ping success:", data.message);
     } catch (err) {
-      console.error('⚠️ Ping failed:', err);
+      console.error("⚠️ Ping failed:", err);
     }
   };
-  
+
   pingServer();
 }, []);
 
@@ -480,7 +493,7 @@ Carbon Footprint Tracker
 
     {/* Feedback Email */}
     <motion.p variants={feedbackVariants} className="text-xs md:text-base  text-gray-100">
-    Tell us what you think!
+    Tell us what you think! your
     {/* <span className="exclaim">!</span> */}
     {' '}
     <a
@@ -490,7 +503,7 @@ Carbon Footprint Tracker
     rel="noopener noreferrer"
     className="items-center gap-1 underline decoration-blue-500/50 hover:decoration-blue-500 text-blue-300 hover:text-blue-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-flex"
     >
-    <span className="leading-none mt-1">your feedback is welcome</span>
+    <span className="leading-none mt-1">feedback</span>
         <motion.div
     className="inline-block"
     animate={{
@@ -505,7 +518,7 @@ Carbon Footprint Tracker
   >
   <MdEmail className="text-base relative top-[2.5px]" />
   </motion.div>
-    </a>.
+    </a> is welcome.
 <p className=" text-xs sm:text-base text-center font-intertight text-shadow-DEFAULT tracking-wide text-gray-600 dark:text-gray-100">
     By registering, you agree to our{' '}
     <a
@@ -514,8 +527,8 @@ Carbon Footprint Tracker
       rel="noopener noreferrer"
       className="underline decoration-emerald-500/50 hover:decoration-emerald-500 text-emerald-300 hover:text-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"
     >
-      Privacy Policy🔒
-      {/* <span className="emoji privacy">🔒</span> */}
+      Privacy Policy
+      <span className="emoji privacy">🔒</span>
     </a>{' '}
     and{' '}
     <a
@@ -524,8 +537,8 @@ Carbon Footprint Tracker
       rel="noopener noreferrer"
       className="underline decoration-emerald-500/50 hover:decoration-emerald-500 text-emerald-300 hover:text-emerald-500 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"
     >
-      Terms📄
-      {/* <span className="emoji terms">📄</span> */}
+      Terms
+      <span className="emoji terms">📄</span>
     </a>.
     </p>
 </motion.p>

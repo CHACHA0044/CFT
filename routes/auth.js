@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -420,7 +421,7 @@ router.post('/login', async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: isProd,           // true in prod
-      sameSite: 'Lax',   // None for cross-origin in dev, and now because one domain we use- lax for prod
+      sameSite: 'Strict',   // None for cross-origin in dev, and now because one domain we use-strict for prod
       domain: isProd ? '.carbonft.app' : undefined,
       path: '/',
       maxAge: 3 * 24 * 60 * 60 * 1000,
@@ -496,7 +497,7 @@ router.post('/logout', authenticateToken, async (req, res) => {
      res.clearCookie('token', {
       httpOnly: true,
       secure: isProd,
-      sameSite: 'Lax',
+      sameSite: 'Strict',
       domain: isProd ? '.carbonft.app' : undefined,
     });
 
@@ -868,39 +869,123 @@ if (!user) {
 });
 
 // WAKEUP SON
-router.get('/ping', async (req, res) => {
-  //setting headers for cors issues so tht fe can call this endpoint across domains
-  res.set({
-    'Access-Control-Allow-Origin': req.headers.origin || '*',
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
-    'Content-Type': 'application/json'
+// if (process.env.NODE_ENV === "production") {
+//   router.get('/ping', async (req, res) => {
+//   //setting headers for cors issues so tht fe can call this endpoint across domains
+//   res.set({
+//     'Access-Control-Allow-Origin': req.headers.origin || '*',
+//     'Access-Control-Allow-Credentials': 'true',
+//     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+//     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+//     'Content-Type': 'application/json'
+//   });
+
+//   try {
+//     // Lightweight CPU work (dummy hash calc)
+//     const sum = Array.from({ length: 1000 }, (_, i) => Math.sqrt(i * Math.random())).reduce((a, b) => a + b, 0);
+
+//     // Lightweight Redis operation, incr is a redis command that automatically creates pinghit adn increments it, then return incremented value
+//     const hits = await redisClient.incr('ping_hits');
+
+//     // MDB checking 
+//     const mongooseStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+//     const readableTime = formatTime(new Date(), "Asia/Kolkata");
+//     res.status(200).json({
+//       message: `Server is awake and did 14,000,605 calculations...${readableTime}`,
+//       cpuSample: sum.toFixed(2),
+//       redisHits: hits,
+//       mongo: mongooseStatus,
+//       timestamp: readableTime,
+//       status: 'healthy'
+//     });
+//   } catch (err) {
+//     console.error('❌ Ping error:', err);
+//     res.status(500).json({ error: 'Ping failed', details: err.message });
+//   }
+// }); }
+// new ping route 
+if (process.env.NODE_ENV === "production") {
+  // rate limiting map to track IPs calling this endpoint, stores {ip: lastCallTime}
+  const pingRateLimit = new Map();
+  const PING_COOLDOWN = 150000; // 2.5 min cooldown, i call it every 3 min so this blocks spam
+
+  router.get('/ping', async (req, res) => {
+    //not setting headers now because single domain(for cors issues so tht FE can call this endpoint across domains)
+    // res.set({
+    //   'Access-Control-Allow-Origin': req.headers.origin || '*',
+    //   'Access-Control-Allow-Credentials': 'true',
+    //   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    //   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+    //   'Content-Type': 'application/json'
+    // });
+
+    // rate limit check based on IP to prevent spam attacks
+    const clientIP = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.headers['x-real-ip'] || req.socket.remoteAddress;
+    
+    const now = Date.now();
+    const lastCall = pingRateLimit.get(clientIP);
+    
+    if (lastCall && (now - lastCall) < PING_COOLDOWN) {
+      const waitTime = Math.ceil((PING_COOLDOWN - (now - lastCall)) / 1000);
+      return res.status(429).json({ 
+        error: 'Too many ping requests', 
+        retryAfter: waitTime,
+        message: `Chill out, wait ${waitTime}s before next ping`
+      });
+    }
+    
+    pingRateLimit.set(clientIP, now);
+    
+    // cleanup old entries from rate limit map every 50 requests to prevent memory bloat
+    if (pingRateLimit.size > 1000) {
+      const cutoff = now - PING_COOLDOWN;
+      for (const [ip, time] of pingRateLimit.entries()) {
+        if (time < cutoff) pingRateLimit.delete(ip);
+      }
+    }
+
+    try {
+      // randomized cpu work so each ping does different amount of calculations, makes it harder to predict server load
+      const iterations = Math.floor(500 + Math.random() * 1500); // random between 500-2000 instead of fixed 1000(older)
+      const operations = [
+        (i, r) => Math.sqrt(i * r),
+        (i, r) => Math.pow(i, r % 3),
+        (i, r) => Math.log(i + 1) * r,
+        (i, r) => Math.sin(i) * Math.cos(r * i),
+        (i, r) => (i * r) % 997 // prime number modulo for extra randomness
+      ];
+      
+      // pick random operation for this ping so cpu signature varies each time
+      const operation = operations[Math.floor(Math.random() * operations.length)];
+      const sum = Array.from({ length: iterations }, (_, i) => operation(i, Math.random()))
+        .reduce((a, b) => a + b, 0);
+
+      // Lightweight Redis operation, incr is a redis command that automatically creates pinghit adn increments it, then return incremented value
+      const hits = await redisClient.incr('ping_hits');
+
+      // MDB checking 
+      const mongooseStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+      const readableTime = formatTime(new Date(), "Asia/Kolkata");
+      
+      // randomize response format slightly so its not identical each time, makes scraping harder
+      const calcMessage = Math.random() > 0.5 
+        ? `Server is awake and did ${iterations.toLocaleString()} calculations...${readableTime}`
+        : `Ping successful, crunched ${iterations.toLocaleString()} numbers...${readableTime}`;
+      
+      res.status(200).json({
+        message: calcMessage,
+        cpuSample: sum.toFixed(2),
+        redisHits: hits,
+        mongo: mongooseStatus,
+        timestamp: readableTime,
+        status: 'healthy'
+      });
+    } catch (err) {
+      console.error('❌ Ping error:', err);
+      res.status(500).json({ error: 'Ping failed', details: err.message });
+    }
   });
-
-  try {
-    // Lightweight CPU work (dummy hash calc)
-    const sum = Array.from({ length: 1000 }, (_, i) => Math.sqrt(i * Math.random())).reduce((a, b) => a + b, 0);
-
-    // Lightweight Redis operation, incr is a redis command that automatically creates pinghit adn increments it, then return incremented value
-    const hits = await redisClient.incr('ping_hits');
-
-    // MDB checking 
-    const mongooseStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-    const readableTime = formatTime(new Date(), "Asia/Kolkata");
-    res.status(200).json({
-      message: `Server is awake and did 14,000,605 calculations...${readableTime}`,
-      cpuSample: sum.toFixed(2),
-      redisHits: hits,
-      mongo: mongooseStatus,
-      timestamp: readableTime,
-      status: 'healthy'
-    });
-  } catch (err) {
-    console.error('❌ Ping error:', err);
-    res.status(500).json({ error: 'Ping failed', details: err.message });
-  }
-});
+}
 
 // WEATHER & AQI
 router.get("/weather-aqi", async (req, res) => {
@@ -1402,47 +1487,6 @@ router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email']
 }));
 
-// GET PASSWORD INFO FROM TOKEN
-router.get('/password/:token', async (req, res) => {
-  try {
-    const { token } = req.params;
-    
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (jwtErr) {
-      console.error('❌ [PASSWORD] JWT error:', jwtErr.message);
-      return res.status(400).json({ 
-        error: 'Invalid or expired password link',
-        expired: jwtErr.name === 'TokenExpiredError'
-      });
-    }
-
-    // FIND USER BY EMAIL AND VERIFY TOKEN MATCHES
-    const user = await User.findOne({ 
-      email: decoded.email,
-      passwordToken: token  // Verify this is the correct token
-    });
-    
-    if (!user) {
-      console.error('❌ [PASSWORD] User not found or token mismatch');
-      return res.status(404).json({ error: 'Invalid or expired password link' });
-    }
-
-    // Return user info with password
-    res.json({ 
-      name: user.name,
-      email: user.email,
-      password: user.tempPassword,
-      passwordTime: user.tempPasswordCreatedAt
-    });
-   // console.log('user details=',user.name,user.email, user.tempPassword, user.tempPasswordCreatedAt);
-  } catch (err) {
-    console.error('❌ [PASSWORD] Server error:', err);
-    res.status(500).json({ error: 'Failed to retrieve password' });
-  }
-});
-
 // GOOGLE OAUTH CALLBACK 
 router.get('/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: '/' }),
@@ -1476,7 +1520,7 @@ router.get('/google/callback',
       res.cookie('token', token, {
         httpOnly: true,
         secure: isProd,
-        sameSite: 'Lax',   
+        sameSite: 'Strict',   
         domain: isProd ? '.carbonft.app' : undefined,
         path: '/',
         maxAge: 3 * 24 * 60 * 60 * 1000,

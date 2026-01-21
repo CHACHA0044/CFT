@@ -80,8 +80,8 @@ if (isProd) {
       directives: {
         "default-src": ["'self'"],
         "img-src": ["'self'", "data:", "https:"],
-        "script-src": ["'self'", "'unsafe-inline'", "https:"],
-        "style-src": ["'self'", "'unsafe-inline'", "https:"],
+        "script-src": ["'self'", "https:"],
+        "style-src": ["'self'", "https:"],
         "connect-src": ["'self'", "https:", "http:", "*.vercel.app"],
       },
     },
@@ -103,7 +103,7 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' })); //For APIs sending JSON
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); //HTML <form> submissions
 
-//limiter
+//limiters
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: isProd ? 50 : 200, // reduce to 50
@@ -124,8 +124,16 @@ app.use('/api/auth', authLimiter);
 
 if (isProd) {
   app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {  //Forces HTTPS on first HTTP request, works with hsts to never allow http requests in prod
-      return res.redirect(301, 'https://' + req.headers.host + req.url);
+    // Forces HTTPS on first HTTP request, works with HSTS to never allow HTTP requests in prod
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+
+      const allowedHosts = ["api.carbonft.app"]; // whitelist
+
+      if (!allowedHosts.includes(req.hostname)) {
+        return res.sendStatus(403);
+      }
+
+      return res.redirect(301, `https://${req.hostname}${req.url}`);
     }
     next();
   });
@@ -134,11 +142,12 @@ if (isProd) {
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/footprint', footprintRoutes);
-// test route
+// Backend check route
 app.get('/api', (req, res) => {
   res.send('CFT API is live son!');
 });
 
+if (!isProd) {
 app.get('/api/redis-test', async (req, res) => {
   try {
     let visits = await redisClient.get("visits");
@@ -149,7 +158,7 @@ app.get('/api/redis-test', async (req, res) => {
     console.error("❌ Redis route error:", err);
     res.status(500).json({ error: "Redis error" });
   }
-});
+}); }
 
 app.use((err, req, res, next) => {
   console.error('❌ Unhandled error:', err.stack || err); // global error handler , show error in dev , generic msg in prod
@@ -174,17 +183,18 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
     console.log('✅ MongoDB connected');
     app.listen(PORT, () => {
     console.log(`✅ Server started on ${PORT}`);
+  if (isProd) {
     startImapPoller(); 
     startFeedbackScanner();
     cron.schedule('*/3 * * * *', async () => {
     try {
       const url = `https://api.carbonft.app/api/auth/ping?ts=${Date.now()}`; 
-      const res = await axios.get(url);
+      const res = await axios.get(url, { timeout: 5000 });
       console.log(`⏱️ Pinged self: ${res.data.message}`);
     } catch (err) {
       console.error('❌ Ping failed:', err.message);
     }
-  });
+  }); }
   });
   })
   .catch(err => console.error('❌ MongoDB error:', err));

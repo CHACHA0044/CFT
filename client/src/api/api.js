@@ -33,18 +33,25 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+
+    // ignore cancelled requests (StrictMode)
+    if (axios.isCancel(error) || error.code === "ERR_CANCELED") {
+      return Promise.reject(error);
+    }
+
     console.error('API Error:', {
       status: error.response?.status,
       url: error.config?.url,
       method: error.config?.method,
       data: error.response?.data
     });
-    
-    if (error.response?.status === 401 || error.response?.status === 403) {
+
+    if ([401, 403].includes(error.response?.status)) {
       if (error.response?.data?.requiresLogin) {
         window.location.href = '/login';
       }
     }
+
     return Promise.reject(error);
   }
 );

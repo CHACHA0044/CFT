@@ -273,12 +273,12 @@ window.showLimitMessage = (force = false) => {
     fetchHistory();
   }, [version]);
 
- useEffect(() => {
-  if (location.state?.updated) {
-    fetchHistory();
-    window.history.replaceState({}, document.title);
-  }
-}, [location.state?.updated]);
+//  useEffect(() => {
+//   if (location.state?.updated) {
+//     fetchHistory();
+//     window.history.replaceState({}, document.title);
+//   }
+// }, [location.state?.updated]);
 
 useEffect(() => {
   if (data.length > 0) {

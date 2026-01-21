@@ -2,33 +2,50 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App.js';
-//import reportWebVitals from './reportWebVitals';
+
+const ignorePatterns = [
+  /validateDOMNesting/i,
+  /Invalid DOM property/i,
+  /className/i,
+  /preload/i,
+  /prefetch/i,
+  /value-not-animatable/i,
+  /was preloaded/i,
+];
 
 const originalWarn = console.warn;
+const originalError = console.error;
+
+function shouldIgnore(args) {
+  const message = args.map(String).join(" ");
+  return ignorePatterns.some(p => p.test(message));
+}
+
 console.warn = (...args) => {
-  if (
-    typeof args[0] === "string" &&
-    (args[0].includes("preload") || args[0].includes("was preloaded") || args[0].includes('validateDOMNesting') || args[0].includes('value-not-animatable'))
-  ) {
-    return;
-  }
+  if (shouldIgnore(args)) return;
   originalWarn(...args);
 };
 
-if (process.env.NODE_ENV === 'production') {
+console.error = (...args) => {
+  if (shouldIgnore(args)) return;
+  originalError(...args);
+};
+
+// silence everything in prod
+if (process.env.NODE_ENV === "production") {
   console.log = () => {};
   console.warn = () => {};
   console.error = () => {};
 }
 
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  (process.env.NODE_ENV !== "production") ? (
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  ) : (
     <App />
-  </React.StrictMode>
+  )
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-//reportWebVitals();

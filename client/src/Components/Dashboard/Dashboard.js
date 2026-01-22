@@ -372,16 +372,11 @@ useEffect(() => {
     <AnimatedHeadline />
     <FirstTimeWelcome />
         <div className="w-full flex justify-center mt-4">
-      <div className="relative bg-gray-800/70 backdrop-blur-xl 
-                      rounded-3xl px-8 py-10 
-                      shadow-lg max-w-5xl w-full text-center">
+        <div className="relative bg-gray-800/70 backdrop-blur-xl rounded-3xl px-8 py-10 shadow-lg max-w-5xl w-full text-center">
 
         {/* Planet */}
-        <span className="mx-auto w-32 h-32 
-                     rounded-full flex items-center justify-center
-                     text-5xl sm:text-6xl bg-black/20">
-                  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
-                </span>
+        <span className="mx-auto w-32 h-32 rounded-full flex items-center justify-center text-5xl sm:text-6xl bg-black/20">
+        <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span></span>
         
 
         {/* Desktop pulse wave */}
@@ -393,14 +388,12 @@ useEffect(() => {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="h-[2px] w-80 bg-gradient-to-r 
-                       from-transparent via-white/60 to-transparent"
+            className="h-[2px] w-80 bg-gradient-to-r from-transparent via-white/60 to-transparent"
           />
         </div>
 
         {/* Tagline */}
-        <p className="mt-6 text-base sm:text-lg 
-                      text-white font-intertight tracking-wide text-shadow-DEFAULT">
+        <p className="mt-6 text-base sm:text-lg text-white font-intertight tracking-wide text-shadow-DEFAULT">
           {user?.name.split(' ')[0]}, Your footprint has a pulse<motion.span
   className="inline-block text-base sm:text-xl font-medium"
   animate={{ opacity: [0, 1, 0] }}
@@ -423,10 +416,8 @@ useEffect(() => {
   .
 </motion.span>
         </p>
-        <p className=" text-sm
-                      text-white/80 font-intertight tracking-wide text-shadow-DEFAULT">
-         Everyday actions add up — even when we don’t see them.
-We help you measure your carbon footprint and explore simple ways to reduce it.
+        <p className=" text-sm transition-colors duration-500 text-emerald-500 dark:text-white/80 font-intertight tracking-wide text-shadow-DEFAULT">
+         Everyday actions add up — even when we don’t see them. We help you measure your carbon footprint and explore simple ways to reduce it.
         </p>
       </div>
     </div>
@@ -663,15 +654,7 @@ Open the top-left menu and add your first data point and visualize it
         </div>
           {/* Expandable Sections */}
           <div className="mb-2 sm:mb-6 pb-2 sm:pb-4 flex flex-col gap-4 sm:gap-6 pr-2 will-change-transform">
-            <h2 className="flex flex-wrap sm:-ml-44 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500">Understanding
-Our
-Planet
-—
-and
-Our
-Place
-Within
-It</h2>
+            <h2 className="flex flex-wrap sm:-ml-44 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500">Understanding Our Planet — and Our Place Within It</h2>
 {[
   {
     id: 'understanding',

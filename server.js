@@ -3,7 +3,7 @@ const isProd = process.env.NODE_ENV === 'production';
 
 // env check
 if (isProd) { 
-  ['MONGO_URI', 'JWT_SECRET'].forEach((key) => {
+  ['MONGO_URI', 'JWT_SECRET', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_ID', 'BREVO_API_KEY', 'REDIS_HOST', 'REDIS_PASSWORD'].forEach((key) => {
     if (!process.env[key]) {
       console.error(`❌ Missing required environment variable: ${key}`);
       process.exit(1); // Stop server immediately

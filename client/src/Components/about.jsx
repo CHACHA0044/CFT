@@ -510,7 +510,7 @@ const handleEmailClick = (e) => {
                   </div>
                 </motion.header>
       {/* batman lottie */}
-      <section className="relative py-72 px-10 overflow-hidden font-intertight text-shadow-DEFAULT tracking-wide text-white">
+      <section className="relative py-72 px-10 overflow-hidden font-intertight text-shadow-DEFAULT tracking-wide transition-colors duration-500 text-white">
 <motion.div 
   initial={{ opacity: 0, y: 10 }}
   animate={{ opacity: 1, y: [10, 0, 10] }}
@@ -549,7 +549,7 @@ const handleEmailClick = (e) => {
       </section>
 
       {/* main heading */}
-      <section className="relative py-72 px-4 overflow-hidden font-intertight text-shadow-DEFAULT tracking-wide text-white">
+      <section className="relative py-72 px-4 overflow-hidden font-intertight text-shadow-DEFAULT tracking-wide transition-colors duration-500 text-white">
         <div className="max-w-5xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -641,7 +641,7 @@ const handleEmailClick = (e) => {
       </section>
 
       {/* Project Philosophy */}
-      <section className="py-16 px-4 font-intertight text-shadow-DEFAULT tracking-wide dark:text-white text-emerald-500">
+      <section className="py-16 px-4 font-intertight text-shadow-DEFAULT tracking-wide transition-colors duration-500 dark:text-white text-emerald-500">
         <div className="max-w-5xl mx-auto">
           <SectionWrapper>
             <div className="bg-card/60 group relative backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-border">
@@ -670,7 +670,7 @@ const handleEmailClick = (e) => {
       </section>
 
       {/* Core Features */}
-      <section className="py-16 px-4 bg-muted/30 font-intertight text-shadow-DEFAULT tracking-wide dark:text-white text-emerald-500">
+      <section className="py-16 px-4 bg-muted/30 font-intertight text-shadow-DEFAULT tracking-wide transition-colors duration-500 dark:text-white text-emerald-500">
         <div className="max-w-6xl mx-auto">
           <SectionWrapper>
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground text-sky-400 dark:text-white">
@@ -689,7 +689,7 @@ const handleEmailClick = (e) => {
       </section>
 
       {/* Technology Stack */}
-      <section className="py-16 px-4 font-intertight text-shadow-DEFAULT tracking-wide dark:text-white text-emerald-500">
+      <section className="py-16 px-4 font-intertight text-shadow-DEFAULT tracking-wide transition-colors duration-500 dark:text-white text-emerald-500">
         <div className="max-w-5xl mx-auto">
           <SectionWrapper>
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground text-sky-400 dark:text-white">
@@ -729,7 +729,7 @@ const handleEmailClick = (e) => {
       </section>
 
       {/* API Endpoints */}
-      <section className="py-16 px-4 bg-muted/30 font-intertight text-shadow-DEFAULT tracking-wide dark:text-white text-emerald-500">
+      <section className="py-16 px-4 bg-muted/30 font-intertight text-shadow-DEFAULT tracking-wide transition-colors duration-500 dark:text-white text-emerald-500">
         <div className="max-w-5xl mx-auto">
           <SectionWrapper>
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground text-sky-400 dark:text-white">
@@ -778,7 +778,7 @@ const handleEmailClick = (e) => {
       </section>
 
       {/* Security Features */}
-      <section className="py-16 px-4 font-intertight text-shadow-DEFAULT tracking-wide dark:text-white text-emerald-500">
+      <section className="py-16 px-4 font-intertight text-shadow-DEFAULT tracking-wide transition-colors duration-500 dark:text-white text-emerald-500">
         <div className="max-w-5xl mx-auto">
           <SectionWrapper>
             <div className="flex items-center justify-center gap-3 mb-12">
@@ -808,7 +808,7 @@ const handleEmailClick = (e) => {
       </section>
 
       {/* Conclusion */}
-      <section className="py-16 px-4 bg-muted/30 font-intertight text-shadow-DEFAULT tracking-wide dark:text-white text-emerald-500">
+      <section className="py-16 px-4 bg-muted/30 font-intertight text-shadow-DEFAULT tracking-wide transition-colors duration-500 dark:text-white text-emerald-500">
         <div className="max-w-4xl mx-auto">
           <SectionWrapper>
             <div className="bg-card/60 backdrop-blur-sm group relative rounded-3xl p-8 md:p-12 border border-border text-center">

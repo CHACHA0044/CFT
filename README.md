@@ -15,6 +15,17 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-2b2d42?logo=javascript&logoColor=f7df1e)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-2b2d42?logo=tailwindcss&logoColor=38bdf8)](https://tailwindcss.com/)
 [![Nodemailer](https://img.shields.io/badge/Nodemailer-Enabled-2b2d42?logo=gmail&logoColor=ea4335)](https://nodemailer.com/about/)
+[![Google OAuth](https://img.shields.io/badge/Google-OAuth2-2b2d42?logo=google&logoColor=white)](https://developers.google.com/identity)
+[![JWT](https://img.shields.io/badge/Auth-JWT-2b2d42?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+[![Redis](https://img.shields.io/badge/Redis-Cache-2b2d42?logo=redis&logoColor=dc382d)](https://redis.io/)
+[![Bcrypt](https://img.shields.io/badge/Security-Bcrypt-2b2d42?logo=letsencrypt&logoColor=white)](https://www.npmjs.com/package/bcrypt)
+[![CORS](https://img.shields.io/badge/Middleware-CORS-2b2d42?logo=cloudflare&logoColor=white)](https://www.npmjs.com/package/cors)
+[![Express](https://img.shields.io/badge/Framework-Express-2b2d42?logo=express&logoColor=white)](https://expressjs.com/)
+[![Mongoose](https://img.shields.io/badge/ODM-Mongoose-2b2d42?logo=mongoose&logoColor=800)](https://mongoosejs.com/)
+[![Google APIs](https://img.shields.io/badge/API-Google-2b2d42?logo=googlecloud&logoColor=white)](https://console.cloud.google.com/)
+[![Postman](https://img.shields.io/badge/API-Postman-2b2d42?logo=postman&logoColor=ff6c37)](https://postman.com/)
+[![Git](https://img.shields.io/badge/Version_Control-Git-2b2d42?logo=git&logoColor=f05032)](https://git-scm.com/)
+
 
 ---
 

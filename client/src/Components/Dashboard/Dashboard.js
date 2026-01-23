@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'; 
 import { motion, useAnimation } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
@@ -7,10 +7,19 @@ import useAuthRedirect from 'hooks/useAuthRedirect';
 import API from 'api/api';
 import { NewEntryButton, EditDeleteButton, LogoutButton, VisualizeButton, FeedbackButton} from 'Components/globalbuttons';
 import { useLoading } from 'context/LoadingContext';
-import CardNav from 'Components/CardNav';  
-import LottieLogo from 'Components/LottieLogoComponent';
 import FirstTimeWelcome from './FirstTimeWelcome';
-  const sentence = "Your Climate Dashboard";
+import { Suspense, lazy } from "react";
+const CardNav = lazy(() => import("Components/CardNav"));
+const LottieLogo = lazy(() => import("Components/LottieLogoComponent"));
+const NavSkeleton = () => (
+  <div className="w-full flex flex-col items-center gap-4">
+    <div className="w-12 h-12 bg-gray-600 rounded-full animate-pulse" />
+    <div className="w-40 h-10 bg-gray-700 rounded-xl animate-pulse" />
+    <div className="w-40 h-10 bg-gray-700 rounded-xl animate-pulse" />
+    <div className="w-40 h-10 bg-gray-700 rounded-xl animate-pulse" />
+  </div>
+);
+  const sentence = "Your  Climate  Dashboard";
   const words = sentence.split(" ");
 const getLetterVariants = () => ({
   initial: { y: 0, opacity: 1, scale: 1 },
@@ -60,8 +69,12 @@ const AnimatedHeadline = React.memo(() => {
   const [activeBurstIndex, setActiveBurstIndex] = useState(null);
   const [bursting, setBursting] = useState(false);
   const [fallingLetters, setFallingLetters] = useState([]);
+  const [hoveredWordIndex, setHoveredWordIndex] = useState(null);
+  const isMobile = window.innerWidth < 640;
 
   const triggerBurst = (index) => {
+    if (isMobile) return; // disabled on mobile
+
     setActiveBurstIndex(index);
     setBursting(true);
     setTimeout(() => {
@@ -70,37 +83,45 @@ const AnimatedHeadline = React.memo(() => {
     }, 1800);
   };
 
+  if (isMobile) {
+    return (
+      <h1 className="text-4xl -mt-4 font-black font-germania text-white text-center tracking-wider text-shadow-DEFAULT">
+        {sentence}
+      </h1>
+    );
+  }
+
   return (
-    <div className="relative -mt-3 overflow-visible w-full flex justify-center items-center px-4">
+    <div className="relative overflow-visible w-full flex justify-center items-center px-4">
       <motion.div
-        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-white transition-colors duration-500"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, y: 20 },
-          visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.3,
-            },
-          },
-        }}
+        className="flex flex-wrap -mt-3 justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
+        initial={false}
+        animate={false}
       >
         {words.map((word, wordIndex) => (
           <motion.span
             key={wordIndex}
-            onMouseEnter={() => {
-              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-            }}
+            onMouseEnter={() => setHoveredWordIndex(wordIndex)}
+            onMouseLeave={() => setHoveredWordIndex(null)}
             onClick={() => {
               if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
             }}
+            animate={{
+              scale: hoveredWordIndex === wordIndex ? 1.15 : 1,
+              y: hoveredWordIndex === wordIndex ? -8 : 0,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 15,
+              duration: 0.3
+            }}
             className="relative inline-block cursor-pointer"
-            variants={{
-              hidden: { opacity: 0, y: 10 },
-              visible: { opacity: 1, y: 0 },
+            style={{
+              filter: hoveredWordIndex === wordIndex 
+                ? 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))' 
+                : 'none',
+              transition: 'filter 0.3s ease'
             }}
           >
             {word.split("").map((char, i) => {
@@ -110,49 +131,56 @@ const AnimatedHeadline = React.memo(() => {
               );
 
               const isBursting = activeBurstIndex === wordIndex;
-
+              const isHovered = hoveredWordIndex === wordIndex;
               const randomDelay = Math.random() * 0.5 + i * 0.05;
 
               return (
-              <AnimatePresence key={`${char}-${i}`}>
-                <motion.span
-                  className="inline-block relative"
-                  initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
-                  animate={
-                    isBursting
-                      ? {
-                          x: Math.random() * 80 - 40,
-                          y: Math.random() * 60 - 30,
-                          rotate: Math.random() * 180 - 90,
-                          opacity: [1, 0],
-                          scale: [1, 1.2, 0.4],
-                          transition: { duration: 0.8, delay: randomDelay, ease: "easeOut" },
-                        }
-                      : fallingLetters.includes(charIndex)
-                      ? "reenter"
-                      : "initial"
-                  }
-                  variants={getLetterVariants()}
-                >
-                  
-                  {char === "o" && wordIndex === 2 ? (
-              <>
-                {/* Mobile: show 'o' */}
-                <span className="block">{char}</span>
+                <AnimatePresence key={`${char}-${i}`}>
+                  <motion.span
+                    className="inline-block relative"
+                    initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                    animate={
+                      isBursting
+                        ? {
+                            x: Math.random() * 80 - 40,
+                            y: Math.random() * 60 - 30,
+                            rotate: Math.random() * 180 - 90,
+                            opacity: [1, 0],
+                            scale: [1, 1.2, 0.4],
+                            transition: {
+                              duration: 0.8,
+                              delay: randomDelay,
+                              ease: "easeOut",
+                            },
+                          }
+                        : isHovered
+                        ? {
+                            y: [0, -3, 0],
+                            rotate: [0, i % 2 === 0 ? 5 : -5, 0],
+                            transition: {
+                              duration: 0.4,
+                              delay: i * 0.03,
+                              ease: "easeInOut",
+                            },
+                          }
+                        : fallingLetters.includes(charIndex)
+                        ? "reenter"
+                        : "initial"
+                    }
+                    variants={getLetterVariants()}
+                  >
+                    {char === "o" && wordIndex === 2 ? (
+                      <span className="block">{char}</span>
+                    ) : (
+                      char
+                    )}
 
-                {/* sm+ screens: animated earth 
-                <span className="hidden sm:inline-block">
-                  <span className="earth-space">🌎<span></span><span></span><span></span><span></span><span></span></span>
-                </span>*/}
-              </>
-            ) : (
-              char
-            )}
-                      {isBursting && (
+                    {isBursting && (
                       <span className="absolute top-1/2 left-1/2 z-[-1]">
                         {[...Array(5)].map((_, j) => {
                           const confX = Math.random() * 30 - 15;
                           const confY = Math.random() * 30 - 15;
+
                           return (
                             <motion.span
                               key={j}
@@ -208,70 +236,60 @@ const AnimatedHeadline = React.memo(() => {
   return cachedName ? { name: cachedName } : null;
 });
 useEffect(() => {
+  let isMounted = true;
+
   const fetchUser = async () => {
     try {
-      const res = await API.get('/auth/token-info/me');
+      const res = await API.get("/auth/token-info/me");
+      if (!isMounted) return;
+
       setUser(res.data);
-      sessionStorage.setItem('userName', res.data.name);
+      sessionStorage.setItem("userName", res.data.name);
     } catch (err) {
-      console.error('Failed to fetch user info:', err);
+      if (!isMounted) return;
+      console.error("Failed to fetch user info:", err);
       setUser(null);
     }
   };
 
   fetchUser();
+
+  return () => {
+    isMounted = false; // cleanup
+  };
 }, []);
 
-const fetchHistory = async () => {
+const fetchHistory = useCallback(async () => {
   try {
-    const res = await API.get('/footprint/history');
+    const res = await API.get("/footprint/history");
+
     const result = res.data;
-    const allEntries = Array.isArray(result) ? result : result.history || [];
+    const allEntries = Array.isArray(result)
+      ? result
+      : result.history || [];
+
     const sortedData = allEntries
-      .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt || b.createdAt) -
+          new Date(a.updatedAt || a.createdAt)
+      )
       .slice(0, 5);
 
     setData(sortedData);
     setShowLimitMsg(allEntries.length >= 5);
-    window.entriesCount = allEntries.length;
-window.showLimitMessage = (force = false) => {
-  if (force) {
-    setShowLimitMsg(false);
-    setTimeout(() => {
-      setShowLimitMsg(true);
-      setTimeout(() => {
-        if (topRef.current) {
-          topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    }, 50);
-  } else {
-    setShowLimitMsg(true);
-    setTimeout(() => {
-      if (topRef.current) {
-  topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  setTimeout(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      const offset = (i % 2 === 0 ? -20 : 20) / (i + 1); // diminishing shake
-      window.scrollBy(0, offset);
-      if (++i > 4) clearInterval(interval);
-    }, 60);
-  }, 500);
-}
-    }, 100);
-  }
-};
 
+    // store count safely
+    window.entriesCount = allEntries.length;
   } catch (err) {
-    console.error('Error fetching data:', err);
+    console.error("Error fetching data:", err);
     setData([]);
-  } 
-};
+  }
+}, []);
 
   useEffect(() => {
     fetchHistory();
-  }, [version]);
+  }, [fetchHistory]);
 
 //  useEffect(() => {
 //   if (location.state?.updated) {
@@ -347,32 +365,57 @@ useEffect(() => {
     <PageWrapper backgroundImage="/images/dashboard-bk.webp">
     <div ref={topRef}></div>
 <div className="w-auto px-0">
-  <CardNav
-    logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
-    logoAlt="Animated Menu"
-    menuColor="bg-white/20 dark:bg-gray-800/70"
-    logoSize="w-25 h-25"
-    isMenuOpen={isMenuOpen}
-    onToggleMenu={setIsMenuOpen}
-  >
-  <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
-  <NewEntryButton className="w-40" />
-  {data.length > 0 && ( <VisualizeButton entries={data}  onClick={(entry) => navigate('/chart', { state: { entry } })} className="w-40" /> )}
-  <EditDeleteButton className="w-40" />
-  <LogoutButton onLogout={handleLogout} loading={logoutLoading} success={logoutSuccess} error={logoutError} className="w-40" />
-  </div>
-</CardNav>
+  <Suspense fallback={<NavSkeleton />}>
+    <CardNav
+      logo={
+        <Suspense fallback={<div className="w-10 h-10 bg-gray-500 rounded-full animate-pulse" />}>
+          <LottieLogo
+            isOpen={isMenuOpen}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          />
+        </Suspense>
+      }
+      logoAlt="Animated Menu"
+      menuColor="bg-white/20 dark:bg-gray-800/70"
+      logoSize="w-25 h-25"
+      isMenuOpen={isMenuOpen}
+      onToggleMenu={setIsMenuOpen}
+    >
+      <div className="relative w-full flex flex-col justify-center items-center gap-4 sm:gap-6 mt-2 mb-0">
+        <NewEntryButton className="w-40" />
+
+        {data.length > 0 && (
+          <VisualizeButton
+            entries={data}
+            onClick={(entry) =>
+              navigate("/chart", { state: { entry } })
+            }
+            className="w-40"
+          />
+        )}
+
+        <EditDeleteButton className="w-40" />
+
+        <LogoutButton
+          onLogout={handleLogout}
+          loading={logoutLoading}
+          success={logoutSuccess}
+          error={logoutError}
+          className="w-40"
+        />
+      </div>
+    </CardNav>
+  </Suspense>
 </div>
       <motion.div
   className="w-full max-w-7xl flex flex-col text-emerald-500 dark:text-gray-100 px-6 py-4 justify-start items-center transition-colors duration-500 overflow-visible overflow-x-hidden min-h-screen"
   transition={{ duration: 0.35, ease: 'easeInOut' }}
 >
-
     <div className=" py-6 text-center items-center justify-center space-y-4 min-h-[6rem]">
     <AnimatedHeadline />
     <FirstTimeWelcome />
         <div className="w-full flex justify-center mt-4">
-        <div className="relative bg-gray-800/70 backdrop-blur-xl rounded-3xl px-8 py-10 shadow-lg max-w-5xl w-full text-center">
+        <div className="relative bg-gray-800/70 backdrop-blur-xl rounded-3xl px-8 py-10 shadow-lg max-w-[61rem] w-full text-center">
 
         {/* Planet */}
         <span className="mx-auto w-32 h-32 rounded-full flex items-center justify-center text-5xl sm:text-6xl bg-black/20">
@@ -421,42 +464,49 @@ useEffect(() => {
         </p>
       </div>
     </div>
-    {showLimitMsg && (
+{showLimitMsg && (
   <motion.div
     key="limit-msg"
-    initial={{ scale: 0.8, opacity: 0, y: -20 }}
-    animate={{ scale: [1.1, 0.95, 1.05, 1], y: [0, -5, 3, 0], opacity: 1 }}
-    transition={{ duration: 0.8, ease: "easeOut" }}
+    role="alert"
+    aria-live="polite"
+    initial={isMobile ? false : { scale: 0.8, opacity: 0, y: -20 }}
+    animate={
+      isMobile
+        ? { opacity: 1 }
+        : { scale: [1.1, 0.95, 1.05, 1], y: [0, -5, 3, 0], opacity: 1 }
+    }
+    transition={isMobile ? { duration: 0.2 } : { duration: 0.8, ease: "easeOut" }}
     className="w-fit mt-4 mb-0 md:ml-56 text-center items-center pr-4 pl-4 py-3 text-xs sm:text-base font-intertight tracking-normal text-shadow-md leading-relaxed text-yellow-900 bg-yellow-100 border border-yellow-300 rounded-xl shadow-amber-500"
-  ><button
-      onClick={() => setShowLimitMsg(false)}
-      className=" text-base mr-1 sm:text-xl animate-bounce hover:scale-110 transition-transform duration-200"
-      aria-label="Close alert"
-    >
-    ❌
-    </button>
-    You have reached the limit of 5 entries<span className="animate-pulse">! </span> Please delete older entries to add new ones
-    <motion.span
-        className="inline-block text-xl font-medium ml-1"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-      >
-      .
-      </motion.span>
-      <motion.span
-        className="inline-block text-xl font-medium"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
-      >
-      .
-      </motion.span>
-      <motion.span
-        className="inline-block text-xl font-medium"
-        animate={{ opacity: [0, 1, 0] }}
-        transition={{ duration: 1.2, repeat: Infinity, delay: 1.2 }}
-      >
-      .
-      </motion.span>
+  >
+    <button
+  onClick={() => setShowLimitMsg(false)}
+  className="animate-close-x"
+  aria-label="Close alert"
+>
+  ❌
+</button>
+    You have reached the limit of 5 entries! Please delete older entries to add new ones
+    {!isMobile && (
+      <>
+        <motion.span
+          className="inline-block text-xl font-medium ml-1"
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+        >.</motion.span>
+
+        <motion.span
+          className="inline-block text-xl font-medium"
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
+        >.</motion.span>
+
+        <motion.span
+          className="inline-block text-xl font-medium"
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity, delay: 1.2 }}
+        >.</motion.span>
+      </>
+    )}
   </motion.div>
 )}
 <div className="flex justify-center mt-4 opacity-50">
@@ -485,10 +535,7 @@ useEffect(() => {
 
           ) : data.length > 0 ? (
             <AnimatePresence>
-              <h2 className="flex flex-wrap sm:-ml-96 sm:mr-24 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500">Emission
-Insights
-&
-Suggestions</h2>
+              <h2 className="flex flex-wrap sm:-ml-96 sm:mr-24 justify-center sm:gap-3 gap-1 text-lg sm:text-4xl font-germania tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500">Emission Insights & Suggestions</h2>
             <motion.div
             className="flex flex-col gap-4 sm:gap-6"
               variants={{
@@ -515,11 +562,9 @@ Suggestions</h2>
 }}
  >
   {/* animatedborder */}
-  <div className="absolute inset-0 rounded-3xl border-2 border-transparent 
-                opacity-0 group-hover:opacity-100 animate-borderFlow 
-                border-emerald-500 dark:border-gray-100 pointer-events-none" />
+  <div className="absolute inset-0 rounded-3xl border-2 border-transparent opacity-0 group-hover:opacity-100 animate-borderFlow border-emerald-500 dark:border-gray-100 pointer-events-none" />
 
-                <div className="text-lg sm:text-2xl md:text-3xl font-normal tracking-normal sm:font-semibold sm:tracking-wider font-intertight text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500">
+  <div className="text-lg sm:text-2xl md:text-3xl font-normal tracking-normal sm:font-semibold sm:tracking-wider font-intertight text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500">
   <div className="relative inline-block">
     <div className="hidden sm:block">
   <span className="absolute left-[7px] -top-[6px] animate-smoke text-sm opacity-50 delay-0">☁️</span>
@@ -543,7 +588,7 @@ Suggestions</h2>
   2
 </span>
 </div>
-    <section
+<section
   key={`suggestion-${index}`}
   ref={(el) => (historySectionRefs.current[index] = el)}
   className="px-1 pb-1 transition-all duration-500"

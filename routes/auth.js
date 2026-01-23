@@ -897,8 +897,7 @@ if (!user) {
 });
 
 // WAKEUP SON
-if (process.env.NODE_ENV === "production") {
-  router.get('/ping', async (req, res) => {
+router.get('/ping', async (req, res) => {
     //not setting headers now because single domain(for cors issues so tht FE can call this endpoint across domains)
     // res.set({
     //   'Access-Control-Allow-Origin': req.headers.origin || '*',
@@ -933,8 +932,8 @@ if (process.env.NODE_ENV === "production") {
       
       // randomize response format slightly so its not identical each time, makes scraping harder
       const calcMessage = Math.random() > 0.5 
-        ? `Server is awake and did ${iterations.toLocaleString()} calculations...${readableTime}`
-        : `Ping successful, crunched ${iterations.toLocaleString()} numbers...${readableTime}`;
+        ? `Server is awake and did 14,000,605 calculations...${iterations.toLocaleString()} ${readableTime}`
+        : `Good evening, Colonel. Can I give you a lift? ${iterations.toLocaleString()} ${readableTime}`;
       
       res.status(200).json({
         message: calcMessage,
@@ -948,7 +947,7 @@ if (process.env.NODE_ENV === "production") {
       console.error('❌ Ping error:', err);
       res.status(500).json({ error: 'Ping failed', details: err.message });
     }
-  });}
+});
 
 // WEATHER & AQI
 router.get("/weather-aqi", weatherLimiter, redisLimiter,  async (req, res) => {

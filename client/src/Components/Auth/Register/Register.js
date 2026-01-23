@@ -56,13 +56,17 @@ const AniDot = () => (
     </motion.span>
   </span>
 );
-  
-  const AnimatedHeadline = () => {
+
+ const AnimatedHeadline = React.memo(() => {
     const [activeBurstIndex, setActiveBurstIndex] = useState(null);
     const [bursting, setBursting] = useState(false);
     const [fallingLetters, setFallingLetters] = useState([]);
+    const [hoveredWordIndex, setHoveredWordIndex] = useState(null);
+    const isMobile = window.innerWidth < 640;
   
     const triggerBurst = (index) => {
+      if (isMobile) return; // disabled on mobile
+  
       setActiveBurstIndex(index);
       setBursting(true);
       setTimeout(() => {
@@ -71,37 +75,45 @@ const AniDot = () => (
       }, 1800);
     };
   
+    if (isMobile) {
+      return (
+        <h1 className="text-4xl font-black font-germania text-white text-center tracking-wider text-shadow-DEFAULT">
+          {sentence}
+        </h1>
+      );
+    }
+  
     return (
-      <div className="relative overflow-visible w-full flex justify-center items-center mt-2 mb-0">
+     <div className="relative overflow-visible w-full flex justify-center items-center mt-2 mb-0">
         <motion.div
           className="flex gap-2 flex-wrap justify-center text-3xl sm:text-5xl font-black font-germania tracking-wider text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0, y: 20 },
-            visible: {
-              opacity: 1,
-              y: 0,
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.3,
-              },
-            },
-          }}
+          initial={false}
+          animate={false}
         >
           {words.map((word, wordIndex) => (
             <motion.span
               key={wordIndex}
-              onMouseEnter={() => {
-                if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-              }}
+              onMouseEnter={() => setHoveredWordIndex(wordIndex)}
+              onMouseLeave={() => setHoveredWordIndex(null)}
               onClick={() => {
                 if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
               }}
+              animate={{
+                scale: hoveredWordIndex === wordIndex ? 1.15 : 1,
+                y: hoveredWordIndex === wordIndex ? -8 : 0,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 15,
+                duration: 0.3
+              }}
               className="relative inline-block cursor-pointer whitespace-nowrap"
-              variants={{
-                hidden: { opacity: 0, y: 10 },
-                visible: { opacity: 1, y: 0 },
+              style={{
+                filter: hoveredWordIndex === wordIndex 
+                  ? 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))' 
+                  : 'none',
+                transition: 'filter 0.3s ease'
               }}
             >
               {word.split("").map((char, i) => {
@@ -111,20 +123,14 @@ const AniDot = () => (
                 );
   
                 const isBursting = activeBurstIndex === wordIndex;
-  
+                const isHovered = hoveredWordIndex === wordIndex;
                 const randomDelay = Math.random() * 0.5 + i * 0.05;
   
                 return (
                   <AnimatePresence key={`${char}-${i}`}>
                     <motion.span
                       className="inline-block relative whitespace-nowrap"
-                      initial={{
-                        x: 0,
-                        y: 0,
-                        rotate: 0,
-                        opacity: 1,
-                        scale: 1,
-                      }}
+                      initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
                       animate={
                         isBursting
                           ? {
@@ -139,19 +145,34 @@ const AniDot = () => (
                                 ease: "easeOut",
                               },
                             }
+                          : isHovered
+                          ? {
+                              y: [0, -3, 0],
+                              rotate: [0, i % 2 === 0 ? 5 : -5, 0],
+                              transition: {
+                                duration: 0.4,
+                                delay: i * 0.03,
+                                ease: "easeInOut",
+                              },
+                            }
                           : fallingLetters.includes(charIndex)
                           ? "reenter"
                           : "initial"
                       }
                       variants={getLetterVariants()}
                     >
-                      {char}
-                      {/* Confetti burst */}
+                      {char === "o" && wordIndex === 2 ? (
+                        <span className="block">{char}</span>
+                      ) : (
+                        char
+                      )}
+  
                       {isBursting && (
                         <span className="absolute top-1/2 left-1/2 z-[-1]">
                           {[...Array(5)].map((_, j) => {
                             const confX = Math.random() * 30 - 15;
                             const confY = Math.random() * 30 - 15;
+  
                             return (
                               <motion.span
                                 key={j}
@@ -182,7 +203,7 @@ const AniDot = () => (
         </motion.div>
       </div>
     );
-  };
+  });
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',

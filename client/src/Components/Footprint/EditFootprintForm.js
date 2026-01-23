@@ -34,21 +34,16 @@ const getLetterVariants = () => ({
   },
 });
 
-function shuffleArray(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 const AnimatedHeadline = React.memo(() => {
   const [activeBurstIndex, setActiveBurstIndex] = useState(null);
   const [bursting, setBursting] = useState(false);
   const [fallingLetters, setFallingLetters] = useState([]);
+  const [hoveredWordIndex, setHoveredWordIndex] = useState(null);
+  const isMobile = window.innerWidth < 640;
 
   const triggerBurst = (index) => {
+    if (isMobile) return; // disabled on mobile
+
     setActiveBurstIndex(index);
     setBursting(true);
     setTimeout(() => {
@@ -57,37 +52,45 @@ const AnimatedHeadline = React.memo(() => {
     }, 1800);
   };
 
+  if (isMobile) {
+    return (
+      <h1 className="text-4xl font-black font-germania text-white text-center tracking-wider text-shadow-DEFAULT">
+        {sentence}
+      </h1>
+    );
+  }
+
   return (
-    <div className="relative overflow-visible w-full flex justify-center items-center mt-4 px-4">
+    <div className="relative overflow-visible w-full flex justify-center items-center px-4">
       <motion.div
-        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania sm:tracking-widest tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, y: 20 },
-          visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.3,
-            },
-          },
-        }}
+        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        initial={false}
+        animate={false}
       >
         {words.map((word, wordIndex) => (
           <motion.span
             key={wordIndex}
-            onMouseEnter={() => {
-              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-            }}
+            onMouseEnter={() => setHoveredWordIndex(wordIndex)}
+            onMouseLeave={() => setHoveredWordIndex(null)}
             onClick={() => {
               if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
             }}
+            animate={{
+              scale: hoveredWordIndex === wordIndex ? 1.15 : 1,
+              y: hoveredWordIndex === wordIndex ? -8 : 0,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 15,
+              duration: 0.3
+            }}
             className="relative inline-block cursor-pointer"
-            variants={{
-              hidden: { opacity: 0, y: 10 },
-              visible: { opacity: 1, y: 0 },
+            style={{
+              filter: hoveredWordIndex === wordIndex 
+                ? 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))' 
+                : 'none',
+              transition: 'filter 0.3s ease'
             }}
           >
             {word.split("").map((char, i) => {
@@ -97,19 +100,14 @@ const AnimatedHeadline = React.memo(() => {
               );
 
               const isBursting = activeBurstIndex === wordIndex;
+              const isHovered = hoveredWordIndex === wordIndex;
               const randomDelay = Math.random() * 0.5 + i * 0.05;
 
               return (
                 <AnimatePresence key={`${char}-${i}`}>
                   <motion.span
                     className="inline-block relative"
-                    initial={{
-                      x: 0,
-                      y: 0,
-                      rotate: 0,
-                      opacity: 1,
-                      scale: 1,
-                    }}
+                    initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
                     animate={
                       isBursting
                         ? {
@@ -124,18 +122,34 @@ const AnimatedHeadline = React.memo(() => {
                               ease: "easeOut",
                             },
                           }
+                        : isHovered
+                        ? {
+                            y: [0, -3, 0],
+                            rotate: [0, i % 2 === 0 ? 5 : -5, 0],
+                            transition: {
+                              duration: 0.4,
+                              delay: i * 0.03,
+                              ease: "easeInOut",
+                            },
+                          }
                         : fallingLetters.includes(charIndex)
                         ? "reenter"
                         : "initial"
                     }
                     variants={getLetterVariants()}
                   >
-                    {char}
+                    {char === "o" && wordIndex === 2 ? (
+                      <span className="block">{char}</span>
+                    ) : (
+                      char
+                    )}
+
                     {isBursting && (
                       <span className="absolute top-1/2 left-1/2 z-[-1]">
                         {[...Array(5)].map((_, j) => {
                           const confX = Math.random() * 30 - 15;
                           const confY = Math.random() * 30 - 15;
+
                           return (
                             <motion.span
                               key={j}
@@ -348,6 +362,27 @@ const CustomSelect = ({ label, value, onChange, options, name, icon, showFactor 
     </div>
   );
 };
+const getChangedSections = (initial, current) => {
+  const changes = [];
+
+  const isDifferent = (a, b) =>
+    JSON.stringify(a) !== JSON.stringify(b);
+
+  if (isDifferent(initial.food, current.food)) {
+    changes.push('Diet');
+  }
+  if (isDifferent(initial.transport, current.transport)) {
+    changes.push('Transport');
+  }
+  if (isDifferent(initial.electricity, current.electricity)) {
+    changes.push('Electricity');
+  }
+  if (isDifferent(initial.waste, current.waste)) {
+    changes.push('Waste');
+  }
+
+  return changes;
+};
 
 const EditFootprintForm = () => {
   useAuthRedirect(); 
@@ -366,6 +401,8 @@ const EditFootprintForm = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [info, setInfo] = useState('');
+  const initialFormRef = useRef(null);
   const [saving, setSaving] = useState(false);
   const [shakeField, setShakeField] = useState('');
   const [liveEmissions, setLiveEmissions] = useState({
@@ -418,22 +455,30 @@ const EditFootprintForm = () => {
       const timer = setTimeout(() => {
         setSuccess('');
         setError('');
-      }, 2500);
+      }, 3500);
       return () => clearTimeout(timer);
     }
   }, [success, error]);
-
+  useEffect(() => {
+    if (info) {
+      const timer = setTimeout(() => setInfo(''), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [info]);
   useEffect(() => {
     const fetchEntry = async () => {
       try {
         const res = await API.get(`/footprint/${id}`);
         const entry = res.data;
-        setForm({
+        const normalized = {
           food: entry.food || { type: '', amountKg: '' },
           transport: entry.transport || [],
           electricity: entry.electricity || [],
           waste: entry.waste || []
-        });
+        };
+
+        setForm(normalized);
+        initialFormRef.current = JSON.stringify(normalized);
         setLoading(false);
       } catch (err) {
         alert('Failed to load entry');
@@ -463,6 +508,15 @@ const handleSubmit = async (e) => {
   setError('');
   setSuccess('');
   setSaving(true);
+  const initialForm = JSON.parse(initialFormRef.current);
+  const changedSections = getChangedSections(initialForm, form);
+
+  if (changedSections.length === 0) {
+    setInfo('No entries were changed. ℹ️');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setSaving(false);
+    return;
+  }
 
   const hasEmpty = 
     !form.food.type || 
@@ -509,7 +563,17 @@ const handleSubmit = async (e) => {
     await new Promise((resolve) => setTimeout(resolve, 600));
     await API.put(`/footprint/${id}`, form);
 
-    setSuccess('Changes Saved 🥂');
+    let message = '';
+
+    if (changedSections.length === 1) {
+      message = `${changedSections[0]} updated successfully 🥂`;
+    } else if (changedSections.length === 2) {
+      message = `${changedSections[0]} & ${changedSections[1]} updated successfully 🥂`;
+    } else {
+      message = `${changedSections.join(', ')} updated successfully 🥂`;
+    }
+
+    setSuccess(message);
   
     // Scroll to top smoothly on success
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -565,6 +629,12 @@ const handleSubmit = async (e) => {
               <h2 className="text-2xl font-semibold mb-6 text-center">
                 <AnimatedHeadline />
               </h2>
+              <h3 className="sm:text-xl mb-4 sm:tracking-wide text-base font-intertight text-center text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">
+                Review and fine-tune your monthly footprint data <span className="animate-earth-spin"><span>🌎</span></span>
+              </h3>
+              {success && <p className="text-green-500 text-sm text-center animate-pulse font-intertight tracking-wider text-shadow-DEFAULT mb-3">{success}</p>}
+              {error && <p className="text-red-500 text-sm text-center animate-bounce font-intertight tracking-wider text-shadow-DEFAULT mb-3">{error}</p>}
+              {info && (<p className="text-blue-400 text-sm text-center animate-pulse font-intertight tracking-wider text-shadow-DEFAULT mb-3">{info}</p>)}
 
               {/* Live CO₂ Estimate Card */}
               {totalLive > 0 && (
@@ -610,9 +680,6 @@ const handleSubmit = async (e) => {
                   </div>
                 </motion.div>
               )}
-
-              {success && <p className="text-green-500 text-sm text-center animate-pulse font-intertight tracking-wider text-shadow-DEFAULT mb-3">{success}</p>}
-              {error && <p className="text-red-500 text-sm text-center animate-bounce font-intertight tracking-wider text-shadow-DEFAULT mb-3">{error}</p>}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* FOOD SECTION */}

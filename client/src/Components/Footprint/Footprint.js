@@ -10,7 +10,7 @@ import { boxglowF } from 'utils/styles';
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
 
-const sentence = "Footprint Entry";
+const sentence = "Footprint  Entry";
 const words = sentence.split(" ");
 
 const getLetterVariants = () => ({
@@ -47,8 +47,12 @@ const AnimatedHeadline = React.memo(() => {
   const [activeBurstIndex, setActiveBurstIndex] = useState(null);
   const [bursting, setBursting] = useState(false);
   const [fallingLetters, setFallingLetters] = useState([]);
+  const [hoveredWordIndex, setHoveredWordIndex] = useState(null);
+  const isMobile = window.innerWidth < 640;
 
   const triggerBurst = (index) => {
+    if (isMobile) return; // disabled on mobile
+
     setActiveBurstIndex(index);
     setBursting(true);
     setTimeout(() => {
@@ -57,37 +61,45 @@ const AnimatedHeadline = React.memo(() => {
     }, 1800);
   };
 
+  if (isMobile) {
+    return (
+      <h1 className="text-4xl font-black font-germania text-white text-center tracking-wider text-shadow-DEFAULT">
+        {sentence}
+      </h1>
+    );
+  }
+
   return (
-    <div className="relative overflow-visible w-full flex justify-center items-center mt-4 px-4">
+    <div className="relative overflow-visible w-full flex justify-center items-center px-4">
       <motion.div
-        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania sm:tracking-widest tracking-wider text-shadow-DEFAULT text-white transition-colors duration-500"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          hidden: { opacity: 0, y: 20 },
-          visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.3,
-            },
-          },
-        }}
+        className="flex flex-wrap justify-center gap-3 text-4xl sm:text-6xl md:text-8xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
+        initial={false}
+        animate={false}
       >
         {words.map((word, wordIndex) => (
           <motion.span
             key={wordIndex}
-            onMouseEnter={() => {
-              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-            }}
+            onMouseEnter={() => setHoveredWordIndex(wordIndex)}
+            onMouseLeave={() => setHoveredWordIndex(null)}
             onClick={() => {
               if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
             }}
+            animate={{
+              scale: hoveredWordIndex === wordIndex ? 1.15 : 1,
+              y: hoveredWordIndex === wordIndex ? -8 : 0,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 15,
+              duration: 0.3
+            }}
             className="relative inline-block cursor-pointer"
-            variants={{
-              hidden: { opacity: 0, y: 10 },
-              visible: { opacity: 1, y: 0 },
+            style={{
+              filter: hoveredWordIndex === wordIndex 
+                ? 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))' 
+                : 'none',
+              transition: 'filter 0.3s ease'
             }}
           >
             {word.split("").map((char, i) => {
@@ -97,19 +109,14 @@ const AnimatedHeadline = React.memo(() => {
               );
 
               const isBursting = activeBurstIndex === wordIndex;
+              const isHovered = hoveredWordIndex === wordIndex;
               const randomDelay = Math.random() * 0.5 + i * 0.05;
 
               return (
                 <AnimatePresence key={`${char}-${i}`}>
                   <motion.span
                     className="inline-block relative"
-                    initial={{
-                      x: 0,
-                      y: 0,
-                      rotate: 0,
-                      opacity: 1,
-                      scale: 1,
-                    }}
+                    initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
                     animate={
                       isBursting
                         ? {
@@ -124,18 +131,34 @@ const AnimatedHeadline = React.memo(() => {
                               ease: "easeOut",
                             },
                           }
+                        : isHovered
+                        ? {
+                            y: [0, -3, 0],
+                            rotate: [0, i % 2 === 0 ? 5 : -5, 0],
+                            transition: {
+                              duration: 0.4,
+                              delay: i * 0.03,
+                              ease: "easeInOut",
+                            },
+                          }
                         : fallingLetters.includes(charIndex)
                         ? "reenter"
                         : "initial"
                     }
                     variants={getLetterVariants()}
                   >
-                    {char}
+                    {char === "o" && wordIndex === 2 ? (
+                      <span className="block">{char}</span>
+                    ) : (
+                      char
+                    )}
+
                     {isBursting && (
                       <span className="absolute top-1/2 left-1/2 z-[-1]">
                         {[...Array(5)].map((_, j) => {
                           const confX = Math.random() * 30 - 15;
                           const confY = Math.random() * 30 - 15;
+
                           return (
                             <motion.span
                               key={j}
@@ -643,9 +666,10 @@ const handleSubmit = async (e) => {
               </h2>
               
               <h3 className="sm:text-xl sm:tracking-wide text-base font-intertight text-center text-shadow-DEFAULT text-emerald-500 dark:text-gray-100">
-                Enter your estimated data for a month <span className="animate-earth-spin"><span>🌎</span></span>
+                Tell us about your estimated monthly usage <span className="animate-earth-spin"><span>🌎</span></span>
               </h3>
-
+              {success && <p className="text-green-500 text-base text-shadow-DEFAULT font-intertight font-medium text-center animate-pulse">{success}</p>}
+              {error && <p className="text-red-500 text-shadow-DEFAULT font-intertight font-medium text-base text-center animate-bounce">{error}</p>}
               {/* Progress Bar */}
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
@@ -710,9 +734,6 @@ const handleSubmit = async (e) => {
                   </div>
                 </motion.div>
               )}
-
-              {success && <p className="text-green-500 text-base text-shadow-DEFAULT font-intertight font-medium text-center animate-pulse">{success}</p>}
-              {error && <p className="text-red-500 text-shadow-DEFAULT font-intertight font-medium text-base text-center animate-bounce">{error}</p>}
 
               {/* Food Section */}
               <div>

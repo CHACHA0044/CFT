@@ -9,7 +9,7 @@ import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 import { useLocation } from 'react-router-dom';
 
-  const sentence = "Log in";
+  const sentence = "Login";
   const words = sentence.split(" ");
   const getLetterVariants = () => ({
     initial: { y: 0, opacity: 1, scale: 1 },
@@ -31,133 +31,153 @@ import { useLocation } from 'react-router-dom';
       },
     },
   });
-  
   const AnimatedHeadline = React.memo(() => {
-    const [activeBurstIndex, setActiveBurstIndex] = useState(null);
-    const [bursting, setBursting] = useState(false);
-    const [fallingLetters, setFallingLetters] = useState([]);
-  
-    const triggerBurst = (index) => {
-      setActiveBurstIndex(index);
-      setBursting(true);
-      setTimeout(() => {
-        setBursting(false);
-        setActiveBurstIndex(null);
-      }, 1800);
-    };
-  
+  const [activeBurstIndex, setActiveBurstIndex] = useState(null);
+  const [bursting, setBursting] = useState(false);
+  const [fallingLetters, setFallingLetters] = useState([]);
+  const [hoveredWordIndex, setHoveredWordIndex] = useState(null);
+  const isMobile = window.innerWidth < 640;
+
+  const triggerBurst = (index) => {
+    if (isMobile) return; // disabled on mobile
+
+    setActiveBurstIndex(index);
+    setBursting(true);
+    setTimeout(() => {
+      setBursting(false);
+      setActiveBurstIndex(null);
+    }, 1800);
+  };
+
+  if (isMobile) {
     return (
-      <div className="relative overflow-visible w-full flex justify-center items-center mt-2 mb-2">
+      <h1 className="text-4xl font-black font-germania text-white text-center tracking-wider text-shadow-DEFAULT">
+        {sentence}
+      </h1>
+    );
+  }
+
+  return (
+    <div className="relative overflow-visible w-full flex justify-center items-center mt-2 mb-2">
         <motion.div
           className="flex sm:flex-nowrap flex-wrap justify-center gap-1 text-5xl sm:text-6xl font-black font-germania tracking-widest text-shadow-DEFAULT text-emerald-500 dark:text-white transition-colors duration-500"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0, y: 20 },
-            visible: {
-              opacity: 1,
-              y: 0,
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.3,
-              },
-            },
-          }}
-        >
-          {words.map((word, wordIndex) => (
-            <motion.span
-              key={wordIndex}
-              onMouseEnter={() => {
-                if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-              }}
-              onClick={() => {
-                if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
-              }}
-              className="relative inline-block cursor-pointer whitespace-nowrap"
-              variants={{
-                hidden: { opacity: 0, y: 10 },
-                visible: { opacity: 1, y: 0 },
-              }}
-            >
-              {word.split("").map((char, i) => {
-                const allChars = sentence.replace(/\s/g, "").split("");
-                const charIndex = allChars.findIndex(
-                  (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
-                );
-  
-                const isBursting = activeBurstIndex === wordIndex;
-  
-                const randomDelay = Math.random() * 0.5 + i * 0.05;
-  
-                return (
-                  <AnimatePresence key={`${char}-${i}`}>
-                    <motion.span
-                      className="inline-block relative whitespace-nowrap"
-                      initial={{
-                        x: 0,
-                        y: 0,
-                        rotate: 0,
-                        opacity: 1,
-                        scale: 1,
-                      }}
-                      animate={
-                        isBursting
-                          ? {
-                              x: Math.random() * 80 - 40,
-                              y: Math.random() * 60 - 30,
-                              rotate: Math.random() * 180 - 90,
-                              opacity: [1, 0],
-                              scale: [1, 1.2, 0.4],
-                              transition: {
-                                duration: 0.8,
+        initial={false}
+        animate={false}
+      >
+        {words.map((word, wordIndex) => (
+          <motion.span
+            key={wordIndex}
+            onMouseEnter={() => setHoveredWordIndex(wordIndex)}
+            onMouseLeave={() => setHoveredWordIndex(null)}
+            onClick={() => {
+              if (!bursting && activeBurstIndex === null) triggerBurst(wordIndex);
+            }}
+            animate={{
+              scale: hoveredWordIndex === wordIndex ? 1.15 : 1,
+              y: hoveredWordIndex === wordIndex ? -8 : 0,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 15,
+              duration: 0.3
+            }}
+            className="relative inline-block cursor-pointer whitespace-nowrap"
+            style={{
+              filter: hoveredWordIndex === wordIndex 
+                ? 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))' 
+                : 'none',
+              transition: 'filter 0.3s ease'
+            }}
+          >
+            {word.split("").map((char, i) => {
+              const allChars = sentence.replace(/\s/g, "").split("");
+              const charIndex = allChars.findIndex(
+                (_, idx) => idx === i + words.slice(0, wordIndex).join("").length
+              );
+
+              const isBursting = activeBurstIndex === wordIndex;
+              const isHovered = hoveredWordIndex === wordIndex;
+              const randomDelay = Math.random() * 0.5 + i * 0.05;
+
+              return (
+                <AnimatePresence key={`${char}-${i}`}>
+                  <motion.span
+                    className="inline-block relative whitespace-nowrap"
+                    initial={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                    animate={
+                      isBursting
+                        ? {
+                            x: Math.random() * 80 - 40,
+                            y: Math.random() * 60 - 30,
+                            rotate: Math.random() * 180 - 90,
+                            opacity: [1, 0],
+                            scale: [1, 1.2, 0.4],
+                            transition: {
+                              duration: 0.8,
+                              delay: randomDelay,
+                              ease: "easeOut",
+                            },
+                          }
+                        : isHovered
+                        ? {
+                            y: [0, -3, 0],
+                            rotate: [0, i % 2 === 0 ? 5 : -5, 0],
+                            transition: {
+                              duration: 0.4,
+                              delay: i * 0.03,
+                              ease: "easeInOut",
+                            },
+                          }
+                        : fallingLetters.includes(charIndex)
+                        ? "reenter"
+                        : "initial"
+                    }
+                    variants={getLetterVariants()}
+                  >
+                    {char === "o" && wordIndex === 2 ? (
+                      <span className="block">{char}</span>
+                    ) : (
+                      char
+                    )}
+
+                    {isBursting && (
+                      <span className="absolute top-1/2 left-1/2 z-[-1]">
+                        {[...Array(5)].map((_, j) => {
+                          const confX = Math.random() * 30 - 15;
+                          const confY = Math.random() * 30 - 15;
+
+                          return (
+                            <motion.span
+                              key={j}
+                              className="absolute w-1 h-1 bg-emerald-400 rounded-full"
+                              initial={{ opacity: 1, scale: 1 }}
+                              animate={{
+                                x: confX,
+                                y: confY,
+                                opacity: [1, 0],
+                                scale: [1, 0.4],
+                              }}
+                              transition={{
+                                duration: 0.6,
                                 delay: randomDelay,
                                 ease: "easeOut",
-                              },
-                            }
-                          : fallingLetters.includes(charIndex)
-                          ? "reenter"
-                          : "initial"
-                      }
-                      variants={getLetterVariants()}
-                    >
-                      {char}
-                      {/* Confetti burst */}
-                      {isBursting && (
-                        <span className="absolute top-1/2 left-1/2 z-[-1]">
-                          {[...Array(5)].map((_, j) => {
-                            const confX = Math.random() * 30 - 15;
-                            const confY = Math.random() * 30 - 15;
-                            return (
-                              <motion.span
-                                key={j}
-                                className="absolute w-1 h-1 bg-emerald-400 rounded-full"
-                                initial={{ opacity: 1, scale: 1 }}
-                                animate={{
-                                  x: confX,
-                                  y: confY,
-                                  opacity: [1, 0],
-                                  scale: [1, 0.4],
-                                }}
-                                transition={{
-                                  duration: 0.6,
-                                  delay: randomDelay,
-                                  ease: "easeOut",
-                                }}
-                              />
-                            );
-                          })}
-                        </span>
-                      )}
-                    </motion.span>
-                  </AnimatePresence>
-                );
-              })}
-            </motion.span>
-          ))}
-        </motion.div>
-      </div>
-    );
-  });
+                              }}
+                            />
+                          );
+                        })}
+                      </span>
+                    )}
+                  </motion.span>
+                </AnimatePresence>
+              );
+            })}
+          </motion.span>
+        ))}
+      </motion.div>
+    </div>
+  );
+});
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');

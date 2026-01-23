@@ -3972,3 +3972,81 @@ html {
     opacity: 0.9;
   }
 }
+/* ===== CLOSE BUTTON ANIMATION ===== */
+.animate-close-x {
+  position: relative;
+  display: inline-block;
+  font-size: 1.2rem;
+  cursor: pointer;
+  animation: close-float 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(255,80,80,0.6));
+  transition: transform 0.25s ease;
+}
+
+/* hover interaction */
+.animate-close-x:hover {
+  transform: scale(1.15) rotate(8deg);
+}
+
+/* main float + glow */
+@keyframes close-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 6px rgba(255,80,80,0.5));
+  }
+  40% {
+    transform: translateY(-4px) rotate(-6deg);
+    filter: drop-shadow(0 0 12px rgba(255,80,80,0.9));
+  }
+}
+
+/* sparkle particle */
+.animate-close-x::after {
+  content: 'X';
+  position: absolute;
+  font-size: 0.45rem;
+  top: -0.5em;
+  right: -0.3em;
+  opacity: 0;
+  animation: close-sparkle 3.5s ease-out infinite;
+}
+
+/* sparkle drift */
+@keyframes close-sparkle {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  90% {
+    opacity: 0.4;
+    transform: translate(3px, -8px) scale(0.8);
+  }
+}
+
+/* click burst */
+.animate-close-x:active {
+  animation: close-pop 0.35s ease;
+}
+
+@keyframes close-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4) rotate(15deg); }
+  100% { transform: scale(1); }
+}
+
+/* ===== Disable animation on mobile ===== */
+@media (max-width: 639px) {
+  .animate-close-x {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .animate-close-x::after {
+    display: none !important;
+  }
+}

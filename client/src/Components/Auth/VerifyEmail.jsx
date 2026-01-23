@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
 import { boxglow, heading, subheading } from 'utils/styles';
 import { useLoading } from 'context/LoadingContext';
-import { VerifyButton } from 'Components/globalbuttons';
+import { VerifyEmailButton, CopyButton } from 'Components/globalbuttons';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 import { useAnimation } from 'framer-motion';
@@ -117,12 +117,12 @@ const firstName = (userName || "User").trim().split(" ")[0];
       <Lottie animationData={GlobeAnimation} loop={true} />
     </motion.div>
             <p className="text-sm text-center text-shadow-glow text-green-500 dark:text-gray-100 mb-6">Click the button below to verify your email...</p>
-            <VerifyButton
+            <VerifyEmailButton
               onClick={handleVerify}
               disabled={status === 'verifying'}
               className="w-full"
             />
-            
+            {/* <CopyButton textToCopy="helo" /> */}
           </>
         )}
 
@@ -171,7 +171,7 @@ const firstName = (userName || "User").trim().split(" ")[0];
       <Lottie animationData={GlobeAnimation} loop={true} />
     </motion.div>
 
-    <VerifyButton
+    <VerifyEmailButton
       text="Try Again"
       onClick={() => navigate('/register')}
       className="w-full"

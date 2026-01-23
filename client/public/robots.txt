@@ -1,3 +1,37 @@
 # https://www.robotstxt.org/robotstxt.html
+
 User-agent: *
-Disallow:
+Allow: /
+
+# ------------------
+# Block backend APIs
+# ------------------
+Disallow: /api/
+
+# Auth & tokens
+Disallow: /api/auth/
+Disallow: /api/auth/login
+Disallow: /api/auth/register
+Disallow: /api/auth/logout
+Disallow: /api/auth/google
+Disallow: /api/auth/google/callback
+Disallow: /api/auth/token-info/
+Disallow: /api/auth/verify-email/
+Disallow: /api/auth/password/
+Disallow: /api/auth/resend-verification
+
+# Internal utilities
+Disallow: /api/auth/ping
+Disallow: /api/redis-test
+Disallow: /api/auth/weather-aqi
+Disallow: /api/health
+
+# Framework internals
+Disallow: /_next/
+Disallow: /server/
+Disallow: /config/
+
+# ------------------
+# SEO
+# ------------------
+Sitemap: https://www.carbonft.app/sitemap.xml

@@ -298,7 +298,7 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log(`✅ [JWT] Token verified for userId: ${decoded.userId}`);
 
-    const cacheKey = `user:profile:${decoded.userId}`;
+    const cacheKey = `user:profile:v2:${decoded.userId}`;
     
     // Try cache first
     const cached = await getCachedData(cacheKey);
@@ -317,7 +317,7 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
     console.log(`🔍 [DATABASE] Fetching user from MongoDB...`);
     const dbStartTime = Date.now();
     
-    const user = await User.findById(decoded.userId).select('name email isVerified');
+    const user = await User.findOne({ userId: decoded.userId }).select('name isVerified').lean();
     
     const dbTime = Date.now() - dbStartTime;
     console.log(`📊 [DATABASE] Query completed in ${dbTime}ms`);
@@ -329,8 +329,9 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
 
     const userData = {
       name: user.name,
-      email: user.email,
       verified: user.isVerified,
+      //userId: decoded.userId ,
+      // Email removed for security - not exposed to client
     };
 
     // Cache for 30 minutes (1800 seconds)
@@ -364,80 +365,104 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
 
 // LOGIN
 router.post('/login', async (req, res) => {
-  console.log(' [/login] Login attempt started');
+  const startTime = Date.now();
+  console.log('[LOGIN] Authentication request initiated');
   
   try {
     const { email, password } = req.body;
     
+    // Early validation to fail fast
     if (!email || !password) {
-      console.log(' [VALIDATION] Missing email or password');
+      console.log('[LOGIN] Validation failed - missing credentials');
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    console.log(` [LOGIN] Attempt for email: ${email}`);
+    console.log(`[LOGIN] Processing login for: ${email}`);
 
-    // Check rate limit
+    // Rate limiting check - this should be first to prevent abuse
     const loginAttemptKey = `login:attempts:${email}`;
-    const rateLimit = await getRateLimitData(loginAttemptKey);
+    const { count: attemptCount, ttl: attemptTTL } = await getRateLimitData(loginAttemptKey);
     
-    if (rateLimit.count >= 5) {
-      console.log(` [RATE LIMIT] Login blocked for ${email}`);
+    if (attemptCount >= 5) {
+      console.log(`[LOGIN] Rate limit exceeded for ${email} - ${attemptCount} attempts`);
       return res.status(429).json({ 
         error: 'Too many login attempts. Please try again later.',
-        retryAfter: rateLimit.ttl,
+        retryAfter: attemptTTL,
         attemptsRemaining: 0
       });
     }
 
-    // Find user (cache this query)
-    const userCacheKey = `user:auth:${email}`;
-    let user;
+    // Optimized user lookup with caching
+    const userCacheKey = `user:login:${email}`;
+    let user = null;
+    let fromCache = false;
+
+    // Try cache first for faster response
+    const cachedUser = await getCachedData(userCacheKey);
     
-    const cached = await getCachedData(userCacheKey);
-    if (cached) {
-      console.log(`[CACHE] User data from cache`);
-      // Still need to fetch from DB to verify current state
-      user = await User.findById(cached.data.userId);
-    } else {
-      console.log(`[DATABASE] Looking up user: ${email}`);
-      user = await User.findOne({ email });
+    if (cachedUser?.data) {
+      console.log(`[LOGIN] User data retrieved from cache`);
+      fromCache = true;
       
-      // Cache user lookup for 5 minutes
+      // Fetch minimal user data from database to verify current state
+      user = await User.findById(cachedUser.data.userId)
+        .select('_id userId email passwordHash isVerified provider welcomeEmailSent')
+        .lean();
+    } else {
+      console.log(`[LOGIN] Querying database for user`);
+      
+      // Optimized database query with lean() and minimal field selection
+      user = await User.findOne({ email })
+        .select('_id userId name email passwordHash isVerified provider welcomeEmailSent')
+        .lean();
+      
+      // Cache user lookup for 10 minutes to speed up subsequent attempts
       if (user) {
-        await setCachedData(userCacheKey, { userId: user._id }, 300);
+        await setCachedData(userCacheKey, { 
+          userId: user.userId,  // ✅ Use custom userId
+          isVerified: user.isVerified 
+        }, 600);
+        console.log(`[LOGIN] User data cached for future requests`);
       }
     }
     
+    // User not found - increment rate limit before responding
     if (!user) {
-      console.log(`[AUTH] User not found: ${email}`);
+      console.log(`[LOGIN] Authentication failed - user not found: ${email}`);
       await incrementRateLimit(loginAttemptKey, 900);
+      
+      // Use generic error message to prevent user enumeration
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
-    // Rest of your password verification logic...
-    console.log(` [AUTH] Verifying password...`);
+    // Password verification - this is CPU intensive so we do it after all checks
+    console.log(`[LOGIN] Verifying password for user`);
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     
     if (!isPasswordValid) {
-      console.log(` [AUTH] Invalid password for: ${email}`);
+      console.log(`[LOGIN] Authentication failed - invalid password for: ${email}`);
       await incrementRateLimit(loginAttemptKey, 900);
+      
+      // Same generic error to prevent user enumeration
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
+    // Email verification check
     if (!user.isVerified) {
-      console.log(` [AUTH] Unverified account: ${email}`);
-      return res.status(403).json({ error: 'Please verify your email before logging in.' });
+      console.log(`[LOGIN] Account not verified: ${email}`);
+      return res.status(403).json({ 
+        error: 'Please verify your email before logging in.' 
+      });
     }
 
-    // Clear failed attempts
+    // Successful login - clear failed attempts and generate token
     await deleteKey(loginAttemptKey);
-    console.log(` [RATE LIMIT] Cleared failed attempts for: ${email}`);
+    console.log(`[LOGIN] Failed attempts cleared for: ${email}`);
 
-    // Generate token
+    // ✅ FIXED: Generate JWT with custom userId instead of MongoDB _id
     const token = jwt.sign(
       {
-        userId: user._id,
-        email: user.email,
+        userId: user.userId,  // ✅ Use custom userId field, NOT user._id
         jti: crypto.randomBytes(16).toString('hex')
       },
       process.env.JWT_SECRET,
@@ -446,22 +471,24 @@ router.post('/login', async (req, res) => {
 
     const isProd = process.env.NODE_ENV === 'production';
 
+    // Set secure HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: isProd,           // true in prod
-      sameSite: 'Strict',   // None for cross-origin in dev, and now because one domain we use-strict for prod
+      secure: isProd,
+      sameSite: 'Strict',
       domain: isProd ? '.carbonft.app' : undefined,
       path: '/',
       maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 
-    console.log(` [LOGIN SUCCESS] User logged in: ${email} | From cache: ${!!cached}`);
-     // WELCOME EMAIL ON FIRST LOGIN (for local users only)
+    const responseTime = Date.now() - startTime;
+    console.log(`[LOGIN] Authentication successful for: ${email} | Time: ${responseTime}ms | Cache: ${fromCache}`);
+
+    // Send welcome email for first-time local users asynchronously
     if (user.provider === 'local' && !user.welcomeEmailSent) {
-      // email after a delay to avoid Gmail spam filters
-      setTimeout(async () => {
+      setImmediate(async () => {
         try {
-          console.log(`[1st] Sending welcome email to: ${email}`);
+          console.log(`[LOGIN] Scheduling welcome email for first-time user`);
           
           await sendEmail(
             user.email,
@@ -469,29 +496,35 @@ router.post('/login', async (req, res) => {
             welcomeEmailHtml(user.name)
           );
           
-          // Update the welcomeEmailSent flag
-          await User.findByIdAndUpdate(user._id, { welcomeEmailSent: true });
+          // Update flag without blocking
+          await User.findByIdAndUpdate(
+            user._id, 
+            { welcomeEmailSent: true },
+            { lean: true }
+          );
           
-          console.log(`[1st]Welcome email sent successfully to: ${email}`);
+          console.log(`[LOGIN] Welcome email sent successfully`);
         } catch (emailError) {
-          console.error(`❌ [1st] Failed to send to ${email}:`, emailError.message);
-          // not blocking login if email fails
+          console.error(`[LOGIN] Welcome email failed: ${emailError.message}`);
         }
-      }, 10000); // 10 second delay - user will be on dashboard by then
-    } else if (user.provider === 'local') {
-      console.log(`ℹ️ [LOGIN] Welcome email already sent to: ${email}`);
+      });
     }
-    res.json({
+
+    // Return minimal response without sensitive data
+    return res.json({
       message: 'Login successful',
       user: {
-        name: user.name,
-        email: user.email,
-      },
+        name: user.name
+      }
     });
 
   } catch (err) {
-    console.error('❌ [SERVER ERROR] Login error:', err);
-    res.status(500).json({ error: 'Server error during login.' });
+    const responseTime = Date.now() - startTime;
+    console.error(`[LOGIN] Server error after ${responseTime}ms:`, err.message);
+    
+    return res.status(500).json({ 
+      error: 'Server error during login.' 
+    });
   }
 });
 
@@ -561,7 +594,7 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.user.userId);
+    const user = await User.findOne({ userId: req.user.userId });
     if (!user) {
       console.log(`❌ [DATABASE] User not found: ${req.user.userId}`);
       return res.status(404).json({ error: "User not found." });
@@ -654,7 +687,7 @@ router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => 
   console.log('\n📧 [/feedback/resend-thankyou] Resend request received');
   
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findOne({ userId: req.user.userId });
     if (!user) return res.status(404).json({ error: "User not found." });
     if (!user.email) return res.status(400).json({ error: "User email not found." });
 
@@ -682,10 +715,14 @@ router.post('/register', async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(409).json({ error: 'Email already in use.' });
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    const passwordHash = await bcrypt.hash(password, 10); //previously 12 but reduced to save cpu cost and time
     const verificationToken = jwt.sign({ email, jti: crypto.randomBytes(16).toString('hex')},  process.env.JWT_SECRET,  { expiresIn: '10m' });
-    
+    const randomPart = crypto.randomBytes(16).toString('hex');
+    const timestampPart = Date.now().toString(36);
+    const userId = `CFT_user_${randomPart}_${timestampPart}_`;
+
     const newUser = new User({
+      userId,
       name,
       email,
       passwordHash,
@@ -693,6 +730,7 @@ router.post('/register', async (req, res) => {
       isVerified: false,
       resendAttempts: 0,        
       lastResendAt: Date.now(), 
+      // userId will be auto-generated by pre-save hook
     });
     await newUser.save();
 
@@ -1463,7 +1501,7 @@ router.get('/google/callback',
 
       // Generate tokens
       const token = jwt.sign(
-        { userId: user._id, email: user.email, jti: crypto.randomBytes(16).toString('hex') },
+        { userId: user.userId, jti: crypto.randomBytes(16).toString('hex') },  
         process.env.JWT_SECRET,
         { expiresIn: '3d' }
       );

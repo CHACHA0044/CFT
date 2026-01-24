@@ -332,7 +332,23 @@ const ChartPage = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [user, setUser] = useState(null);
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const processed = useMemo(() => entryData ? calculateEmissions(entryData) : null, [entryData]);
+  const processed = useMemo(() => {
+  if (!entryData) return null;
+  
+  // Prefer backend-calculated values (with capping)
+  if (entryData.totalEmissionKg !== undefined && 
+      entryData.foodEmissionKg !== undefined) {
+    return {
+      totalEmissionKg: entryData.totalEmissionKg,
+      foodEmissionKg: entryData.foodEmissionKg,
+      transportEmissionKg: entryData.transportEmissionKg,
+      electricityEmissionKg: entryData.electricityEmissionKg,
+      wasteEmissionKg: entryData.wasteEmissionKg
+    };
+  }
+  
+  return calculateEmissions(entryData);
+}, [entryData]);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [error, setError] = useState(null);
   const [zoomRange, setZoomRange] = useState([1, 12]);
@@ -628,6 +644,10 @@ const handleMouseMove = useCallback((e) => {
     const y = total + ((x - 1) / 11) * (total * 12 - total);
     
   }, [total]);
+  const getTimeOfDay = () => {
+  const currentHour = new Date().getHours();
+  return currentHour >= 6 && currentHour < 18 ? 'day' : 'night';
+};
   useEffect(() => {
     if (!total) return;
     let raf;
@@ -1381,7 +1401,7 @@ return (
 {displayedUsers.map((u, i, arr) => {
   const max = arr[arr.length - 1]?.totalEmission || 1;
   const pct = Math.min((u.totalEmission / max) * 100, 100);
-  const isMe = u.email === user?.email;
+  const isMe = u.isCurrentUser;
   const isExpanded = expandedLeaderboardUser === i;
   const userProcessed = u.entry ? calculateEmissions(u.entry) : null;
 
@@ -2273,11 +2293,11 @@ const currentYear = entryDate.getFullYear();
           </div>
 
           {/* UV Index */}
-          {data.weather?.uv_index !== undefined && data.weather.uv_index > 0 && (
+          {getTimeOfDay() === 'day' && data.air_quality?.uv_index !== undefined && data.air_quality.uv_index > 0 && (
             <div className="bg-white/10 rounded-xl p-3 text-center">
               <div className="text-2xl mb-1">☀️</div>
               <div className="text-lg font-semibold text-white">
-                {data.weather.uv_index}
+                {data.air_quality.uv_index}
               </div>
               <div className="text-xs text-gray-300">UV Index</div>
             </div>
@@ -2328,7 +2348,7 @@ const currentYear = entryDate.getFullYear();
           )}
 
           {/* Moon Phase */}
-          {data.weather?.moon_phase_name && (
+          {getTimeOfDay() === 'night' && data.weather?.moon_phase_name && (
             <div className="bg-white/10 rounded-xl p-3 text-center">
               <div className="text-2xl mb-1">🌙</div>
               <div className="text-lg font-semibold text-white">

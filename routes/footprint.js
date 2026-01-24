@@ -5,14 +5,16 @@ const CarbonEntry = require('../models/CarbonEntry');
 const calculateEmissions = require('../utils/calculateEmissions');
 const mongoose = require('mongoose');
 const User = require('../models/user');
+const rateLimit = require("express-rate-limit");
+const leaderboardLimiter = rateLimit({ windowMs: 1 * 60 * 1000, max: 10,});
 //  POST: Create entry
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const email = req.user.email;
+    const userId = req.user.userId;
     const data = req.body;
 
     const updatedDoc = await CarbonEntry.findOneAndUpdate(
-      { email },
+    { userId },
       {
         $push: {
           entries: {
@@ -39,7 +41,7 @@ router.post('/', authenticateToken, async (req, res) => {
 router.delete('/clear/all', authenticateToken, async (req, res) => {
   try {
     const updatedDoc = await CarbonEntry.findOneAndUpdate(
-      { email: req.user.email },
+      { userId: req.user.userId },
       { $set: { entries: [] } },
       { new: true }
     );
@@ -52,7 +54,7 @@ router.delete('/clear/all', authenticateToken, async (req, res) => {
 // GET all history 
 router.get('/history', authenticateToken, async (req, res) => {
   try {
-    const doc = await CarbonEntry.findOne({ email: req.user.email });
+    const doc = await CarbonEntry.findOne({ userId: req.user.userId });
     if (!doc || doc.entries.length === 0) return res.status(200).json([]);
 
     const enriched = doc.entries
@@ -70,23 +72,34 @@ router.get('/history', authenticateToken, async (req, res) => {
 });
 
 // Leaderboard - compare nth entry (with entry data)
-router.get('/leaderboard-nth', authenticateToken, async (req, res) => {
+router.get('/leaderboard-nth', leaderboardLimiter, authenticateToken, async (req, res) => {
   try {
     const n = parseInt(req.query.n);
     if (isNaN(n) || n < 0) {
       return res.status(400).json({ error: 'Invalid entry index' });
     }
     
-    const currentUser = await User.findOne({ email: req.user.email });
+    // ✅ ADD THIS LINE - Get current user's userId from JWT
+    const currentUserId = req.user.userId;
+    
+    const currentUser = await User.findOne({ userId: req.user.userId })
+      .select('name userId profilePicture')
+      .lean();
+    
     if (!currentUser) {
       return res.status(404).json({ error: 'User not found' });
     }
     
-    const allUsers = await User.find({});
+    const allUsers = await User.find({})
+      .select('name userId profilePicture')
+      .lean();
+    
     const leaderboard = [];
     
     for (const user of allUsers) {
-      const carbonEntry = await CarbonEntry.findOne({ email: user.email });
+      const carbonEntry = await CarbonEntry.findOne({ userId: user.userId })
+        .lean();
+      
       if (!carbonEntry || !carbonEntry.entries?.length) continue;
       
       const sortedEntries = [...carbonEntry.entries].sort(
@@ -107,11 +120,9 @@ router.get('/leaderboard-nth', authenticateToken, async (req, res) => {
       
       const processed = calculateEmissions(selectedEntry);
       
-      // ✅ Create clean entry with proper structure
       const cleanEntry = {
         _id: selectedEntry._id?.toString(),
         name: selectedEntry.name || user.name,
-        email: user.email,
         food: selectedEntry.food ? {
           type: selectedEntry.food.type,
           amountKg: selectedEntry.food.amountKg
@@ -135,24 +146,24 @@ router.get('/leaderboard-nth', authenticateToken, async (req, res) => {
       
       leaderboard.push({
         name: user.name,
-        email: user.email,
         profilePicture: user.profilePicture || null,
         totalEmission: processed.totalEmissionKg,
         entry: cleanEntry,
         entryId: selectedEntry._id?.toString(),
+        isCurrentUser: user.userId === currentUserId, // ✅ ADD THIS LINE
+        // userId: user.userId, // ❌ REMOVE THIS LINE (optional, can keep for now)
       });
     }
     
     leaderboard.sort((a, b) => a.totalEmission - b.totalEmission);
 
-    // ✅ Add safety check before sending
     if (leaderboard.length === 0) {
       return res.json([]);
     }
 
     res.json(leaderboard);
   } catch (err) {
-    console.error('❌ Leaderboard error:', err);
+    console.error('[LEADERBOARD] Error:', err);
     res.status(500).json({ error: 'Failed to load leaderboard.' });
   }
 });
@@ -164,8 +175,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
 //    console.log("🔎 Email from token:", req.user.email);
 // console.log("🔎 Entry ID from params:", req.params.id);
 
-    const doc = await CarbonEntry.findOne(
-  { email: req.user.email, "entries._id": new mongoose.Types.ObjectId(req.params.id) },
+  const doc = await CarbonEntry.findOne(
+  { userId: req.user.userId, "entries._id": new mongoose.Types.ObjectId(req.params.id) },
   { "entries.$": 1 }
 );
  // console.log("📄 Query result:", doc);
@@ -174,9 +185,17 @@ router.get('/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Entry not found' });
 
     const entry = doc.entries[0];
-    const { totalEmissionKg, suggestions } = calculateEmissions(entry);
+    const processed = calculateEmissions(entry);
 
-    res.json({ ...entry.toObject(), totalEmissionKg, suggestions });
+    res.json({ 
+      ...entry.toObject(), 
+      totalEmissionKg: processed.totalEmissionKg,
+      foodEmissionKg: processed.foodEmissionKg,
+      transportEmissionKg: processed.transportEmissionKg, 
+      electricityEmissionKg: processed.electricityEmissionKg,
+      wasteEmissionKg: processed.wasteEmissionKg, 
+      suggestions: processed.suggestions 
+    });
   } catch (err) {
     console.error('❌ GET /:id error:', err);
     res.status(500).json({ error: 'Error fetching entry' });
@@ -187,11 +206,11 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.put('/:entryId', authenticateToken, async (req, res) => {
   try {
     const { entryId } = req.params;
-    const email = req.user.email;
+    const userId = req.user.userId;
     const data = req.body;
 
     const updatedDoc = await CarbonEntry.findOneAndUpdate(
-      { email, "entries._id": entryId },
+    { userId, "entries._id": entryId },
       {
         $set: {
           "entries.$.food": data.food,
@@ -216,11 +235,11 @@ router.put('/:entryId', authenticateToken, async (req, res) => {
 //DELETE single entry 
 router.delete('/:entryId', authenticateToken, async (req, res) => {
   try {
-    const email = req.user.email;
+    const userId = req.user.userId;
     const { entryId } = req.params;
 
     const updatedDoc = await CarbonEntry.findOneAndUpdate(
-      { email },
+      { userId },
       { $pull: { entries: { _id: entryId } } },
       { new: true }
     );

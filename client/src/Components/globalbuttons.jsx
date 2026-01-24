@@ -72,6 +72,31 @@ const StyleInjector = () => {
   return <style>{styles}</style>;
 };
 
+const AniDot = React.memo(() => (
+  <span aria-hidden="true" className="inline-flex items-baseline ml-0.5">
+    <motion.span
+      className="inline-block text-base sm:text-lg font-normal sm:font-semibold text-gray-400"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+    > 
+      .
+    </motion.span>
+    <motion.span
+      className="inline-block text-base sm:text-lg font-normal sm:font-semibold text-gray-400"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+    >
+      .
+    </motion.span>
+    <motion.span
+      className="inline-block text-base sm:text-lg font-normal sm:font-semibold text-gray-400"
+      animate={{ opacity: [0, 1, 0] }}
+      transition={{ duration: 1.2, repeat: Infinity, delay: 0.8 }}
+    >
+      .
+    </motion.span>
+  </span>
+));
 export default StyleInjector;
 // icon
 const Icons = {
@@ -818,7 +843,8 @@ export const FeedbackButton = ({ className, compact = false, userEmail, ...props
   const [submitStatus, setSubmitStatus] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const modalRef = useRef(null);
-
+  const [showAniDot, setShowAniDot] = useState(false);
+  const typingTimeoutRef = useRef(null);
   // Close modal when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -844,66 +870,107 @@ useEffect(() => {
   };
 }, [isOpen]);
 
-
-  const handleSubmit = async () => {
-    if (!feedback.trim()) {
-      setErrorMessage('Please enter your feedback');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setErrorMessage('');
-    setSubmitStatus(null);
-
-    try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('token='))
-        ?.split('=')[1];
-
-      const isDev = process.env.NODE_ENV === 'development';
-      const backendUrl = isDev 
-        ? 'http://localhost:4950' 
-        : 'https://api.carbonft.app';
-
-      const response = await fetch(`${backendUrl}/api/auth/feedback/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
-        body: JSON.stringify({ feedback })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSubmitStatus('success');
-        setFeedback('');
-        setTimeout(() => {
-          setIsOpen(false);
-          setSubmitStatus(null);
-        }, 2000);
-      } else {
-        setSubmitStatus('error');
-        setErrorMessage(data.error || 'Failed to submit feedback');
-      }
-    } catch (error) {
-      setSubmitStatus('error');
-      setErrorMessage('Network error. Please try again.');
-      console.error('Feedback submission error:', error);
-    } finally {
-      setIsSubmitting(false);
+useEffect(() => {
+  return () => {
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
     }
   };
+}, []);
 
-  const handleClose = () => {
-    setIsOpen(false);
+const handleSubmit = async () => {
+  // Validate feedback input
+  if (!feedback.trim()) {
+    setErrorMessage('Please enter your feedback');
+    return;
+  }
+
+  // Reset states before submission
+  setIsSubmitting(true);
+  setErrorMessage('');
+  setSubmitStatus(null);
+  setShowAniDot(false); // Hiding animated dots when submitting
+
+  try {
+    // Extract authentication token
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('token='))
+      ?.split('=')[1];
+
+    if (!token) {
+      throw new Error('Authentication token not found');
+    }
+
+    // Determine backend URL based on environment
+    const isDev = process.env.NODE_ENV === 'development';
+    const backendUrl = isDev 
+      ? 'http://localhost:4950' 
+      : 'https://api.carbonft.app';
+
+    // Submit feedback to server
+    const response = await fetch(`${backendUrl}/api/auth/feedback/submit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      credentials: 'include',
+      body: JSON.stringify({ feedback: feedback.trim() })
+    });
+
+    const data = await response.json();
+
+    // Handle response
+    if (!response.ok) {
+      throw new Error(data.error || `Server error: ${response.status}`);
+    }
+
+    // Success handling
+    setSubmitStatus('success');
     setFeedback('');
-    setSubmitStatus(null);
-    setErrorMessage('');
-  };
+    
+    // Clear typing timeout if exists
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Close modal after delay
+    setTimeout(() => {
+      setIsOpen(false);
+      setSubmitStatus(null);
+    }, 2000);
+
+  } catch (error) {
+    // Error handling
+    console.error('Feedback submission error:', error);
+    setSubmitStatus('error');
+    
+    // user-friendly error message
+    if (error.message.includes('Authentication')) {
+      setErrorMessage('Please log in again to submit feedback');
+    } else if (error.message.includes('Network') || error.name === 'TypeError') {
+      setErrorMessage('Network error. Please check your connection and try again.');
+    } else {
+      setErrorMessage(error.message || 'Failed to submit feedback. Please try again.');
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+const handleClose = () => {
+  setIsOpen(false);
+  setFeedback('');
+  setSubmitStatus(null);
+  setErrorMessage('');
+  setShowAniDot(false); 
+  
+  // Clearing timeout when closing
+  if (typingTimeoutRef.current) {
+    clearTimeout(typingTimeoutRef.current);
+  }
+};
 
   return (
     <>
@@ -983,19 +1050,66 @@ useEffect(() => {
                     >
                       <Icons.verify isFlipping={false} isHovered={false} />
                     </motion.div>
-                    <h4 className="text-lg sm:text-xl font-bold text-white mb-2 font-germania tracking-wider">Thanks for your feedback!</h4>
+                    <h4 className="text-lg sm:text-xl font-bold text-white mb-2 font-intertight tracking-wider">Thanks for your feedback!</h4>
                     <p className="text-gray-400 text-sm">We'll review it carefully.</p>
                   </motion.div>
                 ) : (
                   <>
-                    <textarea
-                      value={feedback}
-                      onChange={(e) => setFeedback(e.target.value)}
-                      placeholder="Share your thoughts, suggestions, or report issues..."
-                      className="w-full h-28 sm:h-32 bg-black/40 border border-white/10 rounded-xl p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none font-intertight"
-                      disabled={isSubmitting}
-                    />
-                    
+                  <div className="relative">
+                  <textarea
+                    value={feedback}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFeedback(value);
+                      
+                      if (typingTimeoutRef.current) {
+                        clearTimeout(typingTimeoutRef.current);
+                      }
+                      
+                      const lastChar = value.trim().slice(-1);
+                      const hasFullStop = lastChar === '.';
+                      
+                      if (hasFullStop || value.trim() === '') {
+                        setShowAniDot(false);
+                      } else {
+                        typingTimeoutRef.current = setTimeout(() => {
+                          setShowAniDot(true);
+                        }, 500);
+                      }
+                    }}
+                    placeholder="Share your thoughts, suggestions, or report issues..."
+                    className="w-full h-28 sm:h-32 bg-black/40 border border-white/10 rounded-xl p-3 sm:p-4 text-sm sm:text-base text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none font-intertight pr-12"
+                    disabled={isSubmitting}
+                    style={{ caretColor: showAniDot ? 'transparent' : 'white' }}
+                  />
+                  
+                  {/* Overlay div that mimics textarea content with dots */}
+                  <div 
+                    className="absolute inset-0 p-3 sm:p-4 pointer-events-none overflow-hidden rounded-xl"
+                    style={{ 
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      color: 'transparent'
+                    }}
+                  >
+                    <span className="text-sm sm:text-base font-intertight">
+                      {feedback}
+                    </span>
+                    <AnimatePresence>
+                      {showAniDot && feedback.trim() && (
+                        <motion.span
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.2 }}
+                          className="inline-block"
+                        >
+                          <AniDot />
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
                     {errorMessage && (
                       <motion.p
                         initial={{ opacity: 0, y: -10 }}

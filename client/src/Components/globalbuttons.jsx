@@ -552,7 +552,181 @@ export const NewEntryButton = ({ className, ...props }) => {
    return ( <GlobalButton text="New Entry" iconType="new" colorConfig={buttonColorConfigs.newEntry} styleOverride={{ width: '10rem' }} onClick={handleClick} {...props} /> );};
 export const EditButton = ({ className,...props}) => <GlobalButton text="Edit" iconType="edit" colorConfig={buttonColorConfigs.editDelete} className={className}  styleOverride={{ width: '8rem', height: '3.5rem' }} {...props} />;
 export const DeleteButton = ({ className,...props})=> <GlobalButton text="Delete" iconType="delete" colorConfig={buttonColorConfigs.delete} className={className}  styleOverride={{ width: '8rem', height: '3.5rem' }} {...props} />;
-export const ClearAllButton = ({ className,...props}) => <GlobalButton text="Clear All" iconType="clear" colorConfig={buttonColorConfigs.clearAll} className={className} styleOverride={{ width: '14rem', height: '4rem', fontSize: '1.1rem' }} {...props} />;
+export const ClearAllButton = ({ className, onClick, ...props }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+  const modalRef = useRef(null);
+
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  // Apply blur to app container when modal opens/closes
+  useEffect(() => {
+    const app = document.getElementById("app-container");
+    if (!app) return;
+
+    if (isOpen) {
+      app.style.filter = "blur(5px)";
+    } else {
+      app.style.filter = "";
+    }
+
+    return () => {
+      app.style.filter = "";
+    };
+  }, [isOpen]);
+
+  const handleClearAllClick = async () => {
+    setIsClearing(true);
+    try {
+      // Call the onClick handler from props
+      if (onClick) {
+        await onClick();
+      }
+      // Close modal after successful deletion
+      setTimeout(() => {
+        setIsOpen(false);
+      }, 500);
+    } catch (error) {
+      console.error('Error clearing entries:', error);
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsOpen(false);
+  };
+
+  const handleOpenModal = () => {
+    setIsOpen(true);
+  };
+
+  return (
+    <>
+      {/* Clear All Button */}
+      <GlobalButton
+        text="Clear All"
+        iconType="clear"
+        colorConfig={buttonColorConfigs.clearAll}
+        className={className}
+        styleOverride={{ width: '14rem', height: '4rem', fontSize: '1.1rem' }}
+        onClick={handleOpenModal}
+        disabled={isClearing}
+        {...props}
+      />
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 backdrop-blur-md bg-black/30 flex items-center justify-center z-50 p-4"
+            onClick={handleCancel}
+          >
+            <motion.div
+              ref={modalRef}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-gray-800/90 rounded-3xl border border-white/10 w-full max-w-md overflow-hidden"
+            >
+              {/* Header */}
+              <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 p-3 sm:p-4 border-b border-white/10">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                      <Icons.clear isFlipping={false} isHovered={false} />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-base sm:text-lg font-bold text-white font-germania tracking-wider text-shadow-DEFAULT truncate">Clear All Entries</h3>
+                      <p className="text-xs font-intertight text-gray-400 text-shadow-DEFAULT hidden sm:block">This action cannot be undone</p>
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={handleCancel}
+                    className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/30 transition-colors flex-shrink-0"
+                  >
+                    <Icons.close isFlipping={false} isHovered={false} />
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="p-4 sm:p-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-center mb-6"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+                    className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center"
+                  >
+                    <Icons.delete isFlipping={false} isHovered={false} />
+                  </motion.div>
+                  
+                  <h4 className="text-lg sm:text-xl font-bold text-white mb-3 font-intertight tracking-wide">
+                    Are you sure?
+                  </h4>
+                  
+                  <p className="text-gray-400 text-sm font-intertight sm:text-base leading-relaxed">
+                    You're about to delete all your carbon footprint entries. This action <span className="text-red-400 font-semibold">cannot</span> be undone.
+                  </p>
+                </motion.div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-6">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleCancel}
+                    disabled={isClearing}
+                    className="w-full sm:flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-gray-800/50 border border-white/10 text-gray-300 font-semibold font-germania tracking-wider hover:bg-gray-800 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Cancel
+                  </motion.button>
+
+                  <div className="w-full sm:flex-1">
+                    <GlobalButton
+                      text={isClearing ? 'Clearing...' : 'Clear All'}
+                      iconType="clear"
+                      colorConfig={buttonColorConfigs.clearAll}
+                      onClick={handleClearAllClick}
+                      disabled={isClearing}
+                      styleOverride={{
+                        width: '100%',
+                        height: '2.75rem',
+                        fontSize: '0.875rem'
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
 export const SaveChangesButton = ({ className,...props}) => <GlobalButton text="Save Changes" iconType="save" colorConfig={buttonColorConfigs.save} className={className} {...props} />;
 export const VerifyButton = ({ className,...props}) => <GlobalButton text="Verify" iconType="verify" colorConfig={buttonColorConfigs.verify} className={className} {...props} />;
 export const DashboardButton = ({ text = 'Dashboard', ...props }) => ( <GlobalButton text={text} iconType="dashboard" navigateTo="/dashboard" colorConfig={buttonColorConfigs.dashboard} styleOverride={{ width: '10rem', height: '3.5rem' }} {...props} />);
@@ -889,33 +1063,35 @@ const handleSubmit = async () => {
   setIsSubmitting(true);
   setErrorMessage('');
   setSubmitStatus(null);
-  setShowAniDot(false); // Hiding animated dots when submitting
+  setShowAniDot(false);
 
   try {
-    // Extract authentication token
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('token='))
-      ?.split('=')[1];
-
-    if (!token) {
-      throw new Error('Authentication token not found');
-    }
-
     // Determine backend URL based on environment
     const isDev = process.env.NODE_ENV === 'development';
     const backendUrl = isDev 
       ? 'http://localhost:4950' 
       : 'https://api.carbonft.app';
 
+    // Get CSRF token from storage (if using csrf utility)
+    // HttpOnly token cookie is automatically sent via credentials: 'include'
+    let csrfToken = '';
+    try {
+      // Try to get CSRF token if available
+      const { getCsrfToken } = await import('utils/csrf');
+      csrfToken = getCsrfToken() || '';
+    } catch (e) {
+      // CSRF token not available, continue without it (fetch with credentials should work)
+      console.warn('CSRF token not available, continuing...');
+    }
+
     // Submit feedback to server
     const response = await fetch(`${backendUrl}/api/auth/feedback/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        ...(csrfToken && { 'X-CSRF-Token': csrfToken }) // Add CSRF if available
       },
-      credentials: 'include',
+      credentials: 'include', // ✅ IMPORTANT: This sends HttpOnly cookie automatically
       body: JSON.stringify({ feedback: feedback.trim() })
     });
 
@@ -946,7 +1122,7 @@ const handleSubmit = async () => {
     console.error('Feedback submission error:', error);
     setSubmitStatus('error');
     
-    // user-friendly error message
+    // User-friendly error message
     if (error.message.includes('Authentication')) {
       setErrorMessage('Please log in again to submit feedback');
     } else if (error.message.includes('Network') || error.name === 'TypeError') {

@@ -290,7 +290,7 @@ if (!formData.password.trim()) {
   
   if (errors.email || errors.password) {
     setValidationErrors(errors);
-    setTimeout(() => setValidationErrors({ email: '', password: '' }), 3000);
+    setTimeout(() => setValidationErrors({ email: '', password: '' }), 4000);
     return;
   }
   setHidePasswordToggle(true);
@@ -373,7 +373,7 @@ useEffect(() => {
     
     setSuccess('Login Successful! 😎');
     window.history.replaceState({}, '', '/login');
-    setTimeout(() => { navigate('/dashboard'); }, 3000);
+    setTimeout(() => { navigate('/dashboard'); }, 3250);
   }
 }, [location.search, navigate]);
 
@@ -446,7 +446,7 @@ const handleResendVerification = async () => {
       >
     <PageWrapper backgroundImage="/images/login-bk.webp">
       <div className={`${boxglow} flex items-center sm:space-x-1 sm:mb-2 mb-0 mt-12`}>
-        <div className="flex items-center ml-12 space-x-0"><AnimatedHeadline />
+        <div className="flex items-center ml-12 mb-2 space-x-0"><AnimatedHeadline />
         <motion.div
     key="globe"
     initial="hidden"
@@ -461,12 +461,12 @@ const handleResendVerification = async () => {
   
 <div className="flex flex-col items-center space-y-1 mb-[-2]">
   {success ? (
-    <p className="text-green-500 text-sm text-center animate-pulse">
+    <p className="text-green-500 text-sm font-intertight text-shadow-DEFAULT sm:tracking-wide text-center animate-pulse">
       {success}
     </p>
   ) : (error || showResend || cooldown > 0) ? (
     <>
-      <p className="text-red-600 text-sm text-center animate-bounce">
+      <p className="text-red-500 text-sm text-center font-intertight text-shadow-DEFAULT sm:tracking-wide">
         {error}
       </p>
       {showResend && cooldown === 0 && resendCount < 3 ? (
@@ -531,11 +531,9 @@ const handleResendVerification = async () => {
          </motion.p>
        </div>
      )}
-
-
     </>
   ) : delayMessage ? (
-    <p className="text-yellow-500 text-sm text-center animate-pulse">
+    <p className="text-yellow-500 text-sm text-center font-intertight text-shadow-DEFAULT tracking-wide animate-pulse">
       {delayMessage}
     </p>
   ) : null}
@@ -581,7 +579,7 @@ const handleResendVerification = async () => {
     <button
       type="button"
       onClick={() => setShowPassword(!showPassword)}
-      className="absolute right-9 md:right-12 top-[162px] md:top-[209px] transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
+      className="absolute right-9 md:right-12 top-[164px] md:top-[216px] transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
     >
       {showPassword ? (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

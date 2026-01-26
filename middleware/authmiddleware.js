@@ -26,11 +26,11 @@ async function authenticateToken(req, res, next) {
   try {
     // Step 1: Verify JWT signature and expiration
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(`[AUTH] Token verified for userId: ${decoded.userId}`);
+   // console.log(`[AUTH] Token verified for userId: ${decoded.userId}`);
 
     // Step 2: Validate required fields in decoded token
     if (!decoded.userId || !decoded.jti) {
-      console.log('[AUTH] Invalid token structure - missing userId or jti');
+     // console.log('[AUTH] Invalid token structure - missing userId or jti');
       return res.status(401).json({
         error: 'Invalid token structure.',
         requiresLogin: true,
@@ -42,7 +42,7 @@ async function authenticateToken(req, res, next) {
     const isBlacklisted = await redisClient.get(blacklistKey);
 
     if (isBlacklisted) {
-      console.log(`[AUTH] Blacklisted token detected - JTI: ${decoded.jti}`);
+     // console.log(`[AUTH] Blacklisted token detected - JTI: ${decoded.jti}`);
       
       const isProd = process.env.NODE_ENV === 'production';
       res.clearCookie('token', {
@@ -68,7 +68,7 @@ async function authenticateToken(req, res, next) {
       const cached = await redisClient.get(userCacheKey);
       if (cached) {
         userExists = true;
-        console.log(`[AUTH] User verified from cache: ${decoded.userId}`);
+     //   console.log(`[AUTH] User verified from cache: ${decoded.userId}`);
       } else {
         // Check database if not in cache
         const user = await User.findOne({ userId: decoded.userId })
@@ -79,7 +79,7 @@ async function authenticateToken(req, res, next) {
           userExists = true;
           // Cache user existence for 10 minutes
           await redisClient.setEx(userCacheKey, 600, JSON.stringify({ exists: true }));
-          console.log(`[AUTH] User verified from database: ${decoded.userId}`);
+        //  console.log(`[AUTH] User verified from database: ${decoded.userId}`);
         }
       }
     } catch (cacheErr) {
@@ -118,13 +118,13 @@ async function authenticateToken(req, res, next) {
     };
 
     const authTime = Date.now() - startTime;
-    console.log(`[AUTH] Authentication successful in ${authTime}ms`);
+   // console.log(`[AUTH] Authentication successful in ${authTime}ms`);
     
     next();
 
   } catch (err) {
     const authTime = Date.now() - startTime;
-    console.error(`[AUTH] Authentication failed after ${authTime}ms:`, err.message);
+   // console.error(`[AUTH] Authentication failed after ${authTime}ms:`, err.message);
 
     const isProd = process.env.NODE_ENV === 'production';
     

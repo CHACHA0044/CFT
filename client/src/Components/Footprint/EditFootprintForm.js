@@ -405,6 +405,8 @@ const EditFootprintForm = () => {
   const initialFormRef = useRef(null);
   const [saving, setSaving] = useState(false);
   const [shakeField, setShakeField] = useState('');
+  const MAX_TRANSPORT = 6;
+  const MAX_ELECTRICITY = 4;
   const [liveEmissions, setLiveEmissions] = useState({
     food: 0,
     transport: 0,
@@ -492,6 +494,65 @@ const EditFootprintForm = () => {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }, []);
+const addTransport = () => {
+  const currentCount = form.transport.length;
+
+  if (currentCount >= MAX_TRANSPORT) {
+    setSuccess(`🚦 You can only add up to ${MAX_TRANSPORT} transport entries...`);
+    return;
+  }
+
+  const updatedTransport = [
+    ...form.transport,
+    { mode: '', distanceKm: '' }
+  ];
+
+  setForm({ ...form, transport: updatedTransport });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (updatedTransport.length === MAX_TRANSPORT) {
+    setSuccess(`🚦 You've reached the maximum of ${MAX_TRANSPORT} transport entries...`);
+  } else {
+    setSuccess('✅ New transport option added!');
+  }
+};
+
+const handleRemoveTransport = (index) => {
+  const updated = [...form.transport];
+  updated.splice(index, 1);
+  setForm({ ...form, transport: updated });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setSuccess('🚗 Transport option removed.');
+};
+
+const addElectricity = () => {
+  const currentCount = form.electricity.length;
+
+  if (currentCount >= MAX_ELECTRICITY) {
+    setSuccess(`⚡ You can only add up to ${MAX_ELECTRICITY} electricity entries...`);
+    return;
+  }
+
+  const updatedElectricity = [
+    ...form.electricity,
+    { source: '', consumptionKwh: '' }
+  ];
+
+  setForm({ ...form, electricity: updatedElectricity });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (updatedElectricity.length === MAX_ELECTRICITY) {
+    setSuccess(`⚡ You've reached the maximum of ${MAX_ELECTRICITY} electricity entries...`);
+  } else {
+    setSuccess('✅ New electricity option added!');
+  }
+};
+
+const handleRemoveElectricity = (index) => {
+  const updated = [...form.electricity];
+  updated.splice(index, 1);
+  setForm({ ...form, electricity: updated });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setSuccess('⚡ Electricity option removed.');
+};
 
   const handleChange = (section, field, value, index = null) => {
     if (index !== null) {
@@ -716,13 +777,13 @@ const handleSubmit = async (e) => {
                   </div>
                 </div>
 
-                {/* Transport Section */}
+                 {/* Transport Section */}
                 <div>
                   <label className="block mb-1 text-emerald-500 dark:text-gray-100 font-intertight tracking-wider text-shadow-DEFAULT">
                     Transport <span className="animate-transport-ufo">🛸</span>
                   </label>
                   {form.transport.map((t, i) => (
-                    <div key={i} className="space-y-2 mb-2">
+                    <div key={i} className="space-y-2 mb-2 relative">
                       <CustomSelect
                         name="mode"
                         value={t.mode}
@@ -751,17 +812,35 @@ const handleSubmit = async (e) => {
                           </span>
                         )}
                       </div>
+                      {form.transport.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTransport(i)}
+                          className="absolute top-1 right-8 text-red-400 text-xs hover:text-red-600 font-intertight tracking-wide text-shadow-DEFAULT"
+                        >
+                          Remove <span className="animate-remove-cross">❌</span>
+                        </button>
+                      )}
                     </div>
                   ))}
+                  {form.transport.length < MAX_TRANSPORT && (
+                    <button
+                      type="button"
+                      onClick={addTransport}
+                      className="text-emerald-500 dark:text-gray-100 hover:text-emerald-200 transition font-intertight tracking-wider text-shadow-DEFAULT"
+                    >
+                      Add <span className="animate-add-plus">+</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Electricity Section */}
                 <div>
-                  <label className="blockmb-1 text-emerald-500 dark:text-gray-100 font-intertight tracking-wider text-shadow-DEFAULT">
+                  <label className="block mb-1 text-emerald-500 dark:text-gray-100 font-intertight tracking-wider text-shadow-DEFAULT">
                     Electricity <span className="animate-electric-bolt">⚡</span>
                   </label>
                   {form.electricity.map((el, i) => (
-                    <div key={i} className="space-y-2 mb-2">
+                    <div key={i} className="space-y-2 mb-2 relative">
                       <CustomSelect
                         name="source"
                         value={el.source}
@@ -789,8 +868,26 @@ const handleSubmit = async (e) => {
                           </span>
                         )}
                       </div>
+                      {form.electricity.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveElectricity(i)}
+                          className="absolute top-1 right-8 text-red-400 text-xs hover:text-red-600 font-intertight tracking-wide text-shadow-DEFAULT"
+                        >
+                          Remove <span className="animate-remove-cross">❌</span>
+                        </button>
+                      )}
                     </div>
                   ))}
+                  {form.electricity.length < MAX_ELECTRICITY && (
+                    <button
+                      type="button"
+                      onClick={addElectricity}
+                      className="text-emerald-500 dark:text-gray-100 hover:text-emerald-200 transition font-intertight tracking-wider text-shadow-DEFAULT"
+                    >
+                      Add <span className="animate-add-plus">+</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* WASTE */}

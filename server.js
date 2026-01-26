@@ -65,7 +65,7 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'x-admin-secret', 'x-admin-code'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'x-admin-secret', 'x-admin-code', 'X-CSRF-Token'],
   exposedHeaders: ['Set-Cookie'],
   maxAge: 86400, // 24 hours
   preflightContinue: false,

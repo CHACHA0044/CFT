@@ -1,5 +1,5 @@
 import API from 'api/api';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
@@ -388,6 +388,7 @@ const Footprint = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [shakeField, setShakeField] = useState('');
   const [completionPercentage, setCompletionPercentage] = useState(0);
+  const debounceTimerRef = useRef(null);
   const [liveEmissions, setLiveEmissions] = useState({
     food: 0,
     transport: 0,
@@ -414,36 +415,48 @@ const Footprint = () => {
     setCompletionPercentage(Math.round((filled / fields.length) * 100));
   }, [formData]);
 
-  // Calculate live emissions
-  useEffect(() => {
-    const calculateLive = () => {
-      const foodFactor = { "Animal based": 6.0, "Plant based": 1.5, "Both": 3.8 }[formData.food.type] || 0;
-      const foodEmission = (formData.food.amountKg || 0) * foodFactor;
+// Calculating live emissions with debounce
+  const calculateLiveEmissions = useCallback(() => {
+    const foodFactor = { "Animal based": 6.0, "Plant based": 1.5, "Both": 3.8 }[formData.food.type] || 0;
+    const foodEmission = (formData.food.amountKg || 0) * foodFactor;
 
-      const transportEmission = formData.transport.reduce((sum, t) => {
-        const factor = { Car: 0.192, Bike: 0.016, Bus: 0.089, Metro: 0.041, Train: 0.049, Flights: 0.254 }[t.mode] || 0;
-        return sum + (t.distanceKm || 0) * factor;
-      }, 0);
+    const transportEmission = formData.transport.reduce((sum, t) => {
+      const factor = { Car: 0.192, Bike: 0.016, Bus: 0.089, Metro: 0.041, Train: 0.049, Flights: 0.254 }[t.mode] || 0;
+      return sum + (t.distanceKm || 0) * factor;
+    }, 0);
 
-      const electricityEmission = formData.electricity.reduce((sum, e) => {
-        const factor = { Coal: 0.94, Solar: 0.05, Wind: 0.01, Hydro: 0.02, Mixed: 0.45 }[e.source] || 0;
-        return sum + (e.consumptionKwh || 0) * factor;
-      }, 0);
+    const electricityEmission = formData.electricity.reduce((sum, e) => {
+      const factor = { Coal: 0.94, Solar: 0.05, Wind: 0.01, Hydro: 0.02, Mixed: 0.45 }[e.source] || 0;
+      return sum + (e.consumptionKwh || 0) * factor;
+    }, 0);
 
-      const wasteEmission = formData.waste.reduce((sum, w) => {
-        return sum + (w.plasticKg || 0) * 5.8 + (w.paperKg || 0) * 1.3 + (w.foodWasteKg || 0) * 2.5;
-      }, 0);
+    const wasteEmission = formData.waste.reduce((sum, w) => {
+      return sum + (w.plasticKg || 0) * 5.8 + (w.paperKg || 0) * 1.3 + (w.foodWasteKg || 0) * 2.5;
+    }, 0);
 
-      setLiveEmissions({
-        food: foodEmission,
-        transport: transportEmission,
-        electricity: electricityEmission,
-        waste: wasteEmission
-      });
-    };
-
-    calculateLive();
+    setLiveEmissions({
+      food: foodEmission,
+      transport: transportEmission,
+      electricity: electricityEmission,
+      waste: wasteEmission
+    });
   }, [formData]);
+
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    
+    debounceTimerRef.current = setTimeout(() => {
+      calculateLiveEmissions();
+    }, 300);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [formData, calculateLiveEmissions]);
 
   useEffect(() => {
     if (error) {
@@ -806,7 +819,7 @@ const handleSubmit = async (e) => {
                       <button
                         type="button"
                         onClick={() => handleRemoveTransport(i)}
-                        className="absolute top-0 right-0 text-red-400 text-xs hover:text-red-600 font-intertight tracking-wider text-shadow-DEFAULT"
+                        className="absolute top-1 right-8 text-red-400 text-xs hover:text-red-600 font-intertight tracking-wider text-shadow-DEFAULT"
                       >
                         Remove <span className="animate-remove-cross">❌</span>
                       </button>
@@ -862,7 +875,7 @@ const handleSubmit = async (e) => {
                       <button
                         type="button"
                         onClick={() => handleRemoveElectricity(i)}
-                        className="absolute top-0 right-0 text-red-400 text-xs hover:text-red-600 font-intertight tracking-wider text-shadow-DEFAULT"
+                        className="absolute top-1 right-8 text-red-400 text-xs hover:text-red-600 font-intertight tracking-wider text-shadow-DEFAULT"
                       >
                         Remove <span className="animate-remove-cross">❌</span>
                       </button>

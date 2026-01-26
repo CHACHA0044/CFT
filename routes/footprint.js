@@ -7,8 +7,19 @@ const mongoose = require('mongoose');
 const User = require('../models/user');
 const rateLimit = require("express-rate-limit");
 const leaderboardLimiter = rateLimit({ windowMs: 1 * 60 * 1000, max: 10,});
+const csrf = require('csurf');
+const isProd = process.env.NODE_ENV === 'production';
+
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'Strict' : 'Lax',
+    domain: isProd ? '.carbonft.app' : undefined
+  }
+});
 //  POST: Create entry
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, csrfProtection, async (req, res) => {
   try {
     const userId = req.user.userId;
     const data = req.body;
@@ -38,7 +49,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // DELETE all 
-router.delete('/clear/all', authenticateToken, async (req, res) => {
+router.delete('/clear/all', authenticateToken, csrfProtection, async (req, res) => {
   try {
     const updatedDoc = await CarbonEntry.findOneAndUpdate(
       { userId: req.user.userId },
@@ -203,7 +214,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 //  UPDATE entry 
-router.put('/:entryId', authenticateToken, async (req, res) => {
+router.put('/:entryId', authenticateToken, csrfProtection, async (req, res) => {
   try {
     const { entryId } = req.params;
     const userId = req.user.userId;
@@ -233,7 +244,7 @@ router.put('/:entryId', authenticateToken, async (req, res) => {
 });
 
 //DELETE single entry 
-router.delete('/:entryId', authenticateToken, async (req, res) => {
+router.delete('/:entryId', authenticateToken, csrfProtection, async (req, res) => {
   try {
     const userId = req.user.userId;
     const { entryId } = req.params;

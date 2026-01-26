@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
 import useAuthRedirect from 'hooks/useAuthRedirect';
-import { VictoryVoronoiContainer,VictoryTheme, VictoryZoomContainer, VictoryLabel, VictoryLine, VictoryScatter, VictoryChart, VictoryGroup, VictoryBar, VictoryAxis, VictoryTooltip, VictoryPie, VictoryArea } from 'victory';
+import { VictoryChart, VictoryGroup, VictoryBar, VictoryAxis, VictoryTooltip, VictoryPie } from 'victory';
 import API from 'api/api';
 import calculateEmissions from 'utils/calculateEmissionsFrontend';
 import Lottie from 'lottie-react';
@@ -13,8 +13,6 @@ import DragonAnimation from 'animations/Dragon.json';
 import SunAnimation from 'animations/Sun.json';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine, Dot } from 'recharts';
 import { select, zoom, scaleLinear } from 'd3';
-import { easeInOut } from "framer-motion"; 
-import { easeCubicOut } from "d3-ease";
 import CardNav from 'Components/CardNav';  
 import LottieLogo from 'Components/LottieLogoComponent';
 import { NewEntryButton, EditDeleteButton, DashboardButton, WeatherButton, LogoutButton, VisualizeButton, ShowMoreButton } from 'Components/globalbuttons';
@@ -324,7 +322,55 @@ const getAqiGradient = (pm25) => {
   // Hazardous
   return "bg-gradient-to-r from-rose-500/25 via-orange-500/20 to-amber-500/20";
 };
-
+const getWeatherGradient = (code, uvIndex, visibility, temp) => {
+  // Fog (highest priority for fog conditions)
+  if (((code >= 45 && code <= 48) || code === 2100) && visibility < 1.5) {
+    return "bg-gradient-to-r from-slate-400/20 via-gray-400/15 to-slate-500/20";
+  }
+  
+  // Thunderstorm
+  if (code >= 95 && code <= 99) {
+    return "bg-gradient-to-r from-purple-500/25 via-indigo-500/20 to-purple-600/25";
+  }
+  
+  // Snow
+  if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) {
+    return "bg-gradient-to-r from-cyan-400/20 via-blue-300/15 to-white/20";
+  }
+  
+  // Rain
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
+    return "bg-gradient-to-r from-blue-500/25 via-indigo-400/20 to-slate-500/20";
+  }
+  
+  // Clear & Sunny (code 0 with high UV)
+  if (code === 0 && uvIndex > 3) {
+    return "bg-gradient-to-r from-yellow-400/25 via-orange-400/20 to-amber-500/25";
+  }
+  
+  // Clear night (code 0 with low UV)
+  if (code === 0 && uvIndex <= 3) {
+    return "bg-gradient-to-r from-indigo-500/20 via-purple-400/15 to-blue-600/20";
+  }
+  
+  // ⭐ NEW: HIGH UV takes priority (code 1-3 with UV >= 4)
+  if (code <= 3 && uvIndex >= 4) {
+    return "bg-gradient-to-r from-yellow-400/25 via-orange-400/20 to-amber-500/25";
+  }
+  
+  // Partly cloudy with moderate UV (day)
+  if (code <= 3 && uvIndex > 2) {
+    return "bg-gradient-to-r from-sky-400/20 via-blue-400/15 to-cyan-400/20";
+  }
+  
+  // Overcast/Cloudy (low UV)
+  if (code <= 3 && uvIndex <= 2) {
+    return "bg-gradient-to-r from-gray-400/20 via-slate-400/15 to-gray-500/20";
+  }
+  
+  // Default: Pleasant weather
+  return "bg-gradient-to-r from-indigo-400/20 via-blue-500/15 to-slate-500/20";
+};
 const ChartPage = () => {
   useAuthRedirect();
   const location = useLocation();
@@ -381,6 +427,14 @@ const ChartPage = () => {
   const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
   const pm25 = data?.air_quality?.pm2_5 ?? 0;
   const aqiGradient = getAqiGradient(pm25);
+  const weatherGradient = data?.weather 
+  ? getWeatherGradient(
+      data.weather.weather_code || 0,
+      data.air_quality?.uv_index || 0,
+      data.weather.visibility || 10,
+      data.weather.temperature_2m || 20
+    )
+  : "bg-gradient-to-r from-indigo-400/20 via-blue-500/15 to-slate-500/20";
   const leaderboardRef = useRef(null);const [showBreakdown, setShowBreakdown] = useState(false);
   const [simTransport, setSimTransport] = useState(100);
   const [simDiet, setSimDiet] = useState(100);
@@ -409,53 +463,49 @@ const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
         );
       });
 
-      //Rounding coordinates to match backend and prevent cache key fragmentation
       lat = parseFloat(pos.coords.latitude.toFixed(4));
       lon = parseFloat(pos.coords.longitude.toFixed(4));
-      console.log("📍 Browser location:", { lat, lon });
     } catch (err) {
-      console.warn("⚠️ Geolocation denied or unavailable. Falling back to IP-based location...");
+      console.warn("Geolocation unavailable, using IP location");
     }
   }
 
   try {
-    // Build query params properly
     const params = new URLSearchParams();
     if (lat && lon) {
       params.append("lat", lat);
       params.append("lon", lon);
     }
+    
+    // Only add refresh parameter if explicitly requested via button
     if (forceRefresh) {
       params.append("refresh", "true");
     }
-    // Default to tomorrow.io - change this to test different APIs
-   // params.append("forceApi", "tomorrow");
     
     const queryString = params.toString();
-    console.log("🌐 Fetching weather with params:", queryString);
 
-    const res = await API.get(`/auth/weather-aqi?${queryString}`, { headers: { "x-api-key": process.env.INTERNAL_API_KEY }});
+    const res = await API.get(`/auth/weather-aqi?${queryString}`, { 
+      headers: { "x-api-key": process.env.INTERNAL_API_KEY }
+    });
 
-    console.log("✅ Weather response received:", res.data);
-    
     setData(res.data);
     setWeatherRequested(true);
-    setWeatherTimestamp(Date.now());
+
+    // Use backend timestamp if available, fallback to current time
+    const backendTimestamp = res.data.timestamp ? new Date(res.data.timestamp).getTime() : Date.now();
+    setWeatherTimestamp(backendTimestamp);
     
-    // Handle refresh cooldown
     if (forceRefresh) {
       setShowRefreshButton(false);
     }
     
-    // refresh option
     if (res.data.refreshAllowedIn !== undefined) {
       setRefreshCooldown(res.data.refreshAllowedIn);
     } else {
       setRefreshCooldown(0);
     }
   } catch (err) {
-    console.error("❌ Failed to fetch weather/AQI data:", err);
-    console.error("❌ Error response:", err.response?.data);
+    console.error("Failed to fetch weather data:", err);
   } finally {
     setLoadingWeather(false);
   }
@@ -1162,7 +1212,7 @@ return (
     }
   `}</style>
 </div>
- {user?.name.split(' ')[0]} <span className="animate-pulse text-white"> vs</span> Global Averages
+ {user?.name.split(' ')[0]} <span className="text-white"> v<span className="animate-vs-slash">/</span>s</span> Global Averages
     </h3>
 
     <VictoryChart
@@ -2171,7 +2221,13 @@ const currentYear = entryDate.getFullYear();
 {weatherRequested && data && weatherTimestamp ? (
   <div className="mt-4 space-y-4">
     {/* Weather Section */}
-    <div className="bg-gradient-to-r from-indigo-400/20 via-blue-500/15 to-slate-500/20 rounded-3xl p-4 mb-6">
+    <motion.div
+      key={weatherGradient}
+      initial={{ opacity: 0.6, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={`${weatherGradient} rounded-3xl p-4 mb-6 backdrop-blur-md`}
+    >
       <motion.div
         className="cursor-pointer"
         onClick={() => setExpandedWeatherSection(prev => prev === 'weather' ? null : 'weather')}
@@ -2189,35 +2245,51 @@ const currentYear = entryDate.getFullYear();
 
         {/* Collapsed: Overall condition only */}
         {expandedWeatherSection !== 'weather' && (
-          <div className="text-center mt-3">
-            <div className="text-sm font-intertight font-extralight text-shadow-DEFAULT sm:text-2xl mb-2">
-              {(() => {
-                const code = data.weather?.weather_code || 0;
-                if (code === 0) return '🌞';
-                if (code <= 3) return '⛅';
-                if (code <= 48) return '🌫️';
-                if (code <= 67) return '🌧️';
-                if (code <= 77) return '❄️';
-                if (code <= 82) return '🌦️';
-                if (code <= 86) return '🌨️';
-                if (code <= 99) return '⛈️';
-                return '🌤️';
-              })()} 
-              {(() => {
-                const code = data.weather?.weather_code || 0;
-                if (code === 0) return 'Clear sky';
-                if (code <= 3) return 'Partly cloudy';
-                if (code <= 48) return 'Foggy conditions';
-                if (code <= 67) return 'Rainy weather';
-                if (code <= 77) return 'Snow expected';
-                if (code <= 82) return 'Rain showers';
-                if (code <= 86) return 'Snow showers';
-                if (code <= 99) return 'Thunderstorm';
-                return 'Weather';
-              })()}               , {data.weather?.temperature_2m || 'N/A'}°C 
-            </div>
-          </div>
-        )}
+  <div className="text-center mt-3">
+    <div className="text-sm font-intertight font-extralight text-shadow-DEFAULT sm:text-2xl mb-2">
+      {(() => {
+        const code = data.weather?.weather_code || 0;
+        const uvIndex = data.air_quality?.uv_index || 0;
+        const visibility = data.weather?.visibility || 10;
+        
+        // STRICT fog detection: MUST have both low visibility AND low UV
+        // Tomorrow.io fog code: 2100
+        // Open-Meteo fog codes: 45-48
+        const isFogCode = (code >= 45 && code <= 48) || code === 2100;
+        const isFoggy = isFogCode && visibility < 1.5 && uvIndex < 2;
+        
+        // Emoji selection
+        if (isFoggy) return '🌫️';
+        if (code === 0) return uvIndex > 3 ? '☀️' : '🌙';
+        if (code <= 3) return uvIndex > 2 ? '⛅' : '☁️';
+        if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return '🌧️';
+        if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return '❄️';
+        if (code >= 95 && code <= 99) return '⛈️';
+        return uvIndex > 3 ? '🌤️' : '☁️';
+      })()} 
+      {(() => {
+        const code = data.weather?.weather_code || 0;
+        const uvIndex = data.air_quality?.uv_index || 0;
+        const visibility = data.weather?.visibility || 10;
+        
+        // STRICT fog detection: MUST have both low visibility AND low UV
+        // Tomorrow.io fog code: 2100
+        // Open-Meteo fog codes: 45-48
+        const isFogCode = (code >= 45 && code <= 48) || code === 2100;
+        const isFoggy = isFogCode && visibility < 1.5 && uvIndex < 2;
+        
+        // Condition text
+        if (isFoggy) return 'Foggy conditions';
+        if (code === 0) return uvIndex > 3 ? 'Clear and sunny' : 'Clear night';
+        if (code <= 3) return uvIndex > 2 ? 'Partly cloudy' : 'Cloudy';
+        if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'Rainy weather';
+        if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return 'Snow expected';
+        if (code >= 95 && code <= 99) return 'Thunderstorm';
+        return uvIndex > 3 ? 'Fair weather' : 'Overcast';
+      })()}, {data.weather?.temperature_2m || 'N/A'}°C 
+    </div>
+  </div>
+)}
       </motion.div>
 
       {/* Expanded*/}
@@ -2361,7 +2433,7 @@ const currentYear = entryDate.getFullYear();
           )}
         </div>
       </motion.div>
-    </div>
+    </motion.div>
 
     {/* Air Quality Section */}
     <motion.div

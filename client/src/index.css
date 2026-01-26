@@ -4050,3 +4050,73 @@ html {
     display: none !important;
   }
 }
+/* ===== VS SEPARATOR SLASH ANIMATION ===== */
+.animate-vs-slash {
+  position: relative;
+  display: inline-block;
+  font-weight: 600;
+  animation: slash-spin 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+}
+
+@keyframes slash-spin {
+  0%, 100% {
+    transform: scaleY(1) rotateZ(0deg);
+    opacity: 0.8;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+  }
+  50% {
+    transform: scaleY(1.35) rotateZ(15deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 15px rgba(59, 130, 246, 1));
+  }
+}
+
+/* Burst particles */
+.animate-vs-slash::before,
+.animate-vs-slash::after {
+  content: '/';
+  position: absolute;
+  font-size: 0.55rem;
+  opacity: 0;
+  animation: slash-burst 2s ease-out infinite;
+}
+
+.animate-vs-slash::before {
+  top: -10px;
+  animation-delay: 0.5s;
+}
+
+.animate-vs-slash::after {
+  bottom: -10px;
+  animation-delay: 1.5s;
+}
+
+@keyframes slash-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* Mobile disable */
+@media (max-width: 639px) {
+  .animate-vs-slash {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .animate-vs-slash::before,
+  .animate-vs-slash::after {
+    display: none !important;
+  }
+}

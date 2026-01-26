@@ -11,6 +11,8 @@ const mongoose = require('mongoose');
 const redisClient = require('../RedisClient');
 const passport = require('../config/passport');
 const rateLimit = require("express-rate-limit");
+const csrf = require('csurf');
+const isProd = process.env.NODE_ENV === 'production';
 const ALLOWED_ORIGINS = [ "https://carbonft.app", "https://www.carbonft.app", "http://localhost:3000", ];
 
 // HELPER FUNCTIONS
@@ -277,10 +279,38 @@ async function redisLimiter(req, res, next) {
   }
 }
 
+function generateTokens(userId) {
+  const accessJti = crypto.randomBytes(16).toString('hex');
+  const refreshJti = crypto.randomBytes(16).toString('hex');
+  
+  const accessToken = jwt.sign(
+    { userId, jti: accessJti, type: 'access' },
+    process.env.JWT_SECRET,
+    { expiresIn: '10m' }
+  );
+  
+  const refreshToken = jwt.sign(
+    { userId, jti: refreshJti, type: 'refresh' },
+    process.env.JWT_SECRET,
+    { expiresIn: '14d' }
+  );
+  
+  return { accessToken, refreshToken, refreshJti };
+}
+
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'Strict' : 'Lax',
+    domain: isProd ? '.carbonft.app' : undefined
+  }
+});
+
 // GET ME
-router.get('/token-info/me', authenticateToken, async (req, res) => {
+router.get('/token-info/me', authenticateToken, csrfProtection, async (req, res) => {
   const startTime = Date.now();
-  console.log('\n🔐 [/token-info/me] Request received');
+ // console.log('\n [/token-info/me] Request received');
 
   try {
     // Extract token
@@ -290,13 +320,13 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
     }
     
     if (!token) {
-      console.log('❌ [AUTH] No token provided');
+      //console.log(' [AUTH] No token provided');
       return res.status(401).json({ error: 'Missing token' });
     }
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(`✅ [JWT] Token verified for userId: ${decoded.userId}`);
+    //console.log(` [JWT] Token verified for userId: ${decoded.userId}`);
 
     const cacheKey = `user:profile:v2:${decoded.userId}`;
     
@@ -304,7 +334,7 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
     const cached = await getCachedData(cacheKey);
     if (cached) {
       const responseTime = Date.now() - startTime;
-      console.log(`⚡ [RESPONSE] Sent from cache in ${responseTime}ms`);
+     // console.log(` [RESPONSE] Sent from cache in ${responseTime}ms`);
       return res.json({
         ...cached.data,
         fromCache: true,
@@ -314,16 +344,16 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
     }
 
     // Fetch from database
-    console.log(`🔍 [DATABASE] Fetching user from MongoDB...`);
+   // console.log(` [DATABASE] Fetching user from MongoDB...`);
     const dbStartTime = Date.now();
     
     const user = await User.findOne({ userId: decoded.userId }).select('name isVerified').lean();
     
     const dbTime = Date.now() - dbStartTime;
-    console.log(`📊 [DATABASE] Query completed in ${dbTime}ms`);
+    //console.log(` [DATABASE] Query completed in ${dbTime}ms`);
 
     if (!user) {
-      console.log(`❌ [DATABASE] User not found: ${decoded.userId}`);
+    //  console.log(` [DATABASE] User not found: ${decoded.userId}`);
       return res.status(404).json({ error: 'User not found' });
     }
 
@@ -339,7 +369,7 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
     await setCachedData(cacheKey, userData, cacheTTL);
 
     const responseTime = Date.now() - startTime;
-    console.log(`✅ [RESPONSE] Sent from database in ${responseTime}ms`);
+    //console.log(` [RESPONSE] Sent from database in ${responseTime}ms`);
     
     res.json({
       ...userData,
@@ -363,8 +393,14 @@ router.get('/token-info/me', authenticateToken, async (req, res) => {
   }
 });
 
+// CSRF(cross site request forgery) protection on GET requests doesn't make sense. CSRF tokens are for state-changing operations (POST, PUT, DELETE).
+router.get('/csrf-token', csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
+
 // LOGIN
-router.post('/login', async (req, res) => {
+router.post('/login', csrfProtection, async (req, res) => {
   const startTime = Date.now();
   console.log('[LOGIN] Authentication request initiated');
   
@@ -391,6 +427,26 @@ router.post('/login', async (req, res) => {
         attemptsRemaining: 0
       });
     }
+    //Blacklisting old token if user is already logged in
+    try {
+      if (req.cookies?.token) {
+        const oldToken = req.cookies.token;
+        const decoded = jwt.decode(oldToken);
+        
+        if (decoded && decoded.jti) {
+          const oldBlacklistKey = `blacklist:jti:${decoded.jti}`;
+          const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+          
+          if (ttl > 0) {
+            await setCachedData(oldBlacklistKey, { invalidated: true }, ttl);
+            console.log(`[LOGIN] Old token blacklisted: ${decoded.jti}`);
+          }
+        }
+      }
+    } catch (blacklistErr) {
+      console.warn('[LOGIN] Could not blacklist old token:', blacklistErr.message);
+      // Continuing with login even if blacklist fails
+    }
 
     // Optimized user lookup with caching
     const userCacheKey = `user:login:${email}`;
@@ -404,8 +460,8 @@ router.post('/login', async (req, res) => {
       console.log(`[LOGIN] User data retrieved from cache`);
       fromCache = true;
       
-      // Fetch minimal user data from database to verify current state
-      user = await User.findById(cachedUser.data.userId)
+      // Fetching minimal user data from database to verify current state
+      user = await User.findOne({ userId: cachedUser.data.userId })
         .select('_id userId email passwordHash isVerified provider welcomeEmailSent')
         .lean();
     } else {
@@ -416,10 +472,10 @@ router.post('/login', async (req, res) => {
         .select('_id userId name email passwordHash isVerified provider welcomeEmailSent')
         .lean();
       
-      // Cache user lookup for 10 minutes to speed up subsequent attempts
+      // Cached user lookup for 10 minutes to speed up subsequent attempts
       if (user) {
         await setCachedData(userCacheKey, { 
-          userId: user.userId,  // ✅ Use custom userId
+          userId: user.userId,  // custom userId
           isVerified: user.isVerified 
         }, 600);
         console.log(`[LOGIN] User data cached for future requests`);
@@ -459,10 +515,10 @@ router.post('/login', async (req, res) => {
     await deleteKey(loginAttemptKey);
     console.log(`[LOGIN] Failed attempts cleared for: ${email}`);
 
-    // ✅ FIXED: Generate JWT with custom userId instead of MongoDB _id
+    // Generating JWT with custom userId instead of MongoDB _id
     const token = jwt.sign(
       {
-        userId: user.userId,  // ✅ Use custom userId field, NOT user._id
+        userId: user.userId,  //Using custom userId field, NOT user._id
         jti: crypto.randomBytes(16).toString('hex')
       },
       process.env.JWT_SECRET,
@@ -571,7 +627,7 @@ return res.json({ message: 'Logged out successfully' });
 });
 
 // FEEDBACK SUBMISSION RECORD OF EVERY USER
-router.post('/feedback/submit', authenticateToken, async (req, res) => {
+router.post('/feedback/submit', csrfProtection, authenticateToken, async (req, res) => {
   console.log('\n📝 [/feedback/submit] Feedback submission started');
   
   try {
@@ -683,7 +739,7 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
 });
 
 // THANKS MY G
-router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => {
+router.post('/feedback/resend-thankyou', authenticateToken, csrfProtection, async (req, res) => {
   console.log('\n📧 [/feedback/resend-thankyou] Resend request received');
   
   try {
@@ -707,7 +763,7 @@ router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => 
 });
 
 // REGISTER
-router.post('/register', async (req, res) => {
+router.post('/register', csrfProtection, async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: 'All fields are required.' });
@@ -884,7 +940,7 @@ router.get('/verify-email/:token/preview', async (req, res) => {
 });
 
 // RESEND VERIFICATION EMAIL
-router.post('/resend-verification', async (req, res) => {
+router.post('/resend-verification', csrfProtection, async (req, res) => {
   try {
     const { email } = req.body;
     let user = await User.findOne({ email });
@@ -988,7 +1044,7 @@ router.get('/ping', async (req, res) => {
 });
 
 // WEATHER & AQI
-router.get("/weather-aqi", weatherLimiter, redisLimiter,  async (req, res) => {
+router.get("/weather-aqi", weatherLimiter, redisLimiter, authenticateToken, async (req, res) => {
   const origin = req.headers.origin;
 if (ALLOWED_ORIGINS.includes(origin)) {
   res.setHeader("Access-Control-Allow-Origin", origin);
@@ -1042,97 +1098,116 @@ function getAqiStatus(aqi) {
   return "Hazardous";
 }
 
-  let { lat, lon, refresh, forceApi } = req.query;
-  //console.log("📥 Query Params:", { lat, lon, refresh, forceApi });
+let { lat, lon, refresh, forceApi } = req.query;
   
-  try {
-    // Get location from IP if missing
-    if (!lat || !lon) {
-      const ipRes = await axios.get("https://ipapi.co/json/");
-      //console.log("🌐 IP Location fetched:", ipRes.data);
-      lat = ipRes.data.latitude;
-      lon = ipRes.data.longitude;
-    }
-    //rounding coordinates to prevent cache key fragmentation
-    lat = parseFloat(parseFloat(lat).toFixed(4));
-    lon = parseFloat(parseFloat(lon).toFixed(4));
+try {
+  // Get location from IP if coordinates not provided
+  if (!lat || !lon) {
+    const ipRes = await axios.get("https://ipapi.co/json/");
+    lat = ipRes.data.latitude;
+    lon = ipRes.data.longitude;
+  }
+  
+  // Round coordinates to prevent cache key fragmentation
+  lat = parseFloat(parseFloat(lat).toFixed(4));
+  lon = parseFloat(parseFloat(lon).toFixed(4));
+const cacheKey = `weather:${lat},${lon}`;
 
-    const cacheKey = `weather:${lat},${lon}`;
-    //console.log(`🔍 Checking cache for key: ${cacheKey}`);
+// Check cache first
+let cached = null;
+let ttl = -2;
 
-    // Check Redis cache first (unless forceApi is set)
-    if (!forceApi) {
-      let cached = null;
-      let ttl = -2;
-      try {
-        cached = await redisClient.get(cacheKey);
-        if (cached) ttl = await redisClient.ttl(cacheKey);
-        
-        if (cached) {
-          //console.log(`✅ Cache HIT - Data found in Redis (TTL: ${ttl}s)`);
-        } else {
-          //console.log(`❌ Cache MISS - No data in Redis`);
-        }
-      } catch (redisErr) {
-        //console.warn("⚠️ Redis read failed:", redisErr.message);
-      }
+try {
+  cached = await redisClient.get(cacheKey);
+  if (cached) {
+    ttl = await redisClient.ttl(cacheKey);
+  }
+} catch (redisErr) {
+  console.warn("Redis read failed:", redisErr.message);
+}
 
-      // If we have cached data and not forcing refresh
-      if (cached && !refresh) {
-        //console.log("⚡ Serving weather data from Redis cache");
-        const cachedData = JSON.parse(cached);
-        return res.json({
-          ...cachedData,
-          fromCache: true,
-          ttl,
-          cacheKey
-        });
-      }
+// If cache exists and NOT a refresh request, return cached data immediately
+if (cached && refresh !== "true") {
+  const cachedData = JSON.parse(cached);
+  return res.json({
+    ...cachedData,
+    fromCache: true,
+    ttl,
+    cacheKey
+  });
+}
 
-      //refresh logic with rate limiting
-      if (refresh === "true" && cached) {
-      const refreshBlockThreshold = 600; // 10 min rule
-      if (ttl > refreshBlockThreshold) {
-        const refreshAllowedIn = Math.max(ttl - refreshBlockThreshold, 0);
-        //console.log(`🚫 Refresh blocked - TTL: ${ttl}s, must wait ${refreshAllowedIn}s more`);
-        return res.status(429).json({
-          error: "Refresh not allowed yet. Please wait at least 10 minutes.",
-          refreshAllowedIn,
-          ttl,
-          fromCache: true,
-        });
-      }
-    }
-    } else {
-      //console.log(`🔧 Force API mode: ${forceApi} - Skipping cache`);
-    }
-    if (forceApi) {
+// If refresh requested, enforce rate limits
+if (refresh === "true") {
+  if (!cached) {
+    return res.status(400).json({
+      error: "No cached data to refresh. Please load weather data first."
+    });
+  }
+
+  const cachedData = JSON.parse(cached);
+  const dataAge = 1800 - ttl;
+  const refreshAllowedAfter = 600; // 10 minutes
+
+  if (dataAge < refreshAllowedAfter) {
+    return res.status(429).json({
+      error: "Refresh not allowed yet. Please wait 10 minutes after initial data fetch.",
+      refreshAllowedIn: refreshAllowedAfter - dataAge,
+      ttl,
+      dataTimestamp: cachedData.timestamp,
+      fromCache: true
+    });
+  }
+
+  // Check IP-based refresh limit
   const ip = req.ip || req.headers["x-forwarded-for"] || "unknown_ip";
-  const forceKey = `force-refresh:${ip}`;
-  
-  try {
-    let count = await redisClient.get(forceKey);
-    count = count ? parseInt(count) : 0;
+  const refreshKey = `refresh-limit:${ip}`;
 
-    if (count >= 2) {
-      //console.log(`🚫 Force refresh limit reached for IP: ${ip}`);
+  try {
+    let refreshCount = await redisClient.get(refreshKey);
+    refreshCount = refreshCount ? parseInt(refreshCount) : 0;
+
+    if (refreshCount >= 5) {
       return res.status(429).json({
-        error: "Force refresh limit reached. Max 2 per hour allowed.",
-        fromCache: true,
+        error: "Too many refresh requests. Please try again later.",
+        retryAfter: await redisClient.ttl(refreshKey)
       });
     }
 
-    //counter with expiry of 1 hour
     await redisClient.multi()
-      .incr(forceKey)
-      .expire(forceKey, 3600) // 1 hour
+      .incr(refreshKey)
+      .expire(refreshKey, 3600)
       .exec();
-
-   // console.log(`⚡ Force refresh count for IP ${ip}: ${count + 1}`);
   } catch (err) {
-   // console.warn("⚠️ Redis error during force refresh rate limit:", err.message);
+    console.warn("Redis refresh rate limit error:", err.message);
   }
 }
+
+// Handle forceApi parameter (for testing different providers)
+if (forceApi) {
+  const ip = req.ip || req.headers["x-forwarded-for"] || "unknown_ip";
+  const forceKey = `force-api:${ip}`;
+
+  try {
+    let forceCount = await redisClient.get(forceKey);
+    forceCount = forceCount ? parseInt(forceCount) : 0;
+
+    if (forceCount >= 2) {
+      return res.status(429).json({
+        error: "Force API limit reached. Maximum 2 requests per hour.",
+        retryAfter: await redisClient.ttl(forceKey)
+      });
+    }
+
+    await redisClient.multi()
+      .incr(forceKey)
+      .expire(forceKey, 3600)
+      .exec();
+  } catch (err) {
+    console.warn("Redis forceApi rate limit error:", err.message);
+  }
+}
+  console.log("Cache miss or refresh requested - fetching from API");
 
    // console.log("🌐 Cache miss or refresh requested - Making API calls...");
     let result = null;
@@ -1490,8 +1565,7 @@ router.get('/google', passport.authenticate('google', {
 }));
 
 // GOOGLE OAUTH CALLBACK 
-router.get('/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: '/' }),
+router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/' }),
   async (req, res) => {
     try {
       const user = req.user;

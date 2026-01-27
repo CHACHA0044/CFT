@@ -66,8 +66,8 @@ const AnimatedHeadline = React.memo(() => {
 
   if (isMobile) {
     return (
-      <h1 className="text-4xl font-black font-germania text-white text-center tracking-wider text-shadow-DEFAULT">
-        {sentence}
+      <h1 className=" text-4xl font-black font-germania text-white text-center tracking-wider text-shadow-DEFAULT">
+        Your  Emission<br />Trends
       </h1>
     );
   }
@@ -274,7 +274,7 @@ const RefreshCountdown = React.memo(({ weatherTimestamp, onRefreshAvailable }) =
       }
     };
 
-    updateTimer(); // Initial call
+    updateTimer();
     const interval = setInterval(updateTimer, 1000);
 
     return () => clearInterval(interval);
@@ -397,6 +397,9 @@ const ChartPage = () => {
 }, [entryData]);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [error, setError] = useState(null);
+  const [leaderboardError, setLeaderboardError] = useState(null);
+  const [weatherError, setWeatherError] = useState(null);
+  const [userInfoError, setUserInfoError] = useState(null);
   const [zoomRange, setZoomRange] = useState([1, 12]);
   const handleZoom = useCallback((e) => { if (!e.ctrlKey) return; e.preventDefault();
   const rect = chartRef.current.getBoundingClientRect();
@@ -414,7 +417,8 @@ const ChartPage = () => {
   const [refreshCooldown, setRefreshCooldown] = useState(0);
   const [weatherRequested, setWeatherRequested] = useState(false);
   const [loadingWeather, setLoadingWeather] = useState(false);
-  const [weatherTimestamp, setWeatherTimestamp] = useState(null);
+  const [weatherTimestamp, setWeatherTimestamp] = useState(() => {
+  const stored = sessionStorage.getItem('weatherTimestamp'); return stored ? parseInt(stored) : null; });
   const [showRefreshButton, setShowRefreshButton] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [logoutError, setLogoutError] = useState('');
@@ -427,6 +431,7 @@ const ChartPage = () => {
   const [showAllLeaderboard, setShowAllLeaderboard] = useState(false);
   const pm25 = data?.air_quality?.pm2_5 ?? 0;
   const aqiGradient = getAqiGradient(pm25);
+  const [weatherRefreshSuccess, setWeatherRefreshSuccess] = useState(false);
   const weatherGradient = data?.weather 
   ? getWeatherGradient(
       data.weather.weather_code || 0,
@@ -441,6 +446,32 @@ const ChartPage = () => {
   const [simElectricity, setSimElectricity] = useState(100);
   const [simWaste, setSimWaste] = useState(100); 
   const navigate = useNavigate();
+const getDisplayError = () => {
+  // Priority: 1. User Info (critical), 2. Leaderboard, 3. Weather, 4. General
+  const errors = [
+    { priority: 1, message: userInfoError, type: 'user' },
+    { priority: 2, message: leaderboardError, type: 'leaderboard' },
+    { priority: 3, message: weatherError, type: 'weather' },
+    { priority: 4, message: error, type: 'general' }
+  ].filter(e => e.message);
+
+  // If multiple errors (2+), showing persistent combined message
+  if (errors.length >= 2) {
+    const errorTypes = errors.map(e => e.type).join(', ');
+    return {
+      message: `Multiple system errors detected (${errors.length}). Please refresh the page to resolve.`,
+      isPersistent: true,
+      count: errors.length
+    };
+  }
+
+  // Returning highest priority error (auto-dismissable)
+  return errors.length > 0 ? {
+    message: errors[0].message,
+    isPersistent: false,
+    count: 1
+  } : null;
+};
 const hoverTimeoutRef = useRef(null);
 const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
   setLoadingWeather(true);
@@ -463,8 +494,8 @@ const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
         );
       });
 
-      lat = parseFloat(pos.coords.latitude.toFixed(4));
-      lon = parseFloat(pos.coords.longitude.toFixed(4));
+    lat = Math.round(pos.coords.latitude * 100) / 100;
+    lon = Math.round(pos.coords.longitude * 100) / 100;
     } catch (err) {
       console.warn("Geolocation unavailable, using IP location");
     }
@@ -477,7 +508,6 @@ const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
       params.append("lon", lon);
     }
     
-    // Only add refresh parameter if explicitly requested via button
     if (forceRefresh) {
       params.append("refresh", "true");
     }
@@ -491,12 +521,20 @@ const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
     setData(res.data);
     setWeatherRequested(true);
 
-    // Use backend timestamp if available, fallback to current time
     const backendTimestamp = res.data.timestamp ? new Date(res.data.timestamp).getTime() : Date.now();
     setWeatherTimestamp(backendTimestamp);
+    sessionStorage.setItem('weatherTimestamp', backendTimestamp.toString());
     
+    // **FIX: Reset refresh button state after successful refresh**
     if (forceRefresh) {
       setShowRefreshButton(false);
+      setRefreshCooldown(600); // Reset to 10 minutes cooldown
+      
+      // **NEW: Show success message**
+      setWeatherRefreshSuccess(true);
+      setTimeout(() => {
+        setWeatherRefreshSuccess(false);
+      }, 3000);
     }
     
     if (res.data.refreshAllowedIn !== undefined) {
@@ -504,8 +542,11 @@ const fetchWeatherAndAqi = useCallback(async (forceRefresh = false) => {
     } else {
       setRefreshCooldown(0);
     }
-  } catch (err) {
+    } catch (err) {
     console.error("Failed to fetch weather data:", err);
+    setWeatherError("Unable to fetch weather data. Please try again later.");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => setWeatherError(null), 5000);
   } finally {
     setLoadingWeather(false);
   }
@@ -515,8 +556,17 @@ const isWeatherDataExpired = () => {
   const thirtyMinutes = 30 * 60 * 1000;
   return (currentTime - weatherTimestamp) > thirtyMinutes;
 };
+const fetchWeatherDebounced = useRef(null);
 const handleGetWeatherInfo = async () => {
-  await fetchWeatherAndAqi();
+  if (loadingWeather) return; // Preventing concurrent requests
+  
+  if (fetchWeatherDebounced.current) {
+    clearTimeout(fetchWeatherDebounced.current);
+  }
+  
+  fetchWeatherDebounced.current = setTimeout(async () => {
+    await fetchWeatherAndAqi();
+  }, 300);
 };
 const handleLogout = async () => {
   setLogoutError('');
@@ -556,8 +606,12 @@ useEffect(() => {
       const res = await API.get('/auth/token-info/me'); 
       setUser(res.data);
       sessionStorage.setItem('userName', res.data.name);
+      setUserInfoError(null); // Clear error on success
     } catch (err) {
       console.error('Failed to load user info:', err);
+      setUserInfoError("Unable to load user information. Please refresh the page.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => setUserInfoError(null), 5000);
     }
   };
   fetchUser();
@@ -597,7 +651,18 @@ const [projectionData, setProjectionData] = useState([]);
 const svgRef = useRef(null);
 const chartRef = useRef(null);
 const comparison = Object.keys(values).map(cat => ({ category: cat.charAt(0).toUpperCase() + cat.slice(1), user: values[cat], global: globalAverages[cat]  }));
-const pieData = Object.entries(values).map(([k, v]) => ({ x: k.charAt(0).toUpperCase() + k.slice(1), y: v, label: v != null ? `${k}: ${v.toFixed(1)} kg` : `${k}: No data`}));
+const units = {
+  food: 'kg',
+  transport: 'km',
+  electricity: 'kWh',
+  waste: 'kg'
+};
+const pieData = Object.entries(values).map(([k, v]) => ({ 
+  x: k.charAt(0).toUpperCase() + k.slice(1), 
+  y: v, 
+  unit: units[k.toLowerCase()] || 'kg',
+  label: v != null ? `${k}: ${v.toFixed(1)} kg` : `${k}: No data`
+}));
 const yearly = total * 12;
 const yearlyChartData = useMemo(() => { if (!total) return [];
 const currentMonth = new Date(entryData?.createdAt || entryData?.updatedAt).getMonth(); // 0-11
@@ -657,14 +722,17 @@ useEffect(() => {
         });
 
         if (isMounted) {
-          setLeaderboard(lbRes.data || []);
-        }
+        setLeaderboard(lbRes.data || []);
+        setLeaderboardError(null); // Clear error on success
+      }
       }
     } catch (err) {
-      if (isMounted && err.name !== "AbortError") {
-        setError(err.message || "Failed to load data");
-      }
+    if (isMounted && err.name !== "AbortError") {
+      setLeaderboardError("Failed to load leaderboard data. Please refresh the page.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => setLeaderboardError(null), 5000);
     }
+  }
   };
 
   fetchAllData();
@@ -789,6 +857,45 @@ useEffect(() => {
     return () => clearTimeout(timer);
   }
 }, [expandedLeaderboardUser]);
+useEffect(() => {
+  // Only auto-clear if this is the ONLY error
+  const errorCount = [userInfoError, leaderboardError, weatherError, error].filter(Boolean).length;
+  
+  if (leaderboardError && errorCount === 1) {
+    const timer = setTimeout(() => setLeaderboardError(null), 5000);
+    return () => clearTimeout(timer);
+  }
+}, [leaderboardError, userInfoError, weatherError, error]);
+
+useEffect(() => {
+  // Only auto-clear if this is the ONLY error
+  const errorCount = [userInfoError, leaderboardError, weatherError, error].filter(Boolean).length;
+  
+  if (weatherError && errorCount === 1) {
+    const timer = setTimeout(() => setWeatherError(null), 5000);
+    return () => clearTimeout(timer);
+  }
+}, [weatherError, userInfoError, leaderboardError, error]);
+
+useEffect(() => {
+  // Only auto-clear if this is the ONLY error
+  const errorCount = [userInfoError, leaderboardError, weatherError, error].filter(Boolean).length;
+  
+  if (userInfoError && errorCount === 1) {
+    const timer = setTimeout(() => setUserInfoError(null), 5000);
+    return () => clearTimeout(timer);
+  }
+}, [userInfoError, leaderboardError, weatherError, error]);
+
+useEffect(() => {
+  // Only auto-clear if this is the ONLY error
+  const errorCount = [userInfoError, leaderboardError, weatherError, error].filter(Boolean).length;
+  
+  if (error && errorCount === 1) {
+    const timer = setTimeout(() => setError(null), 5000);
+    return () => clearTimeout(timer);
+  }
+}, [error, userInfoError, leaderboardError, weatherError]);
 const displayedUsers = showAllLeaderboard ? leaderboard : leaderboard.slice(0, 10);
 const hasMore = leaderboard.length > 10;
   if (!processed) {
@@ -804,11 +911,6 @@ const hasMore = leaderboard.length > 10;
 return (
   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }} style={{ touchAction: 'pan-y' }} className=" min-h-screen text-white">
     <PageWrapper backgroundImage="/images/chart-bk.webp" className="flex-1 flex flex-col">
-    {error && (
-        <div className="bg-red-500/80 text-white p-4 text-center">
-          {error}
-        </div>
-      )}
 <div className="w-auto px-0">
   <CardNav
     logo={<LottieLogo isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />}
@@ -844,10 +946,41 @@ return (
 </div>
       <div className="max-w-4xl mx-auto sm:space-y-12 space-y-6 px-4 pt-4 pb-4">
         
-        {/* Total Emissions */}
+        {/* Total Emissions & Heading */}
         <div className="group relative">
           <div className="absolute -inset-1  rounded-3xl bg-emerald-500/20 dark:bg-gray-100/10 blur-xl pointer-events-none transition-all duration-500 group-hover:blur-2xl" />
           <AnimatedHeadline />
+        {(() => {
+          const displayError = getDisplayError();
+          if (!displayError) return null;
+          return (
+            <motion.div 
+              className={`backdrop-blur-xl rounded-3xl p-4 border shadow-lg ${
+                displayError.isPersistent 
+                  ? 'bg-gradient-to-br from-red-500/20 via-orange-500/15 to-rose-500/20 border-red-400/40 shadow-red-500/10' 
+                  : 'bg-gradient-to-br from-amber-400/15 via-orange-400/10 to-rose-400/15 border-amber-300/30 shadow-amber-500/10'
+              }`}
+              initial={{ opacity: 0, scale: 0.92, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: -10 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <p className={`font-intertight font-medium text-sm sm:text-lg text-center flex items-center justify-center gap-2 tracking-wide ${
+                  displayError.isPersistent ? 'text-red-300' : 'text-amber-200'
+                }`}>
+                  <span className="text-xl animate-pulse">⚠️</span>
+                  {displayError.message}
+                </p>
+                {displayError.isPersistent && (
+                  <p className="text-xs text-red-400/80 font-intertight">
+                    🔒 This error will persist until page refresh
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          );
+        })()}
           <motion.div
             className="relative  mt-8  bg-gray-900/80 sm:w-4/5 sm:ml-14 backdrop-blur-xl p-6 rounded-3xl shadow-lg text-center transition-transform duration-500 group-hover:scale-105"
             initial={{ scale: 0.95 }}
@@ -1384,25 +1517,24 @@ return (
         whileTap={{ scale: 0.95 }}
       >
         <motion.span
-          layout
-          initial={false}
-          animate={{
-            scale: selectedIndex === index ? 1.15 : 1,
-            color: selectedIndex === index ? '#34d399' : '',
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 300,
-            damping: 20,
-          }}
-          className={`-mb-2 transition-colors duration-300 ease-in-out sm:text-xl text-shadow-DEFAULT font-intertight font-light tracking-normal ${
-            selectedIndex === index ? 'font-semibold' : 'font-normal'
-          }`}
-        >
-          {item.x}
-        </motion.span>
+        layout
+        initial={false}
+        animate={{
+          scale: selectedIndex === index ? 1.15 : 1,
+          color: selectedIndex === index ? '#34d399' : '',
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 20,
+        }}
+        className={`-mb-2 transition-colors duration-300 ease-in-out sm:text-xl text-shadow-DEFAULT font-intertight font-light tracking-normal ${
+          selectedIndex === index ? 'font-semibold' : 'font-normal'
+        }`}
+      >
+        {item.x} <span className="text-xs opacity-70">({item.unit})</span>
+      </motion.span>
 
-        {/* ✅ Always rendered, just fade in/out */}
         <motion.span
           initial={false}
           animate={{
@@ -2295,7 +2427,7 @@ const currentYear = entryDate.getFullYear();
       {/* Expanded*/}
       <motion.div
         className={`transition-all duration-500 ease-in-out overflow-hidden ${
-          expandedWeatherSection === 'weather' ? 'max-h-[1000px] opacity-100 mt-6' : 'max-h-0 opacity-0'
+          expandedWeatherSection === 'weather' ? 'max-h-[1500px] opacity-100 mt-6' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="grid grid-rows-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 font-intertight font-light text-shadow-DEFAULT">
@@ -2375,28 +2507,6 @@ const currentYear = entryDate.getFullYear();
             </div>
           )}
 
-          {/* Rain Intensity */}
-          {data.weather?.rain_intensity !== undefined && data.weather.rain_intensity > 0 && (
-            <div className="bg-white/10 rounded-xl p-3 text-center">
-              <div className="text-2xl mb-1">🌧️</div>
-              <div className="text-lg font-semibold text-white">
-                {data.weather.rain_intensity.toFixed(1)} mm/h
-              </div>
-              <div className="text-xs text-gray-300">Rain Intensity</div>
-            </div>
-          )}
-
-          {/* Precipitation Type */}
-          {data.weather?.precipitation_type && data.weather.precipitation_type !== "None" && (
-            <div className="bg-white/10 rounded-xl p-3 text-center">
-              <div className="text-2xl mb-1">☔</div>
-              <div className="text-lg font-semibold text-white">
-                {data.weather.precipitation_type}
-              </div>
-              <div className="text-xs text-gray-300">Precipitation</div>
-            </div>
-          )}
-
           {/* Sunrise */}
           {data.weather?.sunrise_time && (
             <div className="bg-white/10 rounded-xl p-3 text-center">
@@ -2420,15 +2530,88 @@ const currentYear = entryDate.getFullYear();
           )}
 
           {/* Moon Phase */}
-          {getTimeOfDay() === 'night' && data.weather?.moon_phase_name && (
+          {getTimeOfDay() === "night" && data.weather?.moonPhase && (
             <div className="bg-white/10 rounded-xl p-3 text-center">
-              <div className="text-2xl mb-1">🌙</div>
+              
+              {/* Emoji */}
+              <div className="text-2xl mb-1">
+                {data.weather.moonPhase.emoji}
+              </div>
+
+              {/* Phase name */}
               <div className="text-lg font-semibold text-white">
-                {data.weather.moon_phase_name}
+                {data.weather.moonPhase.name}
               </div>
               <div className="text-xs text-gray-300">
-                {(data.weather.moon_phase_value * 100).toFixed(1)}%
+                {data.weather.moonPhase.illumination}% illuminated
               </div>
+
+            </div>
+          )}
+
+          {/* Rain Intensity */}
+          {data.weather?.rain_intensity !== undefined && data.weather.rain_intensity > 0 && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">
+                {data.weather.rain_intensity < 0.5 ? '🌦️' :
+                data.weather.rain_intensity < 2 ? '🌧️' :
+                data.weather.rain_intensity < 10 ? '⛈️' : '🌊'}
+              </div>
+              <div className="text-lg font-semibold text-white">
+                {data.weather.rain_intensity.toFixed(1)} mm/h
+              </div>
+              <div className="text-xs text-gray-300">
+                {data.weather.rain_intensity < 0.5 ? 'Light Drizzle' :
+                data.weather.rain_intensity < 2 ? 'Moderate Rain' :
+                data.weather.rain_intensity < 10 ? 'Heavy Rain' : 'Very Heavy Rain'}
+              </div>
+            </div>
+          )}
+
+          {/* Precipitation Type */}
+          {data.weather?.precipitation_type && data.weather.precipitation_type !== "None" && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">☔</div>
+              <div className="text-lg font-semibold text-white">
+                {data.weather.precipitation_type}
+              </div>
+              <div className="text-xs text-gray-300">Precipitation</div>
+            </div>
+          )}
+
+          {/* Precipitation Probability - Only show if significant rain */}
+          {data.weather?.precipitation_probability !== undefined && 
+          data.weather.precipitation_probability > 10 && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">💧</div>
+              <div className="text-lg font-semibold text-white">
+                {data.weather.precipitation_probability}%
+              </div>
+              <div className="text-xs text-gray-300">Rain Probability</div>
+            </div>
+          )}
+
+          {/* Pressure Sea Level - Only show if significant rain */}
+          {data.weather?.pressure_sea_level !== undefined && 
+          data.weather.rain_intensity > 0.3 && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">🌊</div>
+              <div className="text-lg font-semibold text-white">
+                {data.weather.pressure_sea_level.toFixed(1)} hPa
+              </div>
+              <div className="text-xs text-gray-300">Sea Level Pressure</div>
+            </div>
+          )}
+
+          {/* Pressure Surface Level - Only show if significant rain */}
+          {data.weather?.pressure_surface_level !== undefined && 
+          data.weather.rain_intensity > 0.3 && (
+            <div className="bg-white/10 rounded-xl p-3 text-center">
+              <div className="text-2xl mb-1">📍</div>
+              <div className="text-lg font-semibold text-white">
+                {data.weather.pressure_surface_level.toFixed(1)} hPa
+              </div>
+              <div className="text-xs text-gray-300">Surface Pressure</div>
             </div>
           )}
         </div>
@@ -2606,20 +2789,34 @@ const currentYear = entryDate.getFullYear();
     {' • Location: ' + (data.location_source === 'browser' ? 'Device GPS' : 'IP Address')}
     {data.refreshed && ' • Force Refreshed'}
   </div>
-    
-    {/* Refresh button */}
-    {showRefreshButton && (
-      <div className="  justify-center">
-        <WeatherButton 
-          textMobile="Refresh Data" 
-          textDesktop="Refresh Weather & AQI Data" 
-          iconType="weather"
-          onClick={() => fetchWeatherAndAqi(true)}
-          loading={loadingWeather}
-          expired={false}
-        />
-      </div>
-    )}
+
+    {/* Success message after refresh */}
+{weatherRefreshSuccess && (
+  <motion.div
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0 }}
+    className="text-center mb-3"
+  >
+    <div className="font-intertight inline-block bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-xl text-sm font-medium">
+      ✅ Weather data refreshed successfully!
+    </div>
+  </motion.div>
+)}
+
+{/* Refresh button */}
+{showRefreshButton && (
+  <div className="justify-center">
+    <WeatherButton 
+      textMobile="Refresh Data" 
+      textDesktop="Refresh Weather & AQI Data" 
+      iconType="weather"
+      onClick={() => fetchWeatherAndAqi(true)}
+      loading={loadingWeather}
+      expired={false}
+    />
+  </div>
+)}
   </div>
 ) : (
   <div className="mt-4 text-center">

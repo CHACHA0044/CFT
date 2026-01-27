@@ -1103,14 +1103,14 @@ let { lat, lon, refresh, forceApi } = req.query;
 try {
   // Get location from IP if coordinates not provided
   if (!lat || !lon) {
-    const ipRes = await axios.get("https://ipapi.co/json/");
-    lat = ipRes.data.latitude;
-    lon = ipRes.data.longitude;
-  }
+      const ipRes = await axios.get("http://ip-api.com/json/");
+      lat = ipRes.data.lat;  // Changed from .latitude
+      lon = ipRes.data.lon;  // Changed from .longitude
+    }
   
-  // Round coordinates to prevent cache key fragmentation
-  lat = parseFloat(parseFloat(lat).toFixed(4));
-  lon = parseFloat(parseFloat(lon).toFixed(4));
+  // Replaced the existing rounding logic because it was creating 2 diffrent cache keys for same loc
+  lat = Math.round(parseFloat(lat) * 100) / 100;
+  lon = Math.round(parseFloat(lon) * 100) / 100;
 const cacheKey = `weather:${lat},${lon}`;
 
 // Check cache first
@@ -1127,14 +1127,31 @@ try {
 }
 
 // If cache exists and NOT a refresh request, return cached data immediately
-if (cached && refresh !== "true") {
+if (cached) {
   const cachedData = JSON.parse(cached);
-  return res.json({
-    ...cachedData,
-    fromCache: true,
-    ttl,
-    cacheKey
-  });
+  
+  if (refresh !== "true") {
+    // Serve cached data immediately
+    res.json({
+      ...cachedData,
+      fromCache: true,
+      ttl,
+      cacheKey
+    });
+    
+    // If TTL < 5 minutes, refresh in background
+    if (ttl > 0 && ttl < 300) {
+      setImmediate(async () => {
+        try {
+          const freshData = await useTomorrow();
+          await redisClient.setEx(cacheKey, 1800, JSON.stringify(freshData));
+        } catch (err) {
+          console.error("Background refresh failed:", err.message);
+        }
+      });
+    }
+    return;
+  }
 }
 
 // If refresh requested, enforce rate limits
@@ -1212,63 +1229,57 @@ if (forceApi) {
    // console.log("🌐 Cache miss or refresh requested - Making API calls...");
     let result = null;
 
-    //Calculating moon phase locally using astronomical formula
     const calculateMoonPhase = (date = new Date()) => {
-      // Using the astronomical formula for moon phase calculation
-      const year = date.getUTCFullYear();
-      const month = date.getUTCMonth() + 1;
-      const day = date.getUTCDate();
-      
-      // Calculate Julian Date
-      let jd = 367 * year - Math.floor(7 * (year + Math.floor((month + 9) / 12)) / 4) 
-             + Math.floor(275 * month / 9) + day + 1721013.5;
-      
-      // Days since new moon on January 6, 2000
-      const daysSinceNew = jd - 2451549.5;
-      
-      // Moon's synodic period (average)
-      const synodicMonth = 29.53058867;
-      
-      // Calculate phase (0 to 1)
-      const phase = (daysSinceNew % synodicMonth) / synodicMonth;
-      
-      let phaseName = "New Moon";
-      let phaseNum = 0;
-      
-      if (phase < 0.03 || phase > 0.97) {
-        phaseName = "New Moon";
-        phaseNum = 0;
-      } else if (phase >= 0.03 && phase < 0.22) {
-        phaseName = "Waxing Crescent";
-        phaseNum = 1;
-      } else if (phase >= 0.22 && phase < 0.28) {
-        phaseName = "First Quarter";
-        phaseNum = 2;
-      } else if (phase >= 0.28 && phase < 0.47) {
-        phaseName = "Waxing Gibbous";
-        phaseNum = 3;
-      } else if (phase >= 0.47 && phase < 0.53) {
-        phaseName = "Full Moon";
-        phaseNum = 4;
-      } else if (phase >= 0.53 && phase < 0.72) {
-        phaseName = "Waning Gibbous";
-        phaseNum = 5;
-      } else if (phase >= 0.72 && phase < 0.78) {
-        phaseName = "Third Quarter";
-        phaseNum = 6;
-      } else if (phase >= 0.78 && phase < 0.97) {
-        phaseName = "Waning Crescent";
-        phaseNum = 7;
-      }
-      
-      //console.log("" Calculated moon phase:", { phase, phaseName, phaseNum });
-      
-      return {
-      phase: phaseNum,
-      name: phaseName,
-      value: parseFloat((Math.cos(phase * 2 * Math.PI) * -0.5 + 0.5).toFixed(4))
-    };
-    };
+  const SYNODIC_MONTH = 29.53058867;
+  const NEW_MOON_JD = 2451549.5; // Jan 6, 2000
+
+  // --- Julian Date ---
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+
+  const jd =
+    367 * year -
+    Math.floor(7 * (year + Math.floor((month + 9) / 12)) / 4) +
+    Math.floor(275 * month / 9) +
+    day +
+    1721013.5;
+
+  // --- Moon age in days ---
+  const daysSinceNew = jd - NEW_MOON_JD;
+  const moonAge = ((daysSinceNew % SYNODIC_MONTH) + SYNODIC_MONTH) % SYNODIC_MONTH;
+
+  // --- Phase fraction (0 → 1) ---
+  const phase = moonAge / SYNODIC_MONTH;
+
+  // --- Illumination (0 → 100%) ---
+  const illumination = Math.round(
+    (1 - Math.cos(2 * Math.PI * phase)) * 50
+  );
+
+  // --- Phase definitions ---
+  const phases = [
+    { name: "New Moon", emoji: "🌑" },
+    { name: "Waxing Crescent", emoji: "🌒" },
+    { name: "First Quarter", emoji: "🌓" },
+    { name: "Waxing Gibbous", emoji: "🌔" },
+    { name: "Full Moon", emoji: "🌕" },
+    { name: "Waning Gibbous", emoji: "🌖" },
+    { name: "Third Quarter", emoji: "🌗" },
+    { name: "Waning Crescent", emoji: "🌘" }
+  ];
+
+  const phaseIndex = Math.floor(phase * 8) % 8;
+
+  return {
+    phaseIndex,
+    name: phases[phaseIndex].name,
+    emoji: phases[phaseIndex].emoji,
+    illumination,        // %
+    waxing: phase < 0.5, // boolean
+    phaseValue: +phase.toFixed(4)
+  };
+};
 
     const useTomorrow = async () => {
       //console.log(" [Tomorrow.io] Fetching...");
@@ -1307,8 +1318,8 @@ if (forceApi) {
       // Fetch all data in parallel
       const [tomorrowRes, airRes, moonPhase, sunTimes] = await Promise.all([
         axios.get(
-  `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,visibility&apikey=${process.env.TOMORROW_API_KEY}`
-),
+          `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,visibility&apikey=${process.env.TOMORROW_API_KEY}`
+        ),
         axios.get(
           `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
         ),
@@ -1332,24 +1343,32 @@ if (forceApi) {
 
       const processedResult = {
         weather: {
-          temperature_2m: values.temperature,
-          relative_humidity_2m: values.humidity,
-          windspeed_10m: values.windSpeed * 3.6, // m/s to km/h
-          apparent_temperature: values.temperatureApparent,
-          weather_code: mapWeatherCode(values.weatherCode),
-          uv_index: values.uvIndex || 0,
-          rain_intensity: values.rainIntensity || 0,
-          precipitation_type: mapPrecipitationType(values.precipitationType),
-          precipitation_type_raw: values.precipitationType || 0,
-          sunrise_time: sunTimes.sunrise,
-          sunset_time: sunTimes.sunset,
-          visibility: values.visibility || 0,
-          moon_phase_value: moonPhase.value,
-          moon_phase: moonPhase.phase,
-          moon_phase_name: moonPhase.name,
-          temp: values.temperature,
-          windspeed: values.windSpeed * 3.6,
-        },
+        temperature_2m: values.temperature,
+        relative_humidity_2m: values.humidity,
+        windspeed_10m: values.windSpeed * 3.6,
+        apparent_temperature: values.temperatureApparent,
+        weather_code: mapWeatherCode(values.weatherCode),
+        uv_index: values.uvIndex || 0,
+        rain_intensity: values.rainIntensity || 0,
+        precipitation_type: mapPrecipitationType(values.precipitationType),
+        precipitation_type_raw: values.precipitationType || 0,
+        precipitation_probability: values.precipitationProbability || 0,
+        pressure_sea_level: values.pressureSeaLevel || 0,
+        pressure_surface_level: values.pressureSurfaceLevel || 0,
+        sunrise_time: sunTimes.sunrise,
+        sunset_time: sunTimes.sunset,
+        visibility: values.visibility || 0,
+        moonPhase: {
+        name: moonPhase.name,
+        emoji: moonPhase.emoji,
+        illumination: moonPhase.illumination,
+        waxing: moonPhase.waxing,
+        phaseValue: moonPhase.phaseValue,
+        phaseIndex: moonPhase.phaseIndex
+      },
+        temp: values.temperature,
+        windspeed: values.windSpeed * 3.6,
+      },
         air_quality: {
           ...airRes.data.current,
           aqi: finalAQI,
@@ -1421,9 +1440,14 @@ if (forceApi) {
           uv_index: weatherData.uv || 0,
           sunrise_time: sunTimes.sunrise, // Using sunrise-sunset.org API
           sunset_time: sunTimes.sunset,   // Using sunrise-sunset.org API
-          moon_phase_value: moonPhase.value,
-          moon_phase: moonPhase.phase,
-          moon_phase_name: moonPhase.name,
+         moonPhase: {
+  name: moonPhase.name,
+  emoji: moonPhase.emoji,
+  illumination: moonPhase.illumination,
+  waxing: moonPhase.waxing,
+  phaseValue: moonPhase.phaseValue,
+  phaseIndex: moonPhase.phaseIndex
+},
           temp: weatherData.temp,
           windspeed: weatherData.wind_spd * 3.6,
         },
@@ -1490,9 +1514,14 @@ if (forceApi) {
           ...omWeather.data.current,
           sunrise_time: sunTimes.sunrise,
           sunset_time: sunTimes.sunset,
-          moon_phase_value: moonPhase.value,
-          moon_phase: moonPhase.phase,
-          moon_phase_name: moonPhase.name,
+          moonPhase: {
+  name: moonPhase.name,
+  emoji: moonPhase.emoji,
+  illumination: moonPhase.illumination,
+  waxing: moonPhase.waxing,
+  phaseValue: moonPhase.phaseValue,
+  phaseIndex: moonPhase.phaseIndex
+},
         },
         air_quality: {
           ...omAir.data.current,

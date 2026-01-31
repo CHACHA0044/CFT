@@ -3,9 +3,7 @@
 User-agent: *
 Allow: /
 
-# ------------------
 # Block backend APIs
-# ------------------
 Disallow: /api/
 
 # Auth & tokens
@@ -31,7 +29,5 @@ Disallow: /_next/
 Disallow: /server/
 Disallow: /config/
 
-# ------------------
 # SEO
-# ------------------
 Sitemap: https://www.carbonft.app/sitemap.xml

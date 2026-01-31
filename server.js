@@ -1,5 +1,6 @@
 require('dotenv').config();
 const isProd = process.env.NODE_ENV === 'production';
+const { URL } = require('url');
 
 // env check
 if (isProd) { 
@@ -10,6 +11,38 @@ if (isProd) {
     }
   });
 }
+
+//domain trust check for prod deployments
+const isTrustedProdOrigin = (origin) => {
+  try {
+    const hostname = new URL(origin).hostname;
+
+    // allowing first-party domain
+    if (hostname === 'carbonft.app' || hostname === 'www.carbonft.app') {
+      return true;
+    }
+
+    // allowing any Vercel deployment
+    if (
+      hostname.endsWith('.vercel.app') ||
+      hostname.includes('vercel')
+    ) {
+      return true;
+    }
+
+    // allowing Render services
+    if (
+      hostname.endsWith('.onrender.com') ||
+      hostname.includes('render')
+    ) {
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+};
 
 // core modules
 const express = require('express');
@@ -53,10 +86,7 @@ app.use(cors({
     }
 
     // PROD
-    if (
-      isProd &&
-      (origin === 'https://carbonft.app' || origin === 'https://www.carbonft.app')
-    ) {
+    if (isProd && isTrustedProdOrigin(origin)) {
       return callback(null, true);
     }
 

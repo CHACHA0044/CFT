@@ -2175,13 +2175,11 @@ if (yearlyTonnes > 4 && yearlyTonnes <= 7) {
             ]}
             labelFormatter={(label, payload) => {
               const currentMonth = new Date().getMonth();
-              const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                   'July', 'August', 'September', 'October', 'November', 'December'];
+              const fullMonthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                                    
               if (payload && payload[0]) {
                 const data = payload[0].payload;
-                //return `${data.fullMonthName} - Total: ${data.cumulativeKg.toFixed(0)} kg`;
-                return `${fullMonthNames[currentMonth]} - ${data.fullMonthName} : ${data.cumulativeKg.toFixed(0)} kg`;
+                return `${fullMonthNames[currentMonth]} -> ${data.fullMonthName} : ${data.cumulativeKg.toFixed(0)} kg`;
 
               }
               return label;

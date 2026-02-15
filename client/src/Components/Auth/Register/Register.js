@@ -439,44 +439,50 @@ useEffect(() => {
 <form onSubmit={handleSubmit} className={`space-y-4 font-intertight text-shadow-DEFAULT tracking-wide ${
   (validationErrors.name || validationErrors.email || validationErrors.password || shakeForm) ? 'animate-shake' : ''
 }`} noValidate>
-  <input
-    name="name"
-    placeholder="Name"
-    value={formData.name}
-    onChange={handleChange}
-    className={`${inputBase} ${inputDark} ${validationErrors.name ? '!border-red-500 animate-pulse' : ''}`}
-    autoComplete="name"
-    title="Used for your profile"
-  />
+<div className="relative w-full max-w-full">
+    <input
+      name="name"
+      placeholder={validationErrors.name ? "" : "Name"}
+      value={formData.name}
+      onChange={handleChange}
+      className={`${inputBase} ${inputDark} ${validationErrors.name ? '!border-red-500 animate-pulse' : ''}`}
+      autoComplete="name"
+      title="Used for your profile"
+    />
+    
+    {validationErrors.name && (
+      <div className="absolute inset-0 flex items-center px-4 bg-black/90 text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide z-10 pointer-events-none w-full h-full">
+        <span className="animate-user-profile mr-2">🤔</span>
+        <span>{validationErrors.name}</span>
+      </div>
+    )}
+  </div>
   
-  {validationErrors.name && (
-    <div className="px-4 py-3 md:absolute top-[11.5rem] left-[2.7rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide">
-      <span className="animate-user-profile">🤔</span> {validationErrors.name}
-    </div>
-  )}
-  
-  <input
-    name="email"
-    type="email"
-    placeholder="Email"
-    value={formData.email}
-    onChange={handleChange}
-    className={`${inputBase} ${inputMail} ${validationErrors.email ? '!border-red-500 animate-pulse' : ''}`}
-    autoComplete="email"
-    title="We'll never spam you, trust me bro"
-  />
-  
-  {validationErrors.email && (
-    <div className="px-4 py-3 md:absolute top-[15.5rem] left-[2.7rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide">
-      <span className="animate-mail-deliver">📧</span> {validationErrors.email}
-    </div>
-  )}
-  
-  <div className="relative">
+<div className="relative w-full max-w-full">
+    <input
+      name="email"
+      type="email"
+      placeholder={validationErrors.email ? "" : "Email"}
+      value={formData.email}
+      onChange={handleChange}
+      className={`${inputBase} ${inputMail} ${validationErrors.email ? '!border-red-500 animate-pulse' : ''}`}
+      autoComplete="email"
+      title="We'll never spam you, trust me bro"
+    />
+    
+    {validationErrors.email && (
+      <div className="absolute inset-0 flex items-center px-4 bg-black/90 text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide z-10 pointer-events-none w-full h-full">
+        <span className="animate-mail-deliver mr-2">📧</span>
+        <span>{validationErrors.email}</span>
+      </div>
+    )}
+  </div>
+
+<div className="relative w-full max-w-full">
     <input
       name="password"
       type={showPassword ? "text" : "password"}
-      placeholder={passwordPlaceholder}
+      placeholder={validationErrors.password ? "" : passwordPlaceholder}
       value={formData.password}
       onChange={handleChange}
       className={`${inputBase} ${inputPass} pr-12 ${validationErrors.password ? '!border-red-500 animate-pulse' : ''}`}
@@ -485,8 +491,9 @@ useEffect(() => {
     />
     
     {validationErrors.password && (
-      <div className="px-4 py-3 md:absolute top-[0.1rem] left-[0.2rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide">
-        <span className="animate-lock-secure">🔒</span> {validationErrors.password}
+      <div className="absolute inset-0 flex items-center px-4 bg-black/90 text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide z-10 pointer-events-none w-full h-full">
+        <span className="animate-lock-secure mr-2">🔒</span>
+        <span>{validationErrors.password}</span>
       </div>
     )}
     
@@ -494,7 +501,7 @@ useEffect(() => {
       <button
         type="button"
         onClick={() => setShowPassword(!showPassword)}
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none z-20"
       >
         {showPassword ? (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

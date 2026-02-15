@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
-import { SubmitButton, GoogleAuthButton } from 'Components/globalbuttons';
+import { SubmitButton, GoogleAuthButton, HomeHeaderButton } from 'Components/globalbuttons';
 import { inputBase, inputMail, inputPass, boxglow } from 'utils/styles';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
@@ -290,7 +290,7 @@ if (!formData.password.trim()) {
   
   if (errors.email || errors.password) {
     setValidationErrors(errors);
-    setTimeout(() => setValidationErrors({ email: '', password: '' }), 4000);
+    setTimeout(() => setValidationErrors({ email: '', password: '' }), 5000);
     return;
   }
   setHidePasswordToggle(true);
@@ -538,61 +538,67 @@ const handleResendVerification = async () => {
     </p>
   ) : null}
 </div>
-<form onSubmit={handleSubmit} className={`mt-5 space-y-4 font-intertight text-shadow-DEFAULT tracking-wide ${
+<form onSubmit={handleSubmit} className={`mt-5 space-y-4 font-intertight text-shadow-DEFAULT tracking-wide w-full ${
   (validationErrors.email || validationErrors.password || shakeForm) ? 'animate-shake' : ''
 }`} noValidate>
-  <input
-    name="email"
-    type="email"
-    placeholder="Email"
-    value={formData.email}
-    onChange={handleChange}
-    className={`${inputBase} ${inputMail} ${validationErrors.email ? '!border-red-500 animate-pulse' : ''}`}
-    autoComplete="email"
-    title="The email u used"
-  />
+<div className="relative w-full max-w-full">
+    <input
+      name="email"
+      type="email"
+      placeholder={validationErrors.email ? "" : "Email"}
+      value={formData.email}
+      onChange={handleChange}
+      className={`${inputBase} ${inputMail} ${validationErrors.email ? '!border-red-500 animate-pulse' : ''}`}
+      autoComplete="email"
+      title="The email u used"
+    />
+    
+    {validationErrors.email && (
+      <div className="absolute inset-0 flex items-center px-4 bg-black/90 text-white rounded-xl text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide z-10 pointer-events-none w-full h-full">
+        <span className="animate-mail-deliver mr-2">📧</span>
+        <span>{validationErrors.email}</span>
+      </div>
+    )}
+  </div>
   
-  {validationErrors.email && (
-    <div className="px-4 py-3 md:absolute top-[7.6rem] left-[2.8rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide ">
-      <span className="animate-mail-deliver">📧</span>{validationErrors.email} 
-    </div>
-  )}
-  
-  <input
-    name="password"
-    type={showPassword ? "text" : "password"}
-    placeholder="Password"
-    value={formData.password}
-    onChange={handleChange}
-    className={`${inputBase} ${inputPass} ${validationErrors.password ? '!border-red-500 animate-pulse' : ''}`}
-    autoComplete="current-password"
-    title="Password used"
-  />
-  
-  {validationErrors.password && (
-    <div className="px-4 py-3 md:absolute top-[11.7rem] left-[2.8rem] z-10 bg-black text-white rounded-xl shadow-lg text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide -mt-2">
-     <span className="animate-lock-secure">🔒</span> {validationErrors.password}
-    </div>
-  )}
-  
-  {formData.password && !hidePasswordToggle && !mV && (
-    <button
-      type="button"
-      onClick={() => setShowPassword(!showPassword)}
-      className="absolute right-9 md:right-12 top-[164px] md:top-[216px] transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none"
-    >
-      {showPassword ? (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-        </svg>
-      ) : (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-      )}
-    </button>
-  )}
+<div className="relative w-full max-w-full">
+    <input
+      name="password"
+      type={showPassword ? "text" : "password"}
+      placeholder={validationErrors.password ? "" : "Password"}
+      value={formData.password}
+      onChange={handleChange}
+      className={`${inputBase} ${inputPass} ${validationErrors.password ? '!border-red-500 animate-pulse' : ''}`}
+      autoComplete="current-password"
+      title="Password used"
+    />
+    
+    {validationErrors.password && (
+      <div className="absolute inset-0 flex items-center px-4 bg-black/90 text-white rounded-xl text-sm font-intertight font-normal text-shadow-DEFAULT tracking-wide z-10 pointer-events-none w-full h-full">
+        <span className="animate-lock-secure mr-2">🔒</span>
+        <span>{validationErrors.password}</span>
+      </div>
+    )}
+    
+    {formData.password && !hidePasswordToggle && !mV && (
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black transition-colors duration-200 focus:outline-none "
+      >
+        {showPassword ? (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        )}
+      </button>
+    )}
+  </div>
 
   <SubmitButton text="Login" loading={loading} success={success.startsWith('Login Successful')} disabled={loading} />
   <GoogleAuthButton loading={false} />

@@ -753,9 +753,7 @@ export const VisualizeButton = ({ entries = [], className, onClick, ...props }) 
   const handleMainClick = (e) => {
     e.stopPropagation();
     if (entries.length === 1) {
-      setTimeout(() => {
-        if (onClick) onClick(entries[0]);
-      }, 400);
+      setTimeout(() => { if (onClick) onClick(entries[0]); }, 400);
     } else {
       setOpen((prev) => !prev);
     }

@@ -1019,38 +1019,62 @@ html {
 .quantum-quote {
   display: inline-block;
   position: relative;
-  top: -0.35em; 
-  left: 0.05em;
+  top: 0.15em; 
+  left: 0.01em;
   font-size: 1.7rem;
-  color: #7dd3fc; /* sky blue base */
-  text-shadow: 0 0 5px #38bdf8, 0 0 15px #0ea5e9, 0 0 25px #0284c7;
-  animation: quantum-pulse 2.8s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px rgba(56,189,248,0.8));
+  color: #4169E1;
+  text-shadow: 
+    0 0 8px rgba(65, 105, 225, 0.6),
+    0 0 16px rgba(65, 105, 225, 0.4),
+    0 0 24px rgba(65, 105, 225, 0.2);
+  animation: quantum-pulse 3.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  filter: drop-shadow(0 0 10px rgba(65, 105, 225, 0.5));
+  will-change: transform, opacity, color;
 }
 
 @keyframes quantum-pulse {
-  0% {
-    transform: translateY(0) scale(1);
-    color: #7dd3fc;
-    text-shadow: 0 0 4px #38bdf8, 0 0 12px #0ea5e9, 0 0 20px #0284c7;
-    opacity: 0.9;
+  0%, 100% {
+    transform: translateY(0) scale(1) rotateZ(0deg);
+    color: #4169E1;
+    text-shadow: 
+      0 0 8px rgba(65, 105, 225, 0.5),
+      0 0 16px rgba(65, 105, 225, 0.3),
+      0 0 24px rgba(65, 105, 225, 0.15);
+    opacity: 0.92;
+    filter: brightness(1) saturate(1);
   }
-  40% {
-    transform: translateY(-1px) scale(1.15);
-    color: #a5f3fc; /* cyan shimmer */
-    text-shadow: 0 0 8px #67e8f9, 0 0 18px #22d3ee, 0 0 28px #0891b2;
+  
+  25% {
+    transform: translateY(-2px) scale(1.08) rotateZ(-1deg);
+    color: #6495ED;
+    text-shadow: 
+      0 0 12px rgba(100, 149, 237, 0.7),
+      0 0 20px rgba(100, 149, 237, 0.5),
+      0 0 32px rgba(100, 149, 237, 0.3);
     opacity: 1;
+    filter: brightness(1.15) saturate(1.2);
   }
-  70% {
-    transform: translateY(1px) scale(0.95);
-    color: #38bdf8;
-    text-shadow: 0 0 4px #38bdf8, 0 0 10px #0284c7, 0 0 16px #0369a1;
-    opacity: 0.75;
+  
+  50% {
+    transform: translateY(0) scale(1.12) rotateZ(0deg);
+    color: #7B68EE;
+    text-shadow: 
+      0 0 16px rgba(123, 104, 238, 0.8),
+      0 0 28px rgba(123, 104, 238, 0.6),
+      0 0 40px rgba(123, 104, 238, 0.4);
+    opacity: 1;
+    filter: brightness(1.25) saturate(1.3);
   }
-  100% {
-    transform: translateY(0) scale(1);
-    color: #7dd3fc;
-    opacity: 0.9;
+  
+  75% {
+    transform: translateY(1px) scale(1.04) rotateZ(1deg);
+    color: #5B7FCC;
+    text-shadow: 
+      0 0 10px rgba(91, 127, 204, 0.6),
+      0 0 18px rgba(91, 127, 204, 0.4),
+      0 0 28px rgba(91, 127, 204, 0.2);
+    opacity: 0.88;
+    filter: brightness(1.05) saturate(1.1);
   }
 }
 /* 🌍 Elegant Earth with orbiting particles + breathing atmosphere */
@@ -1307,7 +1331,7 @@ html {
 .animate-quote {
   display: inline-block;
   position: relative;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: #fcd34d; /* warm golden tone */
   animation: quote-bounce 2.5s ease-in-out infinite;
   filter: drop-shadow(0 0 3px #fbbf24) drop-shadow(0 0 5px #f59e0b);

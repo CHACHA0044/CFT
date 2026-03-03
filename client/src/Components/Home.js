@@ -382,15 +382,61 @@ const handleEmailClick = (e) => {
   
 <div className="transform sm:translate-x-0 sm:translate-y-0 -translate-x-3 -translate-y-1">
 
-  <div className="flex items-center sm:space-x-2 sm:mb-2 mb-0">
+<div className="flex items-center sm:space-x-2 sm:mb-2 mb-0">
   <motion.div
     ref={titleRef}
     onClick={handleTap}
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-sky-400 dark:text-green-300 tracker-title select-none"
+    className="text-2xl sm:text-4xl md:text-5xl font-germania tracking-normal text-sky-400 dark:text-green-300 tracker-title select-none overflow-hidden"
   >
-Carbon Footprint Tracker
+    {/* Mobile: instant text swap, no animation 
+    <span className="block sm:hidden">
+      {isHeaderExpanded ? 'Carbon Footprint Tracker' : 'CFT'}
+    </span>*/}
+
+    {/* Desktop: animated letter-by-letter morph */}
+    <span className="sm:block relative">
+      <AnimatePresence mode="wait">
+        {isHeaderExpanded ? (
+          <motion.span
+            key="full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="block"
+          >
+            {['C', 'a', 'r', 'b', 'o', 'n', ' ', 'F', 'o', 'o', 't', 'p', 'r', 'i', 'n', 't', ' ', 'T', 'r', 'a', 'c', 'k', 'e', 'r'].map((char, i) => (
+              <motion.span
+                key={`full-${i}`}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.2, 
+                  delay: i * 0.03,
+                  ease: [0.4, 0, 0.2, 1]
+                }}
+                className="inline-block"
+              >
+                {char === ' ' ? '\u00A0' : char}
+              </motion.span>
+            ))}
+          </motion.span>
+        ) : (
+          <motion.span
+            key="short"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            className="block tracking-widest"
+          >
+            CFT
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </span>
   </motion.div>
 
   <motion.div 
@@ -492,7 +538,7 @@ Carbon Footprint Tracker
     Our tracker turns your habits into <span className="font-semibold text-emerald-500 dark:text-sky-400">easy-to-read</span> visuals, shows your yearly footprint, and helps you see how you’re doing <span className="font-semibold text-emerald-500 dark:text-sky-400">compared</span> to others <span className="animate-earth-spin"><span>🌎</span></span>
     </motion.p>
     <motion.p variants={itemVariants} className="hidden sm:block text-base md:text-lg leading-relaxed  text-gray-100" >
-    <span className="font-medium">Ready to see your impact<span className="mini-curious">?</span></span> Tap the <span>"</span><span className="font-semibold text-sky-400 dark:text-green-300">Carbon Footprint Tracker</span><span>"</span> above to
+    <span className="font-medium">Ready to see your impact<span className="mini-curious">?</span></span> Tap the <span className="animate-quote">"</span><span className="font-semibold text-sky-400 dark:text-green-300 font-germania tracking-widest">CFT</span><span className="animate-quote">"</span> above to
     <span onClick={() => navigate('/register')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Register</span> or 
     <span onClick={() => navigate('/login')} className="underline ml-1 decoration-emerald-500/50 hover:decoration-emerald-500 hover:text-emerald-400 cursor-pointer transition-all duration-500 ease-out hover:translate-y-[-2px] inline-block"> Login</span> and start your journey.<br />
     <span className="italic font-medium text-base md:text-lg leading-relaxed text-yellow-300">

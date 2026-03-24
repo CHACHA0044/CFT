@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const carbonEntrySchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true }, // link to user
+  userId: { type: String, required: true, unique: true, index: true }, // link to user
   entries: [
     {
       food: {

@@ -10,6 +10,10 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const redisClient = require('../RedisClient');
 const passport = require('../config/passport');
+const rateLimit = require("express-rate-limit");
+const csrf = require('csurf');
+const isProd = process.env.NODE_ENV === 'production';
+const ALLOWED_ORIGINS = [ "https://carbonft.app", "https://www.carbonft.app", "http://localhost:3000", ];
 
 // HELPER FUNCTIONS
 const formatTime = (date = new Date(), timeZone = "Asia/Kolkata") => {
@@ -112,7 +116,7 @@ const welcomeEmailHtml = (name) => {
   </div>`;
 };
 
-const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
+const feedbackReplyHtml = (name = {}) => {
 
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
@@ -132,9 +136,7 @@ const feedbackReplyHtml = (name, { timeZone = "Asia/Kolkata" } = {}) => {
   </div>`;
 };
 
-const welcomeEmailHtmlG = (name, passwordLink, { timeZone = "Asia/Kolkata" } = {} ) => {
-  const currentTime = formatTime(new Date(), timeZone);
-  const currentDate = formatDate(new Date(), timeZone);
+const welcomeEmailHtmlG = (name = {} ) => {
   return `
   <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
     <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
@@ -158,13 +160,8 @@ const welcomeEmailHtmlG = (name, passwordLink, { timeZone = "Asia/Kolkata" } = {
       Let’s take a step toward a greener future — one entry at a time 🌱
     </p>
     <p style="font-size: 16px; color: #e0e0e0;">
-    You can login using your email(or google as u just did) along with the following password:<br />
-    <a href="${passwordLink}" style="display: inline-block; background: linear-gradient(90deg, #2f80ed, #56ccf2); margin-top: 20px; color: #ffffff; padding: 14px 20px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 18px rgba(47,128,237,0.35);">Password</a>
-    <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong> on <strong>${currentDate}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>3 Days</strong>!</span></p>
-   </p>
-    <p style="font-size: 16px; color: #e0e0e0;">
       <strong>Start exploring:</strong> 
-      <a href="https://cft-self.vercel.app" style="color: #1d4ed8; text-decoration: none;">CFT</a>
+      <a href="https://www.carbonft.app/" style="color: #1d4ed8; text-decoration: none;">CFT</a>
     </p>
     <p style="font-size: 16px; color: #e0e0e0;">
       We’d love to hear about your experience! Feel free to reach out at:
@@ -255,10 +252,65 @@ const deleteKey = async (key) => {
   }
 };
 
-//GETME
-router.get('/token-info/me', async (req, res) => {
+const weatherLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30, // 30 requests / 15 min / IP
+  message: "Too many requests, slow down"
+});
+
+async function redisLimiter(req, res, next) {
+  try {
+    const ip = req.ip;
+    const key = `weather_rl:${ip}`;
+
+    const count = await redisClient.incr(key);
+    if (count === 1) {
+      await redisClient.expire(key, 900);
+    }
+
+    if (count > 30) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+
+    next();
+  } catch (err) {
+    console.error("Redis limiter error:", err.message);
+    next(); // fail open so users aren't blocked
+  }
+}
+
+function generateTokens(userId) {
+  const accessJti = crypto.randomBytes(16).toString('hex');
+  const refreshJti = crypto.randomBytes(16).toString('hex');
+  
+  const accessToken = jwt.sign(
+    { userId, jti: accessJti, type: 'access' },
+    process.env.JWT_SECRET,
+    { expiresIn: '10m' }
+  );
+  
+  const refreshToken = jwt.sign(
+    { userId, jti: refreshJti, type: 'refresh' },
+    process.env.JWT_SECRET,
+    { expiresIn: '14d' }
+  );
+  
+  return { accessToken, refreshToken, refreshJti };
+}
+
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'Strict' : 'Lax',
+    domain: isProd ? '.carbonft.app' : undefined
+  }
+});
+
+// GET ME
+router.get('/token-info/me', authenticateToken, csrfProtection, async (req, res) => {
   const startTime = Date.now();
-  console.log('\n🔐 [/token-info/me] Request received');
+ // console.log('\n [/token-info/me] Request received');
 
   try {
     // Extract token
@@ -268,21 +320,21 @@ router.get('/token-info/me', async (req, res) => {
     }
     
     if (!token) {
-      console.log('❌ [AUTH] No token provided');
+      //console.log(' [AUTH] No token provided');
       return res.status(401).json({ error: 'Missing token' });
     }
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(`✅ [JWT] Token verified for userId: ${decoded.userId}`);
+    //console.log(` [JWT] Token verified for userId: ${decoded.userId}`);
 
-    const cacheKey = `user:profile:${decoded.userId}`;
+    const cacheKey = `user:profile:v2:${decoded.userId}`;
     
     // Try cache first
     const cached = await getCachedData(cacheKey);
     if (cached) {
       const responseTime = Date.now() - startTime;
-      console.log(`⚡ [RESPONSE] Sent from cache in ${responseTime}ms`);
+     // console.log(` [RESPONSE] Sent from cache in ${responseTime}ms`);
       return res.json({
         ...cached.data,
         fromCache: true,
@@ -292,23 +344,24 @@ router.get('/token-info/me', async (req, res) => {
     }
 
     // Fetch from database
-    console.log(`🔍 [DATABASE] Fetching user from MongoDB...`);
+   // console.log(` [DATABASE] Fetching user from MongoDB...`);
     const dbStartTime = Date.now();
     
-    const user = await User.findById(decoded.userId).select('name email isVerified');
+    const user = await User.findOne({ userId: decoded.userId }).select('name isVerified').lean();
     
     const dbTime = Date.now() - dbStartTime;
-    console.log(`📊 [DATABASE] Query completed in ${dbTime}ms`);
+    //console.log(` [DATABASE] Query completed in ${dbTime}ms`);
 
     if (!user) {
-      console.log(`❌ [DATABASE] User not found: ${decoded.userId}`);
+    //  console.log(` [DATABASE] User not found: ${decoded.userId}`);
       return res.status(404).json({ error: 'User not found' });
     }
 
     const userData = {
       name: user.name,
-      email: user.email,
       verified: user.isVerified,
+      //userId: decoded.userId ,
+      // Email removed for security - not exposed to client
     };
 
     // Cache for 30 minutes (1800 seconds)
@@ -316,7 +369,7 @@ router.get('/token-info/me', async (req, res) => {
     await setCachedData(cacheKey, userData, cacheTTL);
 
     const responseTime = Date.now() - startTime;
-    console.log(`✅ [RESPONSE] Sent from database in ${responseTime}ms`);
+    //console.log(` [RESPONSE] Sent from database in ${responseTime}ms`);
     
     res.json({
       ...userData,
@@ -340,100 +393,158 @@ router.get('/token-info/me', async (req, res) => {
   }
 });
 
-//LOGIN
-router.post('/login', async (req, res) => {
-  console.log(' [/login] Login attempt started');
+// CSRF(cross site request forgery) protection on GET requests doesn't make sense. CSRF tokens are for state-changing operations (POST, PUT, DELETE).
+router.get('/csrf-token', csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
+
+// LOGIN
+router.post('/login', csrfProtection, async (req, res) => {
+  const startTime = Date.now();
+  console.log('[LOGIN] Authentication request initiated');
   
   try {
     const { email, password } = req.body;
     
+    // Early validation to fail fast
     if (!email || !password) {
-      console.log(' [VALIDATION] Missing email or password');
+      console.log('[LOGIN] Validation failed - missing credentials');
       return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    console.log(` [LOGIN] Attempt for email: ${email}`);
+    console.log(`[LOGIN] Processing login for: ${email}`);
 
-    // Check rate limit
+    // Rate limiting check - this should be first to prevent abuse
     const loginAttemptKey = `login:attempts:${email}`;
-    const rateLimit = await getRateLimitData(loginAttemptKey);
+    const { count: attemptCount, ttl: attemptTTL } = await getRateLimitData(loginAttemptKey);
     
-    if (rateLimit.count >= 5) {
-      console.log(` [RATE LIMIT] Login blocked for ${email}`);
+    if (attemptCount >= 5) {
+      console.log(`[LOGIN] Rate limit exceeded for ${email} - ${attemptCount} attempts`);
       return res.status(429).json({ 
         error: 'Too many login attempts. Please try again later.',
-        retryAfter: rateLimit.ttl,
+        retryAfter: attemptTTL,
         attemptsRemaining: 0
       });
     }
+    //Blacklisting old token if user is already logged in
+    try {
+      if (req.cookies?.token) {
+        const oldToken = req.cookies.token;
+        const decoded = jwt.decode(oldToken);
+        
+        if (decoded && decoded.jti) {
+          const oldBlacklistKey = `blacklist:jti:${decoded.jti}`;
+          const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+          
+          if (ttl > 0) {
+            await setCachedData(oldBlacklistKey, { invalidated: true }, ttl);
+            console.log(`[LOGIN] Old token blacklisted: ${decoded.jti}`);
+          }
+        }
+      }
+    } catch (blacklistErr) {
+      console.warn('[LOGIN] Could not blacklist old token:', blacklistErr.message);
+      // Continuing with login even if blacklist fails
+    }
 
-    // Find user (cache this query)
-    const userCacheKey = `user:auth:${email}`;
-    let user;
+    // Optimized user lookup with caching
+    const userCacheKey = `user:login:${email}`;
+    let user = null;
+    let fromCache = false;
+
+    // Try cache first for faster response
+    const cachedUser = await getCachedData(userCacheKey);
     
-    const cached = await getCachedData(userCacheKey);
-    if (cached) {
-      console.log(`[CACHE] User data from cache`);
-      // Still need to fetch from DB to verify current state
-      user = await User.findById(cached.data.userId);
-    } else {
-      console.log(`[DATABASE] Looking up user: ${email}`);
-      user = await User.findOne({ email });
+    if (cachedUser?.data) {
+      console.log(`[LOGIN] User data retrieved from cache`);
+      fromCache = true;
       
-      // Cache user lookup for 5 minutes
+      // Fetching minimal user data from database to verify current state
+      user = await User.findOne({ userId: cachedUser.data.userId })
+        .select('_id userId email passwordHash isVerified provider welcomeEmailSent')
+        .lean();
+    } else {
+      console.log(`[LOGIN] Querying database for user`);
+      
+      // Optimized database query with lean() and minimal field selection
+      user = await User.findOne({ email })
+        .select('_id userId name email passwordHash isVerified provider welcomeEmailSent')
+        .lean();
+      
+      // Cached user lookup for 10 minutes to speed up subsequent attempts
       if (user) {
-        await setCachedData(userCacheKey, { userId: user._id }, 300);
+        await setCachedData(userCacheKey, { 
+          userId: user.userId,  // custom userId
+          isVerified: user.isVerified 
+        }, 600);
+        console.log(`[LOGIN] User data cached for future requests`);
       }
     }
     
+    // User not found - increment rate limit before responding
     if (!user) {
-      console.log(`[AUTH] User not found: ${email}`);
+      console.log(`[LOGIN] Authentication failed - user not found: ${email}`);
       await incrementRateLimit(loginAttemptKey, 900);
+      
+      // Use generic error message to prevent user enumeration
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
-    // Rest of your password verification logic...
-    console.log(` [AUTH] Verifying password...`);
+    // Password verification - this is CPU intensive so we do it after all checks
+    console.log(`[LOGIN] Verifying password for user`);
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     
     if (!isPasswordValid) {
-      console.log(` [AUTH] Invalid password for: ${email}`);
+      console.log(`[LOGIN] Authentication failed - invalid password for: ${email}`);
       await incrementRateLimit(loginAttemptKey, 900);
+      
+      // Same generic error to prevent user enumeration
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
+    // Email verification check
     if (!user.isVerified) {
-      console.log(` [AUTH] Unverified account: ${email}`);
-      return res.status(403).json({ error: 'Please verify your email before logging in.' });
+      console.log(`[LOGIN] Account not verified: ${email}`);
+      return res.status(403).json({ 
+        error: 'Please verify your email before logging in.' 
+      });
     }
 
-    // Clear failed attempts
+    // Successful login - clear failed attempts and generate token
     await deleteKey(loginAttemptKey);
-    console.log(` [RATE LIMIT] Cleared failed attempts for: ${email}`);
+    console.log(`[LOGIN] Failed attempts cleared for: ${email}`);
 
-    // Generate token
+    // Generating JWT with custom userId instead of MongoDB _id
     const token = jwt.sign(
-      { userId: user._id, email: user.email }, 
-      process.env.JWT_SECRET, 
+      {
+        userId: user.userId,  //Using custom userId field, NOT user._id
+        jti: crypto.randomBytes(16).toString('hex')
+      },
+      process.env.JWT_SECRET,
       { expiresIn: '3d' }
     );
+
     const isProd = process.env.NODE_ENV === 'production';
 
+    // Set secure HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: isProd,           // true in prod
-      sameSite: isProd ? 'None' : 'Lax',  // None for cross-origin in prod
+      secure: isProd,
+      sameSite: 'Strict',
+      domain: isProd ? '.carbonft.app' : undefined,
       path: '/',
       maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 
-    console.log(` [LOGIN SUCCESS] User logged in: ${email} | From cache: ${!!cached}`);
-     // WELCOME EMAIL ON FIRST LOGIN (for local users only)
+    const responseTime = Date.now() - startTime;
+    console.log(`[LOGIN] Authentication successful for: ${email} | Time: ${responseTime}ms | Cache: ${fromCache}`);
+
+    // Send welcome email for first-time local users asynchronously
     if (user.provider === 'local' && !user.welcomeEmailSent) {
-      // email after a delay to avoid Gmail spam filters
-      setTimeout(async () => {
+      setImmediate(async () => {
         try {
-          console.log(`[1st] Sending welcome email to: ${email}`);
+          console.log(`[LOGIN] Scheduling welcome email for first-time user`);
           
           await sendEmail(
             user.email,
@@ -441,33 +552,39 @@ router.post('/login', async (req, res) => {
             welcomeEmailHtml(user.name)
           );
           
-          // Update the welcomeEmailSent flag
-          await User.findByIdAndUpdate(user._id, { welcomeEmailSent: true });
+          // Update flag without blocking
+          await User.findByIdAndUpdate(
+            user._id, 
+            { welcomeEmailSent: true },
+            { lean: true }
+          );
           
-          console.log(`[1st]Welcome email sent successfully to: ${email}`);
+          console.log(`[LOGIN] Welcome email sent successfully`);
         } catch (emailError) {
-          console.error(`❌ [1st] Failed to send to ${email}:`, emailError.message);
-          // not blocking login if email fails
+          console.error(`[LOGIN] Welcome email failed: ${emailError.message}`);
         }
-      }, 10000); // 10 second delay - user will be on dashboard by then
-    } else if (user.provider === 'local') {
-      console.log(`ℹ️ [LOGIN] Welcome email already sent to: ${email}`);
+      });
     }
-    res.json({
+
+    // Return minimal response without sensitive data
+    return res.json({
       message: 'Login successful',
       user: {
-        name: user.name,
-        email: user.email,
-      },
+        name: user.name
+      }
     });
 
   } catch (err) {
-    console.error('❌ [SERVER ERROR] Login error:', err);
-    res.status(500).json({ error: 'Server error during login.' });
+    const responseTime = Date.now() - startTime;
+    console.error(`[LOGIN] Server error after ${responseTime}ms:`, err.message);
+    
+    return res.status(500).json({ 
+      error: 'Server error during login.' 
+    });
   }
 });
 
-//LOGOUTT
+// LOGOUTT
 router.post('/logout', authenticateToken, async (req, res) => {
   console.log('\n🚪 [/logout] Logout request received');
   
@@ -479,7 +596,7 @@ router.post('/logout', authenticateToken, async (req, res) => {
       const ttl = decoded.exp - Math.floor(Date.now() / 1000);
       
       if (ttl > 0) {
-        const blacklistKey = `blacklist:token:${token}`;
+        const blacklistKey = `blacklist:jti:${decoded.jti}`;
         // blacklisting token when user logs out,storing it in Redis with a TTL equal to its remaining lifetime...prevents reuse of that JWT even before its natural expiry
         await setCachedData(blacklistKey, { invalidated: true }, ttl);
         console.log(`🔒 [TOKEN BLACKLIST] Token invalidated | TTL: ${ttl}s`);
@@ -497,12 +614,11 @@ router.post('/logout', authenticateToken, async (req, res) => {
      res.clearCookie('token', {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? 'None' : 'Lax',
-      path: '/',
+      sameSite: 'Strict',
+      domain: isProd ? '.carbonft.app' : undefined,
     });
 
-    console.log(`✅ [LOGOUT SUCCESS]`);
-    res.json({ message: 'Logged out successfully' });
+return res.json({ message: 'Logged out successfully' });
 
   } catch (err) {
     console.error('❌ [SERVER ERROR] Logout error:', err);
@@ -510,8 +626,8 @@ router.post('/logout', authenticateToken, async (req, res) => {
   }
 });
 
-//FEEDBACK SUBMISSION RECORD OF EVERY USER
-router.post('/feedback/submit', authenticateToken, async (req, res) => {
+// FEEDBACK SUBMISSION RECORD OF EVERY USER
+router.post('/feedback/submit', csrfProtection, authenticateToken, async (req, res) => {
   console.log('\n📝 [/feedback/submit] Feedback submission started');
   
   try {
@@ -522,19 +638,19 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: "Feedback message is required." });
     }
 
-    // Rate limit: 3 submissions per hour
+    // Rate limit: 1 submission per day (24 hours)
     const feedbackRateKey = `feedback:submissions:${req.user.userId}`;
     const rateLimit = await getRateLimitData(feedbackRateKey);
     
-    if (rateLimit.count >= 3) {
+    if (rateLimit.count >= 1) {
       console.log(`🚫 [RATE LIMIT] Feedback blocked for userId: ${req.user.userId} | Submissions: ${rateLimit.count}`);
       return res.status(429).json({ 
-        error: 'You can only submit 3 feedbacks per hour.',
+        error: 'You can only submit 1 feedback per day.',
         retryAfter: rateLimit.ttl
       });
     }
 
-    const user = await User.findById(req.user.userId);
+    const user = await User.findOne({ userId: req.user.userId });
     if (!user) {
       console.log(`❌ [DATABASE] User not found: ${req.user.userId}`);
       return res.status(404).json({ error: "User not found." });
@@ -542,38 +658,79 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
 
     console.log(`📝 [FEEDBACK] Received from ${user.email}: ${feedback.substring(0, 50)}...`);
 
-    // ✅ Increment rate limit counter FIRST
-    await incrementRateLimit(feedbackRateKey, 3600);
+    // ✅ Increment rate limit counter FIRST (24 hours = 86400 seconds)
+    await incrementRateLimit(feedbackRateKey, 86400);
 
     // ✅ Then update database
     user.feedbackGiven = true;
     await user.save();
     console.log(`✅ [DATABASE] feedbackGiven set to true for: ${user.email}`);
 
-    // Send thank you email (non-blocking)
-    try {
-      await sendEmail(
+    // Prepare feedback notification email for admin
+    const currentTime = formatTime(new Date(), "Asia/Kolkata");
+    const currentDate = formatDate(new Date(), "Asia/Kolkata");
+    
+    const feedbackNotificationHtml = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
+        <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
+          <h1 style="margin: 0; font-size: 20px;">📝 New Feedback Received</h1>
+        </div>
+        <div style="padding: 20px 16px 12px;">
+          <div style="background: rgba(255, 255, 255, 0.08); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); max-width: 600px; margin: auto; padding: 24px 20px; box-shadow: 0 0 22px rgba(255, 255, 255, 0.18);">
+            <h2 style="font-size: 18px; margin: 0 0 20px; color: #e0e0e0;">Feedback Details</h2>
+            
+            <div style="background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+              <p style="margin: 0 0 10px; color: #a0a0a0; font-size: 14px;"><strong>From:</strong> ${user.name}</p>
+              <p style="margin: 0 0 10px; color: #a0a0a0; font-size: 14px;"><strong>Email:</strong> ${user.email}</p>
+              <p style="margin: 0 0 10px; color: #a0a0a0; font-size: 14px;"><strong>User ID:</strong> ${user._id}</p>
+              <p style="margin: 0; color: #a0a0a0; font-size: 14px;"><strong>Time:</strong> ${currentTime} on ${currentDate}</p>
+            </div>
+            
+            <div style="background: rgba(47, 128, 237, 0.1); border-left: 4px solid #2f80ed; padding: 15px; border-radius: 8px;">
+              <p style="margin: 0 0 8px; color: #56ccf2; font-size: 14px; font-weight: bold;">Feedback Message:</p>
+              <p style="margin: 0; color: #e0e0e0; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${feedback}</p>
+            </div>
+          </div>
+        </div>
+        <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Feedback System</div>
+      </div>
+    `;
+
+    // Send emails asynchronously
+    const emailPromises = [
+      // Thank you email to user
+      sendEmail(
         user.email,
         "Thanks for your feedback ✨",
         feedbackReplyHtml(user.name, { timeZone: "Asia/Kolkata" })
-      );
-      console.log(`✅ [EMAIL] Thank-you email sent to: ${user.email}`);
+      ).catch(err => {
+        console.error(`❌ [EMAIL ERROR] Thank-you email failed for ${user.email}:`, err.message);
+        return { success: false, type: 'user' };
+      }),
       
-      return res.json({ 
-        message: "Feedback submitted successfully! Thank-you email sent.",
-        feedbackReceived: true,
-        emailSent: true
-      });
-    } catch (emailError) {
-      console.error(`❌ [EMAIL ERROR] Failed to send to ${user.email}:`, emailError.message);
-      
-      // Even if email fails, feedback was recorded
-      return res.json({ 
-        message: "Feedback submitted successfully, but thank-you email failed to send.",
-        feedbackReceived: true,
-        emailSent: false 
-      });
-    }
+      // Feedback notification to admin
+      sendEmail(
+        "pdembla@student.iul.ac.in",
+        `New Feedback from ${user.name}`,
+        feedbackNotificationHtml
+      ).catch(err => {
+        console.error(`❌ [EMAIL ERROR] Admin notification failed:`, err.message);
+        return { success: false, type: 'admin' };
+      })
+    ];
+
+    const emailResults = await Promise.all(emailPromises);
+    
+    const userEmailSuccess = emailResults[0] !== undefined && emailResults[0].success !== false;
+    const adminEmailSuccess = emailResults[1] !== undefined && emailResults[1].success !== false;
+
+    console.log(`✅ [EMAIL] User thank-you: ${userEmailSuccess}, Admin notification: ${adminEmailSuccess}`);
+
+    return res.json({ 
+      message: "Feedback submitted successfully!",
+      feedbackReceived: true,
+      emailSent: userEmailSuccess
+    });
 
   } catch (err) {
     console.error("❌ [SERVER ERROR] Feedback submission error:", err);
@@ -581,12 +738,12 @@ router.post('/feedback/submit', authenticateToken, async (req, res) => {
   }
 });
 
-//THANKS MY G
-router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => {
+// THANKS MY G
+router.post('/feedback/resend-thankyou', authenticateToken, csrfProtection, async (req, res) => {
   console.log('\n📧 [/feedback/resend-thankyou] Resend request received');
   
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findOne({ userId: req.user.userId });
     if (!user) return res.status(404).json({ error: "User not found." });
     if (!user.email) return res.status(400).json({ error: "User email not found." });
 
@@ -605,8 +762,8 @@ router.post('/feedback/resend-thankyou', authenticateToken, async (req, res) => 
   }
 });
 
-//REGISTER
-router.post('/register', async (req, res) => {
+// REGISTER
+router.post('/register', csrfProtection, async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: 'All fields are required.' });
@@ -614,10 +771,14 @@ router.post('/register', async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(409).json({ error: 'Email already in use.' });
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    const passwordHash = await bcrypt.hash(password, 10); //previously 12 but reduced to save cpu cost and time
     const verificationToken = jwt.sign({ email, jti: crypto.randomBytes(16).toString('hex')},  process.env.JWT_SECRET,  { expiresIn: '10m' });
-    
+    const randomPart = crypto.randomBytes(16).toString('hex');
+    const timestampPart = Date.now().toString(36);
+    const userId = `CFT_user_${randomPart}_${timestampPart}_`;
+
     const newUser = new User({
+      userId,
       name,
       email,
       passwordHash,
@@ -625,20 +786,39 @@ router.post('/register', async (req, res) => {
       isVerified: false,
       resendAttempts: 0,        
       lastResendAt: Date.now(), 
+      // userId will be auto-generated by pre-save hook
     });
     await newUser.save();
 
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
-    await sendEmail(email, 'Verify your Carbon Footprint Tracker account', emailHtml(name, verificationLink));
+    const verificationLink =
+      `${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
 
-    res.status(201).json({ message: 'User registered. Please check your email to verify your account.' });
+    try {
+      await sendEmail(
+        email,
+        'Verify your Carbon Footprint Tracker account',
+        emailHtml(name, verificationLink)
+      );
+    } catch (emailErr) {
+      console.error('❌ Email send failed:', emailErr.message);
+
+      // IMPORTANT: user exists but email didn't go → frontend
+      return res.status(400).json({
+        error: 'We could not deliver email. Please check your email address and try again.'
+      });
+    }
+
+    res.status(201).json({
+      message: 'Registration successful! Please check your email to verify your account.'
+    });
+
   } catch (err) {
     console.error('❌ Registration error:', err);
     res.status(500).json({ error: 'Server error during registration.' });
   }
 });
 
-//VERIFYROUTE
+// VERIFYROUTE
 router.get('/verify-email/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -725,7 +905,7 @@ router.get('/verify-email/:token', async (req, res) => {
   }
 });
 
-//USERNAME FROM EMAIL
+// USERNAME FROM EMAIL
 router.get('/verify-email/:token/preview', async (req, res) => {
   try {
     const { token } = req.params;
@@ -759,11 +939,27 @@ router.get('/verify-email/:token/preview', async (req, res) => {
   }
 });
 
-//RESEND VERIFICATION EMAIL
-router.post('/resend-verification', async (req, res) => {
+// RESEND VERIFICATION EMAIL
+router.post('/resend-verification', csrfProtection, async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+
+if (!user) {
+  // try finding by previous pending email
+  user = await User.findOne({
+    isVerified: false,
+    provider: "local"
+  });
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found." });
+  }
+
+  // Update email
+  user.email = email;
+}
+
     if (!user) return res.status(404).json({ error: 'User not found.' });
     if (user.isVerified) return res.status(400).json({ error: 'Account already verified.' });
 
@@ -796,201 +992,294 @@ router.post('/resend-verification', async (req, res) => {
 
 // WAKEUP SON
 router.get('/ping', async (req, res) => {
-  //setting headers for cors issues so tht fe can call this endpoint across domains
-  res.set({
-    'Access-Control-Allow-Origin': req.headers.origin || '*',
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
-    'Content-Type': 'application/json'
-  });
+    //not setting headers now because single domain(for cors issues so tht FE can call this endpoint across domains)
+    // res.set({
+    //   'Access-Control-Allow-Origin': req.headers.origin || '*',
+    //   'Access-Control-Allow-Credentials': 'true',
+    //   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    //   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+    //   'Content-Type': 'application/json'
+    // });
 
-  try {
-    // Lightweight CPU work (dummy hash calc)
-    const sum = Array.from({ length: 1000 }, (_, i) => Math.sqrt(i * Math.random())).reduce((a, b) => a + b, 0);
+    try {
+      // randomized cpu work so each ping does different amount of calculations, makes it harder to predict server load
+      const iterations = Math.floor(500 + Math.random() * 1500); // random between 500-2000 instead of fixed 1000(older)
+      const operations = [
+        (i, r) => Math.sqrt(i * r),
+        (i, r) => Math.pow(i, r % 3),
+        (i, r) => Math.log(i + 1) * r,
+        (i, r) => Math.sin(i) * Math.cos(r * i),
+        (i, r) => (i * r) % 997 // prime number modulo for extra randomness
+      ];
+      
+      // pick random operation for this ping so cpu signature varies each time
+      const operation = operations[Math.floor(Math.random() * operations.length)];
+      const sum = Array.from({ length: iterations }, (_, i) => operation(i, Math.random()))
+        .reduce((a, b) => a + b, 0);
 
-    // Lightweight Redis operation, incr is a redis command that automatically creates pinghit adn increments it, then return incremented value
-    const hits = await redisClient.incr('ping_hits');
+      // Lightweight Redis operation, incr is a redis command that automatically creates pinghit adn increments it, then return incremented value
+      const hits = await redisClient.incr('ping_hits');
 
-    // MDB checking 
-    const mongooseStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-    const readableTime = formatTime(new Date(), "Asia/Kolkata");
-    res.status(200).json({
-      message: `Server is awake and did 14,000,605 calculations...${readableTime}`,
-      cpuSample: sum.toFixed(2),
-      redisHits: hits,
-      mongo: mongooseStatus,
-      timestamp: readableTime,
-      status: 'healthy'
-    });
-  } catch (err) {
-    console.error('❌ Ping error:', err);
-    res.status(500).json({ error: 'Ping failed', details: err.message });
-  }
+      // MDB checking 
+      const mongooseStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+      const readableTime = formatTime(new Date(), "Asia/Kolkata");
+      
+      // randomize response format slightly so its not identical each time, makes scraping harder
+      const calcMessage = Math.random() > 0.5 
+        ? `Server is awake and did 14,000,605 calculations...${iterations.toLocaleString()} ${readableTime}`
+        : `Good evening, Colonel. Can I give you a lift? ${iterations.toLocaleString()} ${readableTime}`;
+      
+      res.status(200).json({
+        message: calcMessage,
+        cpuSample: sum.toFixed(2),
+        redisHits: hits,
+        mongo: mongooseStatus,
+        timestamp: readableTime,
+        status: 'healthy'
+      });
+    } catch (err) {
+      console.error('❌ Ping error:', err);
+      res.status(500).json({ error: 'Ping failed', details: err.message });
+    }
 });
 
 // WEATHER & AQI
-router.get("/weather-aqi", async (req, res) => {
-  res.set({
-    "Access-Control-Allow-Origin": req.headers.origin || "*",
-    "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
-    "Content-Type": "application/json",
-  });
+router.get("/weather-aqi", weatherLimiter, redisLimiter, authenticateToken, async (req, res) => {
+  const origin = req.headers.origin;
+if (ALLOWED_ORIGINS.includes(origin)) {
+  res.setHeader("Access-Control-Allow-Origin", origin);
+}
+if (req.method === "OPTIONS") {
+  return res.sendStatus(200);
+}
 
-  let { lat, lon, refresh, forceApi } = req.query;
-  //console.log("📥 Query Params:", { lat, lon, refresh, forceApi });
   
-  try {
-    // Get location from IP if missing
-    if (!lat || !lon) {
-      const ipRes = await axios.get("https://ipapi.co/json/");
-      //console.log("🌐 IP Location fetched:", ipRes.data);
-      lat = ipRes.data.latitude;
-      lon = ipRes.data.longitude;
+// US AQI breakpoints
+const US_AQI_BREAKPOINTS = {
+  pm25: [
+    [0,12,0,50],
+    [12.1,35.4,51,100],
+    [35.5,55.4,101,150],
+    [55.5,150.4,151,200],
+    [150.5,250.4,201,300],
+    [250.5,500.4,301,500]
+  ],
+  pm10: [
+    [0,54,0,50],
+    [55,154,51,100],
+    [155,254,101,150],
+    [255,354,151,200],
+    [355,424,201,300],
+    [425,604,301,500]
+  ]
+};
+function calculateUSAQI(concentration, pollutant) {
+  const breakpoints = US_AQI_BREAKPOINTS[pollutant];
+
+  for (let [cl, ch, il, ih] of breakpoints) {
+    if (concentration >= cl && concentration <= ch) {
+      const aqi =
+        ((ih - il) / (ch - cl)) *
+        (concentration - cl) +
+        il;
+
+      return Math.round(aqi);
     }
-    //rounding coordinates to prevent cache key fragmentation
-    lat = parseFloat(parseFloat(lat).toFixed(4));
-    lon = parseFloat(parseFloat(lon).toFixed(4));
+  }
 
-    const cacheKey = `weather:${lat},${lon}`;
-    //console.log(`🔍 Checking cache for key: ${cacheKey}`);
+  return null;
+}
+function getAqiStatus(aqi) {
+  if (aqi <= 50) return "Good";
+  if (aqi <= 100) return "Moderate";
+  if (aqi <= 150) return "Poor";
+  if (aqi <= 200) return "Unhealthy";
+  if (aqi <= 300) return "Severe";
+  return "Hazardous";
+}
 
-    // Check Redis cache first (unless forceApi is set)
-    if (!forceApi) {
-      let cached = null;
-      let ttl = -2;
-      try {
-        cached = await redisClient.get(cacheKey);
-        if (cached) ttl = await redisClient.ttl(cacheKey);
-        
-        if (cached) {
-          //console.log(`✅ Cache HIT - Data found in Redis (TTL: ${ttl}s)`);
-        } else {
-          //console.log(`❌ Cache MISS - No data in Redis`);
+let { lat, lon, refresh, forceApi } = req.query;
+  
+try {
+  // Get location from IP if coordinates not provided
+  if (!lat || !lon) {
+      const ipRes = await axios.get("http://ip-api.com/json/");
+      lat = ipRes.data.lat;  // Changed from .latitude
+      lon = ipRes.data.lon;  // Changed from .longitude
+    }
+  
+  // Replaced the existing rounding logic because it was creating 2 diffrent cache keys for same loc
+  lat = Math.round(parseFloat(lat) * 100) / 100;
+  lon = Math.round(parseFloat(lon) * 100) / 100;
+const cacheKey = `weather:${lat},${lon}`;
+
+// Check cache first
+let cached = null;
+let ttl = -2;
+
+try {
+  cached = await redisClient.get(cacheKey);
+  if (cached) {
+    ttl = await redisClient.ttl(cacheKey);
+  }
+} catch (redisErr) {
+  console.warn("Redis read failed:", redisErr.message);
+}
+
+// If cache exists and NOT a refresh request, return cached data immediately
+if (cached) {
+  const cachedData = JSON.parse(cached);
+  
+  if (refresh !== "true") {
+    // Serve cached data immediately
+    res.json({
+      ...cachedData,
+      fromCache: true,
+      ttl,
+      cacheKey
+    });
+    
+    // If TTL < 5 minutes, refresh in background
+    if (ttl > 0 && ttl < 300) {
+      setImmediate(async () => {
+        try {
+          const freshData = await useTomorrow();
+          await redisClient.setEx(cacheKey, 1800, JSON.stringify(freshData));
+        } catch (err) {
+          console.error("Background refresh failed:", err.message);
         }
-      } catch (redisErr) {
-        //console.warn("⚠️ Redis read failed:", redisErr.message);
-      }
-
-      // If we have cached data and not forcing refresh
-      if (cached && !refresh) {
-        //console.log("⚡ Serving weather data from Redis cache");
-        const cachedData = JSON.parse(cached);
-        return res.json({
-          ...cachedData,
-          fromCache: true,
-          ttl,
-          cacheKey
-        });
-      }
-
-      //refresh logic with rate limiting
-      if (refresh === "true" && cached) {
-      const refreshBlockThreshold = 600; // 10 min rule
-      if (ttl > refreshBlockThreshold) {
-        const refreshAllowedIn = Math.max(ttl - refreshBlockThreshold, 0);
-        //console.log(`🚫 Refresh blocked - TTL: ${ttl}s, must wait ${refreshAllowedIn}s more`);
-        return res.status(429).json({
-          error: "Refresh not allowed yet. Please wait at least 10 minutes.",
-          refreshAllowedIn,
-          ttl,
-          fromCache: true,
-        });
-      }
+      });
     }
-    } else {
-      //console.log(`🔧 Force API mode: ${forceApi} - Skipping cache`);
-    }
-    if (forceApi) {
+    return;
+  }
+}
+
+// If refresh requested, enforce rate limits
+if (refresh === "true") {
+  if (!cached) {
+    return res.status(400).json({
+      error: "No cached data to refresh. Please load weather data first."
+    });
+  }
+
+  const cachedData = JSON.parse(cached);
+  const dataAge = 1800 - ttl;
+  const refreshAllowedAfter = 600; // 10 minutes
+
+  if (dataAge < refreshAllowedAfter) {
+    return res.status(429).json({
+      error: "Refresh not allowed yet. Please wait 10 minutes after initial data fetch.",
+      refreshAllowedIn: refreshAllowedAfter - dataAge,
+      ttl,
+      dataTimestamp: cachedData.timestamp,
+      fromCache: true
+    });
+  }
+
+  // Check IP-based refresh limit
   const ip = req.ip || req.headers["x-forwarded-for"] || "unknown_ip";
-  const forceKey = `force-refresh:${ip}`;
-  
-  try {
-    let count = await redisClient.get(forceKey);
-    count = count ? parseInt(count) : 0;
+  const refreshKey = `refresh-limit:${ip}`;
 
-    if (count >= 2) {
-      //console.log(`🚫 Force refresh limit reached for IP: ${ip}`);
+  try {
+    let refreshCount = await redisClient.get(refreshKey);
+    refreshCount = refreshCount ? parseInt(refreshCount) : 0;
+
+    if (refreshCount >= 5) {
       return res.status(429).json({
-        error: "Force refresh limit reached. Max 2 per hour allowed.",
-        fromCache: true,
+        error: "Too many refresh requests. Please try again later.",
+        retryAfter: await redisClient.ttl(refreshKey)
       });
     }
 
-    //counter with expiry of 1 hour
     await redisClient.multi()
-      .incr(forceKey)
-      .expire(forceKey, 3600) // 1 hour
+      .incr(refreshKey)
+      .expire(refreshKey, 3600)
       .exec();
-
-   // console.log(`⚡ Force refresh count for IP ${ip}: ${count + 1}`);
   } catch (err) {
-   // console.warn("⚠️ Redis error during force refresh rate limit:", err.message);
+    console.warn("Redis refresh rate limit error:", err.message);
   }
 }
+
+// Handle forceApi parameter (for testing different providers)
+if (forceApi) {
+  const ip = req.ip || req.headers["x-forwarded-for"] || "unknown_ip";
+  const forceKey = `force-api:${ip}`;
+
+  try {
+    let forceCount = await redisClient.get(forceKey);
+    forceCount = forceCount ? parseInt(forceCount) : 0;
+
+    if (forceCount >= 2) {
+      return res.status(429).json({
+        error: "Force API limit reached. Maximum 2 requests per hour.",
+        retryAfter: await redisClient.ttl(forceKey)
+      });
+    }
+
+    await redisClient.multi()
+      .incr(forceKey)
+      .expire(forceKey, 3600)
+      .exec();
+  } catch (err) {
+    console.warn("Redis forceApi rate limit error:", err.message);
+  }
+}
+  console.log("Cache miss or refresh requested - fetching from API");
 
    // console.log("🌐 Cache miss or refresh requested - Making API calls...");
     let result = null;
 
-    //Calculating moon phase locally using astronomical formula
     const calculateMoonPhase = (date = new Date()) => {
-      // Using the astronomical formula for moon phase calculation
-      const year = date.getUTCFullYear();
-      const month = date.getUTCMonth() + 1;
-      const day = date.getUTCDate();
-      
-      // Calculate Julian Date
-      let jd = 367 * year - Math.floor(7 * (year + Math.floor((month + 9) / 12)) / 4) 
-             + Math.floor(275 * month / 9) + day + 1721013.5;
-      
-      // Days since new moon on January 6, 2000
-      const daysSinceNew = jd - 2451549.5;
-      
-      // Moon's synodic period (average)
-      const synodicMonth = 29.53058867;
-      
-      // Calculate phase (0 to 1)
-      const phase = (daysSinceNew % synodicMonth) / synodicMonth;
-      
-      let phaseName = "New Moon";
-      let phaseNum = 0;
-      
-      if (phase < 0.03 || phase > 0.97) {
-        phaseName = "New Moon";
-        phaseNum = 0;
-      } else if (phase >= 0.03 && phase < 0.22) {
-        phaseName = "Waxing Crescent";
-        phaseNum = 1;
-      } else if (phase >= 0.22 && phase < 0.28) {
-        phaseName = "First Quarter";
-        phaseNum = 2;
-      } else if (phase >= 0.28 && phase < 0.47) {
-        phaseName = "Waxing Gibbous";
-        phaseNum = 3;
-      } else if (phase >= 0.47 && phase < 0.53) {
-        phaseName = "Full Moon";
-        phaseNum = 4;
-      } else if (phase >= 0.53 && phase < 0.72) {
-        phaseName = "Waning Gibbous";
-        phaseNum = 5;
-      } else if (phase >= 0.72 && phase < 0.78) {
-        phaseName = "Third Quarter";
-        phaseNum = 6;
-      } else if (phase >= 0.78 && phase < 0.97) {
-        phaseName = "Waning Crescent";
-        phaseNum = 7;
-      }
-      
-      //console.log("" Calculated moon phase:", { phase, phaseName, phaseNum });
-      
-      return {
-      phase: phaseNum,
-      name: phaseName,
-      value: parseFloat((Math.cos(phase * 2 * Math.PI) * -0.5 + 0.5).toFixed(4))
-    };
-    };
+  const SYNODIC_MONTH = 29.53058867;
+  const NEW_MOON_JD = 2451549.5; // Jan 6, 2000
+
+  // --- Julian Date ---
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1;
+  const day = date.getUTCDate();
+
+  const jd =
+    367 * year -
+    Math.floor(7 * (year + Math.floor((month + 9) / 12)) / 4) +
+    Math.floor(275 * month / 9) +
+    day +
+    1721013.5;
+
+  // --- Moon age in days ---
+  const daysSinceNew = jd - NEW_MOON_JD;
+  const moonAge = ((daysSinceNew % SYNODIC_MONTH) + SYNODIC_MONTH) % SYNODIC_MONTH;
+
+  // --- Phase fraction (0 → 1) ---
+  const phase = moonAge / SYNODIC_MONTH;
+
+  // --- Illumination (0 → 100%) ---
+  const illumination = Math.round(
+    (1 - Math.cos(2 * Math.PI * phase)) * 50
+  );
+
+  // --- Phase definitions ---
+  const phases = [
+    { name: "New Moon", emoji: "🌑" },
+    { name: "Waxing Crescent", emoji: "🌒" },
+    { name: "First Quarter", emoji: "🌓" },
+    { name: "Waxing Gibbous", emoji: "🌔" },
+    { name: "Full Moon", emoji: "🌕" },
+    { name: "Waning Gibbous", emoji: "🌖" },
+    { name: "Third Quarter", emoji: "🌗" },
+    { name: "Waning Crescent", emoji: "🌘" }
+  ];
+
+  const phaseIndex = Math.floor(phase * 8) % 8;
+
+  return {
+    phaseIndex,
+    name: phases[phaseIndex].name,
+    emoji: phases[phaseIndex].emoji,
+    illumination,        // %
+    waxing: phase < 0.5, // boolean
+    phaseValue: +phase.toFixed(4)
+  };
+};
 
     const useTomorrow = async () => {
       //console.log(" [Tomorrow.io] Fetching...");
@@ -1038,32 +1327,53 @@ router.get("/weather-aqi", async (req, res) => {
         getSunTimes()
       ]);
 
-      //console.log(" Tomorrow.io FULL raw response:", JSON.stringify(tomorrowRes.data, null, 2));
-      //console.log("AQI raw response:", JSON.stringify(airRes.data, null, 2));
-      
       const values = tomorrowRes.data.data.values;
-      
+      const aqiPM25 = calculateUSAQI(
+        airRes.data.current.pm2_5,
+        "pm25"
+      );
+
+      const aqiPM10 = calculateUSAQI(
+        airRes.data.current.pm10,
+        "pm10"
+      );
+    const finalAQI = Math.max(aqiPM25, aqiPM10);
+    console.log(" Tomorrow.io FULL raw response:", JSON.stringify(tomorrowRes.data, null, 2));
+    console.log("AQI raw response:", JSON.stringify(airRes.data, null, 2));
+
       const processedResult = {
         weather: {
-          temperature_2m: values.temperature,
-          relative_humidity_2m: values.humidity,
-          windspeed_10m: values.windSpeed * 3.6, // m/s to km/h
-          apparent_temperature: values.temperatureApparent,
-          weather_code: mapWeatherCode(values.weatherCode),
-          uv_index: values.uvIndex || 0,
-          rain_intensity: values.rainIntensity || 0,
-          precipitation_type: mapPrecipitationType(values.precipitationType),
-          precipitation_type_raw: values.precipitationType || 0,
-          sunrise_time: sunTimes.sunrise,
-          sunset_time: sunTimes.sunset,
-          visibility: values.visibility || 0,
-          moon_phase_value: moonPhase.value,
-          moon_phase: moonPhase.phase,
-          moon_phase_name: moonPhase.name,
-          temp: values.temperature,
-          windspeed: values.windSpeed * 3.6,
+        temperature_2m: values.temperature,
+        relative_humidity_2m: values.humidity,
+        windspeed_10m: values.windSpeed * 3.6,
+        apparent_temperature: values.temperatureApparent,
+        weather_code: mapWeatherCode(values.weatherCode),
+        uv_index: values.uvIndex || 0,
+        rain_intensity: values.rainIntensity || 0,
+        precipitation_type: mapPrecipitationType(values.precipitationType),
+        precipitation_type_raw: values.precipitationType || 0,
+        precipitation_probability: values.precipitationProbability || 0,
+        pressure_sea_level: values.pressureSeaLevel || 0,
+        pressure_surface_level: values.pressureSurfaceLevel || 0,
+        sunrise_time: sunTimes.sunrise,
+        sunset_time: sunTimes.sunset,
+        visibility: values.visibility || 0,
+        moonPhase: {
+        name: moonPhase.name,
+        emoji: moonPhase.emoji,
+        illumination: moonPhase.illumination,
+        waxing: moonPhase.waxing,
+        phaseValue: moonPhase.phaseValue,
+        phaseIndex: moonPhase.phaseIndex
+      },
+        temp: values.temperature,
+        windspeed: values.windSpeed * 3.6,
+      },
+        air_quality: {
+          ...airRes.data.current,
+          aqi: finalAQI,
+          status: getAqiStatus(finalAQI)
         },
-        air_quality: airRes.data.current,
         source: "Tomorrow.io + Open-Meteo AQI",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,
@@ -1097,20 +1407,28 @@ router.get("/weather-aqi", async (req, res) => {
       // Fetch weather from Weatherbit
       const [wbWeather, airRes, moonPhase, sunTimes] = await Promise.all([
         axios.get(
-          `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHERBIT_API_KEY}&units=M`
-        ),
+  `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${process.env.WEATHERBIT_API_KEY}&units=M`
+),
         axios.get(
-          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,hourly=pm10,pm2_5,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
         ),
         Promise.resolve(calculateMoonPhase()),
         getSunTimes()
       ]);
 
-      //console.log("Weatherbit FULL raw response:", JSON.stringify(wbWeather.data, null, 2));
-      
       const weatherData = wbWeather.data.data[0];
       //console.log(" Weatherbit weather data extracted:", JSON.stringify(weatherData, null, 2));
+      const aqiPM25 = calculateUSAQI(
+        airRes.data.current.pm2_5,
+        "pm25"
+      );
 
+      const aqiPM10 = calculateUSAQI(
+        airRes.data.current.pm10,
+        "pm10"
+      );
+      const finalAQI = Math.max(aqiPM25, aqiPM10);
+      console.log("Weatherbit FULL raw response:", JSON.stringify(wbWeather.data, null, 2));  
       const processedResult = {
         weather: {
           temperature_2m: weatherData.temp,
@@ -1122,13 +1440,22 @@ router.get("/weather-aqi", async (req, res) => {
           uv_index: weatherData.uv || 0,
           sunrise_time: sunTimes.sunrise, // Using sunrise-sunset.org API
           sunset_time: sunTimes.sunset,   // Using sunrise-sunset.org API
-          moon_phase_value: moonPhase.value,
-          moon_phase: moonPhase.phase,
-          moon_phase_name: moonPhase.name,
+         moonPhase: {
+  name: moonPhase.name,
+  emoji: moonPhase.emoji,
+  illumination: moonPhase.illumination,
+  waxing: moonPhase.waxing,
+  phaseValue: moonPhase.phaseValue,
+  phaseIndex: moonPhase.phaseIndex
+},
           temp: weatherData.temp,
           windspeed: weatherData.wind_spd * 3.6,
         },
-        air_quality: airRes.data.current,
+        air_quality: {
+          ...airRes.data.current,
+          aqi: finalAQI,
+          status: getAqiStatus(finalAQI)
+        },
         source: "Weatherbit + Open-Meteo AQI",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,
@@ -1160,28 +1487,47 @@ router.get("/weather-aqi", async (req, res) => {
       
       const [omWeather, omAir, moonPhase, sunTimes] = await Promise.all([
         axios.get(
-          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
-        ),
+  `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
+),
         axios.get(
-          `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
-        ),
+  `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
+),
         Promise.resolve(calculateMoonPhase()),
         getSunTimes()
       ]);
       
      // console.log(" Open-Meteo weather raw:", JSON.stringify(omWeather.data, null, 2));
       //console.log(" Open-Meteo air raw:", JSON.stringify(omAir.data, null, 2));
+      const aqiPM25 = calculateUSAQI(
+        omAir.data.current.pm2_5,
+        "pm25"
+      );
+
+      const aqiPM10 = calculateUSAQI(
+        omAir.data.current.pm10,
+        "pm10"
+      );
+      const finalAQI = Math.max(aqiPM25, aqiPM10);
 
       return {
         weather: {
           ...omWeather.data.current,
           sunrise_time: sunTimes.sunrise,
           sunset_time: sunTimes.sunset,
-          moon_phase_value: moonPhase.value,
-          moon_phase: moonPhase.phase,
-          moon_phase_name: moonPhase.name,
+          moonPhase: {
+  name: moonPhase.name,
+  emoji: moonPhase.emoji,
+  illumination: moonPhase.illumination,
+  waxing: moonPhase.waxing,
+  phaseValue: moonPhase.phaseValue,
+  phaseIndex: moonPhase.phaseIndex
+},
         },
-        air_quality: omAir.data.current,
+        air_quality: {
+          ...omAir.data.current,
+          aqi: finalAQI,
+          status: getAqiStatus(finalAQI)
+        },
         source: "Open-Meteo",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,
@@ -1237,7 +1583,8 @@ router.get("/weather-aqi", async (req, res) => {
   } catch (error) {
     console.error("❌ Weather route error:", error.message);
     console.error("❌ Full error:", error);
-    res.status(500).json({ error: error.message });
+    // dev log= res.status(500).json({ error: error.message });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -1246,80 +1593,41 @@ router.get('/google', passport.authenticate('google', {
   scope: ['profile', 'email']
 }));
 
-// GET PASSWORD INFO FROM TOKEN
-router.get('/password/:token', async (req, res) => {
-  try {
-    const { token } = req.params;
-    
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (jwtErr) {
-      console.error('❌ [PASSWORD] JWT error:', jwtErr.message);
-      return res.status(400).json({ 
-        error: 'Invalid or expired password link',
-        expired: jwtErr.name === 'TokenExpiredError'
-      });
-    }
-
-    // FIND USER BY EMAIL AND VERIFY TOKEN MATCHES
-    const user = await User.findOne({ 
-      email: decoded.email,
-      passwordToken: token  // Verify this is the correct token
-    });
-    
-    if (!user) {
-      console.error('❌ [PASSWORD] User not found or token mismatch');
-      return res.status(404).json({ error: 'Invalid or expired password link' });
-    }
-
-    // Return user info with password
-    res.json({ 
-      name: user.name,
-      email: user.email,
-      password: user.tempPassword,
-      passwordTime: user.tempPasswordCreatedAt
-    });
-   // console.log('user details=',user.name,user.email, user.tempPassword, user.tempPasswordCreatedAt);
-  } catch (err) {
-    console.error('❌ [PASSWORD] Server error:', err);
-    res.status(500).json({ error: 'Failed to retrieve password' });
-  }
-});
-
 // GOOGLE OAUTH CALLBACK 
-router.get('/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: '/' }),
+router.get('/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/' }),
   async (req, res) => {
     try {
       const user = req.user;
+      const isNewUser = !user.welcomeEmailSent; 
       const isProd = process.env.NODE_ENV === 'production';
       const source = req.query.state;
 
       // Generate tokens
       const token = jwt.sign(
-        { userId: user._id, email: user.email },
+        { userId: user.userId, jti: crypto.randomBytes(16).toString('hex') },  
         process.env.JWT_SECRET,
         { expiresIn: '3d' }
       );
       
-      const passwordToken = jwt.sign(
-        { email: user.email, jti: crypto.randomBytes(16).toString('hex') },
-        process.env.JWT_SECRET,
-        { expiresIn: '3d' }
-      );
+      // const passwordToken = jwt.sign(
+      //   { email: user.email, jti: crypto.randomBytes(16).toString('hex') },
+      //   process.env.JWT_SECRET,
+      //   { expiresIn: '3d' }
+      // );
       
       // Store password token
-      user.passwordToken = passwordToken;
-      user.passwordTokenCreatedAt = new Date();
+      // user.passwordToken = passwordToken;
+      // user.passwordTokenCreatedAt = new Date();
       
-      const passwordLink = `${process.env.FRONTEND_URL}/password/${passwordToken}`;
+      // const passwordLink = `${process.env.FRONTEND_URL}/password/${passwordToken}`;
       
       // Set cookie
       res.cookie('token', token, {
         httpOnly: true,
         secure: isProd,
-        sameSite: isProd ? 'None' : 'Lax',
+        sameSite: 'Strict',   
+        domain: isProd ? '.carbonft.app' : undefined,
+        path: '/',
         maxAge: 3 * 24 * 60 * 60 * 1000,
       });
 
@@ -1335,7 +1643,7 @@ router.get('/google/callback',
             await sendEmail(
               user.email,
               'Welcome to Carbon Footprint Tracker! 🌍',
-              welcomeEmailHtmlG(user.name, passwordLink)
+              welcomeEmailHtmlG(user.name)
             );
             
             // Update flag ONLY after successful send
@@ -1365,7 +1673,7 @@ router.get('/google/callback',
       else if (source === 'login') redirectPath = '/login';
 
       const baseURL = isProd ? 'https://carbonft.app' : 'http://localhost:3000';
-      const redirectURL = `${baseURL}${redirectPath}?googleAuth=success&userName=${encodeURIComponent(user.name)}`;
+      const redirectURL = `${baseURL}${redirectPath}?googleAuth=success&userName=${encodeURIComponent(user.name)}${isNewUser ? '&firstTime=true' : ''}`;
 
       res.redirect(redirectURL);
     } catch (error) {

@@ -1,15 +1,48 @@
 require('dotenv').config();
 const isProd = process.env.NODE_ENV === 'production';
+const { URL } = require('url');
 
 // env check
 if (isProd) { 
-  ['MONGO_URI', 'JWT_SECRET'].forEach((key) => {
+  ['MONGO_URI', 'JWT_SECRET', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_CLIENT_ID', 'BREVO_API_KEY', 'REDIS_HOST', 'REDIS_PASSWORD'].forEach((key) => {
     if (!process.env[key]) {
       console.error(`❌ Missing required environment variable: ${key}`);
       process.exit(1); // Stop server immediately
     }
   });
 }
+
+//domain trust check for prod deployments
+const isTrustedProdOrigin = (origin) => {
+  try {
+    const hostname = new URL(origin).hostname;
+
+    // allowing first-party domain
+    if (hostname === 'carbonft.app' || hostname === 'www.carbonft.app') {
+      return true;
+    }
+
+    // allowing any Vercel deployment
+    if (
+      hostname.endsWith('.vercel.app') ||
+      hostname.includes('vercel')
+    ) {
+      return true;
+    }
+
+    // allowing Render services
+    if (
+      hostname.endsWith('.onrender.com') ||
+      hostname.includes('render')
+    ) {
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+};
 
 // core modules
 const express = require('express');
@@ -33,7 +66,7 @@ const startFeedbackScanner = require('./utils/feedbackPoller');
 
 // express app
 const app = express();
-// procy for prod
+// procy for prod, needed when different domains for frontend and backend
 if (isProd) {
   app.set('trust proxy', 1); // for Vercel proxie
 }
@@ -41,48 +74,34 @@ if (isProd) {
 // routes
 const authRoutes = require('./routes/auth');
 const footprintRoutes = require('./routes/footprint');
-// const adminRoutes = require('./routes/admin');
 // CORS(Cross-Origin Resource Sharing)
-const allowedOrigins = [
-  'http://localhost:3000',             // local dev
-  'http://localhost:4950',
-  'https://cft-self.vercel.app',       // vercel frontend
-  'https://cft-21jftdfuy-chacha0044s-projects.vercel.app',
-  'https://carbonft.app',   // name.com domain
-  'https://www.carbonft.app',
-  'https://api.carbonft.app',
-  'https://accounts.google.com',       // google accounts
-   /https:\/\/cft-.*\.vercel\.app$/,   // any subdomain matching cft-*.vercel.app
-];
-
-const corsOptions = {
-  origin: (origin, callback) => { // called for every request to check if the request's Origin header is allowed
-    // requests with no origin (mobile apps, Postman, curl, etc.) server-to-server or testing 
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow server-to-server, cron, curl, postman
     if (!origin) return callback(null, true);
-    
-    // Vercel
-    if (origin.includes('.vercel.app')) {
+
+    // DEV
+    if (!isProd && origin === 'http://localhost:3000') {
       return callback(null, true);
     }
-    
-    // whitelist
-    if (allowedOrigins.includes(origin)) {
+
+    // PROD
+    if (isProd && isTrustedProdOrigin(origin)) {
       return callback(null, true);
     }
-    
-    console.log('❌ CORS blocked origin:', origin);
-    return callback(new Error(`Not allowed by CORS: ${origin}`));
+
+    console.log('❌ CORS blocked:', origin);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'x-admin-secret', 'x-admin-code'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'x-admin-secret', 'x-admin-code', 'X-CSRF-Token'],
   exposedHeaders: ['Set-Cookie'],
+  maxAge: 86400, // 24 hours
   preflightContinue: false,
   optionsSuccessStatus: 204
-};
+}));
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 app.use(cookieParser()); //Reading the token cookie after login
 if (isProd) {
   app.use(helmet({ //Prevents clickjacking, downgrade attacks, and data leaks
@@ -91,8 +110,8 @@ if (isProd) {
       directives: {
         "default-src": ["'self'"],
         "img-src": ["'self'", "data:", "https:"],
-        "script-src": ["'self'", "'unsafe-inline'", "https:"],
-        "style-src": ["'self'", "'unsafe-inline'", "https:"],
+        "script-src": ["'self'", "https:"],
+        "style-src": ["'self'", "https:"],
         "connect-src": ["'self'", "https:", "http:", "*.vercel.app"],
       },
     },
@@ -114,7 +133,7 @@ app.disable('x-powered-by');
 app.use(express.json({ limit: '10kb' })); //For APIs sending JSON
 app.use(express.urlencoded({ extended: true, limit: '10kb' })); //HTML <form> submissions
 
-//limiter
+//limiters
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: isProd ? 50 : 200, // reduce to 50
@@ -135,8 +154,16 @@ app.use('/api/auth', authLimiter);
 
 if (isProd) {
   app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {  //Forces HTTPS on first HTTP request, works with hsts to never allow http requests in prod
-      return res.redirect(301, 'https://' + req.headers.host + req.url);
+    // Forces HTTPS on first HTTP request, works with HSTS to never allow HTTP requests in prod
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+
+      const allowedHosts = ["api.carbonft.app"]; // whitelist
+
+      if (!allowedHosts.includes(req.hostname)) {
+        return res.sendStatus(403);
+      }
+
+      return res.redirect(301, `https://${req.hostname}${req.url}`);
     }
     next();
   });
@@ -145,23 +172,23 @@ if (isProd) {
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/footprint', footprintRoutes);
-// app.use('/api/admin', adminRoutes);
-// test route
+// Backend check route
 app.get('/api', (req, res) => {
-  res.send('CFT API is live!');
+  res.send('CFT API is live son!');
 });
 
+if (!isProd) {
 app.get('/api/redis-test', async (req, res) => {
   try {
     let visits = await redisClient.get("visits");
     visits = visits ? parseInt(visits) + 1 : 1;
     await redisClient.set("visits", visits);
-    res.json({ message: "Redis is working!", visits });
+    res.json({ message: "Redis is working!!!!!", visits });
   } catch (err) {
     console.error("❌ Redis route error:", err);
     res.status(500).json({ error: "Redis error" });
   }
-});
+}); }
 
 app.use((err, req, res, next) => {
   console.error('❌ Unhandled error:', err.stack || err); // global error handler , show error in dev , generic msg in prod
@@ -186,49 +213,19 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
     console.log('✅ MongoDB connected');
     app.listen(PORT, () => {
     console.log(`✅ Server started on ${PORT}`);
+  if (isProd) {
     startImapPoller(); 
     startFeedbackScanner();
     cron.schedule('*/3 * * * *', async () => {
     try {
       const url = `https://api.carbonft.app/api/auth/ping?ts=${Date.now()}`; 
-      const res = await axios.get(url);
+      const res = await axios.get(url, { timeout: 5000 });
       console.log(`⏱️ Pinged self: ${res.data.message}`);
     } catch (err) {
       console.error('❌ Ping failed:', err.message);
     }
+  }); }
   });
-  cron.schedule("*/30 * * * *", async () => { // Runs every day at midnight
-  try {
-    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-    const result = await user.updateMany(
-      {
-        provider: 'google',
-        $or: [
-          { tempPasswordCreatedAt: { $lte: threeDaysAgo } },
-          { passwordTokenCreatedAt: { $lte: threeDaysAgo } },
-        ],
-      },
-      {
-        $unset: {
-          tempPassword: "",
-          tempPasswordCreatedAt: "",
-          passwordToken: "",
-          passwordTokenCreatedAt: "",
-        },
-      }
-    );
-
-    if (result.modifiedCount > 0) {
-      console.log(`🧹 Cleaned ${result.modifiedCount} expired temp/password fields for Google users`);
-    } else {
-      //console.log('🧹 No expired temp/password fields found for Google users');
-    }
-  } catch (err) {
-    console.error('❌ Cron cleanup error:', err);
-  }
-});
-
-    });
   })
   .catch(err => console.error('❌ MongoDB error:', err));
 

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <!-- CHARACTER ENCODING & VIEWPORT (must come first) -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <!-- PRIMARY SEO TITLE -->
+  <title>Carbon Footprint Tracker</title>
+
+  <!-- META DESCRIPTION (single, comprehensive) -->
+  <meta name="description"
+    content="CFT (Carbon Footprint Tracker) helps you calculate, visualize, and reduce your personal carbon emissions. Track travel, food, energy, and waste habits with interactive charts, receive reduction tips, and compare progress on a community leaderboard. Free and secure." />
+
+  <!-- META KEYWORDS -->
+  <meta name="keywords"
+    content="carbon footprint tracker, carbon footprint calculator, CO2 emissions tracker, carbon emissions calculator, personal carbon footprint, reduce carbon footprint, climate change tracker, environmental impact calculator, carbon offset, sustainability tracker, greenhouse gas calculator, eco-friendly living, carbon neutral, green living tips, energy consumption tracker, travel carbon footprint, food carbon footprint, waste carbon footprint, climate action, MERN stack application, carbon footprint comparison, community leaderboard emissions, CFT app, carbonft" />
+
+  <!-- CANONICAL URL -->
+  <link rel="canonical" href="https://www.carbonft.app/" />
+
+  <!-- ROBOTS INDEXING -->
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+
+  <!-- AUTHOR & LANGUAGE -->
+  <meta name="author" content="Carbon Footprint Tracker Team" />
+  <meta name="language" content="English" />
+  <meta name="rating" content="general" />
+  <meta name="distribution" content="global" />
+  <meta name="revisit-after" content="7 days" />
+
+  <!-- THEME COLOR -->
+  <meta name="theme-color" content="#000000" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CFT" />
+
+  <!-- OPEN GRAPH (Facebook, LinkedIn, WhatsApp) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.carbonft.app/" />
+  <meta property="og:site_name" content="Carbon Footprint Tracker" />
+  <meta property="og:title" content="Carbon Footprint Tracker — Calculate & Reduce Your CO₂ Emissions" />
+  <meta property="og:description"
+    content="Track your carbon footprint across travel, food, energy, and waste. Get interactive visualizations, personalized reduction tips, and compare your impact with a global community. Free, secure, and built on the MERN stack." />
+  <meta property="og:image" content="https://www.carbonft.app/Social-preview.jpg" />
+  <meta property="og:image:alt"
+    content="Carbon Footprint Tracker — dashboard preview showing emission charts and leaderboard" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- TWITTER CARD -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Carbon Footprint Tracker — Calculate & Reduce Your CO₂ Emissions" />
+  <meta name="twitter:description"
+    content="Track your carbon footprint across travel, food, energy, and waste. Interactive charts, reduction tips, and a community leaderboard. Free and secure." />
+  <meta name="twitter:image" content="https://www.carbonft.app/Social-preview.jpg" />
+  <meta name="twitter:image:alt" content="Carbon Footprint Tracker app preview" />
+
+  <!-- GOOGLE SITE VERIFICATION -->
+  <meta name="google-site-verification" content="8QHWPRtWqKpTBpU8gYKFN_sNmz0CpcYMVWoP1nD2IvU" />
+  <meta name="google-site-verification" content="BtfVeWrG-jcsF_wDbmsOAa0kecUzgTpNTMh5iFPBND4" />
+
+  <!-- FAVICON & ICONS -->
+  <link rel="icon" href="%PUBLIC_URL%/Logo.ico" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/Logo.png" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+  <!-- JSON-LD STRUCTURED DATA (WebApplication + Organization) -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Carbon Footprint Tracker",
+      "alternateName": "CFT",
+      "url": "https://www.carbonft.app/",
+      "description": "A full-featured web application that enables users to calculate, monitor, and reduce their personal carbon emissions through transparent, verifiable calculations across food, transport, electricity, and waste.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web",
+      "browserRequirements": "Requires JavaScript",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Carbon emission calculation across 4 lifestyle categories",
+        "Interactive Recharts data visualizations",
+        "Community leaderboard for anonymous comparison",
+        "Personalized carbon reduction recommendations",
+        "Real-time weather and air quality index",
+        "Dark mode and responsive design",
+        "Secure authentication with email verification"
+      ],
+      "screenshot": "https://www.carbonft.app/Social-preview.jpg",
+      "image": "https://www.carbonft.app/Social-preview.jpg",
+      "softwareVersion": "1.0",
+      "creator": {
+        "@type": "Organization",
+        "name": "Carbon Footprint Tracker Team",
+        "url": "https://www.carbonft.app/"
+      }
+    }
+    </script>
+
+  <!-- FAQ STRUCTURED DATA (for rich search snippets) -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is a carbon footprint tracker?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A carbon footprint tracker is a tool that helps you measure the total greenhouse gas emissions caused by your lifestyle choices — including travel, food consumption, energy usage, and waste generation — expressed in CO₂ equivalents."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does Carbon Footprint Tracker calculate my emissions?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "CFT uses scientifically-backed emission factors to convert your monthly lifestyle data across four categories (food, transport, electricity, and waste) into accurate CO₂ equivalent values, presented through interactive visualizations."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Carbon Footprint Tracker free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, Carbon Footprint Tracker is completely free. Simply create an account with email verification and start tracking your carbon emissions immediately."
+          }
+        }
+      ]
+    }
+    </script>
+
+  <!-- PRELOADED IMAGES -->
+  <link rel="prefetch" as="image" href="/images/register-bk.webp">
+  <link rel="preload" as="image" href="/images/dashboard-bk.webp">
+  <link rel="preload" as="image" href="/images/home-bk.webp">
+  <link rel="prefetch" as="image" href="/images/edit-bk.webp">
+  <link rel="prefetch" as="image" href="/images/history-bk.webp">
+  <link rel="preload" as="image" href="/images/chart-bk.webp">
+  <link rel="prefetch" as="image" href="/images/login-bk.webp">
+  <link rel="prefetch" as="image" href="/images/foot-bk.webp">
+  <link rel="prefetch" as="image" href="/images/verify-bk.webp">
+
+  <!-- PRIMARY FONT (InterTight,germania,siracha) -->
+  <link rel="preload" href="/fonts/InterTight-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="/fonts/InterTight-Medium.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="/fonts/InterTight-Bold.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="/fonts/InterTight-ExtraBold.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="/fonts/Sriracha-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="preload" href="/fonts/GermaniaOne-Regular.ttf" as="font" type="font/ttf" crossorigin>
+
+  <!-- InterTight Italics -->
+  <link rel="prefetch" href="/fonts/InterTight-Italic.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="prefetch" href="/fonts/InterTight-MediumItalic.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="prefetch" href="/fonts/InterTight-BoldItalic.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="prefetch" href="/fonts/InterTight-BlackItalic.ttf" as="font" type="font/ttf" crossorigin>
+
+  <!-- SECONDARY FONTS (prefetch) -->
+  <link rel="prefetch" href="/fonts/InterTight-Light.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="prefetch" href="/fonts/InterTight-ExtraLight.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="prefetch" href="/fonts/InterTight-Thin.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="prefetch" href="/fonts/BespokeStencil-LightItalic.otf" as="font" type="font/otf" crossorigin>
+  <link rel="prefetch" href="/fonts/InterTight-Black.ttf" as="font" type="font/ttf" crossorigin>
+
+  <!-- NOSCRIPT SEO FALLBACK -->
+  <noscript>
+    <p>
+      Carbon Footprint Tracker (CFT) lets users measure, visualize, and reduce their carbon impact from travel, food,
+      energy, and waste habits.
+      Track your personal CO₂ emissions, view interactive charts, get reduction recommendations, and compare your
+      environmental progress on a community leaderboard.
+      Visit https://carbonft.app to explore.
+    </p>
+  </noscript>
+
+  <style>
+    @font-face {
+      font-family: 'GermaniaOne';
+      src: url('/fonts/GermaniaOne-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    /* Hide SEO content from users but keep it for search engines */
+    .seo-content {
+      position: absolute;
+      left: -10000px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    body>footer {
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 1.5rem 0;
+      color: #999;
+      position: absolute;
+      left: -10000px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    footer a {
+      color: #59c69c;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      footer {
+        color: #ccc;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app son.</noscript>
+  <div id="root"></div>
+
+  <!-- SEO Content - Hidden from users, visible to search engines -->
+  <div class="seo-content" role="complementary" aria-label="About Carbon Footprint Tracker">
+    <h1>Carbon Footprint Tracker — Calculate, Monitor & Reduce Your Personal Carbon Emissions</h1>
+    <h2>What is CFT?</h2>
+    <p>
+      CFT (Carbon Footprint Tracker) is a full-featured web application that enables users to calculate,
+      monitor, and reduce their personal carbon emissions through transparent, verifiable calculations.
+      After creating a secure account with email verification, users log monthly lifestyle data across
+      four key categories: food consumption, transportation methods, electricity usage, and waste generation.
+      The platform then computes accurate CO₂ equivalents and presents this data through interactive
+      Recharts visualizations, allowing users to track their environmental impact over time, project
+      yearly footprints, and receive personalized reduction recommendations. A unique community leaderboard
+      feature fosters motivation by enabling users to compare their progress anonymously with others.
+      Built on a production-grade MERN stack (MongoDB, Express.js, React 18, Node.js) with enterprise-level
+      security including bcrypt password hashing, JWT authentication, HTTP-only cookies, Redis caching,
+      rate limiting, and protection against XSS and NoSQL injection attacks, CFT delivers a fast, secure,
+      and scalable solution. The application features dark mode support, responsive design, and is hosted
+      on Vercel (frontend) and Render (backend) with MongoDB Atlas for data persistence, demonstrating
+      professional full-stack development practices while democratizing meaningful climate action.
+    </p>
+    <h2>Key Features</h2>
+    <ul>
+      <li>Carbon emission tracking across food, transport, electricity, and waste categories</li>
+      <li>Interactive data visualizations with pie charts and bar charts</li>
+      <li>Community leaderboard for anonymous emission comparison</li>
+      <li>Personalized carbon reduction recommendations</li>
+      <li>Real-time weather and air quality index (AQI) monitoring</li>
+      <li>Secure authentication with email verification and Google OAuth</li>
+      <li>Dark mode support with responsive design</li>
+      <li>Free carbon footprint calculator — no subscription required</li>
+    </ul>
+    <h2>How It Works</h2>
+    <p>
+      Sign up for free, enter your monthly lifestyle data for food consumption, travel habits,
+      energy usage, and waste generation. CFT uses scientifically-backed emission factors to
+      calculate your CO₂ equivalent emissions. View your results through beautiful interactive
+      charts, track your progress over time, and see how you compare with other users on the
+      community leaderboard. Take climate action today by understanding and reducing your
+      personal carbon footprint.
+    </p>
+  </div>
+
+  <footer>
+    <p>
+      © 2025 Carbon Footprint Tracker ·
+      <a href="https://carbonft.app/privacypolicy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+      ·
+      <a href="https://carbonft.app/termsofservice.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+    </p>
+  </footer>
+</body>
+
+</html>

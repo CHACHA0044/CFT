@@ -1,0 +1,4146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  background-color: #000;
+  scroll-behavior: smooth;
+}
+.loader { box-sizing: border-box; }
+/* Hide scrollbar but keep scrolling */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* make scrollbar transparent */
+}
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+@keyframes border-flow {
+  0% { border-color: #34d399; }
+  50% { border-color: #10b981; }
+  100% { border-color: #34d399; }
+}
+.animate-border-flow {
+  animation: border-flow 3s linear infinite;
+}
+@keyframes borderFlow {
+  0% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor inset; }
+  50% { box-shadow: 0 0 15px currentColor, 0 0 20px currentColor inset; }
+  100% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor inset; }
+}
+
+.animate-borderFlow {
+  animation: borderFlow 2s linear infinite;
+}
+@keyframes flowBorder {
+  0% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor inset; }
+  50% { box-shadow: 0 0 15px currentColor, 0 0 20px currentColor inset; }
+  100% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor inset; }
+}
+
+.animate-borderFlow {
+  animation: flowBorder 2s linear infinite;
+}
+@keyframes moving-stripes {
+  from { background-position: 0 0; }
+  to { background-position: 40px 0; }
+}
+
+.animate-moving-stripes {
+  animation: moving-stripes 1s linear infinite;
+}
+@keyframes moving-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40px 0;
+  }
+}
+
+.animate-moving-stripes {
+  animation: moving-stripes 1s linear infinite;
+}
+@keyframes flowing-bar {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
+.animate-flowing-bar {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.3) 25%, transparent 25%, transparent 50%,
+    rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.3) 75%, transparent 75%, transparent);
+  background-size: 40px 40px;
+  animation: flowing-bar 1s linear infinite;
+}
+
+.lottie-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lottie-animation {
+  pointer-events: none;
+  user-select: none;
+  z-index: 10000;
+}
+@keyframes glow-text {
+  0% {
+    text-shadow: 0 0 4px #34d399, 0 0 8px #10b981, 0 0 12px #34d399;
+  }
+  50% {
+    text-shadow: 0 0 8px #10b981, 0 0 16px #34d399, 0 0 24px #10b981;
+  }
+  100% {
+    text-shadow: 0 0 4px #34d399, 0 0 8px #10b981, 0 0 12px #34d399;
+  }
+}
+
+.animate-glow {
+  animation: glow-text 2.5s ease-in-out infinite;
+}
+@keyframes shimmer-line {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.shimmer-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    #f87171,
+    #facc15,
+    #4ade80,
+    #38bdf8,
+    #a78bfa,
+    #f472b6,
+    #f87171
+  );
+  background-size: 300% 100%;
+  animation: shimmer-line 3s linear infinite;
+  border-radius: 9999px;
+}
+.tracker-title {
+  display: inline-block;
+  position: relative;
+  transition: transform 0.2s ease;
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.6); /* glow effect */
+}
+
+.tracker-title:hover {
+  transform: scale(1.04);
+}
+
+.tracker-title:active {
+  transform: scale(0.96);
+}
+.tracker-title {
+  display: inline-block;
+  position: relative;
+  transition: transform 0.2s ease;
+  text-shadow: 0 0 6px rgba(16, 185, 129, 0.6); /* green glow */
+}
+
+.tracker-title:hover {
+  transform: scale(1.04);
+}
+
+.tracker-title:active {
+  transform: scale(0.95);
+}
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Black.ttf') format('truetype');
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-BoldItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ExtraLight.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ExtraLightItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Italic-VariableFont_wght.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Italic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-LightItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-MediumItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-SemiBold.ttf') format('truetype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-Thin.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-ThinItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'InterTight';
+  src: url('../public/fonts/InterTight-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Sriracha';
+  src: url('../public/fonts/Sriracha-Regular.ttf') format('truetype');
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: 'GermaniaOne';
+  src: url('../public/fonts/GermaniaOne-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Bespoke Stencil';
+  src: url('../public/fonts/BespokeStencil-LightItalic.otf') format('opentype');
+}
+
+@keyframes subToSuper {
+  0% {
+    transform: translateY(0.3em) scale(0.8);
+  }
+  50% {
+    transform: translateY(-0.4em) scale(0.8);
+  }
+  100% {
+    transform: translateY(0.3em) scale(0.8);
+  }
+}
+
+@keyframes subSuperFlip {
+  0% {
+    transform: translateY(0.3em) scale(0.8) rotateX(0deg);
+  }
+  45% {
+    transform: translateY(-0.4em) scale(0.8) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-0.4em) scale(0.8) rotateX(180deg);
+  }
+  55% {
+    transform: translateY(-0.4em) scale(0.8) rotateX(0deg);
+  }
+  100% {
+    transform: translateY(0.3em) scale(0.8) rotateX(0deg);
+  }
+}
+
+.animated-co2 {
+  animation: subSuperFlip 6s ease-in-out infinite;
+  animation-delay: calc(1s + (var(--random, 0) * 3s));
+  transform-origin: center bottom;
+  display: inline-block;
+  color: #ffffff !important;
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.7),
+    0 0 6px rgba(255, 255, 255, 0.45),
+    0 0 9px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes confetti-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1);
+    opacity: 0;
+  }
+}
+
+.confetti-burst {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  position: absolute;
+  animation: confetti-burst 700ms ease-out forwards;
+  z-index: 40;
+  mix-blend-mode: screen; 
+}
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+.gpu-accelerate {
+  will-change: opacity, transform;
+  transform: translateZ(0);
+}
+.recharts-wrapper,
+.VictoryContainer {
+  touch-action: pan-y !important; 
+}
+@keyframes cookiePop {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: ease-in-out;
+  }
+  40% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  55% {
+    transform: translateY(-30px) scale(1.25);
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+  70% {
+    transform: translateY(-15px) scale(1.15);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  85% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: ease-out;
+  }
+}
+
+.cookie-pop {
+  animation: cookiePop 3s infinite;
+  display: inline-block;
+  transform-origin: center bottom;
+}
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Cookie explode animation - pops up, explodes at peak, pieces scatter */
+@keyframes cookieMain {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  45% {
+    transform: translateY(-50px) scale(1.4);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50px) scale(1.4);
+    opacity: 0;
+  }
+  95% {
+    transform: translateY(-50px) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes crumb1 {
+  0%, 49% {
+    transform: translate(0, -50px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, -50px) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(-45px, -90px) rotate(-180deg) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes crumb2 {
+  0%, 49% {
+    transform: translate(0, -50px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, -50px) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(45px, -90px) rotate(180deg) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes crumb3 {
+  0%, 49% {
+    transform: translate(0, -50px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, -50px) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(-40px, -10px) rotate(-90deg) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes crumb4 {
+  0%, 49% {
+    transform: translate(0, -50px) rotate(0deg) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, -50px) rotate(0deg) scale(0.6);
+    opacity: 1;
+  }
+  85% {
+    transform: translate(40px, -10px) rotate(90deg) scale(0.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.cookie-explode-wrapper {
+  display: inline-block;
+  position: relative;
+  height: 1.2em;
+  width: 2.5em;
+  vertical-align: middle;
+  margin-bottom: -0.1em;
+}
+
+.cookie-main {
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  animation: cookieMain 4s ease-in-out infinite;
+}
+
+.cookie-crumb {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  font-size: 0.7em;
+  pointer-events: none;
+}
+
+.cookie-crumb-1 {
+  animation: crumb1 4s ease-out infinite;
+}
+
+.cookie-crumb-2 {
+  animation: crumb2 4s ease-out infinite;
+}
+
+.cookie-crumb-3 {
+  animation: crumb3 4s ease-out infinite;
+}
+
+.cookie-crumb-4 {
+  animation: crumb4 4s ease-out infinite;
+}
+  
+/* Prevent flickering when fast-hovering motion divs */
+.group, .motion-div, .motion-section {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Ensure backdrop-blur layers render on GPU properly */
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transform: translateZ(0);
+}
+
+/* Smooth border animation transitions */
+.animate-borderFlow {
+  transform: translateZ(0);
+  will-change: border-color, opacity;
+}
+/* global.css */
+.text-glow-amber {
+  text-shadow: 0 0 30px rgba(251,191,36,0.6);
+}
+
+.text-glow-emerald {
+  text-shadow: 0 0 30px rgba(16,185,129,0.6);
+}
+
+.text-glow-blue {
+  text-shadow: 0 0 30px rgba(59,130,246,0.6);
+}
+/* Vertical flying plane animation with smoke trail */
+@keyframes plane-fly-up {
+  0% {
+    transform: translateY(0) rotate(-75deg);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-50px) rotate(-60deg);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-65px) rotate(-45deg);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-75px) rotate(-30deg);
+    opacity: 0;
+  }
+}
+
+/* Smoke trail animation - comes from back/tail of plane */
+@keyframes smoke-trail {
+  0% {
+    transform: translate(8px, 5px) scale(0.5);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(12px, 25px) scale(1.2);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(15px, 50px) scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* Main plane animation class */
+.animate-plane-fly {
+  display: inline-block;
+  position: relative;
+  animation: plane-fly-up 3s ease-in-out infinite;
+}
+
+/* Smoke trail styles - positioned at plane's tail */
+.animate-plane-fly::before,
+.animate-plane-fly::after {
+  content: '💨';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  font-size: 0.5em;
+  animation: smoke-trail 1.2s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-plane-fly::after {
+  animation-delay: 0.4s;
+  font-size: 0.4em;
+}
+
+/* Faster version */
+.animate-plane-fly-fast {
+  display: inline-block;
+  position: relative;
+  animation: plane-fly-up 1.5s ease-in-out infinite;
+}
+
+.animate-plane-fly-fast::before,
+.animate-plane-fly-fast::after {
+  content: '💨';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  font-size: 0.5em;
+  animation: smoke-trail 0.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-plane-fly-fast::after {
+  animation-delay: 0.25s;
+  font-size: 0.4em;
+}
+
+/* Slower version */
+.animate-plane-fly-slow {
+  display: inline-block;
+  position: relative;
+  animation: plane-fly-up 5s ease-in-out infinite;
+}
+
+.animate-plane-fly-slow::before,
+.animate-plane-fly-slow::after {
+  content: '💨';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  font-size: 0.5em;
+  animation: smoke-trail 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-plane-fly-slow::after {
+  animation-delay: 0.6s;
+  font-size: 0.4em;
+}
+.electric-plug {
+  position: relative;
+  display: inline-block;
+  font-size: 1.5rem;
+  animation: plug-pulse 1.5s ease-in-out infinite;
+}
+
+/* Pulsing glow around plug */
+@keyframes plug-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px #00f7ff) drop-shadow(0 0 15px #00f7ff);
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 10px #00f7ff) drop-shadow(0 0 25px #00f7ff);
+    transform: scale(1.1);
+  }
+}
+
+/* Spark particles */
+.electric-plug::before,
+.electric-plug::after {
+  content: '⚡';
+  position: absolute;
+  font-size: 0.8rem;
+  color: #00f7ff;
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+/* Left spark */
+.electric-plug::before {
+  top: 35%;
+  left: -0.3em;
+  animation: spark-left 1.2s ease-out infinite;
+}
+
+/* Right spark */
+.electric-plug::after {
+  top: 35%;
+  right: -0.3em;
+  animation: spark-right 1.2s ease-out infinite;
+  animation-delay: 0.6s;
+}
+
+/* Keyframes for sparks */
+@keyframes spark-left {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-6px, -4px) scale(1.2) rotate(-20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-12px, -8px) scale(0.8) rotate(-40deg);
+  }
+}
+
+@keyframes spark-right {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(6px, -4px) scale(1.2) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(12px, -8px) scale(0.8) rotate(40deg);
+  }
+}
+.shiny-plate {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  vertical-align: middle; /* keeps it balanced inline */
+  transform: translateY(1px); 
+  animation: plate-glow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px rgba(255,255,255,0.3));
+  overflow: hidden; /* keeps shimmer inside plate bounds */
+}
+
+/* Gentle pulse for realism */
+@keyframes plate-glow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.2));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
+  }
+}
+
+/* Shimmer reflection */
+.shiny-plate::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: plate-shimmer 2.8s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+/* Shimmer movement only across the emoji area */
+@keyframes plate-shimmer {
+  0%, 30% {
+    left: -30%;
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  50% {
+    left: 35%;
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.6;
+  }
+  70%, 100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+.clean-bin {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: bin-shake 2.8s ease-in-out infinite;
+}
+
+/* Subtle shake (lid wobble effect) */
+@keyframes bin-shake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(-8deg);
+  }
+  20% {
+    transform: rotate(8deg);
+  }
+  30% {
+    transform: rotate(-4deg);
+  }
+  40% {
+    transform: rotate(2deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Puff of dust (or trash smoke 💨) */
+.clean-bin::before {
+  content: '💨';
+  position: absolute;
+  font-size: 0.6rem;
+  left: 45%;
+  bottom: 0%;
+  opacity: 0;
+  transform: scale(0.4) translateY(0);
+  animation: bin-dust 2.8s ease-out infinite;
+  animation-delay: 1.2s;
+  pointer-events: none;
+}
+
+/* Dust puff animation */
+@keyframes bin-dust {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: scale(0.4) translateY(0);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(0.8) translateY(-10px);
+  }
+  75% {
+    opacity: 0.7;
+    transform: scale(1) translateY(-15px);
+  }
+  85% {
+    opacity: 0.4;
+    transform: scale(1.1) translateY(-20px);
+  }
+  95% {
+    opacity: 0;
+    transform: scale(1.2) translateY(-25px);
+  }
+}
+.curious-mark {
+  position: relative;
+  display: inline-block;
+  font-size: 2.8rem;
+  animation: q-bounce 2.2s ease-in-out infinite;
+  color: #7dd3fc; /* cool neon tone */
+  filter: drop-shadow(0 0 4px #00eaff);
+}
+
+/* Bounce motion for question mark */
+@keyframes q-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #7dd3fc);
+  }
+  40% {
+    transform: translateY(-6px) scale(1.1);
+    filter: drop-shadow(0 0 8px #7dd3fc);
+  }
+  60% {
+    transform: translateY(2px) scale(0.95);
+  }
+}
+
+/* Floating dots/thought particles */
+.curious-mark::before,
+.curious-mark::after {
+  content: '•';
+  position: absolute;
+  font-size: 0.6em;
+  opacity: 0;
+  color: #191970;
+  filter: drop-shadow(0 0 4px #191970);
+  pointer-events: none;
+}
+
+/* Left small floating dot */
+.curious-mark::before {
+  left: 40%;
+  bottom: -0.2em;
+  animation: q-thought-left 2.8s ease-in-out infinite;
+}
+
+/* Right small floating dot */
+.curious-mark::after {
+  right: 40%;
+  bottom: -0.2em;
+  animation: q-thought-right 2.8s ease-in-out infinite;
+  animation-delay: 1.4s;
+}
+
+/* Thought particles rising animation */
+@keyframes q-thought-left {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-3px, -8px) scale(1);
+  }
+  75% {
+    opacity: 0.8;
+    transform: translate(-5px, -12px) scale(0.9);
+  }
+  85% {
+    opacity: 0.4;
+    transform: translate(-7px, -16px) scale(0.8);
+  }
+  95% {
+    opacity: 0;
+    transform: translate(-9px, -20px) scale(0.7);
+  }
+}
+
+@keyframes q-thought-right {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(3px, -8px) scale(1);
+  }
+  75% {
+    opacity: 0.8;
+    transform: translate(5px, -12px) scale(0.9);
+  }
+  85% {
+    opacity: 0.4;
+    transform: translate(7px, -16px) scale(0.8);
+  }
+  95% {
+    opacity: 0;
+    transform: translate(9px, -20px) scale(0.7);
+  }
+}
+.quantum-quote {
+  display: inline-block;
+  position: relative;
+  top: 0.15em; 
+  left: 0.01em;
+  font-size: 1.7rem;
+  color: #4169E1;
+  text-shadow: 
+    0 0 8px rgba(65, 105, 225, 0.6),
+    0 0 16px rgba(65, 105, 225, 0.4),
+    0 0 24px rgba(65, 105, 225, 0.2);
+  animation: quantum-pulse 3.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  filter: drop-shadow(0 0 10px rgba(65, 105, 225, 0.5));
+  will-change: transform, opacity, color;
+}
+
+@keyframes quantum-pulse {
+  0%, 100% {
+    transform: translateY(0) scale(1) rotateZ(0deg);
+    color: #4169E1;
+    text-shadow: 
+      0 0 8px rgba(65, 105, 225, 0.5),
+      0 0 16px rgba(65, 105, 225, 0.3),
+      0 0 24px rgba(65, 105, 225, 0.15);
+    opacity: 0.92;
+    filter: brightness(1) saturate(1);
+  }
+  
+  25% {
+    transform: translateY(-2px) scale(1.08) rotateZ(-1deg);
+    color: #6495ED;
+    text-shadow: 
+      0 0 12px rgba(100, 149, 237, 0.7),
+      0 0 20px rgba(100, 149, 237, 0.5),
+      0 0 32px rgba(100, 149, 237, 0.3);
+    opacity: 1;
+    filter: brightness(1.15) saturate(1.2);
+  }
+  
+  50% {
+    transform: translateY(0) scale(1.12) rotateZ(0deg);
+    color: #7B68EE;
+    text-shadow: 
+      0 0 16px rgba(123, 104, 238, 0.8),
+      0 0 28px rgba(123, 104, 238, 0.6),
+      0 0 40px rgba(123, 104, 238, 0.4);
+    opacity: 1;
+    filter: brightness(1.25) saturate(1.3);
+  }
+  
+  75% {
+    transform: translateY(1px) scale(1.04) rotateZ(1deg);
+    color: #5B7FCC;
+    text-shadow: 
+      0 0 10px rgba(91, 127, 204, 0.6),
+      0 0 18px rgba(91, 127, 204, 0.4),
+      0 0 28px rgba(91, 127, 204, 0.2);
+    opacity: 0.88;
+    filter: brightness(1.05) saturate(1.1);
+  }
+}
+/* 🌍 Elegant Earth with orbiting particles + breathing atmosphere */
+.animate-earth-spin {
+  position: relative;
+  display: inline-block;
+  font-size: 1.2rem; /* slightly smaller */
+  animation: earth-spin 10s linear infinite;
+  filter: drop-shadow(0 0 2px #38bdf8) drop-shadow(0 0 4px #06b6d4);
+  color: #a5f3fc;
+}
+
+/* Gentle spin */
+@keyframes earth-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 🌫️ Atmospheric ring */
+.animate-earth-spin::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.25) 0%,
+    rgba(14, 165, 233, 0.15) 30%,
+    rgba(2, 132, 199, 0.05) 60%,
+    transparent 80%
+  );
+  animation: atmosphere-breathe 4s ease-in-out infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Subtle breathing pulse */
+@keyframes atmosphere-breathe {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* ✨ Orbiting particles */
+.animate-earth-spin span::before,
+.animate-earth-spin span::after,
+.animate-earth-spin::before {
+  content: '•';
+  position: absolute;
+  color: #7dd3fc;
+  font-size: 0.4rem;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 3px #38bdf8);
+  animation: orbit 4s linear infinite;
+}
+
+/* Individual particle paths */
+.animate-earth-spin::before { top: -0.5em; left: 50%; animation-delay: 0s; }
+.animate-earth-spin span::before { left: -0.5em; top: 25%; animation-delay: 1.2s; }
+.animate-earth-spin span::after { right: -0.6em; bottom: 20%; animation-delay: 2.4s; }
+
+/* Elliptical orbit motion */
+@keyframes orbit {
+  0%   { transform: rotate(0deg) translateX(7px) rotate(0deg); }
+  50%  { transform: rotate(180deg) translateX(7px) rotate(-180deg); }
+  100% { transform: rotate(360deg) translateX(7px) rotate(-360deg); }
+}
+/* 🔑 Login Animation (matched with 🪄 Register) */
+.animate-login {
+  position: relative;
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #93c5fd; /* soft blue tone */
+  animation: login-pulse 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px #60a5fa); /* subtle glow, like Register */
+}
+
+/* Gentle breathing pulse (no text-shadow) */
+@keyframes login-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px #60a5fa);
+  }
+  50% {
+    transform: scale(1.07);
+    filter: drop-shadow(0 0 4px #93c5fd);
+  }
+}
+
+/* Orbiting spark particles (minimal glow) */
+.animate-login::before,
+.animate-login::after {
+  content: '•';
+  position: absolute;
+  color: #bfdbfe;
+  font-size: 0.4rem;
+  opacity: 0.9;
+  animation: login-orbit 3.5s linear infinite;
+  filter: drop-shadow(0 0 2px #60a5fa);
+  pointer-events: none;
+}
+
+.animate-login::before {
+  top: -0.4em;
+  left: 50%;
+  animation-delay: 0s;
+}
+
+.animate-login::after {
+  bottom: -0.3em;
+  right: 45%;
+  animation-delay: 1.5s;
+}
+
+/* Smooth orbit motion */
+@keyframes login-orbit {
+  0%   { transform: rotate(0deg) translateX(6px) rotate(0deg); }
+  50%  { transform: rotate(180deg) translateX(6px) rotate(-180deg); }
+  100% { transform: rotate(360deg) translateX(6px) rotate(-360deg); }
+}
+
+/* 🪄 Register Animation */
+.animate-register {
+  position: relative;
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #c4b5fd; /* soft lavender tone */
+  animation: register-grow 3.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px #a78bfa); /* subtle glow */
+}
+
+/* Gentle magical pulse */
+@keyframes register-grow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px #a78bfa);
+  }
+  50% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 4px #c4b5fd);
+  }
+}
+
+/* ✨ Floating spark particles */
+.animate-register::before,
+.animate-register::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.65rem;
+  opacity: 0;
+  animation: register-spark 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animate-register::before {
+  top: -0.5em;
+  left: -0.6em;
+  animation-delay: 0.6s;
+}
+
+.animate-register::after {
+  bottom: -0.5em;
+  right: -0.6em;
+  animation-delay: 1.8s;
+}
+
+/* Spark float motion */
+@keyframes register-spark {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translateY(-12px) scale(0.9);
+  }
+}
+/* 🌟 Star Animation */
+.animate-star {
+  position: relative;
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #fde68a; /* warm golden tone */
+  animation: star-twinkle 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px #facc15); /* soft golden glow */
+}
+
+/* Gentle shimmer pulse */
+@keyframes star-twinkle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 0 2px #facc15);
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+    filter: drop-shadow(0 0 4px #fde68a);
+  }
+}
+
+/* ✨ Orbiting spark dust */
+.animate-star::before,
+.animate-star::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.6rem;
+  opacity: 0;
+  animation: star-spark 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animate-star::before {
+  top: -0.5em;
+  left: -0.5em;
+  animation-delay: 1s;
+}
+
+.animate-star::after {
+  bottom: -0.5em;
+  right: -0.5em;
+  animation-delay: 2.2s;
+}
+
+/* Spark drift effect */
+@keyframes star-spark {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translateY(-12px) scale(0.9);
+  }
+}
+/* ✨ Quotation Mark Animation */
+.animate-quote {
+  display: inline-block;
+  position: relative;
+  font-size: 1.4rem;
+  color: #fcd34d; /* warm golden tone */
+  animation: quote-bounce 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #fbbf24) drop-shadow(0 0 5px #f59e0b);
+}
+
+/* Gentle pop & shimmer */
+@keyframes quote-bounce {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 3px #fbbf24) drop-shadow(0 0 5px #f59e0b);
+  }
+  30% {
+    transform: scale(1.2) rotate(-5deg);
+    opacity: 0.9;
+    filter: drop-shadow(0 0 6px #fde68a) drop-shadow(0 0 8px #fbbf24);
+  }
+  60% {
+    transform: scale(1.1) rotate(5deg);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 4px #fde68a) drop-shadow(0 0 6px #fbbf24);
+  }
+}
+
+/* ✨ Tiny orbiting spark accents around the quote */
+.animate-quote::before,
+.animate-quote::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: quote-spark 3s ease-in-out infinite;
+  pointer-events: none;
+  color: #fef3c7;
+}
+
+.animate-quote::before {
+  top: -0.6em;
+  left: -0.4em;
+  animation-delay: 0.5s;
+}
+
+.animate-quote::after {
+  bottom: -0.6em;
+  right: -0.4em;
+  animation-delay: 1.2s;
+}
+
+/* Spark drift effect */
+@keyframes quote-spark {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.7);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translateY(-12px) scale(0.9);
+  }
+}
+.mini-curious {
+  position: relative;
+  display: inline-block;
+  font-size: 1.7rem;
+  color: #4f46e5;
+  /* No animation on the main text - it stays still */
+}
+
+/* Floating question mark particles - closer and more visible */
+.mini-curious::before,
+.mini-curious::after {
+  content: "?";
+  position: absolute;
+  font-size: 0.8rem;
+  color: #818cf8;
+  opacity: 0;
+  animation: float-close 2.5s infinite ease-in-out;
+  pointer-events: none;
+  font-weight: 600;
+}
+
+.mini-curious::before {
+  top: -6px;
+  left: -6px;
+  animation-delay: 0s;
+}
+
+.mini-curious::after {
+  top: -6px;
+  right: -6px;
+  animation-delay: 1.25s;
+}
+
+/* Smoother floating animation - stays close, gentle bounce */
+@keyframes float-close {
+  0% { 
+    transform: translate(0, 0) scale(0.6) rotate(-5deg); 
+    opacity: 0; 
+  }
+  15% { 
+    opacity: 0.8; 
+  }
+  40% { 
+    transform: translate(2px, -8px) scale(1) rotate(5deg); 
+    opacity: 1; 
+  }
+  60% { 
+    transform: translate(1px, -10px) scale(0.95) rotate(0deg); 
+    opacity: 0.9; 
+  }
+  85% { 
+    opacity: 0.3; 
+  }
+  100% { 
+    transform: translate(0, -12px) scale(0.7) rotate(5deg); 
+    opacity: 0; 
+  }
+}
+.exclaim {
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #facc15; /* yellow */
+  display: inline-block;
+  animation: pulseGlow 1s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24;
+  }
+  50% {
+    transform: scale(1.3) rotate(-10deg);
+    text-shadow: 0 0 15px #fbbf24, 0 0 30px #fbbf24;
+  }
+  100% {
+    transform: scale(1) rotate(10deg);
+    text-shadow: 0 0 5px #fbbf24, 0 0 10px #fbbf24;
+  }
+}
+.emoji-container {
+  display: flex;
+  gap: 2rem;
+  font-size: 3rem;
+}
+
+.emoji {
+  display: inline-block;
+  animation: subtleWiggle 2s infinite ease-in-out;
+  cursor: default;
+
+  /* soft glow */
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3),
+               0 0 12px rgba(255, 255, 255, 0.2);
+
+  /* shimmer effect */
+  background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Lock emoji */
+.privacy {
+  color: #34d399; /* green */
+  text-shadow: 0 0 8px rgba(52, 211, 153, 0.3),
+               0 0 12px rgba(52, 211, 153, 0.2);
+}
+
+/* Page emoji */
+.terms {
+  color: #60a5fa; /* blue */
+  text-shadow: 0 0 8px rgba(96, 165, 250, 0.3),
+               0 0 12px rgba(96, 165, 250, 0.2);
+}
+
+/* subtle wiggle + very small bounce */
+@keyframes subtleWiggle {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.95;
+  }
+  25% {
+    transform: translateY(-2px) rotate(-2deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(0) rotate(2deg);
+    opacity: 0.95;
+  }
+  75% {
+    transform: translateY(-1px) rotate(-1deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.95;
+  }
+}
+@keyframes glowUp {
+  0%, 100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 0px #4ade80);
+  }
+  50% {
+    transform: translateY(-4px);
+    filter: drop-shadow(0 0 8px #4ade80);
+  }
+}
+
+.animate-glow-up {
+  animation: glowUp 2s ease-in-out infinite;
+  transition: transform 0.3s, filter 0.3s;
+  display: inline-block;
+}
+
+.animate-glow-up:hover {
+  transform: scale(1.2) translateY(-6px);
+  filter: drop-shadow(0 0 12px #22c55e);
+}
+@keyframes gentleGrow {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.2); filter: brightness(1.4); }
+}
+
+@keyframes warningShake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
+}
+
+@keyframes flameFlicker {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  25% { transform: scale(1.1) rotate(2deg); filter: brightness(1.3); }
+  50% { transform: scale(0.95) rotate(-2deg); filter: brightness(1.2); }
+  75% { transform: scale(1.05) rotate(1deg); filter: brightness(1.4); }
+}
+
+@keyframes explodePop {
+  0% { transform: scale(1); opacity: 1; }
+  30% { transform: scale(1.4); opacity: 0.8; }
+  60% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-gentle-grow { animation: gentleGrow 2s ease-in-out infinite; display: inline-block; }
+.animate-warning-shake { animation: warningShake 0.6s ease-in-out infinite; display: inline-block; }
+.animate-flame-flicker { animation: flameFlicker 1.3s ease-in-out infinite; display: inline-block; }
+.animate-explode-pop { animation: explodePop 1.5s ease-in-out infinite; display: inline-block; }
+@keyframes trophyShine {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px gold);
+  }
+  50% {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 8px gold) brightness(1.3);
+  }
+}
+
+.animate-trophy-shine {
+  animation: trophyShine 1.8s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes pancakeFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 4px #fcd34d);
+  }
+  50% {
+    transform: translateY(-6px) rotate(2deg);
+    filter: drop-shadow(0 0 10px #fde68a);
+  }
+}
+
+@keyframes steamRise {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-25px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* main pancake wrapper */
+.pancake-wrapper {
+  position: relative;
+  display: inline-block;
+  animation: pancakeFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px #facc15);
+}
+
+/* soft glowing “steam” particles */
+.pancake-wrapper::before,
+.pancake-wrapper::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #fff7cc 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: steamRise 2.8s ease-in-out infinite;
+}
+
+.pancake-wrapper::after {
+  left: 55%;
+  animation-delay: 1.3s;
+}
+
+/* add more variation by cloning with a modifier */
+.pancake-steam::before {
+  left: 45%;
+  animation-delay: 0.8s;
+}
+@keyframes calendarTilt {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 4px #60a5fa);
+  }
+  50% {
+    transform: rotate(3deg) scale(1.05);
+    filter: drop-shadow(0 0 10px #93c5fd);
+  }
+}
+
+@keyframes daySpark {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-15px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+.calendar-wrapper {
+  position: relative;
+  display: inline-block;
+  animation: calendarTilt 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px #60a5fa);
+}
+
+/* floating spark particles */
+.calendar-wrapper::before,
+.calendar-wrapper::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: radial-gradient(circle, #bae6fd 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: daySpark 3s ease-in-out infinite;
+}
+
+.calendar-wrapper::after {
+  left: 45%;
+  animation-delay: 1.4s;
+}
+
+/* optional variant for more subtle sparkle flow */
+.calendar-spark::before {
+  left: 55%;
+  animation-delay: 0.7s;
+}
+
+.earth-space {
+  position: relative;
+  display: inline-block;
+  font-size: 3.5rem;
+  vertical-align: middle;
+  animation: earthFloat 6s ease-in-out infinite, earthRotate 20s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(0, 200, 255, 0.8));
+}
+
+/* rotating aurora-like glow */
+.earth-space::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(0, 255, 255, 0.25),
+    rgba(0, 128, 255, 0.3),
+    rgba(255, 255, 255, 0.15),
+    rgba(0, 255, 255, 0.25)
+  );
+  transform: translate(-50%, -50%);
+  animation: auroraSpin 8s linear infinite;
+  filter: blur(8px);
+  z-index: -1;
+}
+
+/* faint pulsing halo */
+.earth-space::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 200, 255, 0.15), transparent 70%);
+  transform: translate(-50%, -50%);
+  animation: haloPulse 4s ease-in-out infinite;
+  z-index: -1;
+}
+
+/* --- Twinkling stars --- */
+.earth-space span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  animation: starTwinkle 4s infinite ease-in-out;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+/* Add multiple stars with different delays and positions */
+.earth-space > span:nth-of-type(1) { top: -10px; left: -18px; animation-delay: 0.5s; }
+.earth-space > span:nth-of-type(2) { top: -6px; right: -20px; animation-delay: 1s; }
+.earth-space > span:nth-of-type(3) { bottom: -12px; left: -15px; animation-delay: 1.5s; }
+.earth-space > span:nth-of-type(4) { bottom: -5px; right: -15px; animation-delay: 2s; }
+.earth-space > span:nth-of-type(5) { top: -16px; left: 5px; animation-delay: 2.5s; }
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes earthRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes auroraSpin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes haloPulse {
+  0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes earthFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+/* 🥗 Food Bowl Animation - gentle toss with lettuce leaves */
+.animate-food-bowl {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: bowl-toss 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #10b981);
+}
+
+@keyframes bowl-toss {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 3px #10b981);
+  }
+  25% {
+    transform: translateY(-3px) rotate(-2deg);
+    filter: drop-shadow(0 0 6px #34d399);
+  }
+  50% {
+    transform: translateY(-5px) rotate(0deg);
+    filter: drop-shadow(0 0 8px #10b981);
+  }
+  75% {
+    transform: translateY(-3px) rotate(2deg);
+    filter: drop-shadow(0 0 6px #34d399);
+  }
+}
+
+/* Floating veggie particles */
+.animate-food-bowl::before,
+.animate-food-bowl::after {
+  content: '🌿';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: veggie-float 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animate-food-bowl::before {
+  top: -0.6em;
+  left: -0.5em;
+  animation-delay: 0.8s;
+}
+
+.animate-food-bowl::after {
+  top: -0.5em;
+  right: -0.5em;
+  animation-delay: 1.8s;
+}
+
+@keyframes veggie-float {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(0.7);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-12px) rotate(20deg) scale(1);
+  }
+  85% {
+    opacity: 0.6;
+    transform: translateY(-18px) rotate(40deg) scale(0.9);
+  }
+}
+
+/* 🚗 Car Animation - driving with exhaust trail */
+.animate-car-drive {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: car-bounce 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #60a5fa);
+}
+
+@keyframes car-bounce {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+    filter: drop-shadow(0 0 3px #60a5fa);
+  }
+  25% {
+    transform: translateX(-2px) translateY(-1px);
+    filter: drop-shadow(0 0 6px #93c5fd);
+  }
+  50% {
+    transform: translateX(2px) translateY(0);
+    filter: drop-shadow(0 0 8px #60a5fa);
+  }
+  75% {
+    transform: translateX(-1px) translateY(-1px);
+    filter: drop-shadow(0 0 6px #93c5fd);
+  }
+}
+
+/* Exhaust smoke trail */
+.animate-car-drive::before,
+.animate-car-drive::after {
+  content: '💨';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: exhaust-puff 2.8s ease-out infinite;
+  pointer-events: none;
+  left: 5.0em;
+  top: 40%;
+}
+
+.animate-car-drive::after {
+  animation-delay: 1.4s;
+  font-size: 0.4rem;
+}
+
+@keyframes exhaust-puff {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translateX(0) scale(0.5);
+  }
+  65% {
+    opacity: 0.8;
+    transform: translateX(-8px) scale(1);
+  }
+  80% {
+    opacity: 0.4;
+    transform: translateX(-16px) scale(1.2);
+  }
+}
+
+/* ⚡ Electricity Animation - crackling energy bolts */
+.animate-electricity {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  color: #fde047;
+  animation: electric-pulse 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #fde047) drop-shadow(0 0 10px #facc15);
+}
+
+@keyframes electric-pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px #fde047) drop-shadow(0 0 8px #facc15);
+  }
+  25% {
+    transform: scale(1.15) rotate(-5deg);
+    filter: drop-shadow(0 0 8px #fef08a) drop-shadow(0 0 15px #fde047);
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+    filter: drop-shadow(0 0 10px #fde047) drop-shadow(0 0 20px #facc15);
+  }
+  75% {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 0 8px #fef08a) drop-shadow(0 0 15px #fde047);
+  }
+}
+
+/* Electric spark bursts */
+.animate-electricity::before,
+.animate-electricity::after {
+  content: '⚡';
+  position: absolute;
+  font-size: 0.55rem;
+  color: #fef08a;
+  opacity: 0;
+  animation: electric-spark 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-electricity::before {
+  top: -0.5em;
+  left: -0.4em;
+  animation-delay: 0.3s;
+}
+
+.animate-electricity::after {
+  bottom: -0.4em;
+  right: -0.9em;
+  animation-delay: 0.9s;
+}
+
+@keyframes electric-spark {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-3px, -5px) scale(1.2) rotate(180deg);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translate(-5px, -8px) scale(0.9) rotate(270deg);
+  }
+}
+
+/* 🗑️ Waste Bin Animation - lid flip with trash sparkles */
+.animate-waste-bin {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: bin-lid-flip 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #94a3b8);
+}
+
+@keyframes bin-lid-flip {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #94a3b8);
+  }
+  15% {
+    transform: rotate(-12deg) scale(1.05);
+    filter: drop-shadow(0 0 6px #cbd5e1);
+  }
+  25% {
+    transform: rotate(-8deg) scale(1);
+    filter: drop-shadow(0 0 5px #94a3b8);
+  }
+  35% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #94a3b8);
+  }
+}
+
+/* Recycling sparkles */
+.animate-waste-bin::before,
+.animate-waste-bin::after {
+  content: '♻️';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: recycle-sparkle 3.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.animate-waste-bin::before {
+  top: -0.7em;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 1.2s;
+}
+
+.animate-waste-bin::after {
+  bottom: 0.5em;
+  left: 0.3em;
+  animation-delay: 2.4s;
+}
+
+@keyframes recycle-sparkle {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-10px) rotate(120deg) scale(1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translateY(-15px) rotate(240deg) scale(0.8);
+  }
+}
+
+/* Alternative: Animated chart with orbiting data points */
+.animate-chart-orbit {
+  position: relative;
+  display: inline-block;
+  font-size: 1.4rem;
+  animation: chart-grow 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #3b82f6);
+}
+
+@keyframes chart-grow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px #3b82f6);
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 10px #60a5fa);
+  }
+}
+
+/* Orbiting data point 1 */
+.animate-chart-orbit::before {
+  content: '•';
+  position: absolute;
+  font-size: 0.4rem;
+  color: #34d399;
+  filter: drop-shadow(0 0 3px #10b981);
+  animation: orbit-point-1 4s linear infinite;
+  pointer-events: none;
+}
+
+/* Orbiting data point 2 */
+.animate-chart-orbit::after {
+  content: '•';
+  position: absolute;
+  font-size: 0.4rem;
+  color: #fbbf24;
+  filter: drop-shadow(0 0 3px #f59e0b);
+  animation: orbit-point-2 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes orbit-point-1 {
+  0% {
+    transform: rotate(0deg) translateX(18px) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: rotate(180deg) translateX(18px) rotate(-180deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(360deg) translateX(18px) rotate(-360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes orbit-point-2 {
+  0% {
+    transform: rotate(180deg) translateX(18px) rotate(-180deg);
+    opacity: 1;
+  }
+  50% {
+    transform: rotate(360deg) translateX(18px) rotate(-360deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(540deg) translateX(18px) rotate(-540deg);
+    opacity: 1;
+  }
+}
+.animate-colon-glow {
+  display: inline-block;
+  animation: colon-glow 2.0s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+@keyframes colon-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.95);
+    filter: drop-shadow(0 0 0px currentColor);
+  }
+}
+
+/* Alternative: Pulsing lightbulb with electricity crackle */
+.animate-lightbulb-pulse {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: bulb-pulse 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #fbbf24);
+}
+
+@keyframes bulb-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px #fbbf24) drop-shadow(0 0 10px #f59e0b);
+  }
+  20% {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 12px #fde047) drop-shadow(0 0 20px #fbbf24);
+  }
+  40% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 10px #fbbf24) drop-shadow(0 0 16px #f59e0b);
+  }
+  60% {
+    transform: scale(1.18);
+    filter: drop-shadow(0 0 14px #fde047) drop-shadow(0 0 22px #fbbf24);
+  }
+  80% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 8px #fbbf24) drop-shadow(0 0 14px #f59e0b);
+  }
+}
+
+/* Electric zaps around the bulb */
+.animate-lightbulb-pulse::before,
+.animate-lightbulb-pulse::after {
+  content: '🔆';
+  position: absolute;
+  font-size: 0.45rem;
+  color: #fef08a;
+  opacity: 0;
+  animation: electric-zap 2.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-lightbulb-pulse::before {
+  top: -0.5em;
+  left: -0.5em;
+  animation-delay: 0.3s;
+}
+
+.animate-lightbulb-pulse::after {
+  bottom: -0.5em;
+  right: -0.5em;
+  animation-delay: 0.8s;
+}
+
+@keyframes electric-zap {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  85% {
+    opacity: 0.6;
+    transform: scale(0.9) rotate(270deg);
+  }
+  95% {
+    opacity: 0.2;
+    transform: scale(0.6) rotate(360deg);
+  }
+}
+/* Refined Lightbulb - Slower, Smoother, More Aesthetic */
+.animate-idea-glow {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: idea-breathe 4.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #fbbf24);
+}
+
+@keyframes idea-breathe {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px #fbbf24) drop-shadow(0 0 10px #f59e0b);
+  }
+  15% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 10px #fde047) drop-shadow(0 0 16px #fbbf24);
+  }
+  30% {
+    transform: scale(1.14);
+    filter: drop-shadow(0 0 12px #fde047) drop-shadow(0 0 20px #fbbf24);
+  }
+  45% {
+    transform: scale(1.18);
+    filter: drop-shadow(0 0 14px #fef08a) drop-shadow(0 0 24px #fde047);
+  }
+  60% {
+    transform: scale(1.16);
+    filter: drop-shadow(0 0 13px #fde047) drop-shadow(0 0 22px #fbbf24);
+  }
+  75% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 10px #fbbf24) drop-shadow(0 0 16px #f59e0b);
+  }
+  90% {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 8px #fbbf24) drop-shadow(0 0 12px #f59e0b);
+  }
+}
+
+/* Gentle glowing rays around the bulb */
+.animate-idea-glow::before,
+.animate-idea-glow::after {
+  content: '🔆';
+  position: absolute;
+  font-size: 0.5rem;
+  color: #fef08a;
+  opacity: 0;
+  animation: gentle-rays 4.2s ease-in-out infinite;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px #fde047);
+}
+
+.animate-idea-glow::before {
+  top: -0.6em;
+  left: -0.6em;
+  animation-delay: 0.5s;
+}
+
+.animate-idea-glow::after {
+  bottom: -0.6em;
+  right: -0.6em;
+  animation-delay: 1.2s;
+}
+
+@keyframes gentle-rays {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: scale(0.6) rotate(0deg);
+  }
+  70% {
+    opacity: 0.3;
+    transform: scale(0.8) rotate(60deg);
+  }
+  75% {
+    opacity: 0.8;
+    transform: scale(1.1) rotate(120deg);
+  }
+  82% {
+    opacity: 1;
+    transform: scale(1.3) rotate(180deg);
+  }
+  88% {
+    opacity: 0.7;
+    transform: scale(1.2) rotate(240deg);
+  }
+  95% {
+    opacity: 0.3;
+    transform: scale(0.9) rotate(300deg);
+  }
+}
+/* Elegant Loading Dots - Sequential fade animation */
+.animate-dot-1 {
+  display: inline-block;
+  animation: dot-fade 1.2s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.animate-dot-2 {
+  display: inline-block;
+  animation: dot-fade 1.2s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+
+.animate-dot-3 {
+  display: inline-block;
+  animation: dot-fade 1.2s ease-in-out infinite;
+  animation-delay: 0.8s;
+}
+
+@keyframes dot-fade {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Enhanced version with subtle glow */
+.animate-dot-glow-1 {
+  display: inline-block;
+  animation: dot-glow 1.2s ease-in-out infinite;
+  animation-delay: 0s;
+  filter: drop-shadow(0 0 1px currentColor);
+}
+
+.animate-dot-glow-2 {
+  display: inline-block;
+  animation: dot-glow 1.2s ease-in-out infinite;
+  animation-delay: 0.4s;
+  filter: drop-shadow(0 0 1px currentColor);
+}
+
+.animate-dot-glow-3 {
+  display: inline-block;
+  animation: dot-glow 1.2s ease-in-out infinite;
+  animation-delay: 0.8s;
+  filter: drop-shadow(0 0 1px currentColor);
+}
+
+@keyframes dot-glow {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.8);
+    filter: drop-shadow(0 0 0px currentColor);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+}
+
+/* Premium version with bounce effect */
+.animate-dot-bounce-1 {
+  display: inline-block;
+  animation: dot-bounce 1.2s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.animate-dot-bounce-2 {
+  display: inline-block;
+  animation: dot-bounce 1.2s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+
+.animate-dot-bounce-3 {
+  display: inline-block;
+  animation: dot-bounce 1.2s ease-in-out infinite;
+  animation-delay: 0.8s;
+}
+
+@keyframes dot-bounce {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.8) translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1) translateY(-2px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+/* 𓌉◯𓇋 Diet Symbol Animation - gentle breathing */
+.animate-diet-symbol {
+  display: inline-block;
+  animation: diet-breathe 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+@keyframes diet-breathe {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08) rotate(2deg);
+    filter: drop-shadow(0 0 6px currentColor);
+  }
+}
+
+/* 🛸 Transport/UFO Animation - hovering with beam */
+.animate-transport-ufo {
+  position: relative;
+  display: inline-block;
+  animation: ufo-hover 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #60a5fa);
+}
+
+@keyframes ufo-hover {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+    filter: drop-shadow(0 0 4px #60a5fa);
+  }
+  25% {
+    transform: translateY(-3px) rotate(0deg);
+    filter: drop-shadow(0 0 8px #93c5fd);
+  }
+  50% {
+    transform: translateY(-5px) rotate(2deg);
+    filter: drop-shadow(0 0 10px #60a5fa);
+  }
+  75% {
+    transform: translateY(-3px) rotate(0deg);
+    filter: drop-shadow(0 0 8px #93c5fd);
+  }
+}
+
+/* Beam effect below UFO */
+.animate-transport-ufo::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid rgba(147, 197, 253, 0.4);
+  opacity: 0;
+  animation: beam-pulse 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes beam-pulse {
+  0%, 100% {
+    opacity: 0;
+    transform: translateX(-50%) scaleY(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(-50%) scaleY(1);
+  }
+}
+
+/* ❌ Remove/Cross Animation - rotating warning */
+.animate-remove-cross {
+  display: inline-block;
+  animation: cross-warn 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #ef4444);
+}
+
+@keyframes cross-warn {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px #ef4444);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.15) rotate(-10deg);
+    filter: drop-shadow(0 0 6px #f87171);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+    filter: drop-shadow(0 0 8px #ef4444);
+    opacity: 0.7;
+  }
+  75% {
+    transform: scale(1.15) rotate(10deg);
+    filter: drop-shadow(0 0 6px #f87171);
+    opacity: 0.85;
+  }
+}
+
+/* + Plus/Add Animation - expanding with sparkle */
+.animate-add-plus {
+  position: relative;
+  display: inline-block;
+  animation: plus-expand 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #10b981);
+}
+
+@keyframes plus-expand {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px #10b981);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.25) rotate(90deg);
+    filter: drop-shadow(0 0 8px #34d399);
+    opacity: 0.8;
+  }
+  80% {
+    transform: scale(1.1) rotate(180deg);
+    filter: drop-shadow(0 0 5px #10b981);
+    opacity: 0.9;
+  }
+}
+
+/* Sparkle effect around plus */
+.animate-add-plus::before {
+  content: '+';
+  position: absolute;
+  font-size: 0.5em;
+  top: -0.4em;
+  right: -0.4em;
+  opacity: 0;
+  animation: plus-sparkle 2.5s ease-out infinite;
+  pointer-events: none;
+  color: #6ee7b7;
+}
+
+@keyframes plus-sparkle {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+  90% {
+    opacity: 0.5;
+    transform: scale(0.8) rotate(270deg);
+  }
+}
+
+/* ⚡ Lightning/Electricity Animation - crackling energy */
+.animate-electric-bolt {
+  position: relative;
+  display: inline-block;
+  animation: bolt-crackle 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #fde047);
+}
+
+@keyframes bolt-crackle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px #fde047) drop-shadow(0 0 8px #facc15);
+    opacity: 1;
+  }
+  15% {
+    transform: scale(1.2) rotate(-8deg);
+    filter: drop-shadow(0 0 8px #fef08a) drop-shadow(0 0 16px #fde047);
+    opacity: 0.9;
+  }
+  30% {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 0 6px #fde047) drop-shadow(0 0 12px #facc15);
+    opacity: 1;
+  }
+  45% {
+    transform: scale(1.25) rotate(-5deg);
+    filter: drop-shadow(0 0 10px #fef08a) drop-shadow(0 0 20px #fde047);
+    opacity: 0.85;
+  }
+  60% {
+    transform: scale(1.1) rotate(0deg);
+    filter: drop-shadow(0 0 6px #fde047) drop-shadow(0 0 12px #facc15);
+    opacity: 1;
+  }
+}
+
+/* Electric sparks around bolt */
+.animate-electric-bolt::before,
+.animate-electric-bolt::after {
+  content: '•';
+  position: absolute;
+  font-size: 0.4em;
+  color: #fef08a;
+  opacity: 0;
+  animation: bolt-spark 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-electric-bolt::before {
+  top: -0.5em;
+  left: -0.5em;
+  animation-delay: 0.2s;
+}
+
+.animate-electric-bolt::after {
+  bottom: -0.5em;
+  right: -0.5em;
+  animation-delay: 0.6s;
+}
+
+@keyframes bolt-spark {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  90% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+/* 🗑️ Waste Bin Animation - lid opening with disposal */
+.animate-waste-dispose {
+  position: relative;
+  display: inline-block;
+  animation: bin-open 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #94a3b8);
+}
+
+@keyframes bin-open {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #94a3b8);
+  }
+  12% {
+    transform: rotate(-10deg) scale(1.05);
+    filter: drop-shadow(0 0 6px #cbd5e1);
+  }
+  24% {
+    transform: rotate(-5deg) scale(1.02);
+    filter: drop-shadow(0 0 5px #94a3b8);
+  }
+  36% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #94a3b8);
+  }
+}
+
+/* Waste particles dropping into bin */
+.animate-waste-dispose::before {
+  content: '♻️';
+  position: absolute;
+  font-size: 0.45em;
+  top: -0.8em;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: waste-drop 3.5s ease-in infinite;
+  pointer-events: none;
+}
+
+@keyframes waste-drop {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0) scale(0.7) rotate(0deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(10px) scale(1) rotate(120deg);
+  }
+  85% {
+    opacity: 0.7;
+    transform: translateX(-50%) translateY(22px) scale(0.8) rotate(240deg);
+  }
+  95% {
+    opacity: 0.2;
+    transform: translateX(-50%) translateY(28px) scale(0.5) rotate(360deg);
+  }
+}
+/* === FOOD OPTIONS === */
+
+/* 🍖 Meat Animation - sizzling on grill */
+.animate-meat-sizzle {
+  display: inline-block;
+  animation: meat-sizzle 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #ef4444);
+}
+
+@keyframes meat-sizzle {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #ef4444);
+  }
+  25% {
+    transform: translateY(-1px) scale(1.05);
+    filter: drop-shadow(0 0 5px #f87171);
+  }
+  50% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 6px #ef4444);
+  }
+  75% {
+    transform: translateY(-1px) scale(1.05);
+    filter: drop-shadow(0 0 5px #f87171);
+  }
+}
+
+/* 🪴 Plant Animation - growing with leaves */
+.animate-plant-grow {
+  position: relative;
+  display: inline-block;
+  animation: plant-grow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #10b981);
+}
+
+@keyframes plant-grow {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 3px #10b981);
+  }
+  50% {
+    transform: scale(1.12) translateY(-2px);
+    filter: drop-shadow(0 0 6px #34d399);
+  }
+}
+
+/* Floating leaf particle */
+.animate-plant-grow::after {
+  content: '🍃';
+  position: absolute;
+  font-size: 0.4em;
+  top: -0.5em;
+  right: -0.5em;
+  opacity: 0;
+  animation: leaf-float 3s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes leaf-float {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(0.6);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-8px) rotate(20deg) scale(1);
+  }
+  90% {
+    opacity: 0.5;
+    transform: translateY(-15px) rotate(40deg) scale(0.8);
+  }
+}
+
+/* 🍔 Burger Animation - stacking layers */
+.animate-burger-stack {
+  display: inline-block;
+  animation: burger-bounce 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #f59e0b);
+}
+
+@keyframes burger-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #f59e0b);
+  }
+  30% {
+    transform: translateY(-3px) scale(1.08);
+    filter: drop-shadow(0 0 6px #fbbf24);
+  }
+  60% {
+    transform: translateY(-1px) scale(1.04);
+    filter: drop-shadow(0 0 5px #f59e0b);
+  }
+}
+
+/* === TRANSPORT OPTIONS === */
+
+/* 🏎️ Race Car Animation - speeding with motion blur */
+.animate-race-car {
+  display: inline-block;
+  animation: race-speed 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #ef4444);
+}
+
+@keyframes race-speed {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    filter: drop-shadow(0 0 3px #ef4444);
+  }
+  40% {
+    transform: translateX(2px) scale(1.08);
+    filter: drop-shadow(0 0 6px #f87171);
+  }
+  80% {
+    transform: translateX(-1px) scale(1.04);
+    filter: drop-shadow(0 0 5px #ef4444);
+  }
+}
+
+/* 🏍️ Motorcycle Animation - leaning into turns */
+.animate-motorcycle {
+  display: inline-block;
+  animation: bike-lean 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #f59e0b);
+}
+
+@keyframes bike-lean {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #f59e0b);
+  }
+  25% {
+    transform: rotate(-5deg) scale(1.06);
+    filter: drop-shadow(0 0 5px #fbbf24);
+  }
+  75% {
+    transform: rotate(5deg) scale(1.06);
+    filter: drop-shadow(0 0 5px #fbbf24);
+  }
+}
+
+/* 🚐 Bus Animation - gentle road bounce */
+.animate-bus-ride {
+  display: inline-block;
+  animation: bus-bounce 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #3b82f6);
+}
+
+@keyframes bus-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #3b82f6);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.05);
+    filter: drop-shadow(0 0 5px #60a5fa);
+  }
+}
+
+/* 🚊 Metro Animation - sliding on rails */
+.animate-metro-slide {
+  display: inline-block;
+  animation: metro-glide 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #8b5cf6);
+}
+
+@keyframes metro-glide {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    filter: drop-shadow(0 0 3px #8b5cf6);
+  }
+  50% {
+    transform: translateX(3px) scale(1.05);
+    filter: drop-shadow(0 0 6px #a78bfa);
+  }
+}
+
+/* 🚂 Train Animation - chugging steam */
+.animate-train-chug {
+  position: relative;
+  display: inline-block;
+  animation: train-move 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #6366f1);
+}
+
+@keyframes train-move {
+  0%, 100% {
+    transform: translateX(0) scale(1);
+    filter: drop-shadow(0 0 3px #6366f1);
+  }
+  25% {
+    transform: translateX(-1px) scale(1.04);
+    filter: drop-shadow(0 0 5px #818cf8);
+  }
+  75% {
+    transform: translateX(1px) scale(1.04);
+    filter: drop-shadow(0 0 5px #818cf8);
+  }
+}
+
+/* Steam puff from train */
+.animate-train-chug::after {
+  content: '💨';
+  position: absolute;
+  font-size: 0.4em;
+  left: -0.5em;
+  top: -0.3em;
+  opacity: 0;
+  animation: train-steam 2.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes train-steam {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translateX(0) translateY(0) scale(0.5);
+  }
+  65% {
+    opacity: 0.8;
+    transform: translateX(-8px) translateY(-5px) scale(1);
+  }
+  85% {
+    opacity: 0.3;
+    transform: translateX(-15px) translateY(-10px) scale(1.2);
+  }
+}
+
+/* ✈️ Airplane Animation - soaring with trail */
+.animate-airplane-soar {
+  position: relative;
+  display: inline-block;
+  animation: plane-soar 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #06b6d4);
+}
+
+@keyframes plane-soar {
+  0%, 100% {
+    transform: translateY(0) rotate(-5deg) scale(1);
+    filter: drop-shadow(0 0 3px #06b6d4);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0deg) scale(1.08);
+    filter: drop-shadow(0 0 6px #22d3ee);
+  }
+}
+
+/* Contrail effect */
+.animate-airplane-soar::after {
+  content: '⋯';
+  position: absolute;
+  font-size: 0.6em;
+  left: -1em;
+  top: 50%;
+  opacity: 0;
+  color: #bae6fd;
+  animation: contrail 3.2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes contrail {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  70% {
+    opacity: 0.7;
+    transform: translateX(-5px);
+  }
+  90% {
+    opacity: 0.2;
+    transform: translateX(-12px);
+  }
+}
+
+/* === ELECTRICITY OPTIONS === */
+
+/* 🔥 Coal/Fire Animation - flickering flames */
+.animate-coal-fire {
+  display: inline-block;
+  animation: fire-flicker 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #f59e0b);
+}
+
+@keyframes fire-flicker {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 4px #f59e0b) drop-shadow(0 0 8px #ef4444);
+  }
+  25% {
+    transform: scale(1.15) translateY(-2px);
+    filter: drop-shadow(0 0 8px #fbbf24) drop-shadow(0 0 12px #f87171);
+  }
+  50% {
+    transform: scale(1.08) translateY(-1px);
+    filter: drop-shadow(0 0 6px #f59e0b) drop-shadow(0 0 10px #ef4444);
+  }
+  75% {
+    transform: scale(1.12) translateY(-2px);
+    filter: drop-shadow(0 0 7px #fbbf24) drop-shadow(0 0 11px #f87171);
+  }
+}
+
+/* ☀️ Solar Animation - radiating warmth */
+.animate-solar-radiate {
+  position: relative;
+  display: inline-block;
+  animation: sun-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #fbbf24);
+}
+
+@keyframes sun-pulse {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 5px #fbbf24) drop-shadow(0 0 10px #f59e0b);
+  }
+  50% {
+    transform: scale(1.15) rotate(180deg);
+    filter: drop-shadow(0 0 10px #fde047) drop-shadow(0 0 20px #fbbf24);
+  }
+}
+
+/* Sun rays expanding */
+.animate-solar-radiate::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.5em;
+  top: -0.5em;
+  right: -0.5em;
+  opacity: 0;
+  animation: sun-rays 3s ease-out infinite;
+  pointer-events: none;
+  color: #fef08a;
+}
+
+@keyframes sun-rays {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  90% {
+    opacity: 0.4;
+    transform: scale(0.9) rotate(270deg);
+  }
+}
+
+/* ༄ Wind Animation - flowing breeze */
+.animate-wind-flow {
+  display: inline-block;
+  animation: wind-sway 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #06b6d4);
+}
+
+@keyframes wind-sway {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 3px #06b6d4);
+  }
+  33% {
+    transform: translateX(3px) rotate(5deg) scale(1.05);
+    filter: drop-shadow(0 0 5px #22d3ee);
+  }
+  66% {
+    transform: translateX(-3px) rotate(-5deg) scale(1.05);
+    filter: drop-shadow(0 0 5px #22d3ee);
+  }
+}
+
+/* 🌊 Hydro/Wave Animation - water rippling */
+.animate-hydro-wave {
+  display: inline-block;
+  animation: wave-ripple 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #3b82f6);
+}
+
+@keyframes wave-ripple {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 3px #3b82f6);
+  }
+  25% {
+    transform: translateY(-2px) scale(1.06);
+    filter: drop-shadow(0 0 5px #60a5fa);
+  }
+  50% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 4px #3b82f6);
+  }
+  75% {
+    transform: translateY(-2px) scale(1.06);
+    filter: drop-shadow(0 0 5px #60a5fa);
+  }
+}
+
+/* 𓇼 Mixed/Shell Animation - ocean shimmer */
+.animate-mixed-shimmer {
+  display: inline-block;
+  animation: shell-shimmer 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #8b5cf6);
+}
+
+@keyframes shell-shimmer {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 3px #8b5cf6);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 0 6px #a78bfa);
+    opacity: 0.85;
+  }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optional: Enhanced shake with vertical movement */
+@keyframes shakeIntense {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: translate(-8px, -2px) rotate(-1deg); }
+  20%, 40%, 60%, 80% { transform: translate(8px, 2px) rotate(1deg); }
+}
+
+.animate-shake-intense {
+  animation: shakeIntense 0.6s ease-in-out;
+}
+@layer base {
+  /* Hide number input spinners */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+.validation-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  z-index: 1000;
+  transition: all 0.7s ease;
+}
+
+.validation-tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* 📧 Mail Animation - envelope opening with letter sliding out */
+.animate-mail-deliver {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: mail-bounce 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #3b82f6);
+}
+
+@keyframes mail-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 4px #3b82f6);
+  }
+  15% {
+    transform: translateY(-3px) rotate(-2deg) scale(1.05);
+    filter: drop-shadow(0 0 6px #60a5fa);
+  }
+  30% {
+    transform: translateY(-5px) rotate(2deg) scale(1.08);
+    filter: drop-shadow(0 0 8px #3b82f6);
+  }
+  45% {
+    transform: translateY(-3px) rotate(-1deg) scale(1.05);
+    filter: drop-shadow(0 0 6px #60a5fa);
+  }
+  60% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 4px #3b82f6);
+  }
+}
+
+/* Letter sliding out particles */
+.animate-mail-deliver::before,
+.animate-mail-deliver::after {
+  content: '📄';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: letter-slide 3.5s ease-out infinite;
+  pointer-events: none;
+}
+
+.animate-mail-deliver::before {
+  top: -0.4em;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 1.2s;
+}
+
+.animate-mail-deliver::after {
+  content: '✉️';
+  font-size: 0.4rem;
+  bottom: -0.5em;
+  right: -0.5em;
+  animation-delay: 2.4s;
+}
+
+@keyframes letter-slide {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1);
+  }
+  85% {
+    opacity: 0.7;
+    transform: translateY(-15px) scale(0.9);
+  }
+  95% {
+    opacity: 0.2;
+    transform: translateY(-20px) scale(0.7);
+  }
+}
+
+/* Alternative: Mail with notification ping */
+.animate-mail-ping {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: mail-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px #3b82f6);
+}
+
+@keyframes mail-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 3px #3b82f6);
+  }
+  10% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px #60a5fa);
+  }
+  20% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 3px #3b82f6);
+  }
+}
+
+/* Notification ping ring */
+.animate-mail-ping::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  opacity: 0;
+  animation: ping-ring 3s ease-out infinite;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+@keyframes ping-ring {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  72% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  85% {
+    opacity: 0;
+    transform: scale(1.5);
+    box-shadow: 0 0 12px #ef4444;
+  }
+}
+
+/* 🔒 Lock Animation - locking/unlocking with key turning */
+.animate-lock-secure {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: lock-shake 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #fbbf24);
+}
+
+@keyframes lock-shake {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 4px #fbbf24);
+  }
+  12% {
+    transform: rotate(-8deg) scale(1.05);
+    filter: drop-shadow(0 0 6px #fde047);
+  }
+  18% {
+    transform: rotate(8deg) scale(1.05);
+    filter: drop-shadow(0 0 6px #fde047);
+  }
+  24% {
+    transform: rotate(-5deg) scale(1.03);
+    filter: drop-shadow(0 0 5px #fbbf24);
+  }
+  30% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 4px #fbbf24);
+  }
+}
+
+/* Key turning around lock */
+.animate-lock-secure::before {
+  content: '🔑';
+  position: absolute;
+  font-size: 0.5rem;
+  top: 50%;
+  right: -0.8em;
+  opacity: 0;
+  animation: key-turn 4s ease-in-out infinite;
+  pointer-events: none;
+  transform-origin: left center;
+}
+
+@keyframes key-turn {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(0deg) scale(0.7);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(0deg) scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(-50%) rotate(90deg) scale(1.1);
+  }
+  85% {
+    opacity: 0.8;
+    transform: translateY(-50%) rotate(180deg) scale(0.9);
+  }
+  95% {
+    opacity: 0;
+    transform: translateY(-50%) rotate(270deg) scale(0.7);
+  }
+}
+
+/* Security shield glow */
+.animate-lock-secure::after {
+  content: '🛡️';
+  position: absolute;
+  font-size: 0.4rem;
+  bottom: -0.5em;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: shield-glow 4s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes shield-glow {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.6);
+  }
+  75% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  90% {
+    opacity: 0.5;
+    transform: translateX(-50%) scale(1.2);
+  }
+}
+
+/* Alternative: Unlocking animation */
+.animate-lock-unlock {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: unlock-bounce 3.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #10b981);
+}
+
+@keyframes unlock-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 4px #10b981);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.08);
+    filter: drop-shadow(0 0 8px #34d399);
+  }
+}
+
+/* Unlocking sparkles */
+.animate-lock-unlock::before,
+.animate-lock-unlock::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.5rem;
+  opacity: 0;
+  animation: unlock-sparkle 3.8s ease-out infinite;
+  pointer-events: none;
+  color: #6ee7b7;
+}
+
+.animate-lock-unlock::before {
+  top: -0.5em;
+  left: -0.5em;
+  animation-delay: 1s;
+}
+
+.animate-lock-unlock::after {
+  bottom: -0.5em;
+  right: -0.5em;
+  animation-delay: 1.8s;
+}
+
+@keyframes unlock-sparkle {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.6) rotate(0deg);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  90% {
+    opacity: 0.4;
+    transform: scale(0.9) rotate(360deg);
+  }
+}
+
+/* Premium: Secure lock with pulsing shield */
+.animate-lock-shield {
+  position: relative;
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: shield-pulse 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #8b5cf6);
+}
+
+@keyframes shield-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px #8b5cf6);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 10px #a78bfa) drop-shadow(0 0 20px #8b5cf6);
+  }
+}
+
+/* Protective shield ring expanding */
+.animate-lock-shield::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #a78bfa;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: shield-expand 3.2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes shield-expand {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  65% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(1.8);
+  }
+  95% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.5);
+  }
+}
+.animate-user-profile {
+  position: relative;
+  display: inline-block;
+  font-size: 1.1rem;
+  animation: think-bob 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #facc15); /* amber glow */
+}
+
+/* Main bobbing + thinking head tilt */
+@keyframes think-bob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 4px #facc15);
+  }
+  15% {
+    transform: translateY(-3px) rotate(-6deg) scale(1.05);
+    filter: drop-shadow(0 0 8px #fde047);
+  }
+  30% {
+    transform: translateY(-2px) rotate(6deg) scale(1.06);
+    filter: drop-shadow(0 0 10px #fbbf24);
+  }
+  45% {
+    transform: translateY(-1px) rotate(-4deg) scale(1.04);
+    filter: drop-shadow(0 0 6px #fcd34d);
+  }
+  60% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 4px #facc15);
+  }
+}
+
+/* 💭 Thought bubble */
+.animate-user-profile::before {
+  content: '💭';
+  position: absolute;
+  top: -1em;
+  right: -0.8em;
+  opacity: 0;
+  font-size: 0.7rem;
+  animation: thought-float 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes thought-float {
+  0%, 60%, 100% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1);
+  }
+  80% {
+    opacity: 0.6;
+    transform: translateY(-12px) scale(0.9);
+  }
+  90% {
+    opacity: 0.3;
+    transform: translateY(-15px) scale(0.8);
+  }
+}
+
+/* 💡 Idea spark appearing */
+.animate-user-profile::after {
+  content: '💡';
+  position: absolute;
+  top: -0.8em;
+  left: -0.6em;
+  opacity: 0;
+  font-size: 0.55rem;
+  animation: idea-blink 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes idea-blink {
+  0%, 75%, 100% {
+    opacity: 0;
+    transform: scale(0.6) rotate(0deg);
+  }
+  78% {
+    opacity: 1;
+    transform: scale(1.3) rotate(10deg);
+    filter: drop-shadow(0 0 5px #fde047);
+  }
+  85% {
+    opacity: 0.8;
+    transform: scale(1) rotate(-8deg);
+    filter: drop-shadow(0 0 8px #facc15);
+  }
+  90% {
+    opacity: 0.4;
+    transform: scale(0.8) rotate(0deg);
+  }
+}
+
+.animate-crystal-ball {
+  position: relative;
+  display: inline-block;
+  font-size: 1.4rem;
+  animation: crystal-pulse 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px #a855f7);
+}
+
+@keyframes crystal-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px #a855f7);
+  }
+  40% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 12px #c084fc);
+  }
+}
+
+.animate-crystal-ball::before {
+  content: '✨';
+  position: absolute;
+  top: -0.6em;
+  right: -0.4em;
+  opacity: 0;
+  font-size: 0.55rem;
+  animation: crystal-sparkle 3.2s infinite ease-out;
+}
+
+@keyframes crystal-sparkle {
+  0%, 70%, 100% { opacity: 0; transform: scale(0.6) rotate(0deg); }
+  75% { opacity: 1; transform: scale(1.3) rotate(15deg); }
+  85% { opacity: 0.6; transform: scale(0.9) rotate(30deg); }
+}
+.animate-cool-face {
+  display: inline-block;
+  font-size: 1.4rem;
+  animation: cool-nod 3.5s ease-in-out infinite;
+}
+
+@keyframes cool-nod {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  40% { transform: rotate(-6deg) scale(1.05); }
+  50% { transform: rotate(6deg) scale(1.05); }
+}
+
+.animate-cool-face::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.5rem;
+  top: -0.4em;
+  left: 0.8em;
+  opacity: 0;
+  animation: glasses-shine 3.5s infinite ease-out;
+}
+
+@keyframes glasses-shine {
+  0%, 60%, 100% { opacity: 0; transform: translateX(-4px); }
+  65% { opacity: 1; transform: translateX(2px); }
+  75% { opacity: 0; transform: translateX(6px); }
+}
+.animate-mosque {
+  display: inline-block;
+  font-size: 1.5rem;
+  animation: mosque-float 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #60a5fa);
+}
+
+@keyframes mosque-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-mosque::before {
+  content: '✨';
+  position: absolute;
+  font-size: 0.55rem;
+  bottom: -0.5em;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: mosque-glitter 4s ease-out infinite;
+}
+
+@keyframes mosque-glitter {
+  0%, 70%, 100% { opacity: 0; }
+  75% { opacity: 1; transform: translateY(-4px); }
+  90% { opacity: 0.4; }
+}
+.animate-lock {
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: lock-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #facc15);
+}
+
+@keyframes lock-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+.animate-walk {
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: walk-cycle 1.2s infinite ease-in-out;
+}
+
+@keyframes walk-cycle {
+  0% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(2px) rotate(-4deg); }
+  50% { transform: translateX(4px) rotate(0deg); }
+  75% { transform: translateX(2px) rotate(4deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+.animate-seedling {
+  display: inline-block;
+  font-size: 1.2rem;
+  animation: seed-grow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #4ade80);
+}
+
+@keyframes seed-grow {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.15); }
+}
+
+.animate-seedling::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.45rem;
+  top: -0.6em;
+  right: -0.3em;
+  opacity: 0;
+  animation: seed-sparkle 3s ease-out infinite;
+}
+
+@keyframes seed-sparkle {
+  0%, 70%, 100% { opacity: 0; }
+  75% { opacity: 1; }
+  90% { opacity: 0.4; }
+}
+/* 🌎 Earth Animation — rotate + glow + stars */
+.animate-earth {
+  position: relative;
+  display: inline-block;
+  font-size: 1.6rem;
+  animation: earth-rotate 6s linear infinite;
+  filter: drop-shadow(0 0 6px #38bdf8); /* sky blue glow */
+}
+
+/* Slow, premium rotation */
+@keyframes earth-rotate {
+  0% {
+    transform: rotate(0deg);
+    filter: drop-shadow(0 0 6px #38bdf8);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px #7dd3fc); /* stronger glow */
+  }
+  100% {
+    transform: rotate(360deg);
+    filter: drop-shadow(0 0 6px #38bdf8);
+  }
+}
+
+/* Small sparkle star above Earth */
+.animate-earth::before {
+  content: '✨';
+  position: absolute;
+  top: -0.7em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.55rem;
+  opacity: 0;
+  animation: earth-star 4s ease-out infinite;
+}
+
+/* Star floats upward then fades */
+@keyframes earth-star {
+  0%, 65%, 100% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.7);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -5px) scale(1.1);
+  }
+  85% {
+    opacity: 0.5;
+    transform: translate(-50%, -12px) scale(0.9);
+  }
+}
+
+/* Second star drifting */
+.animate-earth::after {
+  content: '✨';
+  position: absolute;
+  bottom: -0.6em;
+  right: -0.4em;
+  font-size: 0.45rem;
+  opacity: 0;
+  animation: earth-star-2 4.5s ease-out infinite;
+}
+
+/* Slower sparkle drift */
+@keyframes earth-star-2 {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.7);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(2px, -4px) scale(1);
+  }
+  90% {
+    opacity: 0.4;
+    transform: translate(4px, -10px) scale(0.8);
+  }
+}
+.animate-trophy {
+  position: relative;
+  display: inline-block;
+  font-size: 1.2rem;
+  animation: trophy-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #facc15); /* gold glow */
+}
+
+@keyframes trophy-pulse {
+  0%, 100% { transform: scale(1); }
+  40%      { transform: scale(1.15); }
+}
+
+/* Sparkle on the side */
+.animate-trophy::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.45rem;
+  top: -0.6em;
+  left: -0.2em;
+  opacity: 0;
+  animation: trophy-sparkle 3s ease-out infinite;
+}
+
+@keyframes trophy-sparkle {
+  0%, 70%, 100% { opacity: 0; transform: scale(0.7); }
+  75%          { opacity: 1; transform: scale(1.1); }
+  90%          { opacity: 0.4; transform: scale(0.9); }
+}
+
+.animate-electric {
+  position: relative;
+  display: inline-block;
+  font-size: 1.2rem;
+  animation: electric-burst 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px #fbbf24); /* yellow lightning glow */
+}
+
+@keyframes electric-burst {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  40%      { transform: scale(1.2) rotate(8deg); }
+}
+
+/* Spark particle */
+.animate-electric::after {
+  content: '✨';
+  position: absolute;
+  font-size: 0.45rem;
+  top: -0.5em;
+  right: -0.4em;
+  opacity: 0;
+  animation: electric-sparkle 2.2s ease-out infinite;
+}
+
+@keyframes electric-sparkle {
+  0%, 65%, 100% { opacity: 0; transform: scale(0.6); }
+  70%           { opacity: 1; transform: scale(1.2); }
+  85%           { opacity: 0.3; transform: scale(0.9); }
+}
+/* Disable ALL emoji animations on mobile only */
+@media (max-width: 639px) {
+
+  /* ========== IDEA GLOW ========== */
+  .animate-idea-glow {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .animate-idea-glow::before,
+  .animate-idea-glow::after {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: none !important;
+  }
+
+  /* ========== LIGHTBULB PULSE ========== */
+  .animate-lightbulb-pulse {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .animate-lightbulb-pulse::before,
+  .animate-lightbulb-pulse::after {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: none !important;
+  }
+}
+.suggestions-content strong {
+  color: white !important;
+}
+@keyframes glow-pulse {
+    0%, 100% {
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5),
+                   0 0 10px rgba(255, 255, 255, 0.3);
+      opacity: 1;
+    }
+    50% {
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+                   0 0 30px rgba(255, 255, 255, 0.6),
+                   0 0 40px rgba(255, 255, 255, 0.4);
+      opacity: 0.9;
+    }
+  }
+
+  .glow-punctuation {
+    display: inline-block;
+    color: white;
+    animation: glow-pulse 2s ease-in-out infinite;
+    margin-left: 0.2em;
+  }
+.animate-weather-drift {
+  display: inline-block;
+  transform-origin: center;
+  animation: weatherDriftGlow 5.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.25));
+  will-change: transform, filter;
+}
+
+@keyframes weatherDriftGlow {
+  0% {
+    transform: translate(0, 0) scale(1);
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.25));
+    opacity: 0.9;
+  }
+
+  25% {
+    transform: translate(2px, -1px) scale(1.02);
+    filter: drop-shadow(0 0 6px rgba(200, 220, 255, 0.45));
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(0, -2px) scale(1.04);
+    filter: drop-shadow(0 0 8px rgba(200, 220, 255, 0.6));
+    opacity: 1;
+  }
+
+  75% {
+    transform: translate(-2px, -1px) scale(1.02);
+    filter: drop-shadow(0 0 6px rgba(200, 220, 255, 0.45));
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1);
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.25));
+    opacity: 0.9;
+  }
+}
+/* ===== CLOSE BUTTON ANIMATION ===== */
+.animate-close-x {
+  position: relative;
+  display: inline-block;
+  font-size: 1.2rem;
+  cursor: pointer;
+  animation: close-float 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(255,80,80,0.6));
+  transition: transform 0.25s ease;
+}
+
+/* hover interaction */
+.animate-close-x:hover {
+  transform: scale(1.15) rotate(8deg);
+}
+
+/* main float + glow */
+@keyframes close-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 6px rgba(255,80,80,0.5));
+  }
+  40% {
+    transform: translateY(-4px) rotate(-6deg);
+    filter: drop-shadow(0 0 12px rgba(255,80,80,0.9));
+  }
+}
+
+/* sparkle particle */
+.animate-close-x::after {
+  content: 'X';
+  position: absolute;
+  font-size: 0.45rem;
+  top: -0.5em;
+  right: -0.3em;
+  opacity: 0;
+  animation: close-sparkle 3.5s ease-out infinite;
+}
+
+/* sparkle drift */
+@keyframes close-sparkle {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  90% {
+    opacity: 0.4;
+    transform: translate(3px, -8px) scale(0.8);
+  }
+}
+
+/* click burst */
+.animate-close-x:active {
+  animation: close-pop 0.35s ease;
+}
+
+@keyframes close-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4) rotate(15deg); }
+  100% { transform: scale(1); }
+}
+
+/* ===== Disable animation on mobile ===== */
+@media (max-width: 639px) {
+  .animate-close-x {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .animate-close-x::after {
+    display: none !important;
+  }
+}
+/* ===== VS SEPARATOR SLASH ANIMATION ===== */
+.animate-vs-slash {
+  position: relative;
+  display: inline-block;
+  font-weight: 600;
+  animation: slash-spin 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+}
+
+@keyframes slash-spin {
+  0%, 100% {
+    transform: scaleY(1) rotateZ(0deg);
+    opacity: 0.8;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+  }
+  50% {
+    transform: scaleY(1.35) rotateZ(15deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 15px rgba(59, 130, 246, 1));
+  }
+}
+
+/* Burst particles */
+.animate-vs-slash::before,
+.animate-vs-slash::after {
+  content: '/';
+  position: absolute;
+  font-size: 0.55rem;
+  opacity: 0;
+  animation: slash-burst 2s ease-out infinite;
+}
+
+.animate-vs-slash::before {
+  top: -10px;
+  animation-delay: 0.5s;
+}
+
+.animate-vs-slash::after {
+  bottom: -10px;
+  animation-delay: 1.5s;
+}
+
+@keyframes slash-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* Mobile disable */
+@media (max-width: 639px) {
+  .animate-vs-slash {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .animate-vs-slash::before,
+  .animate-vs-slash::after {
+    display: none !important;
+  }
+}

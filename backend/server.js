@@ -110,8 +110,8 @@ if (isProd) {
       directives: {
         "default-src": ["'self'"],
         "img-src": ["'self'", "data:", "https:"],
-        "script-src": ["'self'", "https:"],
-        "style-src": ["'self'", "https:"],
+        "script-src": ["'self'", "https:", "'wasm-unsafe-eval'"],
+        "style-src": ["'self'", "https:", "'unsafe-inline'"],
         "connect-src": ["'self'", "https:", "http:", "*.vercel.app"],
       },
     },
@@ -189,6 +189,21 @@ app.get('/api/redis-test', async (req, res) => {
     res.status(500).json({ error: "Redis error" });
   }
 }); }
+
+// Serve React Frontend Static Files (client build directory)
+app.use(express.static(path.join(__dirname, 'client/build')));
+
+// SPA routing fallback: serve index.html for all non-API routes
+// This allows React Router to handle client-side routing
+app.get(/^(?!\/api).*/, (req, res) => {
+  const indexPath = path.join(__dirname, 'client/build/index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('❌ Error serving index.html:', err);
+      res.status(500).send('Error loading application');
+    }
+  });
+});
 
 app.use((err, req, res, next) => {
   console.error('❌ Unhandled error:', err.stack || err); // global error handler , show error in dev , generic msg in prod

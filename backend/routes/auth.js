@@ -1687,4 +1687,236 @@ router.get('/google/callback', passport.authenticate('google', { session: false,
   }
 );
 
+// FORGOT PASSWORD
+router.post('/forgot-password', csrfProtection, async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Validate email
+    if (!email || !email.trim()) {
+      return res.status(400).json({ error: 'Please type your registered email.' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Please type your registered email.' });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Rate limiting - Check if user already requested reset in past hour
+    const rateLimitKey = `forgot_password_attempt:${normalizedEmail}`;
+    const lastAttemptData = await getCachedData(rateLimitKey);
+    
+    if (lastAttemptData) {
+      return res.status(429).json({ 
+        error: 'Please wait before requesting another password reset. Only 1 reset per hour.' 
+      });
+    }
+
+    // Find user
+    const user = await User.findOne({ email: normalizedEmail }).select('_id userId name email passwordHash provider');
+    
+    if (!user) {
+      // Generic message to prevent user enumeration
+      return res.status(404).json({ error: 'Email not found in our system.' });
+    }
+
+    // Only allow password reset for local users
+    if (user.provider !== 'local') {
+      return res.status(400).json({ error: 'This account uses social login. Please use that provider to reset your password.' });
+    }
+
+    // Generate reset token (15 minutes expiry)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetTokenKey = `password_reset:${user.userId}`;
+
+    // Store reset token in Redis with 15 minute TTL
+    await setCachedData(resetTokenKey, { 
+      tokenHash: resetTokenHash,
+      email: user.email,
+      userId: user.userId
+    }, 900); // 15 minutes
+
+    // Store rate limit key (1 hour cooldown)
+    await setCachedData(rateLimitKey, { 
+      email: normalizedEmail,
+      timestamp: Date.now()
+    }, 3600); // 1 hour
+
+    // Generate reset link
+    const isProd = process.env.NODE_ENV === 'production';
+    const baseURL = isProd ? 'https://carbonft.app' : 'http://localhost:3000';
+    const resetLink = `${baseURL}/reset-password/${resetToken}`;
+
+    // Create password reset email HTML
+    const currentTime = formatTime(new Date(), "Asia/Kolkata");
+    const currentDate = formatDate(new Date(), "Asia/Kolkata");
+
+    const resetEmailHtml = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; padding: 0; margin: 0; color: #ffffff;">
+      <div style="padding: 12px; text-align: center; background: linear-gradient(to right, #2f80ed, #56ccf2);">
+        <h1 style="margin: 0; font-size: 20px;">🌍 Carbon Footprint Tracker</h1>
+      </div>
+      <div style="padding: 20px 16px 12px; text-align: center;">
+        <div style="background: rgba(255, 255, 255, 0.08); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); max-width: 360px; margin: auto; padding: 24px 20px; box-shadow: 0 0 22px rgba(255, 255, 255, 0.18); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+          <h2 style="font-size: 20px; margin: 0 0 12px; color: #e0e0e0;">Hello👋, ${user.name}</h2>
+          <p style="font-size: 15px; margin: 0 0 20px; color: #e0e0e0;">We received a request to reset your password.<br>Click the link below to proceed.</p>
+          <img src="https://files.catbox.moe/s56v8p.gif" alt="Globe" style="display: block; margin: 0 auto 20px; width: 140px;" />
+          <a href="${resetLink}" style="display: inline-block; background: linear-gradient(90deg, #2f80ed, #56ccf2); color: #ffffff; padding: 14px 20px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 0 18px rgba(47,128,237,0.35);">🔐 Reset Password</a>
+          <p style="font-size: 13px; margin-top: 20px; color: #e0e0e0;">Sent at: <strong>${currentTime}</strong> on <strong>${currentDate}</strong><br><span style="color: #FF4C4C;">Link expires in <strong>15 minutes</strong>!</span></p>
+          <p style="font-size: 11px; color: #999; margin-top: 8px;">Didn't request this? You can safely ignore this email.</p>
+        </div>
+      </div>
+      <div style="background: #2f80ed; padding: 12px; text-align: center; font-size: 13px; color: #e0e0e0;">© 2025 Carbon Tracker • Carbon down. Future up.</div>
+    </div>`;
+
+    // Send email
+    await sendEmail(
+      user.email,
+      '🔐 Reset Your Password - Carbon Footprint Tracker',
+      resetEmailHtml
+    );
+
+    console.log(`✅ [FORGOT PASSWORD] Reset email sent to: ${email}`);
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Password reset link has been sent to your email. Link expires in 15 minutes.' 
+    });
+
+  } catch (error) {
+    console.error('❌ [FORGOT PASSWORD] Error:', error.message);
+    res.status(500).json({ error: 'Failed to process password reset. Please try again.' });
+  }
+});
+
+// RESET PASSWORD - PREVIEW (get user info before reset)
+router.get('/reset-password/:token/preview', async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Search for token in Redis - need to scan all keys with pattern
+    const allKeys = await redisClient.keys('password_reset:*');
+    
+    let resetData = null;
+    for (const key of allKeys) {
+      const cachedResult = await getCachedData(key);
+      if (cachedResult?.data?.tokenHash === tokenHash) {
+        resetData = cachedResult.data;
+        break;
+      }
+    }
+
+    if (!resetData) {
+      console.log('❌ [RESET PASSWORD] Invalid or expired token');
+      return res.status(404).json({ error: 'Reset link is invalid or has expired.' });
+    }
+
+    // Get user details
+    const user = await User.findOne({ userId: resetData.userId }).select('name email');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    res.status(200).json({ 
+      name: user.name,
+      email: user.email 
+    });
+
+  } catch (error) {
+    console.error('❌ [RESET PASSWORD PREVIEW] Error:', error.message);
+    res.status(500).json({ error: 'Failed to verify reset token.' });
+  }
+});
+
+// RESET PASSWORD - UPDATE PASSWORD
+router.post('/reset-password', csrfProtection, async (req, res) => {
+  const { token, password, confirmPassword } = req.body;
+
+  try {
+    // Validate inputs
+    if (!token || !password || !confirmPassword) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: 'Passwords do not match.' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Search for token in Redis
+    const allKeys = await redisClient.keys('password_reset:*');
+    
+    let resetData = null;
+    let resetKey = null;
+    for (const key of allKeys) {
+      const cachedResult = await getCachedData(key);
+      if (cachedResult?.data?.tokenHash === tokenHash) {
+        resetData = cachedResult.data;
+        resetKey = key;
+        break;
+      }
+    }
+
+    if (!resetData) {
+      console.log('❌ [RESET PASSWORD] Invalid or expired token');
+      return res.status(404).json({ error: 'Reset link is invalid or has expired.' });
+    }
+
+    // Rate limiting for reset attempts - 1 reset per 10 minutes per user
+    const resetAttemptKey = `reset_password_attempt:${resetData.userId}`;
+    const lastResetAttempt = await getCachedData(resetAttemptKey);
+    
+    if (lastResetAttempt) {
+      return res.status(429).json({ 
+        error: 'Too many reset attempts. Please wait 10 minutes before trying again.' 
+      });
+    }
+
+    // Find user
+    const user = await User.findOne({ userId: resetData.userId });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Update password
+    user.passwordHash = hashedPassword;
+    await user.save();
+
+    // Delete reset token from Redis
+    await deleteKey(resetKey);
+
+    // Store reset attempt limit (10 minutes)
+    await setCachedData(resetAttemptKey, { 
+      userId: resetData.userId,
+      timestamp: Date.now()
+    }, 600); // 10 minutes
+
+    console.log(`✅ [RESET PASSWORD] Password updated for: ${user.email}`);
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Your password has been updated. You can now login with your new password.' 
+    });
+
+  } catch (error) {
+    console.error('❌ [RESET PASSWORD] Error:', error.message);
+    res.status(500).json({ error: 'Failed to reset password. Please try again.' });
+  }
+});
+
 module.exports = router;

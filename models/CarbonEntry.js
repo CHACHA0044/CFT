@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const carbonEntrySchema = new mongoose.Schema({
-  userId: { type: String, required: true, unique: true, index: true }, // link to user
+  userId: { type: String, required: true, unique: true, index: true, sparse: true }, // link to user
   entries: [
     {
       food: {
@@ -44,5 +44,8 @@ const carbonEntrySchema = new mongoose.Schema({
     }
   ]
 });
+
+// Indexes for performance optimization
+carbonEntrySchema.index({ userId: 1, 'entries.createdAt': -1 });
 
 module.exports = mongoose.model('CarbonEntry', carbonEntrySchema);

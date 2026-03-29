@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAnimation } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
 import { boxglow, inputBase, inputPass } from 'utils/styles';
-import { CancelButton, SaveButton } from 'Components/globalbuttons';
+import { CancelButton, SaveButton, HomeButton } from 'Components/globalbuttons';
 import Lottie from 'lottie-react';
 import GlobeAnimation from 'animations/Globe.json';
 
@@ -264,14 +264,7 @@ const ResetPassword = () => {
             >
               <Lottie animationData={GlobeAnimation} loop={true} />
             </motion.div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/login')}
-              className="px-6 py-3 mt-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold font-intertight tracking-wider rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all"
-            >
-              Back to Login
-            </motion.button>
+            <HomeButton onClick={() => navigate('/')} styleOverride={{ marginTop: '1rem' }} />
           </div>
         </PageWrapper>
       </motion.div>

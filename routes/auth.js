@@ -364,8 +364,8 @@ router.get('/token-info/me', authenticateToken, csrfProtection, async (req, res)
       // Email removed for security - not exposed to client
     };
 
-    // Cache for 30 minutes (1800 seconds)
-    const cacheTTL = 1800;
+    // Cache for 60 minutes (3600 seconds) - increased from 30 for better cache hit rate
+    const cacheTTL = 3600;
     await setCachedData(cacheKey, userData, cacheTTL);
 
     const responseTime = Date.now() - startTime;

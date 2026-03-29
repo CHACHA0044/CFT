@@ -50,6 +50,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const redisClient = require('./RedisClient');
 const user = require('./models/user');
+const CarbonEntry = require('./models/CarbonEntry');
 
 // Security + Middleware + others
 const cors = require('cors');
@@ -229,8 +230,19 @@ mongoose.connect(process.env.MONGO_URI, { //SSL enabled, autoIndex false in prod
   ssl: true,
   autoIndex: false,
 })
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB connected');
+    
+    // Create indexes for performance (done manually since autoIndex: false)
+    try {
+      await CarbonEntry.collection.createIndex({ userId: 1 });
+      await CarbonEntry.collection.createIndex({ userId: 1, 'entries.createdAt': -1 });
+      console.log('✅ Database indexes created');
+    } catch (indexErr) {
+      console.error('⚠️ Index creation warning:', indexErr.message);
+      // Continue even if index creation fails
+    }
+    
     app.listen(PORT, () => {
     console.log(`✅ Server started on ${PORT}`);
   if (isProd) {

@@ -62,19 +62,40 @@ router.delete('/clear/all', authenticateToken, csrfProtection, async (req, res) 
   }
 });
 
-// GET all history 
+// GET all history (limit to 5 most recent entries - database level optimization)
 router.get('/history', authenticateToken, async (req, res) => {
+  const startTime = Date.now();
   try {
-    const doc = await CarbonEntry.findOne({ userId: req.user.userId });
-    if (!doc || doc.entries.length === 0) return res.status(200).json([]);
+    // Use MongoDB aggregation to limit entries at DB level (not in app)
+    const results = await CarbonEntry.aggregate([
+      { $match: { userId: req.user.userId } },
+      {
+        $project: {
+          // Sort entries by createdAt DESC and slice to 5
+          entries: {
+            $slice: [
+              { $sortArray: { input: '$entries', sortBy: { createdAt: -1 } } },
+              5
+            ]
+          }
+        }
+      }
+    ]);
 
-    const enriched = doc.entries
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .map(entry => {
-        const { totalEmissionKg, suggestions } = calculateEmissions(entry);
-        return { ...entry.toObject(), totalEmissionKg, suggestions };
-      });
+    if (!results.length || !results[0].entries.length) {
+      const duration = Date.now() - startTime;
+      console.log(`[HISTORY] Empty result in ${duration}ms`);
+      return res.status(200).json([]);
+    }
 
+    // Enrich with calculations (only 5 entries, negligible cost)
+    const enriched = results[0].entries.map(entry => {
+      const { totalEmissionKg, suggestions } = calculateEmissions(entry);
+      return { ...entry, totalEmissionKg, suggestions };
+    });
+
+    const duration = Date.now() - startTime;
+    console.log(`[HISTORY] Retrieved ${enriched.length}/5 entries in ${duration}ms`);
     res.status(200).json(enriched);
   } catch (err) {
     console.error('❌ GET /history error:', err);

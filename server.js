@@ -63,6 +63,7 @@ const startImapPoller = require('./utils/imapPoller');
 const cron = require('node-cron');
 const axios = require('axios');
 const startFeedbackScanner = require('./utils/feedbackPoller');
+const { metricsMiddleware, metricsHandler, metricsResetHandler } = require('./utils/metrics');
 
 // express app
 const app = express();
@@ -70,6 +71,8 @@ const app = express();
 if (isProd) {
   app.set('trust proxy', 1); // for Vercel proxie
 }
+
+app.use(metricsMiddleware);
 
 // routes
 const authRoutes = require('./routes/auth');
@@ -172,6 +175,8 @@ if (isProd) {
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/footprint', footprintRoutes);
+app.get('/api/metrics', metricsHandler);
+app.post('/api/metrics/reset', metricsResetHandler);
 // Backend check route
 app.get('/api', (req, res) => {
   res.send('CFT API is live son!');

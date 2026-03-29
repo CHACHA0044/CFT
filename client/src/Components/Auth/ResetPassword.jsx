@@ -453,8 +453,9 @@ const ResetPassword = () => {
               </div>
               <div className="flex-1">
                 <SaveButton
-                  text={loading ? "Updating..." : "Save Password"}
-                  disabled={false}
+                  text={loading ? "Saving..." : "Save Password"}
+                  disabled={loading}
+                  onClick={handleSubmit}
                   styleOverride={{ width: '100%', height: '3rem' }}
                 />
               </div>

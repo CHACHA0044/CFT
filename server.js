@@ -173,8 +173,7 @@ if (isProd) {
 // routes
 app.use('/api/auth', authRoutes);
 app.use('/api/footprint', footprintRoutes);
-app.get('/api/metrics', metricsHandler);
-app.post('/api/metrics/reset', metricsResetHandler);
+
 // Backend check route
 app.get('/api', (req, res) => {
   res.send('CFT API is live son!');

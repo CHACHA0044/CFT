@@ -1910,7 +1910,10 @@ router.post('/reset-password', csrfProtection, async (req, res) => {
 
     res.status(200).json({ 
       success: true,
-      message: 'Your password has been updated. You can now login with your new password.' 
+      message: '✅ Password Changed Successfully!',
+      details: 'Your new password is now active. Redirecting to login...',
+      redirectTo: '/login',
+      redirectDelay: 4000
     });
 
   } catch (error) {

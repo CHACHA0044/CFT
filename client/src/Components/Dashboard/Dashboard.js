@@ -229,7 +229,7 @@ const AnimatedHeadline = React.memo(() => {
   );
 });
   const Dashboard = () => {
-  useAuthRedirect(); 
+  const { loading: authLoading, isAuthenticated } = useAuthRedirect(); 
   const [data, setData] = useState([]);
   const { loading } = useLoading();
   const [openSection, setOpenSection] = useState(null);
@@ -304,8 +304,11 @@ const fetchHistory = useCallback(async () => {
 }, []);
 
   useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+    // Only fetch history after auth check completes and user is authenticated
+    if (!authLoading && isAuthenticated) {
+      fetchHistory();
+    }
+  }, [fetchHistory, authLoading, isAuthenticated]);
 
 //  useEffect(() => {
 //   if (location.state?.updated) {

@@ -73,6 +73,7 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [rateLimitError, setRateLimitError] = useState('');
   const [validationErrors, setValidationErrors] = useState({ password: '', confirmPassword: '' });
+  const [successMessage, setSuccessMessage] = useState('Your password has been updated successfully. Redirecting to login...');
 
   // Fetch user info for this reset token
   useEffect(() => {
@@ -165,7 +166,7 @@ const ResetPassword = () => {
     setStatus('loading');
 
     try {
-      await API.post('/auth/reset-password', {
+      const response = await API.post('/auth/reset-password', {
         token,
         password,
         confirmPassword
@@ -174,14 +175,21 @@ const ResetPassword = () => {
       // Store rate limit attempt timestamp
       localStorage.setItem(cacheKey, Date.now().toString());
 
+      // Use backend message if provided
+      if (response.data?.message) {
+        setSuccessMessage(response.data.message);
+      }
+
       setStatus('success');
       setPassword('');
       setConfirmPassword('');
       setValidationErrors({ password: '', confirmPassword: '' });
 
+      // Use backend redirect delay (4000ms) if provided, otherwise default to 4000ms
+      const redirectDelay = response.data?.redirectDelay || 4000;
       setTimeout(() => {
         navigate('/login?passwordReset=success');
-      }, 3000);
+      }, redirectDelay);
     } catch (err) {
       let errorMsg = 'Failed to reset password. Please try again.';
       
@@ -280,11 +288,19 @@ const ResetPassword = () => {
       >
         <PageWrapper backgroundImage="/images/verify-bk.webp">
           <div className={`${boxglow} text-center text-shadow-DEFAULT w-full max-w-xl p-8 sm:p-10 space-y-4`}>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="text-5xl mb-4"
+            >
+              ✅
+            </motion.div>
             <h1 className="text-4xl sm:text-5xl font-extrabold font-germania tracking-wider text-center text-shadow-DEFAULT text-emerald-700 dark:text-gray-100 mb-0">
-              Password Reset!
+              Password Changed!
             </h1>
             <p className="text-sm text-center text-shadow-glow text-green-500 dark:text-gray-100 mb-6">
-              Your password has been updated successfully. Redirecting to login...
+              {successMessage}
             </p>
             <motion.div
               whileHover={{ scale: 1.1 }}

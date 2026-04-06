@@ -5,7 +5,9 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "build": "cd client && npm install && npm run build"
+    "build": "cd client && npm install && npm run build",
+    "prepare": "husky install",
+    "bump-version": "node bump-version.js"
   },
   "dependencies": {
     "@getbrevo/brevo": "^3.0.1",
@@ -40,7 +42,8 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "husky": "^9.1.7"
   },
   "engines": {
     "node": "20.x"

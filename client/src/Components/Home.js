@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import PageWrapper from 'common/PageWrapper';
 import { HomeHeaderButton } from './globalbuttons';
@@ -9,6 +8,7 @@ import ScrollDownAnimation from 'animations/ScrollDown.json';
 import { useNavigate } from 'react-router-dom';
 import { MdEmail } from "react-icons/md";
 import { boxglowD, boxglowH } from 'utils/styles';
+import ReviewLoopCarousel from './ReviewLoopCarousel';
   const sentence = "Your  Carbon  Story";
   const words = sentence.split(" ");
    
@@ -36,7 +36,7 @@ import { boxglowD, boxglowH } from 'utils/styles';
 const AnimatedHeadline = React.memo(() => {
   const [activeBurstIndex, setActiveBurstIndex] = useState(null);
   const [bursting, setBursting] = useState(false);
-  const [fallingLetters, setFallingLetters] = useState([]);
+  const [fallingLetters] = useState([]);
   const [hoveredWordIndex, setHoveredWordIndex] = useState(null);
   const isMobile = window.innerWidth < 640;
 
@@ -225,24 +225,32 @@ const AniDot = React.memo(() => {
 
 const Home = () => {
   const titleRef = useRef(null);
+  const lastScrollYRef = useRef(0);
   const [showContent, setShowContent] = useState(false);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
   const navigate = useNavigate();
 const [screenHeight, setScreenHeight] = useState({ collapsed: 70, expanded: 110 });
 useEffect(() => {
   const handleScroll = () => {
     const scrollTop = window.scrollY;
 
+    if (showReviews && scrollTop > lastScrollYRef.current) {
+      setShowReviews(false);
+    }
+
     if (scrollTop > 50) {
       setShowContent(true);
     } else {
       setShowContent(false);
     }
+
+    lastScrollYRef.current = scrollTop;
   };
 
   window.addEventListener('scroll', handleScroll);
   return () => window.removeEventListener('scroll', handleScroll);
-}, []);
+}, [showReviews]);
 
 useEffect(() => {
   // Skiping ping in DEV (localhost)
@@ -314,6 +322,13 @@ const handleTap = () => {
   setIsHeaderExpanded(prev => !prev); // Toggle expanded state
   if (navigator.vibrate) {
     navigator.vibrate(10); // Mobile haptic feedback
+  }
+};
+
+const handleReviewToggle = () => {
+  setShowReviews(prev => !prev);
+  if (navigator.vibrate) {
+    navigator.vibrate(20); // Mobile haptic feedback
   }
 };
 const isMobile = window.innerWidth < 640;
@@ -464,6 +479,7 @@ const handleEmailClick = (e) => {
         <HomeHeaderButton text="Login" iconType="verify" navigateTo="/login" />
         <HomeHeaderButton text="Register" iconType="new" navigateTo="/register" />
         <HomeHeaderButton text="About" iconType="info" navigateTo="/about" className="hidden sm:inline-flex"/>
+        <HomeHeaderButton text="Reviews" iconType="reviews" onClick={handleReviewToggle} className="hidden sm:inline-flex"/>
       </motion.div>
     )}
   </AnimatePresence>
@@ -475,16 +491,16 @@ const handleEmailClick = (e) => {
     {/* Heading */}
     <motion.div
         initial={{ opacity: 1, y: 0 }}
-        animate={showContent ? { opacity: 0, y: -50 } : { opacity: 1, y: 0 }}
+        animate={showContent || showReviews ? { opacity: 0, y: -50 } : { opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="fixed inset-0 flex items-center justify-center z-0"
       >
       <motion.div
       initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: [10, 0, 10] }}
+      animate={showReviews ? { opacity: 0 } : { opacity: 1, y: [10, 0, 10] }}
       transition={{
         duration: 2,
-        repeat: Infinity,
+        repeat: showReviews ? 0 : Infinity,
         ease: "easeInOut"
       }}
       className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white text-sm flex flex-col items-center z-20"
@@ -494,7 +510,6 @@ const handleEmailClick = (e) => {
   className="
     w-10 h-10
     transition-all duration-500
-    filter
     dark:[filter:brightness(0)_saturate(100%)_invert(75%)_sepia(32%)_saturate(1234%)_hue-rotate(84deg)_brightness(95%)_contrast(92%)]
     [filter:brightness(0)_saturate(100%)_invert(61%)_sepia(92%)_saturate(2103%)_hue-rotate(174deg)_brightness(103%)_contrast(102%)]
   "
@@ -505,6 +520,9 @@ const handleEmailClick = (e) => {
     </motion.div>
     <AnimatedHeadline />
     </motion.div>
+
+    {/* Review Carousel */}
+    <ReviewLoopCarousel isVisible={showReviews} onAutoLoop={true} />
 
     {/* Paragraph */}
     <AnimatePresence>

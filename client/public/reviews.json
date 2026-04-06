@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "firstName": "Alwara",
+    "review": "It's a really helpful website with a cool UI and very easy to use. Adding a feedback option in the menu bar would make it even more useful for everyone! 😊",
+    "emoji": "💬"
+  },
+  {
+    "id": 2,
+    "firstName": "Ujjwal",
+    "review": "Love how easy it is to track my impact. The comparison feature shows me how I'm doing versus others. Really eye-opening! 📊",
+    "emoji": "♻️"
+  },
+  {
+    "id": 3,
+    "firstName": "Jimmy",
+    "review": "Beautiful design meets real environmental impact tracking! 💚",
+    "emoji": "🌿"
+  },
+  {
+    "id": 4,
+    "firstName": "Bruce",
+    "review": "Simple, elegant, and surprisingly addictive. Nicely done! ⭐",
+    "emoji": "✨"
+  },
+  {
+    "id": 5,
+    "firstName": "Chandan",
+    "review": "The weather and climate API integration is super useful, and tracking my environmental impact has never been this engaging. Improving cross-platform support and optimization would make it even better! 🌦️",
+    "emoji": "🔥"
+  }
+]

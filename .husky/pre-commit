@@ -1,0 +1,8 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Auto-increment version before committing
+node bump-version.js
+
+# Add the updated version.json to the staging area
+git add client/src/version.json

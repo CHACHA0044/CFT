@@ -124,6 +124,7 @@ const Icons = {
   check: ({ isFlipping, isHovered }) => ( <motion.svg  animate={ isFlipping  ? { rotateY: [0, 180, 360] }  : isHovered  ? { scale: [1, 1.15, 1], y: [0, -2, 0] }  : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } }  width={typeof window !== "undefined" && window.innerWidth < 640 ? 18 : 24}  height={typeof window !== "undefined" && window.innerWidth < 640 ? 18 : 24}   viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  strokeWidth="2"  strokeLinecap="round"   strokeLinejoin="round"> <polyline points="20 6 9 17 4 12" /></motion.svg>),
   cancel: ({ isFlipping, isHovered }) => (<motion.svg animate={isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={isFlipping  ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width={typeof window !== "undefined" && window.innerWidth < 640 ? 18 : 24} height={typeof window !== "undefined" && window.innerWidth < 640 ? 18 : 24}  viewBox="0 0 24 24" fill="none" stroke="currentColor"  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" ><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /> </motion.svg>),
   home: ({ isFlipping, isHovered }) => ( <motion.svg animate={ isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 } } transition={ isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 } } width={typeof window !== "undefined" && window.innerWidth < 640 ? 18 : 24} height={typeof window !== "undefined" && window.innerWidth < 640 ? 18 : 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /> <polyline points="9 22 9 12 15 12 15 22" /> </motion.svg>),
+  reviews: ({ isFlipping, isHovered }) => ( <motion.svg animate={isFlipping ? { rotateY: [0, 180, 360] } : isHovered ? { scale: [1, 1.15, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }} transition={isFlipping ? { repeat: Infinity, duration: 0.4, ease: "linear" } : { duration: 0.4 }} width={typeof window !== "undefined" && window.innerWidth < 640 ? 18 : 24} height={typeof window !== "undefined" && window.innerWidth < 640 ? 18 : 24}  viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" > <path d="M3 21c0 0 7-1 11-6s5-11 6-15" /> <path d="M3 3l18 18" /> <circle cx="11" cy="11" r="2" /> </motion.svg>),
 };
 
 const GlobalButton = ({ text, iconType, onClick, disabled = false, colorConfig, navigateTo, type, styleOverride, userEmail, tooltipText }) => {
@@ -330,7 +331,7 @@ export const SubmitButton = ({ text, loading = false, success = false, disabled 
     );
 };
 
-export const HomeHeaderButton = ({ text, navigateTo, iconType, className = ""  }) => {
+export const HomeHeaderButton = ({ text, navigateTo, iconType, className = "", onClick }) => {
 
   const [isFlipping, setIsFlipping] = useState(false);
   const IconComponent = Icons[iconType] || (() => null);
@@ -340,7 +341,11 @@ export const HomeHeaderButton = ({ text, navigateTo, iconType, className = ""  }
     setIsFlipping(true);
     setTimeout(() => setIsFlipping(false), 400); // reset flip after animation
     setTimeout(() => {
-      window.location.href = navigateTo;
+      if (onClick) {
+        onClick();
+      } else if (navigateTo) {
+        window.location.href = navigateTo;
+      }
     }, 400);
   };
 

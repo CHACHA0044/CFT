@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "build": "cd client && npm install && npm run build",
-    "prepare": "husky install",
+    "prepare": "node -e \"try{require.resolve('husky/package.json')}catch(e){process.exit(0)};require('child_process').execFileSync(process.platform==='win32'?'npx.cmd':'npx',['--no-install','husky','install'],{stdio:'inherit'})\"",
     "bump-version": "node bump-version.js"
   },
   "dependencies": {

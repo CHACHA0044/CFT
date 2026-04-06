@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { MdEmail } from "react-icons/md";
 import { boxglowD, boxglowH } from 'utils/styles';
 import ReviewLoopCarousel from './ReviewLoopCarousel';
+import ShootingStars from './ShootingStars';
   const sentence = "Your  Carbon  Story";
   const words = sentence.split(" ");
    
@@ -53,7 +54,10 @@ const AnimatedHeadline = React.memo(() => {
 
   if (isMobile) {
     return (
-      <h1 className="text-5xl font-black font-germania text-white text-center tracking-widest text-shadow-DEFAULT">
+      <h1
+        className="text-5xl font-black font-germania text-white text-center tracking-widest text-shadow-DEFAULT"
+        style={{ filter: 'drop-shadow(0 0 18px rgba(255,255,255,0.13)) drop-shadow(0 0 36px rgba(16,185,129,0.08))' }}
+      >
         {sentence}
       </h1>
     );
@@ -101,9 +105,9 @@ const AnimatedHeadline = React.memo(() => {
               }}
               className="relative inline-block cursor-pointer will-change-transform"
               style={{
-                filter: isHovered 
-                  ? 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))' 
-                  : 'none',
+                filter: isHovered
+                  ? 'drop-shadow(0 0 20px rgba(16, 185, 129, 0.6))'
+                  : 'drop-shadow(0 0 22px rgba(255,255,255,0.11)) drop-shadow(0 0 44px rgba(16,185,129,0.07))',
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
               }}
@@ -488,6 +492,8 @@ const handleEmailClick = (e) => {
 
     {/* Main Section yaha se */}
     <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-4 text-center min-h-screen ">
+    {/* Shooting stars – lazy-loaded canvas, stays behind all content */}
+    <ShootingStars />
     {/* Heading */}
     <motion.div
         initial={{ opacity: 1, y: 0 }}

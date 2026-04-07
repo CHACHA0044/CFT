@@ -138,33 +138,40 @@ useEffect(() => {
 };
 
   return (
-       <div
+    <div
       className={`absolute min-h-full w-full flex flex-col justify-between items-center transition-opacity duration-500 ${
-         bgLoaded ? 'opacity-100' : 'opacity-0'}`}
-        style={{
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
-        backgroundAttachment: isMobile ? 'scroll' : 'fixed',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundColor: '#000',
-      }}
+        bgLoaded ? 'opacity-100' : 'opacity-0'}`}
+      style={{ backgroundColor: '#000' }}
     >
+      {/* Layer 1 — Fixed background image, completely detached from scroll/transform */}
+      {backgroundImage && (
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 1,
+          }}
+        />
+      )}
 
       {/* Dark mode */}
- <div className=" w-full px-0">
-  <div className="absolute top-1 sm:top-1 right-2 text-white md:right-3 z-50">
-    <AnimatedDarkModeButton darkMode={darkMode} toggleTheme={toggleTheme} />
-  </div>
-</div>
+      <div className="w-full px-0 relative z-50">
+        <div className="absolute top-1 sm:top-1 right-2 text-white md:right-3">
+          <AnimatedDarkModeButton darkMode={darkMode} toggleTheme={toggleTheme} />
+        </div>
+      </div>
 
       {/* Content area */}
-      <div className="flex-grow w-full flex flex-col items-center justify-center px-4">
+      <div className="flex-grow w-full flex flex-col items-center justify-center px-4 relative z-10">
         {children}
       </div>
 
       {/* Footer */}
-     <footer className="w-full text-center tracking-wide text-base font-intertight text-shadow-DEFAULT py-4 text-white relative">
+      <footer className="w-full text-center tracking-wide text-base font-intertight text-shadow-DEFAULT py-4 text-white relative z-50">
   <AnimatePresence>
     {showInfo && (
       <motion.div

@@ -239,7 +239,8 @@ useEffect(() => {
   const handleScroll = () => {
     const scrollTop = window.scrollY;
 
-    if (showReviews && scrollTop > lastScrollYRef.current) {
+    // Close reviews on ANY scroll movement (up or down)
+    if (showReviews) {
       setShowReviews(false);
     }
 
@@ -252,7 +253,7 @@ useEffect(() => {
     lastScrollYRef.current = scrollTop;
   };
 
-  window.addEventListener('scroll', handleScroll);
+  window.addEventListener('scroll', handleScroll, { passive: true });
   return () => window.removeEventListener('scroll', handleScroll);
 }, [showReviews]);
 
@@ -381,16 +382,18 @@ const handleEmailClick = (e) => {
 };
 
   return (
-    <motion.div
-            initial={{ x:100, opacity: 0}}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -100, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="w-full h-full"
-          >
     <PageWrapper backgroundImage="/images/home-bk.webp">
-      <div className="w-full min-h-screen flex flex-col  text-gray-100 transition-colors duration-500 px-6 py-6">
-        {/* Header */}
+      {/* ShootingStars is z-index 2, inside PageWrapper but outside motion.div */}
+      <ShootingStars />
+      <motion.div
+        initial={{ x: 100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: -100, opacity: 0 }}
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        className="w-full min-h-screen flex flex-col relative z-20"
+      >
+        <div className="w-full min-h-screen flex flex-col text-gray-100 transition-colors duration-500 sm:px-6 py-6">
+          {/* Header */}
        <motion.header
   initial={false}
   animate={{ height: isHeaderExpanded ? screenHeight.expanded : screenHeight.collapsed }}
@@ -492,8 +495,6 @@ const handleEmailClick = (e) => {
 
     {/* Main Section yaha se */}
     <section className="relative flex-1 flex flex-col justify-center items-center px-6 py-4 text-center min-h-screen ">
-    {/* Shooting stars – lazy-loaded canvas, stays behind all content */}
-    <ShootingStars />
     {/* Heading */}
     <motion.div
         initial={{ opacity: 1, y: 0 }}
@@ -638,10 +639,10 @@ const handleEmailClick = (e) => {
 )}
 </AnimatePresence>
 </section>
-</div>
-</PageWrapper>
-</motion.div>
-);
+        </div>
+      </motion.div>
+    </PageWrapper>
+  );
 };
 
 

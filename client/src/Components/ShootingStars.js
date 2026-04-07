@@ -573,9 +573,16 @@ const SpaceCanvas = React.memo(function SpaceCanvas({ className = '' }) {
   return (
     <canvas
       ref={canvasRef}
-      className={`absolute inset-0 pointer-events-none ${className}`}
+      className={`pointer-events-none ${className}`}
       aria-hidden="true"
-      style={{ zIndex: 0 }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 2,
+      }}
     />
   );
 });

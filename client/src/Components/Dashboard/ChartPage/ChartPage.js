@@ -140,28 +140,12 @@ const ChartPage = () => {
     }
   }, [expandedLeaderboardUser]);
 
-  // Combined getDisplayError that includes weather errors
+  // Display only base errors (weather errors now show inline in WeatherAqiSection)
   const getDisplayErrorWithWeather = useCallback(() => {
     const baseError = getDisplayError();
-    const weatherErr = weather.weatherError;
-
-    if (!baseError && !weatherErr) return null;
-
-    const errors = [];
-    if (baseError) errors.push(baseError);
-    if (weatherErr) errors.push({ message: weatherErr, isPersistent: false, count: 1 });
-
-    if (errors.length >= 2) {
-      const totalCount = errors.reduce((sum, e) => sum + (e.count || 1), 0);
-      return {
-        message: `Multiple system errors detected (${totalCount}). Please refresh the page to resolve.`,
-        isPersistent: true,
-        count: totalCount
-      };
-    }
-
-    return errors[0] || null;
-  }, [getDisplayError, weather.weatherError]);
+    // Weather errors are now handled inline in WeatherAqiSection, not in top banner
+    return baseError || null;
+  }, [getDisplayError]);
 
   if (!processed) {
     return (

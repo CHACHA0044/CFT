@@ -1099,14 +1099,40 @@ function getAqiStatus(aqi) {
 }
 
 let { lat, lon, refresh, forceApi } = req.query;
+let locationCity = null;
+let locationRegion = null;
+let locationFallback = false;
   
 try {
   // Get location from IP if coordinates not provided
   if (!lat || !lon) {
+    try {
       const ipRes = await axios.get("http://ip-api.com/json/");
-      lat = ipRes.data.lat;  // Changed from .latitude
-      lon = ipRes.data.lon;  // Changed from .longitude
+      lat = ipRes.data.lat;
+      lon = ipRes.data.lon;
+      locationCity = ipRes.data.city || null;
+      locationRegion = ipRes.data.regionName || null;
+    } catch (ipErr) {
+      console.warn("IP-API call failed:", ipErr.message);
+      // Fallback to 0,0 when IP lookup fails
+      lat = 0;
+      lon = 0;
+      locationFallback = true;
     }
+  } else {
+    // If GPS coordinates provided, use reverse geocoding via Nominatim
+    try {
+      const nominatimRes = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+        { headers: { "User-Agent": "CarbonFootprintTracker/1.0" } }
+      );
+      locationCity = nominatimRes.data.address?.city || nominatimRes.data.address?.town || nominatimRes.data.address?.village || null;
+      locationRegion = nominatimRes.data.address?.state || null;
+    } catch (geocodeErr) {
+      console.warn("Nominatim reverse geocoding failed:", geocodeErr.message);
+      // Continue without location - not critical
+    }
+  }
   
   // Replaced the existing rounding logic because it was creating 2 diffrent cache keys for same loc
   lat = Math.round(parseFloat(lat) * 100) / 100;
@@ -1318,7 +1344,7 @@ if (forceApi) {
       // Fetch all data in parallel
       const [tomorrowRes, airRes, moonPhase, sunTimes] = await Promise.all([
         axios.get(
-          `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,visibility&apikey=${process.env.TOMORROW_API_KEY}`
+          `https://api.tomorrow.io/v4/weather/realtime?location=${lat},${lon}&fields=temperature,humidity,windSpeed,windDirection,temperatureApparent,weatherCode,uvIndex,rainIntensity,precipitationType,visibility,cloudCover,solarGHI,thunderstormProbability&apikey=${process.env.TOMORROW_API_KEY}`
         ),
         axios.get(
           `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
@@ -1346,9 +1372,9 @@ if (forceApi) {
         temperature_2m: values.temperature,
         relative_humidity_2m: values.humidity,
         windspeed_10m: values.windSpeed * 3.6,
+        wind_direction: values.windDirection,
         apparent_temperature: values.temperatureApparent,
         weather_code: mapWeatherCode(values.weatherCode),
-        uv_index: values.uvIndex || 0,
         rain_intensity: values.rainIntensity || 0,
         precipitation_type: mapPrecipitationType(values.precipitationType),
         precipitation_type_raw: values.precipitationType || 0,
@@ -1358,6 +1384,9 @@ if (forceApi) {
         sunrise_time: sunTimes.sunrise,
         sunset_time: sunTimes.sunset,
         visibility: values.visibility || 0,
+        cloudCover: values.cloudCover || 0,
+        solarGHI: values.solarGHI || 0,
+        thunderstormProbability: values.thunderstormProbability || 0,
         moonPhase: {
         name: moonPhase.name,
         emoji: moonPhase.emoji,
@@ -1371,13 +1400,17 @@ if (forceApi) {
       },
         air_quality: {
           ...airRes.data.current,
+          uv_index: airRes.data.current.uv_index,
           aqi: finalAQI,
           status: getAqiStatus(finalAQI)
         },
         source: "Tomorrow.io + Open-Meteo AQI",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        locationCity,
+        locationRegion,
+        locationFallback
       };
       
       //console.log(" Tomorrow.io processed result:", JSON.stringify(processedResult, null, 2));
@@ -1434,6 +1467,7 @@ if (forceApi) {
           temperature_2m: weatherData.temp,
           relative_humidity_2m: weatherData.rh,
           windspeed_10m: weatherData.wind_spd * 3.6, // m/s to km/h
+          wind_direction: weatherData.wind_dir,
           apparent_temperature: weatherData.app_temp,
           weather_code: weatherData.weather?.code || 0,
           visibility: weatherData.vis || 0,
@@ -1459,7 +1493,10 @@ if (forceApi) {
         source: "Weatherbit + Open-Meteo AQI",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        locationCity,
+        locationRegion,
+        locationFallback
       };
       
      // console.log("Weatherbit processed result:", JSON.stringify(processedResult, null, 2));
@@ -1487,7 +1524,7 @@ if (forceApi) {
       
       const [omWeather, omAir, moonPhase, sunTimes] = await Promise.all([
         axios.get(
-  `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,weather_code,apparent_temperature`
+  `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,windspeed_10m,wind_direction_10m,weather_code,apparent_temperature`
 ),
         axios.get(
   `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5,carbon_monoxide,ozone,nitrogen_dioxide,sulphur_dioxide,uv_index`
@@ -1514,6 +1551,7 @@ if (forceApi) {
           ...omWeather.data.current,
           sunrise_time: sunTimes.sunrise,
           sunset_time: sunTimes.sunset,
+          wind_direction: omWeather.data.current.wind_direction_10m,
           moonPhase: {
   name: moonPhase.name,
   emoji: moonPhase.emoji,
@@ -1531,7 +1569,10 @@ if (forceApi) {
         source: "Open-Meteo",
         location_source: req.query.lat && req.query.lon ? "browser" : "ip",
         refreshed: !!refresh,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        locationCity,
+        locationRegion,
+        locationFallback
       };
     };
 
@@ -1547,18 +1588,27 @@ if (forceApi) {
         try {
           result = await useTomorrow();
         } catch (e1) {
-          console.warn("❌ Tomorrow.io failed:", e1.message);
+          const statusCode = e1.response?.status ? ` (HTTP ${e1.response.status})` : '';
+          console.warn(`❌ Tomorrow.io failed${statusCode}:`, e1.message);
           try {
             result = await useWeatherbit();
           } catch (e2) {
             console.warn("❌ Weatherbit failed:", e2.message);
-            result = await useOpenMeteo();
+            try {
+              result = await useOpenMeteo();
+            } catch (e3) {
+              console.warn("❌ Open-Meteo failed:", e3.message);
+              throw e3; // Throw the last error so we catch it below
+            }
           }
         }
       }
     } catch (errFinal) {
       console.error("❌ All weather APIs failed:", errFinal.message);
-      return res.status(500).json({ error: errFinal.message });
+      return res.status(500).json({ 
+        error: "Weather service temporarily unavailable. All providers failed.",
+        providers: ["tomorrow", "weatherbit", "openmeteo"]
+      });
     }
 
     // Redis cache (1800s = 30 minutes)

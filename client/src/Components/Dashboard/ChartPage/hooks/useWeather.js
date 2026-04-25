@@ -100,8 +100,7 @@ const useWeather = () => {
     } catch (err) {
       console.error("Failed to fetch weather data:", err);
       setWeatherError("Unable to fetch weather data. Please try again later.");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => setWeatherError(null), 5000);
+      setTimeout(() => setWeatherError(null), 8000);
     } finally {
       setLoadingWeather(false);
     }
@@ -129,13 +128,22 @@ const useWeather = () => {
     return (currentTime - weatherTimestamp) > thirtyMinutes;
   }, [weatherTimestamp, currentTime]);
 
-  // Weather error auto-clear (integrates with chart data errors externally)
+  // Weather error auto-clear (8 seconds to give users time to read)
   useEffect(() => {
     if (weatherError) {
-      const timer = setTimeout(() => setWeatherError(null), 5000);
+      const timer = setTimeout(() => setWeatherError(null), 8000);
       return () => clearTimeout(timer);
     }
   }, [weatherError]);
+
+  // Update currentTime every 60 seconds for reactive expiry detection
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 60000); // 60 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return {
     data,

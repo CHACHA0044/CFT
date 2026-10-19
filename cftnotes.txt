@@ -1,0 +1,461 @@
+🌍 Carbon Footprint Tracker (CFT) — Interview Prep Notes
+Read-only analysis of your actual codebase. Every claim below is traced to a real file.
+
+1. Overall Architecture
+The Full MERN Stack Flow
+Here's exactly what happens end-to-end when a user submits a carbon entry:
+
+
+React (carbonft.app / localhost:3000)
+  └── axios POST /footprint  [api/api.js]
+        └── includes httpOnly cookie (token) + X-CSRF-Token header
+              └── Express backend (api.carbonft.app / localhost:4950)
+                    ├── CORS check [server.js:L79-104]
+                    ├── authLimiter rate-limit [server.js:L147-154]
+                    ├── authenticateToken middleware [middleware/authmiddleware.js]
+                    │     ├── reads cookie → JWT.verify → checks Redis blacklist → checks user exists
+                    │     └── attaches req.user = { userId, jti }
+                    ├── csrfProtection middleware [routes/footprint.js:L13-20]
+                    └── Route handler [routes/footprint.js:L22-48]
+                          └── CarbonEntry.findOneAndUpdate() → MongoDB Atlas
+                                └── returns updated doc → res.json() → React updates state
+Key architectural decision: In production the backend also serves the React build as static files (line 196 of 
+server.js
+). There's a catch-all app.get(/^(?!\/api).*/,...) that sends client/build/index.html for every non-API route, enabling React Router's client-side navigation.
+
+Folder / File Structure
+
+server/                        ← Backend root (also serves built React)
+├── server.js                  ← Express app bootstrap, MongoDB connect, middleware stack
+├── RedisClient.js             ← Redis connection singleton (redis-cloud hosted)
+├── routes/
+│   ├── auth.js                ← ALL auth logic (1976 lines!) – login, register, OAuth, weather, etc.
+│   └── footprint.js           ← CRUD for carbon entries + leaderboard
+├── middleware/
+│   └── authmiddleware.js      ← JWT verify + Redis blacklist + user-exists check
+├── models/
+│   ├── user.js                ← Mongoose User schema
+│   └── CarbonEntry.js         ← Mongoose emission entry schema (embedded array pattern)
+├── config/
+│   └── passport.js            ← Google OAuth20 strategy (Passport.js)
+├── utils/
+│   ├── calculateEmissions.js  ← Emission factor formulas (food/transport/electricity/waste)
+│   ├── sendEmail.js           ← Brevo SMTP email sender
+│   ├── emailTemplate.js       ← HTML email templates
+│   ├── imapPoller.js          ← IMAP inbox poller (runs in prod only)
+│   └── feedbackPoller.js      ← Periodic feedback scanner (runs in prod only)
+└── client/                    ← React CRA app (built output served by Express)
+    └── src/
+        ├── App.js             ← Router + CSRF token init on mount
+        ├── Components/
+        │   ├── AnimatedRoutes.js   ← All page routes + lazy loading
+        │   ├── Home.js            ← Landing page
+        │   ├── Auth/              ← Login, Register, VerifyEmail, ResetPassword
+        │   ├── Dashboard/
+        │   │   ├── Dashboard.js   ← Main dashboard view
+        │   │   └── ChartPage/     ← Analytics page (charts, leaderboard, weather)
+        │   └── Footprint/         ← Form, History, Edit form
+        ├── api/api.js             ← Axios instance with CSRF interceptor
+        ├── context/LoadingContext.js ← Global loading state (React Context)
+        ├── hooks/useAuthRedirect.js  ← Redirect-to-login guard
+        └── utils/                 ← calculateEmissionsFrontend, csrf helpers
+2. Backend & RESTful APIs
+Complete API Route Table
+All routes are mounted under /api prefix in 
+server.js
+.
+
+Auth Routes → routes/auth.js (mounted at /api/auth)
+Method	Path	What it does	Auth Required?
+GET	/auth/csrf-token	Issues a CSRF token (cookie-based csurf)	No
+GET	/auth/token-info/me	Returns { name, verified } for the logged-in user. Tries Redis cache first.	Yes + CSRF
+POST	/auth/register	Creates user, hashes password with bcrypt(10), sends verification email via Brevo, JWT verification link expires 10min	No (CSRF)
+GET	/auth/verify-email/:token	Verifies JWT token from email link, sets isVerified=true, sends welcome email	No
+GET	/auth/verify-email/:token/preview	Returns name + email so the verify page can greet the user before they click	No
+POST	/auth/resend-verification	Re-sends verify email, max 4 times per 24h (tracked on User document)	No (CSRF)
+POST	/auth/login	Verifies credentials, rate-limits 5 attempts/15min per email via Redis, sets httpOnly cookie	No (CSRF)
+POST	/auth/logout	Blacklists current token JTI in Redis, clears cookie	Yes
+GET	/auth/ping	Health-check endpoint, also called by self-cron every 3 min to keep Render alive	No
+GET	/auth/google	Redirects to Google OAuth consent screen	No
+GET	/auth/google/callback	OAuth callback: upsert user, set JWT cookie, redirect to frontend	No
+POST	/auth/forgot-password	Generates random token, stores SHA-256 hash in Redis (15min TTL), sends reset email	No (CSRF)
+GET	/auth/reset-password/:token/preview	Scans Redis for matching token hash, returns user's name for display	No
+POST	/auth/reset-password	Validates token from Redis, bcrypt-hashes new password, deletes token from Redis	No (CSRF)
+POST	/auth/feedback/submit	Stores feedback flag on user, rate-limits 1/day per userId via Redis, sends emails to user + admin	Yes + CSRF
+POST	/auth/feedback/resend-thankyou	Resends thank-you email	Yes + CSRF
+GET	/auth/weather-aqi	Fetches weather+AQI with triple-API fallback (Tomorrow.io → Weatherbit → Open-Meteo), caches 30min in Redis	Yes
+Footprint Routes → routes/footprint.js (mounted at /api/footprint)
+Method	Path	What it does
+POST	/footprint/	Adds a new entry using $push to the entries array (upsert pattern)
+GET	/footprint/history	Returns 5 most recent entries using MongoDB aggregation + $sortArray + $slice
+GET	/footprint/leaderboard-nth	Compares all users' nth entry, sorted by total CO₂ ascending
+GET	/footprint/:id	Fetches a single entry by ObjectId from the embedded array, computes emissions on-the-fly
+PUT	/footprint/:entryId	Updates entry fields using positional $ operator
+DELETE	/footprint/clear/all	Clears all entries with $set: { entries: [] }
+DELETE	/footprint/:entryId	Removes one entry with $pull
+How Express Structures These Routes
+There are no separate controller files in this project. The route handler logic lives directly inside the router files. The pattern is:
+
+js
+
+// routes/footprint.js
+const router = express.Router();
+router.post('/', authenticateToken, csrfProtection, async (req, res) => { ... });
+module.exports = router;
+// server.js
+app.use('/api/footprint', footprintRoutes);
+The middleware chain is: CORS → cookieParser → helmet → mongoSanitize → xss → hpp → express.json → generalLimiter → authLimiter → route-specific middleware (authenticateToken, csrfProtection) → handler.
+
+Input Validation
+There is no third-party validation library (no Joi, no express-validator). All validation is manual if checks:
+
+Route	What's validated	Where
+/login	!email || !password → 400	
+auth.js:L410-414
+/register	!name || !email \!| !password → 400; duplicate email → 409	
+auth.js:L769-772
+/forgot-password	regex /^[^\s@]+@[^\s@]+\.[^\s@]+$/ against email	
+auth.js:L1750-1753
+/reset-password	password.length < 6, passwords don't match	
+auth.js:L1897-1903
+/feedback/submit	empty string check on feedback.trim()	
+auth.js:L636-639
+/leaderboard-nth	isNaN(n) || n < 0 → 400	
+footprint.js:L110-112
+Mongoose schema	enum arrays enforce allowed values for food.type, transport.mode, electricity.source	
+CarbonEntry.js
+Extra global guards:
+
+express-mongo-sanitize strips $ and . from request bodies (NoSQL injection prevention) — 
+server.js:L130
+xss-clean sanitizes HTML from inputs — 
+server.js:L131
+hpp blocks HTTP parameter pollution — 
+server.js:L132
+Body size capped at 10kb — 
+server.js:L134
+3. JWT Authentication
+Step-by-Step Auth Flow
+Signup Flow
+POST /auth/register → validate fields → bcrypt.hash(password, 10) → generate custom userId = CFT_user_${randomHex}_${timestampBase36}_ → create User doc with isVerified: false
+Generate a verification JWT: jwt.sign({ email, jti: randomHex }, JWT_SECRET, { expiresIn: '10m' }) — this is the one embedded in the email link, not the session token
+Send Brevo email with link: FRONTEND_URL/verify-email/<verificationToken>
+User clicks link → GET /auth/verify-email/:token → jwt.verify(token, JWT_SECRET) → set isVerified: true, clear verificationToken field from DB, send welcome email
+Login Flow
+POST /auth/login (CSRF-protected)
+Check Redis for login:attempts:<email> — if ≥ 5, return 429
+If there's an existing cookie token, blacklist it in Redis before continuing (prevents double-sessions)
+Find user by email (checks Redis cache user:login:<email> first for speed)
+bcrypt.compare(password, user.passwordHash) — fails → increment attempt count → return generic "Invalid credentials" (prevents user enumeration)
+Check user.isVerified — false → 403
+Clear failed attempt counter from Redis
+Generate session JWT: jwt.sign({ userId: user.userId, jti: randomHex }, JWT_SECRET, { expiresIn: '3d' })
+Note: payload uses custom userId (e.g. CFT_user_abc123_...), NOT MongoDB's _id
+Set httpOnly cookie: res.cookie('token', token, { httpOnly: true, secure: isProd, sameSite: 'Strict', domain: '.carbonft.app', maxAge: 3d })
+If first-time local user (!welcomeEmailSent), send welcome email asynchronously with setImmediate()
+Return { message: 'Login successful', user: { name } } — no token in JSON, only in cookie
+Where is the JWT Stored?
+httpOnly cookie named token. It cannot be read by JavaScript at all. On every subsequent request the browser automatically sends it. The backend reads it at 
+authmiddleware.js:L10
+: req.cookies?.token.
+
+There is also a fallback to Authorization: Bearer <token> header at 
+authmiddleware.js:L13-15
+ (for non-browser clients).
+
+Protected Route Middleware — authenticateToken
+File: 
+middleware/authmiddleware.js
+
+The middleware runs 4 checks in sequence:
+
+
+Step 1: Extract token from cookie (or Authorization header fallback)
+         → No token → 401 "Access denied"
+Step 2: jwt.verify(token, JWT_SECRET)
+         → invalid signature / expired → 401 (clears cookie)
+Step 3: Check Redis key blacklist:jti:<decoded.jti>
+         → exists → 401 "Session expired" (clears cookie)
+         This is how logout actually invalidates tokens before natural expiry!
+Step 4: User exists check:
+         → Try Redis cache key user:auth:<userId> (10 min TTL)
+         → If cache miss, query MongoDB User.findOne({ userId })
+         → User not found → 401 (clears cookie)
+If all pass: req.user = { userId, jti }  →  next()
+The JTI (JWT ID) is a crypto.randomBytes(16).toString('hex') unique per token. This is what makes blacklisting work — you don't need to store every valid token, only the revoked ones.
+
+Token Expiry & No Refresh Token (on Login Route)
+The login route issues a single 3-day JWT. There is no refresh token mechanism on the login route (the generateTokens() function in 
+auth.js:L282-299
+ that generates access + refresh tokens exists in the code but is not currently used in the login route — the login route does its own jwt.sign directly). When the 3-day token expires, the middleware returns TokenExpiredError → 401, and the frontend redirects to /login.
+
+For Google OAuth: same pattern — a 3-day JWT cookie is set in the /google/callback handler at 
+auth.js:L1656-1682
+.
+
+CSRF Protection
+The app uses the csurf package (double-submit cookie pattern):
+
+Frontend calls GET /auth/csrf-token on app mount (
+App.js:L32-43
+)
+CSRF token is stored in memory and attached as X-CSRF-Token header by the Axios interceptor on all POST/PUT/DELETE requests (
+api.js:L21-50
+)
+If the server returns 403 with code: 'EBADCSRFTOKEN', the interceptor auto-fetches a new token and retries the request once (
+api.js:L84-100
+)
+4. React.js Frontend
+Pages & Major Components
+Component / File	Route	Responsibility
+Home.js
+/ or /home	Landing page — hero section, features, CTA
+Login/Login.js
+/login	Email/password login form + Google OAuth button
+Register/Register.js
+/register	Registration form with password strength (zxcvbn library)
+VerifyEmail.jsx
+/verify-email/:token	Reads token from URL, calls GET /auth/verify-email/:token, shows success/error
+ResetPassword.jsx
+/reset-password/:token	Calls preview endpoint then POST reset-password
+Dashboard.js
+/dashboard	Shows history list, links to ChartPage per entry
+ChartPage.js
+/chart	Main analytics page — all charts, leaderboard, weather, simulator
+Footprint.js
+/footprint	Data entry form — food, transport (multi-entry), electricity, waste
+EditFootprintForm.js
+/edit/:id	Pre-fills form with existing entry data, calls PUT
+History.js
+/history	Lists all 5 recent entries with delete buttons
+about.jsx
+/about	Static about/info page
+All heavy pages are lazy-loaded via React.lazy() in 
+AnimatedRoutes.js
+ — this splits the bundle and reduces initial load time. Route transitions use framer-motion's AnimatePresence.
+
+How Emission Data Flows to the Charts
+Here's the exact data pipeline in 
+useChartData.js
+:
+
+
+1. ChartPage receives location.state?.entry (passed via React Router navigate state)
+   OR fetches it fresh from GET /footprint/:id
+2. useChartData hook processes entryData:
+   - If entry already has totalEmissionKg (came from backend), use it directly
+   - Otherwise, call calculateEmissions(entryData) locally (same logic as server-side)
+3. Derived data built with useMemo:
+   - comparison = [{ category, user: kg, global: globalAverage }] — for bar chart
+   - pieData   = [{ x: 'Food', y: 45.2, unit: 'kg' }, ...]       — for pie chart
+   - yearly    = total * 12                                        — projection
+   - yearlyChartData = 12 months of cumulative projected values
+4. Leaderboard: GET /footprint/history → find index of current entry → GET /footprint/leaderboard-nth?n=<index>
+5. User info: GET /auth/token-info/me → { name, verified }
+   Result cached in Redis on server for 60 min (TTL: 3600)
+Charting Library Used
+Your project uses two charting libraries:
+
+Victory (victory npm package) — used for:
+
+Bar chart (ComparisonChartSection): VictoryChart, VictoryGroup, VictoryBar comparing your emissions vs global averages. Uses log scale on Y-axis.
+Pie chart (PieChartSection): VictoryPie with dynamic innerRadius={80}, padAngle, animated on-load, interactive click-to-expand segments.
+File references: 
+ComparisonChartSection.js:L3
+, 
+PieChartSection.js:L3
+Recharts (also installed in package.json) — installed but used for other chart sections (YearlyProjection, etc.)
+
+So if asked: "Which charting library?" → say Victory for the bar and pie charts, Recharts is also in the project.
+
+State Management
+This project uses no Redux. State management is done with:
+
+Mechanism	Where Used	What State
+useState	Every component	Local UI state (form values, loading, errors)
+useEffect	Data fetching components	Trigger API calls on mount
+useMemo	
+useChartData.js
+Derived chart data (comparison, pieData, yearlyChartData)
+useCallback	ChartPage, useChartData	Memoized handlers (handleLogout, getDisplayError)
+React Context (useContext)	
+LoadingContext.js
+Global page loading spinner state — { loading, startLoading, stopLoading } shared across all pages
+sessionStorage	ChartPage, auth flows	Persists userName, auth-related flags across page reloads within a session
+Custom Hooks	useChartData, useWeather, useAuthRedirect	Encapsulate complex fetch + state logic
+The LoadingContext wraps the entire app in 
+App.js:L48
+ and is consumed by PageLoader and NavigationLoader common components.
+
+5. MongoDB & Data Modeling
+User Schema — models/user.js
+js
+
+{
+  userId:            String  (required, unique, indexed) — custom ID like "CFT_user_abc_1xyz_"
+  name:              String  (required)
+  email:             String  (required, unique index)
+  provider:          String  enum: ['local', 'google']  default: 'local'
+  passwordHash:      String  (not required — Google users have no password)
+  isVerified:        Boolean default: false
+  verificationToken: String  (cleared after verification)
+  resendAttempts:    Number  default: 0  (tracks resend email count)
+  lastResendAt:      Number  (Unix ms timestamp)
+  welcomeEmailSent:  Boolean default: false
+  feedbackGiven:     Boolean default: false
+  timestamps: true   → createdAt, updatedAt auto-managed by Mongoose
+}
+Why custom userId instead of MongoDB _id? Because _id is a MongoDB ObjectId and exposing it in JWTs or URLs is a security anti-pattern. The custom userId is opaque, non-sequential, and not predictable.
+
+TTL index on unverified users:
+
+js
+
+userSchema.index({ lastResendAt: 1 }, {
+  expireAfterSeconds: 600,
+  partialFilterExpression: { isVerified: false }
+})
+This tells MongoDB to automatically delete unverified accounts 10 minutes after their last resend. This keeps the DB clean of abandoned registrations.
+
+CarbonEntry Schema — models/CarbonEntry.js
+js
+
+{
+  userId: String (required, unique, indexed, sparse) — foreign key to User.userId
+  entries: [          ← EMBEDDED ARRAY — all entries in one document per user
+    {
+      food: {
+        type:     String enum: ['Animal based', 'Plant based', 'Both']
+        amountKg: Number
+      },
+      transport: [{
+        mode:       String enum: ['Car', 'Bike', 'Bus', 'Metro', 'Walking', 'Train', 'Flights']
+        distanceKm: Number
+      }],                 ← Array (user can log multiple transport modes)
+      electricity: [{
+        consumptionKwh: Number
+        source:         String enum: ['Coal', 'Solar', 'Wind', 'Hydro', 'Mixed']
+      }],
+      waste: [{
+        plasticKg:   Number  default: 0
+        paperKg:     Number  default: 0
+        foodWasteKg: Number  default: 0
+      }],
+      createdAt: Date
+      updatedAt: Date
+    }
+  ]
+}
+Compound index: { userId: 1, 'entries.createdAt': -1 } — speeds up time-sorted queries per user.
+
+Collection Relationship
+There are two collections: users and carbonentries.
+
+The link is: CarbonEntry.userId === User.userId (string-to-string reference, not a Mongoose ObjectId ref/populate). This is a manual reference — you join them yourself, like in the leaderboard route at 
+footprint.js:L131-133
+:
+
+js
+
+for (const user of allUsers) {
+  const carbonEntry = await CarbonEntry.findOne({ userId: user.userId }).lean();
+  // manual join!
+}
+Why embed entries instead of a separate collection? All entries for a user are always queried together. Embedding avoids expensive joins and keeps the query simple: one findOne({ userId }) gets everything. The trade-off is document size, which is managed by the $slice aggregation to only return 5 entries.
+
+6. Deployment
+Frontend (Vercel) ↔ Backend (Render)
+Production domains:
+
+Frontend: https://carbonft.app (Vercel)
+Backend API: https://api.carbonft.app (Render)
+How they talk:
+
+The Axios BASE URL in 
+api/api.js:L6-8
+ switches based on NODE_ENV:
+js
+
+const BASE = isDev ? 'http://localhost:4950/api' : 'https://api.carbonft.app/api';
+withCredentials: true is set on every request so the browser sends the httpOnly cookie cross-domain.
+CORS on the backend at 
+server.js:L79-104
+ uses a dynamic origin function: allows carbonft.app, any *.vercel.app, and *.onrender.com. The isTrustedProdOrigin() helper does hostname parsing.
+The backend sets the cookie with domain: '.carbonft.app' (note the dot — allows it on subdomains like api.carbonft.app).
+Vercel config — 
+client/vercel.json
+ adds Access-Control-Allow-Credentials: true header to all responses.
+
+Self-pinging cron (Render keep-alive): Render free tier spins down after inactivity. The backend runs a node-cron every 3 minutes (
+server.js:L247-255
+) that hits GET /api/auth/ping on itself to prevent cold starts.
+
+Environment Variables & Security
+Variable	Purpose
+MONGO_URI	MongoDB Atlas connection string (SSL: true)
+JWT_SECRET	Signs all JWTs — changing this invalidates all existing sessions
+GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET	Google OAuth app credentials
+BREVO_API_KEY / EMAIL_*	Transactional email service (Brevo/SendinBlue)
+REDIS_HOST / REDIS_PASSWORD / REDIS_PORT	Redis Cloud instance for caching & blacklisting
+TOMORROW_API_KEY / WEATHERBIT_API_KEY	Weather API keys (triple fallback chain)
+FRONTEND_URL	Used to build email verification/reset links dynamically
+NODE_ENV	Switches security settings (helmet, cookie options, CORS, rate limits)
+ADMIN_SECRET / ADMIN_CODE	Admin authentication (separate from JWT)
+Production env-check at startup — 
+server.js:L6-13
+: the server calls process.exit(1) immediately if any critical env var is missing in production. No silent failures.
+
+Security hardening in prod:
+
+helmet() with full CSP, HSTS (1 year, includeSubDomains, preload), frameguard: deny, referrerPolicy: no-referrer
+app.set('trust proxy', 1) for Vercel/Render proxy headers
+HTTPS redirect enforced for non-api.carbonft.app hosts
+x-powered-by header disabled
+7. Interview-Ready Summary
+60-Second Pitch
+"CFT is a full-stack MERN application where users log their monthly carbon footprint across four categories — food, transport, electricity, and waste. I built a Node.js and Express backend with JWT-based authentication stored in httpOnly cookies for security, a Redis cache layer for performance and token blacklisting on logout, and MongoDB with an embedded document pattern for user emission records. The React frontend uses lazy-loaded routes, custom hooks to separate data-fetching logic, and Victory charts to visualize emissions versus global averages. I also implemented Google OAuth for social login, a password reset flow with Redis-backed token storage, and a real-time weather plus AQI feature with a three-provider fallback chain. The backend is deployed on Render, the frontend on Vercel under a custom domain, with Brevo for transactional emails and Redis Cloud for caching."
+
+5 Likely Interview Questions — With Your Actual Answers
+Q1: Why did you store the JWT in a cookie instead of localStorage?
+
+Point to: 
+routes/auth.js:L531-538
+
+How to answer: "localStorage is vulnerable to XSS — any injected script can read it. I set the cookie with httpOnly: true, which means JavaScript on the page has zero access to it. Combined with sameSite: 'Strict' it also blocks CSRF from third-party sites. To add another layer, I added csurf CSRF tokens on the server for all state-changing operations, since cookies alone aren't enough when frontend and backend are on different subdomains."
+
+Q2: You have no refresh token — how do you handle token expiry?
+
+Point to: 
+middleware/authmiddleware.js:L143-145
+, 
+routes/auth.js:L524-526
+
+How to answer: "The session token has a 3-day expiry. On expiry, jwt.verify() throws TokenExpiredError, the middleware returns 401, and the Axios interceptor in the frontend detects requiresLogin: true in the response and hard-redirects to /login. For longer sessions I could implement refresh tokens — I actually wrote the generateTokens() function at line 282 of auth.js that creates both an access token (10 min) and refresh token (14 days), but the current login route uses a single 3-day token for simplicity. It's ready to be wired up."
+
+Q3: Explain your MongoDB data model — why are entries embedded in a single document instead of a separate collection?
+
+Point to: 
+models/CarbonEntry.js
+, 
+routes/footprint.js:L27-42
+
+How to answer: "I used MongoDB's embedded document pattern. Each user has one CarbonEntry document with an entries array. When I add an entry I use $push, when I delete I use $pull, when I update I use the positional $ operator. This avoids a separate collection join every time I need all of a user's data. The trade-off is document size, but I handle that by always querying with $slice in an aggregation to return only the 5 most recent entries at the database level — not in the application layer. I also created a compound index on { userId: 1, 'entries.createdAt': -1 } for performance."
+
+Q4: How does your logout actually invalidate the JWT before it naturally expires?
+
+Point to: 
+routes/auth.js:L588-627
+, 
+middleware/authmiddleware.js:L41-60
+
+How to answer: "JWTs are stateless — you can't 'delete' one. The standard approach is to let it expire naturally, but that's a security hole if someone logs out on a shared computer. My solution: every JWT has a jti field — a unique ID generated with crypto.randomBytes(16). On logout, I calculate the token's remaining TTL (decoded.exp - Date.now()/1000) and store blacklist:jti:<jti> in Redis with that exact TTL. The auth middleware checks Redis for this key on every request — if it finds it, the token is rejected. When the JWT would have expired anyway, Redis also expires the key, so no memory leak. I even blacklist the old token during a new login if a cookie already exists."
+
+Q5: Walk me through how the weather feature avoids hammering the API on every page load.
+
+Point to: 
+routes/auth.js:L1140-1181
+
+How to answer: "The weather endpoint uses a multi-layer strategy. First, coordinates are rounded to 2 decimal places (Math.round(lat * 100) / 100) so nearby locations share the same cache key. Second, I check Redis for weather:<lat>,<lon> — if the cache exists and it's not a ?refresh=true request, I return the cached data immediately. If the cache TTL drops below 5 minutes, I serve the stale data to the user right away but trigger a background refresh with setImmediate() — this is stale-while-revalidate. If it's a fresh fetch, I try Tomorrow.io first, then Weatherbit, then Open-Meteo in a try-catch chain. Whatever succeeds gets cached for 30 minutes. I also have Redis-based rate limiting on how many times a user can force-refresh."
+
+Generated from actual code in d:/rep/server — no generic filler, every fact is traceable to a file and line.
+

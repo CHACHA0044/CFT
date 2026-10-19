@@ -111,37 +111,56 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const silentLogger = {
-  debug: () => {},
-  info: () => {},
-  warn: () => {},
-  error: console.error,
-};
+let isScanning = false;
 
 async function scanNow() {
-  const client = new ImapFlow({
-    ...IMAP_CONFIG,
-    logger: silentLogger,
-  });
+  // Prevent overlapping scans from opening multiple clients in this poller.
+  if (isScanning) {
+    console.warn("⏭️ Feedback scan skipped: previous scan is still running");
+    return;
+  }
+
+  isScanning = true;
+  let client;
 
   try {
+    client = new ImapFlow({
+      ...IMAP_CONFIG,
+      logger: false,
+    });
+
+    // Handle socket errors emitted asynchronously after connect() has resolved.
+    client.on("error", (err) => {
+      console.error(
+        `❌ Feedback IMAP client error (${err.code || "UNKNOWN"}): ${err.message}`
+      );
+    });
+
     await client.connect();
     await scanFeedbackMessages(client);
   } catch (err) {
-    console.error('❌ Feedback scan failed:', err);
+    console.error(
+      `❌ Feedback scan failed (${err.code || "UNKNOWN"}):`,
+      err.message || err
+    );
   } finally {
-    try {
-      await client.logout();
-    } catch {}
+    if (client) {
+      try {
+        await client.logout();
+      } catch {
+        // The connection may already be closed after a network error.
+      }
+    }
+    isScanning = false;
   }
 }
 
 function startFeedbackPoller() {
   const schedule = process.env.FEEDBACK_SCAN_CRON || '0 */6 * * *';
   console.log('⏰ Feedback poller scheduled:', schedule);
-  scanNow();
+  void scanNow();
   cron.schedule(schedule, () => {
-    scanNow();
+    void scanNow();
   });
 }
 

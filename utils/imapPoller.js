@@ -1,5 +1,4 @@
 const { ImapFlow } = require("imapflow");
-const { simpleParser } = require("mailparser");
 const cron = require("node-cron");
 const User = require("../models/user");
 const sendEmail = require("./sendEmail");
@@ -55,15 +54,6 @@ async function handleNewMessages(client) {
           console.log(`✅ Keyword match for UID ${uid} | Subject: "${subject}" | From: ${fromAddr}`);
         }
 
-        // ✅ Fetch full source only if needed
-        const msg = await client.fetchOne(uid, { source: true });
-        if (!msg?.source) {
-          console.warn(`⚠️ No source found for UID ${uid}, skipping`);
-          await client.messageFlagsAdd(uid, ['\\Seen']);
-          continue;
-        }
-        const parsed = await simpleParser(msg.source);
-
         // Find user
         const user = await User.findOne({
           email: new RegExp(`^${escapeRegExp(fromAddr)}$`, 'i'),
@@ -108,36 +98,58 @@ function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const silentLogger = {
-  debug: () => {},
-  info: () => {},
-  warn: () => {},
-  error: console.error,
-};
+let isChecking = false;
 
 async function checkNow() {
-  const client = new ImapFlow({
-    ...IMAP_CONFIG,
-    logger: silentLogger,   
-  });
+  // Do not open another IMAP connection if the previous poll is still running.
+  if (isChecking) {
+    console.warn("⏭️ IMAP poll skipped: previous poll is still running");
+    return;
+  }
+
+  isChecking = true;
+  let client;
+
   try {
+    client = new ImapFlow({
+      ...IMAP_CONFIG,
+      logger: false,
+    });
+
+    // Important: ImapFlow is an EventEmitter. Errors emitted after connect()
+    // succeeds are not caught by the surrounding try/catch unless a listener
+    // is attached. Without this listener, a socket reset/timeout can crash Node.
+    client.on("error", (err) => {
+      console.error(
+        `❌ IMAP client error (${err.code || "UNKNOWN"}): ${err.message}`
+      );
+    });
+
     await client.connect();
     await handleNewMessages(client);
   } catch (err) {
-    console.error('❌ IMAP check failed:', err);
+    console.error(
+      `❌ IMAP check failed (${err.code || "UNKNOWN"}):`,
+      err.message || err
+    );
   } finally {
-    try {
-      await client.logout();
-    } catch {}
+    if (client) {
+      try {
+        await client.logout();
+      } catch {
+        // The connection may already be closed after a network error.
+      }
+    }
+    isChecking = false;
   }
 }
 
 function startImapPoller() {
   const schedule = process.env.IMAP_POLL_CRON || '*/3 * * * *';
   console.log('⏰ IMAP poller scheduled:', schedule);
-  checkNow();
+  void checkNow();
   cron.schedule(schedule, () => {
-    checkNow();
+    void checkNow();
   });
 }
 
